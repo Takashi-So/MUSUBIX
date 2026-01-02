@@ -44,3 +44,6 @@ storage/archive/*
 storage/changes/*
 !storage/archive/.gitkeep
 !storage/changes/.gitkeep
+
+# Reference repositories
+References/
