@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.10] - 2026-01-03
+
+### Added
+- **EARS検証器**: "shall not" パターンのサポート（unwanted behavior）
+- **ArtifactStatus拡張**: `approved`, `implemented`, `verified` ステータス追加
+- **トレーサビリティ**: 全体カバレッジ（weighted average）の計算
+
+### Changed
+- **EARS検証器**: パターン順序を最適化（特定パターンを汎用パターンより先に評価）
+- **信頼度計算**: パターン固有のボーナス値を追加
+  - event-driven/state-driven: +0.25
+  - unwanted/optional: +0.20
+  - complex: +0.30
+  - ubiquitous: +0.00
+- **パフォーマンス最適化**:
+  - EARS検証器: 早期終了（高信頼度≥0.85でマッチ時に即座に返却）
+  - EARS検証器: "shall"キーワードの事前チェック
+  - トレーサビリティ: リンクインデックス（O(1)検索）
+
+### Fixed
+- EARS検証器: すべてのパターンが"ubiquitous"として検出される問題
+- トレーサビリティ: `coverage.overall`が`undefined`になる問題
+- CLIテスト: requirementsサブコマンド数の期待値を4から5に修正
+
+### Tests
+- EARS検証器テスト: 正しいパターン検出を期待するように更新
+- 全262テスト合格
+
+---
+
 ## [1.0.1] - 2026-01-03
 
 ### Added

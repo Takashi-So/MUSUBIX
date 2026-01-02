@@ -8,12 +8,13 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.0.0 |
+| **バージョン** | 1.0.10 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
+| **テスト数** | 262 (全合格) |
 
 ---
 
@@ -281,6 +282,6 @@ npm run clean
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-02
-**Version**: 1.0.0
+**Last Updated**: 2026-01-03
+**Version**: 1.0.10
 **Repository**: https://github.com/nahisaho/MUSUBIX
