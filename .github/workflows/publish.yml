@@ -1,0 +1,74 @@
+# MUSUBIX npm Publish Workflow
+# Publishes packages to npm when a release is created or manually triggered
+
+name: Publish to npm
+
+on:
+  # Trigger on release creation
+  release:
+    types: [published]
+  
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (skip actual publish)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write  # Required for npm provenance
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Verify packages (dry-run)
+        run: |
+          echo "📦 Verifying packages..."
+          cd packages/core && npm pack --dry-run
+          cd ../mcp-server && npm pack --dry-run
+          cd ../yata-client && npm pack --dry-run
+
+      - name: Publish to npm
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: npm publish --access public --workspaces --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish summary
+        run: |
+          echo "## 🎉 Publish Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Published Packages" >> $GITHUB_STEP_SUMMARY
+          echo "- @musubix/core" >> $GITHUB_STEP_SUMMARY
+          echo "- @musubix/mcp-server" >> $GITHUB_STEP_SUMMARY
+          echo "- @musubix/yata-client" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version**: $(node -p "require('./package.json').version")" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+            echo "**Mode**: Dry Run (not published)" >> $GITHUB_STEP_SUMMARY
+          fi

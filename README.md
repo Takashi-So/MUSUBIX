@@ -1,10 +1,10 @@
 # MUSUBIX - Neuro-Symbolic AI Integration System
 
+[![CI](https://github.com/nahisaho/MUSUBIX/actions/workflows/ci.yml/badge.svg)](https://github.com/nahisaho/MUSUBIX/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@musubix/core.svg)](https://www.npmjs.com/package/@musubix/core)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
-[![Tests](https://img.shields.io/badge/tests-16%20passed-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 
