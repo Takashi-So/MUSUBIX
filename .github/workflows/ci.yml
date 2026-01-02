@@ -9,9 +9,15 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Cancel in-progress runs when a new workflow with the same ref is triggered
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     
     strategy:
       matrix:

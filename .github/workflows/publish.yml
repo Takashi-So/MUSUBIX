@@ -17,9 +17,15 @@ on:
         default: 'false'
         type: boolean
 
+# Prevent concurrent publishes
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     
     permissions:
       contents: read
