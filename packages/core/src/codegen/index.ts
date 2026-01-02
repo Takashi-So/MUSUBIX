@@ -1,0 +1,138 @@
+/**
+ * Code Generation Module
+ * 
+ * Exports all code generation, testing, and quality analysis components
+ * 
+ * @packageDocumentation
+ * @module codegen
+ */
+
+// Code Generator
+export {
+  CodeGenerator,
+  createCodeGenerator,
+  type TargetLanguage,
+  type TemplateType,
+  type CodeStructureDefinition,
+  type PropertyDefinition,
+  type MethodDefinition,
+  type GeneratedCode,
+  type CodeGeneratorOptions,
+} from './generator.js';
+
+// Static Analyzer
+export {
+  StaticAnalyzer,
+  createStaticAnalyzer,
+  type IssueSeverity,
+  type IssueCategory,
+  type AnalysisRule,
+  type AnalysisResult,
+  type StaticAnalyzerConfig,
+} from './static-analyzer.js';
+
+// Quality Metrics Calculator
+export {
+  QualityMetricsCalculator,
+  createQualityMetricsCalculator,
+  type MetricType,
+  type FileMetrics,
+  type FunctionMetrics,
+  type ClassMetrics,
+  type ProjectMetrics,
+  type QualityMetricsConfig,
+} from './quality-metrics.js';
+
+// Security Scanner
+export {
+  SecurityScanner,
+  createSecurityScanner,
+  type VulnerabilitySeverity,
+  type VulnerabilityCategory,
+  type SecurityVulnerability,
+  type SecurityScanResult,
+  type SecurityRule,
+  type SecurityScannerConfig,
+} from './security-scanner.js';
+
+// Pattern Conformance Checker
+export {
+  PatternConformanceChecker,
+  createPatternConformanceChecker,
+  type ConformanceLevel,
+  type PatternConformanceResult,
+  type ConformanceElement,
+  type ConformanceViolation,
+  type PatternSpecification,
+  type ParticipantSpec,
+  type RelationshipSpec,
+  type PatternConformanceConfig,
+} from './pattern-conformance.js';
+
+// Dependency Analyzer
+export {
+  DependencyAnalyzer,
+  createDependencyAnalyzer,
+  type DependencyType,
+  type DependencyStrength,
+  type ModuleType,
+  type DependencyInfo,
+  type ModuleInfo,
+  type ExportInfo,
+  type DependencyGraph,
+  type DependencyAnalysisResult,
+  type DependencyMetrics,
+  type DependencyIssue,
+  type DependencyAnalyzerConfig,
+} from './dependency-analyzer.js';
+
+// Unit Test Generator
+export {
+  UnitTestGenerator,
+  createUnitTestGenerator,
+  type TestFramework,
+  type AssertionStyle,
+  type TestTargetType,
+  type TestCaseInfo,
+  type TestInput,
+  type TestOutput,
+  type TestMock,
+  type TestSuiteInfo,
+  type FunctionToTest,
+  type GeneratedTestResult,
+  type UnitTestGeneratorConfig,
+} from './unit-test-generator.js';
+
+// Integration Test Generator
+export {
+  IntegrationTestGenerator,
+  createIntegrationTestGenerator,
+  type IntegrationTestType,
+  type TestFixture,
+  type IntegrationTestScenario,
+  type TestStep,
+  type ExpectedOutcome,
+  type ApiEndpointInfo,
+  type ServiceInteractionInfo,
+  type IntegrationTestSuite,
+  type GeneratedIntegrationTest,
+  type IntegrationTestGeneratorConfig,
+} from './integration-test-generator.js';
+
+// Coverage Reporter
+export {
+  CoverageReporter,
+  createCoverageReporter,
+  type CoverageMetricType,
+  type ThresholdStatus,
+  type FileCoverage,
+  type CoverageMetric,
+  type BranchInfo,
+  type CoverageSummary,
+  type CoverageThreshold,
+  type CoverageReport,
+  type ThresholdResult,
+  type CoverageTrend,
+  type ReportFormat,
+  type CoverageReporterConfig,
+} from './coverage-reporter.js';

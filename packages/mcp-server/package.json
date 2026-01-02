@@ -1,0 +1,77 @@
+{
+  "name": "@musubix/mcp-server",
+  "version": "1.0.0",
+  "description": "MUSUBIX MCP Server - Model Context Protocol Server for AI Platforms",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./tools": {
+      "import": "./dist/tools/index.js",
+      "types": "./dist/tools/index.d.ts"
+    },
+    "./prompts": {
+      "import": "./dist/prompts/index.js",
+      "types": "./dist/prompts/index.d.ts"
+    },
+    "./resources": {
+      "import": "./dist/resources/index.js",
+      "types": "./dist/resources/index.d.ts"
+    },
+    "./transport": {
+      "import": "./dist/transport/index.js",
+      "types": "./dist/transport/index.d.ts"
+    }
+  },
+  "bin": {
+    "musubix-mcp": "./bin/musubix-mcp.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "test": "vitest run",
+    "test:unit": "vitest run --dir __tests__/unit",
+    "test:integration": "vitest run --dir __tests__/integration",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@musubix/core": ">=0.1.0"
+  },
+  "keywords": [
+    "musubix",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "claude",
+    "copilot",
+    "cursor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/mcp-server"
+  },
+  "homepage": "https://github.com/nahisaho/MUSUBIX/tree/main/packages/mcp-server",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}

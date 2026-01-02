@@ -1,0 +1,100 @@
+{
+  "name": "@musubix/core",
+  "version": "1.0.0",
+  "description": "MUSUBIX Core Library - Neuro-Symbolic Integration Engine",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./integrator": {
+      "import": "./dist/integrator/index.js",
+      "types": "./dist/integrator/index.d.ts"
+    },
+    "./requirements": {
+      "import": "./dist/requirements/index.js",
+      "types": "./dist/requirements/index.d.ts"
+    },
+    "./design": {
+      "import": "./dist/design/index.js",
+      "types": "./dist/design/index.d.ts"
+    },
+    "./codegen": {
+      "import": "./dist/codegen/index.js",
+      "types": "./dist/codegen/index.d.ts"
+    },
+    "./testing": {
+      "import": "./dist/testing/index.js",
+      "types": "./dist/testing/index.d.ts"
+    },
+    "./traceability": {
+      "import": "./dist/traceability/index.js",
+      "types": "./dist/traceability/index.d.ts"
+    },
+    "./explanation": {
+      "import": "./dist/explanation/index.js",
+      "types": "./dist/explanation/index.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts"
+    }
+  },
+  "bin": {
+    "musubix": "./bin/musubix.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "test": "vitest run",
+    "test:unit": "vitest run --dir __tests__/unit",
+    "test:integration": "vitest run --dir __tests__/integration",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@musubix/yata-client": ">=0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@musubix/yata-client": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "musubix",
+    "neuro-symbolic",
+    "ai",
+    "coding-assistant",
+    "requirements",
+    "design",
+    "codegen"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/nahisaho/MUSUBIX/tree/main/packages/core",
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}

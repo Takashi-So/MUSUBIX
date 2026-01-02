@@ -1,0 +1,55 @@
+{
+  "name": "musubix",
+  "version": "1.0.0",
+  "description": "Neuro-Symbolic AI Coding System - MUSUBI × YATA Integration",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "bin": {
+    "musubix": "./packages/core/bin/musubix.js",
+    "musubix-mcp": "./packages/mcp-server/bin/musubix-mcp.js"
+  },
+  "files": [
+    "packages/*/dist",
+    "packages/*/bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:unit": "npm run test:unit --workspaces --if-present",
+    "test:integration": "npm run test:integration --workspaces --if-present",
+    "lint": "eslint packages/*/src --ext .ts",
+    "lint:fix": "eslint packages/*/src --ext .ts --fix",
+    "clean": "npm run clean --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX.git"
+  },
+  "keywords": [
+    "ai",
+    "neuro-symbolic",
+    "coding-assistant",
+    "mcp",
+    "musubi",
+    "yata"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.55.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}
