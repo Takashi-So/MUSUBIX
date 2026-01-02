@@ -168,7 +168,7 @@ export function registerTestCommand(program: Command): void {
   // test generate
   test
     .command('generate <file>')
-    .description('Generate tests for source file')
+    .description('Generate tests for source file or requirements document')
     .option('-o, --output <file>', 'Output file')
     .option('-f, --framework <name>', 'Test framework', 'vitest')
     .option('-s, --style <style>', 'Test style (unit|integration|e2e)', 'unit')
@@ -182,8 +182,15 @@ export function registerTestCommand(program: Command): void {
         const framework = options.framework ?? 'vitest';
         const style = options.style ?? 'unit';
 
-        // Parse source file and generate tests
-        const tests = generateTestsForFile(filePath, content, framework, style);
+        // Check if this is an EARS requirements document
+        const isEarsDoc = content.includes('EARS') || content.includes('SHALL') || content.includes('REQ-');
+        
+        let tests: Array<{ content: string; testCount: number }>;
+        if (isEarsDoc) {
+          tests = generateTestsFromRequirements(filePath, content, framework, style);
+        } else {
+          tests = generateTestsForFile(filePath, content, framework, style);
+        }
 
         // Determine output path
         let outputPath: string;
@@ -192,7 +199,7 @@ export function registerTestCommand(program: Command): void {
         } else {
           const dir = dirname(filePath);
           const name = basename(filePath, extname(filePath));
-          const ext = framework === 'pytest' ? '.py' : extname(filePath);
+          const ext = framework === 'pytest' ? '.py' : '.ts';
           outputPath = resolve(dir, '__tests__', `${name}.test${ext}`);
         }
 
@@ -402,6 +409,204 @@ function generateTestsForFile(
     lines.push(template.close);
     testCount++;
   }
+
+  return [{ content: lines.join('\n'), testCount }];
+}
+
+/**
+ * Extract EARS requirements from content
+ */
+function extractEarsRequirements(content: string): Array<{
+  id: string;
+  pattern: string;
+  priority: string;
+  description: string;
+}> {
+  const requirements: Array<{ id: string; pattern: string; priority: string; description: string }> = [];
+  
+  // Match EARS requirements from table
+  // Format: | REQ-XX-001 | pattern | P0 | description |
+  const tableMatches = content.matchAll(/\|\s*(REQ-[\w-]+)\s*\|\s*(\w+)\s*\|\s*(P\d)\s*\|\s*([^|]+)\|/g);
+  for (const match of tableMatches) {
+    requirements.push({
+      id: match[1],
+      pattern: match[2].toLowerCase(),
+      priority: match[3],
+      description: match[4].trim(),
+    });
+  }
+  
+  // Also extract from detailed sections
+  // Format: ### REQ-XX-001 (Pattern - P0)
+  // > The system SHALL...
+  const detailMatches = content.matchAll(/###\s*(REQ-[\w-]+)(?:\s*\((\w+)(?:\s*-\s*(P\d))?\))?[\s\S]*?>\s*(.+?)(?=\n\n|\n###|$)/g);
+  for (const match of detailMatches) {
+    const existing = requirements.find(r => r.id === match[1]);
+    if (!existing) {
+      requirements.push({
+        id: match[1],
+        pattern: (match[2] || 'ubiquitous').toLowerCase(),
+        priority: match[3] || 'P1',
+        description: match[4].trim(),
+      });
+    }
+  }
+  
+  return requirements;
+}
+
+/**
+ * Generate tests from EARS requirements
+ */
+function generateTestsFromRequirements(
+  filePath: string,
+  content: string,
+  framework: string,
+  _style: string
+): Array<{ content: string; testCount: number }> {
+  const template = TEST_TEMPLATES[framework as keyof typeof TEST_TEMPLATES] || TEST_TEMPLATES.vitest;
+  const filename = basename(filePath, extname(filePath));
+  
+  const requirements = extractEarsRequirements(content);
+  
+  if (requirements.length === 0) {
+    return [{ content: `// No EARS requirements found in ${filename}`, testCount: 0 }];
+  }
+
+  const lines: string[] = [];
+  let testCount = 0;
+
+  // Header
+  lines.push(template.header(filename));
+  lines.push('');
+  lines.push(`/**`);
+  lines.push(` * EARS Requirements Test Suite`);
+  lines.push(` * Generated from: ${basename(filePath)}`);
+  lines.push(` * Total Requirements: ${requirements.length}`);
+  lines.push(` */`);
+  lines.push('');
+
+  // Group requirements by pattern
+  const byPattern: Record<string, typeof requirements> = {};
+  for (const req of requirements) {
+    if (!byPattern[req.pattern]) {
+      byPattern[req.pattern] = [];
+    }
+    byPattern[req.pattern].push(req);
+  }
+
+  // Generate tests for each pattern type
+  for (const [pattern, reqs] of Object.entries(byPattern)) {
+    const patternName = pattern.charAt(0).toUpperCase() + pattern.slice(1);
+    lines.push(template.describe(`${patternName} Requirements`));
+    lines.push('');
+
+    for (const req of reqs) {
+      // Extract key verbs and objects from description
+      const descShort = req.description.length > 60 
+        ? req.description.substring(0, 60) + '...' 
+        : req.description;
+      
+      lines.push(`  // ${req.id}: ${descShort}`);
+      lines.push(`  ${template.describe(req.id)}`);
+      
+      // Generate pattern-specific tests
+      switch (req.pattern) {
+        case 'ubiquitous':
+          // SHALL tests - always true requirements
+          lines.push(template.it(`should satisfy: ${req.id}`));
+          lines.push(`    // Requirement: ${req.description}`);
+          lines.push(`    // TODO: Implement test for ubiquitous requirement`);
+          lines.push(`    expect(true).toBe(true); // Placeholder`);
+          lines.push('    });');
+          testCount++;
+          break;
+          
+        case 'event-driven':
+          // WHEN tests - triggered by events
+          lines.push(template.it(`should respond when event triggers (${req.id})`));
+          lines.push(`    // Requirement: ${req.description}`);
+          lines.push(`    // Pattern: WHEN [trigger] THEN [response]`);
+          lines.push(`    // TODO: Implement event trigger and verify response`);
+          lines.push(`    const triggered = false; // Simulate event`);
+          lines.push(`    expect(triggered).toBe(false); // Should become true after implementation`);
+          lines.push('    });');
+          testCount++;
+          break;
+          
+        case 'state-driven':
+          // WHILE tests - state-based requirements
+          lines.push(template.it(`should maintain behavior while in state (${req.id})`));
+          lines.push(`    // Requirement: ${req.description}`);
+          lines.push(`    // Pattern: WHILE [state] MAINTAIN [behavior]`);
+          lines.push(`    // TODO: Set up state and verify behavior is maintained`);
+          lines.push(`    const state = 'active';`);
+          lines.push(`    expect(state).toBe('active'); // Verify state`);
+          lines.push('    });');
+          testCount++;
+          break;
+          
+        case 'unwanted':
+          // SHALL NOT tests - negative requirements
+          lines.push(template.it(`should NOT allow prohibited behavior (${req.id})`));
+          lines.push(`    // Requirement: ${req.description}`);
+          lines.push(`    // Pattern: SHALL NOT [prohibited behavior]`);
+          lines.push(`    // TODO: Attempt prohibited action and verify it's blocked`);
+          lines.push(`    const prohibited = () => { /* action */ };`);
+          lines.push(`    // expect(prohibited).toThrow(); // Should throw or return error`);
+          lines.push(`    expect(true).toBe(true); // Placeholder - implement actual check`);
+          lines.push('    });');
+          testCount++;
+          break;
+          
+        case 'optional':
+          // IF-THEN tests - conditional requirements
+          lines.push(template.it(`should conditionally execute (${req.id})`));
+          lines.push(`    // Requirement: ${req.description}`);
+          lines.push(`    // Pattern: IF [condition] THEN [action]`);
+          lines.push(`    // TODO: Test with condition true and false`);
+          lines.push(`    const condition = true;`);
+          lines.push(`    if (condition) {`);
+          lines.push(`      expect(true).toBe(true); // Action should occur`);
+          lines.push(`    }`);
+          lines.push('    });');
+          testCount++;
+          break;
+          
+        default:
+          lines.push(template.it(`should implement ${req.id}`));
+          lines.push(`    // Requirement: ${req.description}`);
+          lines.push(`    expect(true).toBe(true); // TODO: Implement`);
+          lines.push('    });');
+          testCount++;
+      }
+      
+      // Add priority-based test for P0 requirements
+      if (req.priority === 'P0') {
+        lines.push(template.it(`[P0 Critical] should be fully implemented (${req.id})`));
+        lines.push(`    // This is a P0 (critical) requirement - must be implemented`);
+        lines.push(`    // TODO: Add comprehensive test coverage`);
+        lines.push(`    expect(true).toBe(true); // Placeholder`);
+        lines.push('    });');
+        testCount++;
+      }
+      
+      lines.push('  });'); // Close inner describe
+      lines.push('');
+    }
+
+    lines.push(template.close); // Close pattern describe
+    lines.push('');
+  }
+
+  // Add traceability summary
+  lines.push('/**');
+  lines.push(' * Traceability Matrix');
+  lines.push(' * ');
+  for (const req of requirements) {
+    lines.push(` * ${req.id} -> TST-${req.id.replace('REQ-', '')}`);
+  }
+  lines.push(' */');
 
   return [{ content: lines.join('\n'), testCount }];
 }

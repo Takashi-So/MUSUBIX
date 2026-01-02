@@ -479,51 +479,152 @@ export function registerDesignCommand(program: Command): void {
 function generateC4Model(content: string, level: C4Level): C4Model {
   const elements: C4Element[] = [];
   const relationships: C4Relationship[] = [];
-
-  // Extract entities from content
-  const systemMatches = content.match(/\b(?:system|service|application|component|module)\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
-  const actorMatches = content.match(/\b(?:user|admin|client|actor)\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
-
   const seenIds = new Set<string>();
 
-  for (const match of actorMatches) {
-    const name = match.split(/\s+/).pop()?.replace(/["']/g, '') || 'Unknown';
-    const id = `person-${name.toLowerCase()}`;
-    if (!seenIds.has(id)) {
-      seenIds.add(id);
+  // Check if this is an EARS requirements document
+  const isEarsDoc = content.includes('EARS') || content.includes('SHALL') || content.includes('REQ-');
+
+  if (isEarsDoc) {
+    // Extract components from EARS requirements
+    const contentLower = content.toLowerCase();
+    
+    // Add user/actor if mentioned
+    if (contentLower.includes('user') || contentLower.includes('ユーザー')) {
       elements.push({
-        id,
-        name,
-        description: `${name} user/actor`,
+        id: 'user',
+        name: 'User',
+        description: 'System user who interacts with the application',
         type: 'person',
       });
     }
-  }
+    
+    // Infer system components from EARS requirements
+    const componentInferences = [
+      { keywords: ['task', 'タスク'], name: 'TaskService', desc: 'Manages task lifecycle and operations' },
+      { keywords: ['notification', 'notify', 'alert', '通知'], name: 'NotificationService', desc: 'Handles user notifications and alerts' },
+      { keywords: ['persist', 'store', 'save', 'storage', '保存', '永続'], name: 'DataRepository', desc: 'Handles data persistence and storage' },
+      { keywords: ['authenticate', 'auth', 'login', '認証'], name: 'AuthService', desc: 'Manages authentication and authorization' },
+      { keywords: ['priority', '優先'], name: 'PriorityManager', desc: 'Manages item prioritization' },
+      { keywords: ['deadline', 'schedule', '期限', 'スケジュール'], name: 'ScheduleService', desc: 'Manages scheduling and deadlines' },
+      { keywords: ['archive', 'アーカイブ'], name: 'ArchiveService', desc: 'Handles completed item archiving' },
+      { keywords: ['validation', 'validate', 'confirm', '確認'], name: 'ValidationService', desc: 'Validates user input and actions' },
+    ];
 
-  for (const match of systemMatches) {
-    const words = match.split(/\s+/);
-    const type = words[0].toLowerCase();
-    const name = words.pop()?.replace(/["']/g, '') || 'Unknown';
-    const id = `${type}-${name.toLowerCase()}`;
-    if (!seenIds.has(id)) {
-      seenIds.add(id);
+    for (const inference of componentInferences) {
+      if (inference.keywords.some(kw => contentLower.includes(kw))) {
+        const id = inference.name.toLowerCase().replace(/service|manager|repository/gi, '');
+        if (!seenIds.has(id)) {
+          seenIds.add(id);
+          elements.push({
+            id,
+            name: inference.name,
+            description: inference.desc,
+            type: level === 'context' ? 'software_system' : level === 'container' ? 'container' : 'component',
+            technology: 'TypeScript',
+          });
+        }
+      }
+    }
+
+    // If no specific components found, create a generic main service
+    if (elements.filter(e => e.type !== 'person').length === 0) {
       elements.push({
-        id,
-        name,
-        description: `${name} ${type}`,
-        type: level === 'context' ? 'software_system' : level === 'container' ? 'container' : 'component',
+        id: 'main-service',
+        name: 'MainService',
+        description: 'Core application service',
+        type: level === 'context' ? 'software_system' : 'component',
+        technology: 'TypeScript',
       });
     }
-  }
 
-  // Generate relationships
-  const elementIds = elements.map(e => e.id);
-  for (let i = 0; i < elementIds.length - 1; i++) {
-    relationships.push({
-      source: elementIds[i],
-      target: elementIds[i + 1],
-      description: 'interacts with',
-    });
+    // Generate relationships based on common patterns
+    const persons = elements.filter(e => e.type === 'person');
+    const services = elements.filter(e => e.type !== 'person');
+
+    // Users interact with services
+    for (const person of persons) {
+      for (const service of services) {
+        if (service.name.includes('Service') || service.name.includes('Manager')) {
+          relationships.push({
+            source: person.id,
+            target: service.id,
+            description: 'uses',
+          });
+        }
+      }
+    }
+
+    // Services interact with repository
+    const repository = services.find(s => s.name.includes('Repository'));
+    if (repository) {
+      for (const service of services) {
+        if (service.id !== repository.id && !service.name.includes('Notification')) {
+          relationships.push({
+            source: service.id,
+            target: repository.id,
+            description: 'stores data in',
+          });
+        }
+      }
+    }
+
+    // Notification service receives events from other services
+    const notificationService = services.find(s => s.name.includes('Notification'));
+    if (notificationService) {
+      for (const service of services) {
+        if (service.id !== notificationService.id && service.name.includes('Service')) {
+          relationships.push({
+            source: service.id,
+            target: notificationService.id,
+            description: 'sends notifications via',
+          });
+        }
+      }
+    }
+  } else {
+    // Original logic for non-EARS documents
+    const systemMatches = content.match(/\b(?:system|service|application|component|module)\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
+    const actorMatches = content.match(/\b(?:user|admin|client|actor)\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
+
+    for (const match of actorMatches) {
+      const name = match.split(/\s+/).pop()?.replace(/["']/g, '') || 'Unknown';
+      const id = `person-${name.toLowerCase()}`;
+      if (!seenIds.has(id)) {
+        seenIds.add(id);
+        elements.push({
+          id,
+          name,
+          description: `${name} user/actor`,
+          type: 'person',
+        });
+      }
+    }
+
+    for (const match of systemMatches) {
+      const words = match.split(/\s+/);
+      const type = words[0].toLowerCase();
+      const name = words.pop()?.replace(/["']/g, '') || 'Unknown';
+      const id = `${type}-${name.toLowerCase()}`;
+      if (!seenIds.has(id)) {
+        seenIds.add(id);
+        elements.push({
+          id,
+          name,
+          description: `${name} ${type}`,
+          type: level === 'context' ? 'software_system' : level === 'container' ? 'container' : 'component',
+        });
+      }
+    }
+
+    // Generate relationships for non-EARS documents
+    const elementIds = elements.map(e => e.id);
+    for (let i = 0; i < elementIds.length - 1; i++) {
+      relationships.push({
+        source: elementIds[i],
+        target: elementIds[i + 1],
+        description: 'interacts with',
+      });
+    }
   }
 
   return {

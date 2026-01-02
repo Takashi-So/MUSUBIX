@@ -314,20 +314,59 @@ async function collectArtifacts(specsDir: string, srcDir: string): Promise<Matri
 
       const content = await readFile(join(specsDir, file), 'utf-8');
 
-      // Extract requirement IDs
-      const reqMatches = content.match(ID_PATTERNS.requirement) || [];
-      for (const id of reqMatches) {
+      // Extract requirement IDs from EARS table format
+      // | REQ-XX-001 | pattern | P0 | description |
+      const tableMatches = content.matchAll(/\|\s*(REQ-[\w-]+)\s*\|\s*\w+\s*\|\s*P\d\s*\|\s*([^|]+)\|/g);
+      for (const match of tableMatches) {
+        const id = match[1];
+        const description = match[2].trim();
+        
         if (seenIds.has(id)) continue;
         seenIds.add(id);
-
-        // Extract description
-        const descRegex = new RegExp(`${id}[^\\n]*\\n([^\\n]+)`, 'i');
-        const descMatch = content.match(descRegex);
 
         entries.push({
           id,
           type: 'requirement',
-          description: descMatch?.[1]?.trim() || 'No description',
+          description: description.length > 80 ? description.substring(0, 80) + '...' : description,
+          links: [],
+          coverage: { design: false, implementation: false, test: false },
+        });
+      }
+
+      // Also extract from detailed sections: ### REQ-XX-001 (Pattern - P0)
+      // > The system SHALL...
+      const detailMatches = content.matchAll(/###\s*(REQ-[\w-]+)[\s\S]*?>\s*([^\n]+)/g);
+      for (const match of detailMatches) {
+        const id = match[1];
+        const description = match[2].trim();
+        
+        if (seenIds.has(id)) continue;
+        seenIds.add(id);
+
+        entries.push({
+          id,
+          type: 'requirement',
+          description: description.length > 80 ? description.substring(0, 80) + '...' : description,
+          links: [],
+          coverage: { design: false, implementation: false, test: false },
+        });
+      }
+
+      // Fallback: simple pattern matching for REQ-*
+      const simpleReqMatches = content.match(ID_PATTERNS.requirement) || [];
+      for (const id of simpleReqMatches) {
+        if (seenIds.has(id)) continue;
+        seenIds.add(id);
+
+        // Try to extract description from surrounding context
+        const contextRegex = new RegExp(`${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^|\\n]*(?:\\|\\s*([^|\\n]+))?`, 'i');
+        const contextMatch = content.match(contextRegex);
+        const description = contextMatch?.[1]?.trim() || 'Requirement';
+
+        entries.push({
+          id,
+          type: 'requirement',
+          description,
           links: [],
           coverage: { design: false, implementation: false, test: false },
         });

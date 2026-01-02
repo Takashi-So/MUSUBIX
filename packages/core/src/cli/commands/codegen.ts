@@ -431,6 +431,118 @@ export function registerCodegenCommand(program: Command): void {
 }
 
 /**
+ * Extract EARS requirements from content
+ */
+function extractEarsRequirements(content: string): Array<{
+  id: string;
+  pattern: string;
+  priority: string;
+  description: string;
+}> {
+  const requirements: Array<{ id: string; pattern: string; priority: string; description: string }> = [];
+  
+  // Match EARS requirements from table or detailed sections
+  // Format: | REQ-XX-001 | pattern | P0 | description |
+  const tableMatches = content.matchAll(/\|\s*(REQ-[\w-]+)\s*\|\s*(\w+)\s*\|\s*(P\d)\s*\|\s*([^|]+)\|/g);
+  for (const match of tableMatches) {
+    requirements.push({
+      id: match[1],
+      pattern: match[2].toLowerCase(),
+      priority: match[3],
+      description: match[4].trim(),
+    });
+  }
+  
+  // Also extract from detailed sections
+  // Format: ### REQ-XX-001 (Pattern - P0)
+  // > The system SHALL...
+  const detailMatches = content.matchAll(/###\s*(REQ-[\w-]+)\s*\((\w+)\s*-\s*(P\d)\)\s*\n+>\s*(.+?)(?=\n\n|\n###|$)/gs);
+  for (const match of detailMatches) {
+    const existing = requirements.find(r => r.id === match[1]);
+    if (!existing) {
+      requirements.push({
+        id: match[1],
+        pattern: match[2].toLowerCase(),
+        priority: match[3],
+        description: match[4].trim(),
+      });
+    }
+  }
+  
+  return requirements;
+}
+
+/**
+ * Infer components from EARS requirements
+ */
+function inferComponentsFromRequirements(
+  requirements: Array<{ id: string; pattern: string; priority: string; description: string }>
+): Array<{ name: string; type: 'service' | 'repository' | 'controller' | 'model'; requirements: string[] }> {
+  const components: Map<string, { name: string; type: 'service' | 'repository' | 'controller' | 'model'; requirements: string[] }> = new Map();
+  
+  for (const req of requirements) {
+    const desc = req.description.toLowerCase();
+    
+    // Infer component types from requirement patterns
+    if (desc.includes('persist') || desc.includes('store') || desc.includes('save') || desc.includes('storage')) {
+      const name = 'DataRepository';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'repository', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('create') || desc.includes('update') || desc.includes('delete') || desc.includes('manage')) {
+      // Extract entity name
+      const entityMatch = desc.match(/(?:create|update|delete|manage)\s+(\w+)/i);
+      const entityName = entityMatch ? toPascalCase(entityMatch[1]) : 'Entity';
+      const serviceName = `${entityName}Service`;
+      if (!components.has(serviceName)) {
+        components.set(serviceName, { name: serviceName, type: 'service', requirements: [] });
+      }
+      components.get(serviceName)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('notification') || desc.includes('notify') || desc.includes('alert')) {
+      const name = 'NotificationService';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'service', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('user') || desc.includes('confirmation') || desc.includes('display')) {
+      const name = 'UserInterface';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'controller', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('task') || desc.includes('item') || desc.includes('data') || desc.includes('entity')) {
+      const entityMatch = desc.match(/\b(task|item|user|product|order)\b/i);
+      const entityName = entityMatch ? toPascalCase(entityMatch[1]) : 'Entity';
+      const modelName = `${entityName}Model`;
+      if (!components.has(modelName)) {
+        components.set(modelName, { name: modelName, type: 'model', requirements: [] });
+      }
+      components.get(modelName)!.requirements.push(req.id);
+    }
+  }
+  
+  // If no components were inferred, create a default service
+  if (components.size === 0 && requirements.length > 0) {
+    components.set('MainService', {
+      name: 'MainService',
+      type: 'service',
+      requirements: requirements.map(r => r.id),
+    });
+  }
+  
+  return Array.from(components.values());
+}
+
+/**
  * Generate code from design
  */
 function generateCodeFromDesign(content: string, options: CodegenOptions): GeneratedCode[] {
@@ -438,35 +550,56 @@ function generateCodeFromDesign(content: string, options: CodegenOptions): Gener
   const language = options.language ?? 'typescript';
   const ext = language === 'typescript' ? '.ts' : language === 'javascript' ? '.js' : '.py';
 
-  // Extract components from design
-  const componentMatches = content.match(/component\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
-  const classMatches = content.match(/class\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
-  const interfaceMatches = content.match(/interface\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
+  // Check if this is an EARS requirements document
+  const isEarsDoc = content.includes('EARS') || content.includes('SHALL') || content.includes('REQ-');
+  
+  if (isEarsDoc) {
+    // Extract and process EARS requirements
+    const requirements = extractEarsRequirements(content);
+    const components = inferComponentsFromRequirements(requirements);
+    
+    for (const component of components) {
+      const code = generateComponentCodeFromRequirements(component, language, requirements);
+      files.push({
+        filename: `${toKebabCase(component.name)}${ext}`,
+        language,
+        content: code,
+        metadata: {
+          requirements: component.requirements,
+          designElements: [],
+          patterns: component.type === 'repository' ? ['Repository'] : component.type === 'service' ? ['Service'] : [],
+        },
+      });
+    }
+  } else {
+    // Original logic for design documents
+    const componentMatches = content.match(/component\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
+    const classMatches = content.match(/class\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
+    const interfaceMatches = content.match(/interface\s+["']?([A-Za-z0-9_-]+)["']?/gi) || [];
 
-  // Extract requirement references
-  const reqMatches = content.match(/REQ-[A-Z]+-\d+/g) || [];
-  const desMatches = content.match(/DES-[A-Z]+-\d+/g) || [];
+    const reqMatches = content.match(/REQ-[A-Z]+-\d+/g) || [];
+    const desMatches = content.match(/DES-[A-Z]+-\d+/g) || [];
 
-  // Generate files for components
-  const seen = new Set<string>();
-  const allMatches = [...componentMatches, ...classMatches, ...interfaceMatches];
+    const seen = new Set<string>();
+    const allMatches = [...componentMatches, ...classMatches, ...interfaceMatches];
 
-  for (const match of allMatches) {
-    const name = match.split(/\s+/).pop()?.replace(/["']/g, '') || 'Unknown';
-    if (seen.has(name)) continue;
-    seen.add(name);
+    for (const match of allMatches) {
+      const name = match.split(/\s+/).pop()?.replace(/["']/g, '') || 'Unknown';
+      if (seen.has(name)) continue;
+      seen.add(name);
 
-    const code = generateComponentCode(name, language);
-    files.push({
-      filename: `${toKebabCase(name)}${ext}`,
-      language,
-      content: code,
-      metadata: {
-        requirements: reqMatches.slice(0, 5),
-        designElements: desMatches.slice(0, 5),
-        patterns: [],
-      },
-    });
+      const code = generateComponentCode(name, language);
+      files.push({
+        filename: `${toKebabCase(name)}${ext}`,
+        language,
+        content: code,
+        metadata: {
+          requirements: reqMatches.slice(0, 5),
+          designElements: desMatches.slice(0, 5),
+          patterns: [],
+        },
+      });
+    }
   }
 
   // Generate index file
@@ -491,6 +624,259 @@ function generateCodeFromDesign(content: string, options: CodegenOptions): Gener
   }
 
   return files;
+}
+
+/**
+ * Generate component code from EARS requirements
+ */
+function generateComponentCodeFromRequirements(
+  component: { name: string; type: 'service' | 'repository' | 'controller' | 'model'; requirements: string[] },
+  language: string,
+  allRequirements: Array<{ id: string; pattern: string; priority: string; description: string }>
+): string {
+  const className = component.name;
+  const relatedReqs = allRequirements.filter(r => component.requirements.includes(r.id));
+  const reqComments = relatedReqs.map(r => ` * @see ${r.id} - ${r.description.substring(0, 60)}...`).join('\n');
+
+  if (language === 'typescript') {
+    if (component.type === 'model') {
+      return `/**
+ * ${className}
+ *
+ * @generated by MUSUBIX from EARS requirements
+ * @module ${toKebabCase(className)}
+ *
+${reqComments}
+ */
+
+/**
+ * ${className} interface
+ */
+export interface I${className} {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * ${className} implementation
+ */
+export class ${className} implements I${className} {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+
+  constructor(data?: Partial<I${className}>) {
+    this.id = data?.id ?? crypto.randomUUID();
+    this.createdAt = data?.createdAt ?? new Date();
+    this.updatedAt = data?.updatedAt ?? new Date();
+  }
+
+  /**
+   * Update the model
+   */
+  update(data: Partial<I${className}>): void {
+    Object.assign(this, data);
+    this.updatedAt = new Date();
+  }
+
+  /**
+   * Convert to plain object
+   */
+  toJSON(): I${className} {
+    return {
+      id: this.id,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
+}
+`;
+    }
+
+    if (component.type === 'repository') {
+      return `/**
+ * ${className}
+ *
+ * @generated by MUSUBIX from EARS requirements
+ * @module ${toKebabCase(className)}
+ *
+${reqComments}
+ */
+
+/**
+ * ${className} interface
+ */
+export interface I${className}<T> {
+  findAll(): Promise<T[]>;
+  findById(id: string): Promise<T | null>;
+  save(entity: T): Promise<T>;
+  delete(id: string): Promise<boolean>;
+}
+
+/**
+ * ${className} implementation
+ * @implements REQ: persist, store, save, storage
+ */
+export class ${className}<T extends { id: string }> implements I${className}<T> {
+  private storage: Map<string, T> = new Map();
+
+  async findAll(): Promise<T[]> {
+    return Array.from(this.storage.values());
+  }
+
+  async findById(id: string): Promise<T | null> {
+    return this.storage.get(id) ?? null;
+  }
+
+  async save(entity: T): Promise<T> {
+    this.storage.set(entity.id, entity);
+    return entity;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    return this.storage.delete(id);
+  }
+
+  /**
+   * Clear all data
+   */
+  async clear(): Promise<void> {
+    this.storage.clear();
+  }
+}
+
+/**
+ * Create a singleton repository instance
+ */
+let instance: ${className}<unknown> | null = null;
+export function get${className}<T extends { id: string }>(): ${className}<T> {
+  if (!instance) {
+    instance = new ${className}<T>();
+  }
+  return instance as ${className}<T>;
+}
+`;
+    }
+
+    if (component.type === 'controller') {
+      return `/**
+ * ${className}
+ *
+ * @generated by MUSUBIX from EARS requirements
+ * @module ${toKebabCase(className)}
+ *
+${reqComments}
+ */
+
+/**
+ * ${className} interface
+ */
+export interface I${className} {
+  display(message: string): void;
+  confirm(message: string): Promise<boolean>;
+  notify(title: string, body: string): void;
+}
+
+/**
+ * ${className} implementation
+ * @implements REQ: user, confirmation, display
+ */
+export class ${className} implements I${className} {
+  /**
+   * Display a message to the user
+   */
+  display(message: string): void {
+    console.log(message);
+  }
+
+  /**
+   * Request user confirmation
+   * @implements Article VI - SHALL NOT allow without confirmation
+   */
+  async confirm(message: string): Promise<boolean> {
+    // In a real implementation, this would show a dialog
+    console.log(\`Confirmation required: \${message}\`);
+    return true;
+  }
+
+  /**
+   * Show a notification
+   * @implements REQ: notification, notify, alert
+   */
+  notify(title: string, body: string): void {
+    console.log(\`[Notification] \${title}: \${body}\`);
+  }
+}
+
+/**
+ * Create UserInterface instance
+ */
+export function create${className}(): ${className} {
+  return new ${className}();
+}
+`;
+    }
+
+    // Default: Service
+    return `/**
+ * ${className}
+ *
+ * @generated by MUSUBIX from EARS requirements
+ * @module ${toKebabCase(className)}
+ *
+${reqComments}
+ */
+
+/**
+ * ${className} interface
+ */
+export interface I${className} {
+  initialize(): Promise<void>;
+  execute(): Promise<void>;
+  dispose(): Promise<void>;
+}
+
+/**
+ * ${className} implementation
+ */
+export class ${className} implements I${className} {
+  private initialized = false;
+
+  constructor() {
+    // Initialize
+  }
+
+  async initialize(): Promise<void> {
+    if (this.initialized) return;
+    // TODO: Add initialization logic
+    this.initialized = true;
+  }
+
+  async execute(): Promise<void> {
+    if (!this.initialized) {
+      await this.initialize();
+    }
+    // TODO: Add execution logic
+  }
+
+  async dispose(): Promise<void> {
+    // TODO: Add cleanup logic
+    this.initialized = false;
+  }
+}
+
+/**
+ * Create ${className} instance
+ */
+export function create${className}(): ${className} {
+  return new ${className}();
+}
+`;
+  }
+
+  // JavaScript default
+  return generateComponentCode(className, language);
 }
 
 /**
