@@ -443,7 +443,7 @@ function extractEarsRequirements(content: string): Array<{
   
   // Match EARS requirements from table or detailed sections
   // Format: | REQ-XX-001 | pattern | P0 | description |
-  const tableMatches = content.matchAll(/\|\s*(REQ-[\w-]+)\s*\|\s*(\w+)\s*\|\s*(P\d)\s*\|\s*([^|]+)\|/g);
+  const tableMatches = content.matchAll(/\|\s*(REQ-[\w-]+)\s*\|\s*([\w-]+)\s*\|\s*(P\d)\s*\|\s*([^|]+)\|/g);
   for (const match of tableMatches) {
     requirements.push({
       id: match[1],
@@ -501,6 +501,55 @@ function inferComponentsFromRequirements(
         components.set(serviceName, { name: serviceName, type: 'service', requirements: [] });
       }
       components.get(serviceName)!.requirements.push(req.id);
+    }
+    
+    // Shopping/E-commerce specific components
+    if (desc.includes('cart') || desc.includes('カート')) {
+      const name = 'CartService';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'service', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('product') || desc.includes('catalog') || desc.includes('商品')) {
+      const name = 'ProductCatalogService';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'service', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('checkout') || desc.includes('購入') || desc.includes('決済')) {
+      const name = 'CheckoutService';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'service', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('price') || desc.includes('total') || desc.includes('tax') || desc.includes('価格') || desc.includes('計算')) {
+      const name = 'PricingService';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'service', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('stock') || desc.includes('inventory') || desc.includes('在庫')) {
+      const name = 'InventoryService';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'service', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
+    }
+    
+    if (desc.includes('coupon') || desc.includes('discount') || desc.includes('割引')) {
+      const name = 'DiscountService';
+      if (!components.has(name)) {
+        components.set(name, { name, type: 'service', requirements: [] });
+      }
+      components.get(name)!.requirements.push(req.id);
     }
     
     if (desc.includes('notification') || desc.includes('notify') || desc.includes('alert')) {

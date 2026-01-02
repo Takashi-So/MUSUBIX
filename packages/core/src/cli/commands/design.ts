@@ -508,6 +508,15 @@ function generateC4Model(content: string, level: C4Level): C4Model {
       { keywords: ['deadline', 'schedule', '期限', 'スケジュール'], name: 'ScheduleService', desc: 'Manages scheduling and deadlines' },
       { keywords: ['archive', 'アーカイブ'], name: 'ArchiveService', desc: 'Handles completed item archiving' },
       { keywords: ['validation', 'validate', 'confirm', '確認'], name: 'ValidationService', desc: 'Validates user input and actions' },
+      // Shopping/E-commerce components
+      { keywords: ['cart', 'カート'], name: 'CartService', desc: 'Manages shopping cart operations' },
+      { keywords: ['product', 'catalog', '商品', 'カタログ'], name: 'ProductCatalogService', desc: 'Manages product catalog and display' },
+      { keywords: ['checkout', '購入', '決済'], name: 'CheckoutService', desc: 'Handles checkout and order processing' },
+      { keywords: ['price', 'total', 'tax', '価格', '計算'], name: 'PricingService', desc: 'Calculates prices, taxes, and totals' },
+      { keywords: ['stock', 'inventory', '在庫'], name: 'InventoryService', desc: 'Manages product inventory and stock levels' },
+      { keywords: ['coupon', 'discount', '割引', 'クーポン'], name: 'DiscountService', desc: 'Handles coupons and discount codes' },
+      { keywords: ['order', '注文'], name: 'OrderService', desc: 'Manages customer orders' },
+      { keywords: ['payment', '支払'], name: 'PaymentService', desc: 'Processes payments' },
     ];
 
     for (const inference of componentInferences) {

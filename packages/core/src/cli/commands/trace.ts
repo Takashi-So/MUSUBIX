@@ -316,7 +316,7 @@ async function collectArtifacts(specsDir: string, srcDir: string): Promise<Matri
 
       // Extract requirement IDs from EARS table format
       // | REQ-XX-001 | pattern | P0 | description |
-      const tableMatches = content.matchAll(/\|\s*(REQ-[\w-]+)\s*\|\s*\w+\s*\|\s*P\d\s*\|\s*([^|]+)\|/g);
+      const tableMatches = content.matchAll(/\|\s*(REQ-[\w-]+)\s*\|\s*[\w-]+\s*\|\s*P\d\s*\|\s*([^|]+)\|/g);
       for (const match of tableMatches) {
         const id = match[1];
         const description = match[2].trim();
