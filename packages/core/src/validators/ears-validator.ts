@@ -109,17 +109,12 @@ interface PatternDefinition {
 
 /**
  * Pattern definitions for EARS
+ * 
+ * IMPORTANT: Order matters! More specific patterns (with keywords like WHEN, WHILE, IF)
+ * must come BEFORE the generic ubiquitous pattern to ensure correct pattern matching.
  */
 const EARS_PATTERNS: PatternDefinition[] = [
-  {
-    type: 'ubiquitous',
-    regex: /^(?:the\s+)?(.+?)\s+shall\s+(.+)$/i,
-    extract: (match) => ({
-      system: match[1]?.trim(),
-      action: match[2]?.trim(),
-    }),
-    description: 'The <system> shall <action>',
-  },
+  // Event-driven: WHEN <trigger>, THE <system> SHALL <action>
   {
     type: 'event-driven',
     regex: /^when\s+(.+?),?\s+(?:the\s+)?(.+?)\s+shall\s+(.+)$/i,
@@ -130,6 +125,7 @@ const EARS_PATTERNS: PatternDefinition[] = [
     }),
     description: 'When <trigger>, the <system> shall <action>',
   },
+  // State-driven: WHILE <state>, THE <system> SHALL <action>
   {
     type: 'state-driven',
     regex: /^while\s+(.+?),?\s+(?:the\s+)?(.+?)\s+shall\s+(.+)$/i,
@@ -140,6 +136,17 @@ const EARS_PATTERNS: PatternDefinition[] = [
     }),
     description: 'While <state>, the <system> shall <action>',
   },
+  // Unwanted behavior (negation): THE <system> SHALL NOT <behavior>
+  {
+    type: 'unwanted',
+    regex: /^(?:the\s+)?(.+?)\s+shall\s+not\s+(.+)$/i,
+    extract: (match) => ({
+      system: match[1]?.trim(),
+      action: `not ${match[2]?.trim()}`,
+    }),
+    description: 'The <system> shall not <behavior>',
+  },
+  // Unwanted/Conditional: IF <condition>, THEN THE <system> SHALL <action>
   {
     type: 'unwanted',
     regex: /^if\s+(.+?),?\s+(?:then\s+)?(?:the\s+)?(.+?)\s+shall\s+(.+)$/i,
@@ -150,6 +157,7 @@ const EARS_PATTERNS: PatternDefinition[] = [
     }),
     description: 'If <condition>, then the <system> shall <action>',
   },
+  // Optional: WHERE <feature>, THE <system> SHALL <action>
   {
     type: 'optional',
     regex: /^where\s+(.+?),?\s+(?:the\s+)?(.+?)\s+shall\s+(.+)$/i,
@@ -159,6 +167,16 @@ const EARS_PATTERNS: PatternDefinition[] = [
       action: match[3]?.trim(),
     }),
     description: 'Where <feature>, the <system> shall <action>',
+  },
+  // Ubiquitous (generic - must be LAST): THE <system> SHALL <action>
+  {
+    type: 'ubiquitous',
+    regex: /^(?:the\s+)?(.+?)\s+shall\s+(.+)$/i,
+    extract: (match) => ({
+      system: match[1]?.trim(),
+      action: match[2]?.trim(),
+    }),
+    description: 'The <system> shall <action>',
   },
 ];
 
@@ -253,16 +271,40 @@ export class EARSValidator {
 
   /**
    * Match requirement against EARS patterns
+   * 
+   * Performance optimization: Uses early exit when a specific pattern
+   * matches with high confidence (>= 0.85). More specific patterns are
+   * checked first to ensure accurate pattern detection.
    */
   private matchPattern(text: string): EARSPatternMatch | null {
+    // Quick pre-check: if no "shall", skip pattern matching
+    const lowerText = text.toLowerCase();
+    if (!lowerText.includes('shall')) {
+      return null;
+    }
+
     let bestMatch: EARSPatternMatch | null = null;
     let bestConfidence = 0;
+
+    // Early exit threshold for specific patterns
+    const EARLY_EXIT_THRESHOLD = 0.85;
 
     for (const pattern of EARS_PATTERNS) {
       const match = text.match(pattern.regex);
       if (match) {
         const components = pattern.extract(match);
         const confidence = this.calculateConfidence(components, pattern.type);
+        
+        // Early exit: if we find a specific pattern with high confidence, return immediately
+        // This avoids checking the generic ubiquitous pattern when a specific pattern matches well
+        if (pattern.type !== 'ubiquitous' && confidence >= EARLY_EXIT_THRESHOLD) {
+          return {
+            type: pattern.type,
+            confidence,
+            components,
+            original: text,
+          };
+        }
         
         if (confidence > bestConfidence) {
           bestConfidence = confidence;
@@ -311,25 +353,50 @@ export class EARSValidator {
 
   /**
    * Calculate confidence score for pattern match
+   * 
+   * More specific patterns (event-driven, state-driven, etc.) get higher
+   * confidence than the generic ubiquitous pattern when they match.
    */
   private calculateConfidence(
     components: EARSComponents,
-    _type: EARSPatternType
+    type: EARSPatternType
   ): number {
     let confidence = 0.5; // Base confidence for pattern match
 
+    // Pattern specificity bonus - more specific patterns get higher confidence
+    const patternBonus: Record<EARSPatternType, number> = {
+      'event-driven': 0.25,   // Has trigger keyword (WHEN)
+      'state-driven': 0.25,   // Has state keyword (WHILE)
+      'unwanted': 0.20,       // Has condition keyword (IF)
+      'optional': 0.20,       // Has feature keyword (WHERE)
+      'complex': 0.30,        // Combined patterns
+      'ubiquitous': 0.0,      // Generic pattern - no bonus
+    };
+    confidence += patternBonus[type] || 0;
+
     // Check component quality
     if (components.system && components.system.length > 2) {
-      confidence += 0.15;
+      confidence += 0.10;
     }
     
     if (components.action && components.action.length > 5) {
-      confidence += 0.2;
+      confidence += 0.10;
     }
 
     // Bonus for well-formed components
     if (components.action?.includes(' ')) {
-      confidence += 0.1; // Action has multiple words
+      confidence += 0.05; // Action has multiple words
+    }
+
+    // Bonus for specific pattern components
+    if (components.trigger && components.trigger.length > 3) {
+      confidence += 0.05; // Event-driven has meaningful trigger
+    }
+    if (components.state && components.state.length > 3) {
+      confidence += 0.05; // State-driven has meaningful state
+    }
+    if (components.condition && components.condition.length > 3) {
+      confidence += 0.05; // Unwanted has meaningful condition
     }
 
     // Cap at 1.0

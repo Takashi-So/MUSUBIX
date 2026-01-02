@@ -64,13 +64,17 @@ export interface TraceableArtifact {
 }
 
 /**
- * Artifact status
+ * Artifact status - Extended for full development lifecycle
+ * REQ-TR-001: Support complete artifact lifecycle tracking
  */
 export type ArtifactStatus =
-  | 'draft'
-  | 'active'
-  | 'deprecated'
-  | 'deleted';
+  | 'draft'      // Initial creation state
+  | 'active'     // Under active development
+  | 'approved'   // Reviewed and approved
+  | 'implemented'// Code implementation completed
+  | 'verified'   // Testing/verification completed
+  | 'deprecated' // No longer recommended
+  | 'deleted';   // Marked for removal
 
 /**
  * Trace link between artifacts
@@ -146,6 +150,8 @@ export interface TraceabilityReport {
     designs: CoverageStats;
     code: CoverageStats;
     tests: CoverageStats;
+    /** Overall coverage percentage (weighted average) */
+    overall: number;
   };
   /** Identified gaps */
   gaps: TraceabilityGap[];
@@ -207,12 +213,21 @@ export const DEFAULT_TRACEABILITY_CONFIG: TraceabilityConfig = {
  * Traceability Manager
  * 
  * Manages artifacts and their trace links
+ * 
+ * Performance optimizations:
+ * - Indexed lookup by artifact type
+ * - Indexed lookup for links (source/target)
+ * - Cached link queries
  */
 export class TraceabilityManager {
   private config: TraceabilityConfig;
   private artifacts = new Map<string, TraceableArtifact>();
   private links = new Map<string, TraceLink>();
   private artifactsByType = new Map<ArtifactType, Set<string>>();
+  
+  // Performance optimization: Index links by source and target
+  private linksBySource = new Map<string, Set<string>>();
+  private linksByTarget = new Map<string, Set<string>>();
 
   constructor(config?: Partial<TraceabilityConfig>) {
     this.config = { ...DEFAULT_TRACEABILITY_CONFIG, ...config };
@@ -295,31 +310,56 @@ export class TraceabilityManager {
     };
 
     this.links.set(link.id, link);
+    
+    // Update link indices for O(1) lookup
+    if (!this.linksBySource.has(sourceId)) {
+      this.linksBySource.set(sourceId, new Set());
+    }
+    this.linksBySource.get(sourceId)!.add(link.id);
+    
+    if (!this.linksByTarget.has(targetId)) {
+      this.linksByTarget.set(targetId, new Set());
+    }
+    this.linksByTarget.get(targetId)!.add(link.id);
+    
     return link;
   }
 
   /**
-   * Get links from an artifact
+   * Get links from an artifact (optimized with index)
    */
   getLinksFrom(artifactId: string): TraceLink[] {
-    return Array.from(this.links.values())
-      .filter((link) => link.sourceId === artifactId);
+    const linkIds = this.linksBySource.get(artifactId);
+    if (!linkIds) return [];
+    return Array.from(linkIds)
+      .map(id => this.links.get(id))
+      .filter((link): link is TraceLink => link !== undefined);
   }
 
   /**
-   * Get links to an artifact
+   * Get links to an artifact (optimized with index)
    */
   getLinksTo(artifactId: string): TraceLink[] {
-    return Array.from(this.links.values())
-      .filter((link) => link.targetId === artifactId);
+    const linkIds = this.linksByTarget.get(artifactId);
+    if (!linkIds) return [];
+    return Array.from(linkIds)
+      .map(id => this.links.get(id))
+      .filter((link): link is TraceLink => link !== undefined);
   }
 
   /**
-   * Get all links for an artifact (both directions)
+   * Get all links for an artifact (both directions, optimized)
    */
   getAllLinks(artifactId: string): TraceLink[] {
-    return Array.from(this.links.values())
-      .filter((link) => link.sourceId === artifactId || link.targetId === artifactId);
+    const fromLinks = this.getLinksFrom(artifactId);
+    const toLinks = this.getLinksTo(artifactId);
+    
+    // Combine and dedupe (in case same link appears in both)
+    const linkMap = new Map<string, TraceLink>();
+    for (const link of [...fromLinks, ...toLinks]) {
+      linkMap.set(link.id, link);
+    }
+    return Array.from(linkMap.values());
   }
 
   /**
@@ -558,15 +598,32 @@ export class TraceabilityManager {
       };
     };
 
+    const reqStats = calculateStats('requirement');
+    const desStats = calculateStats('design');
+    const codeStats = calculateStats('code');
+    const testStats = calculateStats('test');
+
+    // Calculate overall coverage (weighted by importance)
+    const totalItems = reqStats.total + desStats.total + codeStats.total + testStats.total;
+    const overallCoverage = totalItems > 0
+      ? (
+          reqStats.percentage * 0.3 +
+          desStats.percentage * 0.2 +
+          codeStats.percentage * 0.3 +
+          testStats.percentage * 0.2
+        )
+      : 0;
+
     return {
       generatedAt: new Date().toISOString(),
       totalArtifacts: this.artifacts.size,
       totalLinks: this.links.size,
       coverage: {
-        requirements: calculateStats('requirement'),
-        designs: calculateStats('design'),
-        code: calculateStats('code'),
-        tests: calculateStats('test'),
+        requirements: reqStats,
+        designs: desStats,
+        code: codeStats,
+        tests: testStats,
+        overall: overallCoverage,
       },
       gaps,
       matrix,

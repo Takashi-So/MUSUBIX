@@ -59,9 +59,8 @@ describe('REQ-RA-001: EARS Validator', () => {
       );
       
       expect(result.valid).toBe(true);
-      expect(result.patternMatch?.type).toBeDefined();
-      // Note: Current implementation may match as ubiquitous due to pattern order
-      // This test documents actual behavior
+      expect(result.patternMatch?.type).toBe('event-driven');
+      expect(result.patternMatch?.confidence).toBeGreaterThanOrEqual(0.9);
     });
 
     it('should handle comma after trigger', () => {
@@ -82,7 +81,8 @@ describe('REQ-RA-001: EARS Validator', () => {
       
       expect(result.valid).toBe(true);
       expect(result.patternMatch).toBeDefined();
-      // Note: Current implementation may match as ubiquitous due to pattern order
+      expect(result.patternMatch?.type).toBe('state-driven');
+      expect(result.patternMatch?.confidence).toBeGreaterThanOrEqual(0.9);
     });
 
     it('should handle state condition correctly', () => {
@@ -96,14 +96,39 @@ describe('REQ-RA-001: EARS Validator', () => {
   });
 
   describe('Unwanted Behavior Pattern', () => {
-    it('should recognize unwanted pattern with "If...then"', () => {
+    it('should recognize unwanted pattern with "shall not"', () => {
+      const result = validator.validateRequirement(
+        'The system shall not allow unauthorized access'
+      );
+      
+      expect(result.valid).toBe(true);
+      expect(result.patternMatch).toBeDefined();
+      expect(result.patternMatch?.type).toBe('unwanted');
+      expect(result.patternMatch?.confidence).toBeGreaterThanOrEqual(0.9);
+    });
+
+    it('should recognize unwanted behavior with negation', () => {
+      const result = validator.validateRequirement(
+        'The application shall not store passwords in plain text'
+      );
+      
+      expect(result.valid).toBe(true);
+      expect(result.patternMatch).toBeDefined();
+      expect(result.patternMatch?.type).toBe('unwanted');
+    });
+  });
+
+  describe('Conditional/Unwanted Pattern (If...then)', () => {
+    it('should recognize conditional pattern with "If...then"', () => {
       const result = validator.validateRequirement(
         'If an error occurs, then the system shall log the error'
       );
       
       expect(result.valid).toBe(true);
       expect(result.patternMatch).toBeDefined();
-      // Note: Current implementation may match as ubiquitous due to pattern order
+      // EARS: IF <condition> THEN maps to 'unwanted' pattern type
+      expect(result.patternMatch?.type).toBe('unwanted');
+      expect(result.patternMatch?.confidence).toBeGreaterThanOrEqual(0.85);
     });
 
     it('should handle "If" without "then"', () => {
@@ -113,6 +138,8 @@ describe('REQ-RA-001: EARS Validator', () => {
       
       expect(result.valid).toBe(true);
       expect(result.patternMatch).toBeDefined();
+      // EARS: IF <condition> maps to 'unwanted' pattern type
+      expect(result.patternMatch?.type).toBe('unwanted');
     });
   });
 
@@ -124,7 +151,8 @@ describe('REQ-RA-001: EARS Validator', () => {
       
       expect(result.valid).toBe(true);
       expect(result.patternMatch).toBeDefined();
-      // Note: Current implementation may match as ubiquitous due to pattern order
+      expect(result.patternMatch?.type).toBe('optional');
+      expect(result.patternMatch?.confidence).toBeGreaterThanOrEqual(0.85);
     });
 
     it('should extract feature flag correctly', () => {
@@ -203,8 +231,10 @@ describe('REQ-RA-001: EARS Validator', () => {
       const result = validator.validateRequirements(requirements);
       
       expect(result.patternDistribution).toBeDefined();
-      // All 3 may be matched as ubiquitous due to pattern ordering
-      expect(result.patternDistribution.ubiquitous).toBeGreaterThanOrEqual(2);
+      // Ubiquitous patterns should be detected correctly
+      expect(result.patternDistribution.ubiquitous).toBe(2);
+      // Event-driven pattern should be detected
+      expect(result.patternDistribution['event-driven']).toBe(1);
     });
 
     it('should handle empty array', () => {
@@ -317,7 +347,7 @@ describe('REQ-RA-001: EARS Validator', () => {
       );
       
       expect(result.patternMatch).toBeDefined();
-      // Note: May match as ubiquitous due to pattern order
+      expect(result.patternMatch?.type).toBe('event-driven');
       expect(result.valid).toBe(true);
     });
 

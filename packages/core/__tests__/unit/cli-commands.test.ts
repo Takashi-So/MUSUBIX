@@ -294,9 +294,9 @@ describe('CLI Commands', () => {
       const reqCmd = program.commands.find(c => c.name() === 'requirements');
       expect(reqCmd).toBeDefined();
       
-      // 4 subcommands + help
+      // 5 subcommands: new, analyze, validate, map, search
       const subcommands = reqCmd?.commands.filter(c => c.name() !== 'help');
-      expect(subcommands?.length).toBe(4);
+      expect(subcommands?.length).toBe(5);
     });
   });
 
