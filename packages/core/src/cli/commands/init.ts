@@ -11,8 +11,9 @@
  */
 
 import type { Command } from 'commander';
-import { mkdir, writeFile, access } from 'fs/promises';
-import { join } from 'path';
+import { mkdir, writeFile, access, readFile, readdir, cp } from 'fs/promises';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { ExitCode, getGlobalOptions, outputResult } from '../base.js';
 import { VERSION } from '../../version.js';
 
@@ -72,6 +73,9 @@ const DIRECTORY_STRUCTURE = [
   'storage/specs',
   'storage/archive',
   'storage/changes',
+  '.github',
+  '.github/prompts',
+  '.github/skills',
 ];
 
 /**
@@ -151,6 +155,9 @@ export async function executeInit(
 
   // Create steering documents
   await createSteeringDocuments(projectPath, projectName, filesCreated);
+
+  // Copy AGENTS.md and .github/ from musubix package
+  await copyAgentFiles(projectPath, filesCreated);
 
   // Create .gitkeep files
   await writeFile(join(projectPath, 'storage/archive/.gitkeep'), '');
@@ -302,4 +309,188 @@ ${projectName}/
 function getProjectNameFromPath(projectPath: string): string {
   const parts = projectPath.split(/[/\\]/);
   return parts[parts.length - 1] || 'my-project';
+}
+
+/**
+ * Find musubix package directory in node_modules
+ */
+async function findMusubixPackage(): Promise<string | null> {
+  // Try to find musubix package in node_modules
+  const searchPaths = [
+    // From current working directory
+    join(process.cwd(), 'node_modules', 'musubix'),
+    // From this package's location (for development)
+    join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', '..'),
+  ];
+
+  for (const searchPath of searchPaths) {
+    try {
+      await access(join(searchPath, 'AGENTS.md'));
+      return searchPath;
+    } catch {
+      // Not found, try next
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Copy AGENTS.md and .github/ to project root for GitHub Copilot
+ */
+async function copyAgentFiles(
+  projectPath: string,
+  filesCreated: string[]
+): Promise<void> {
+  const musubixPath = await findMusubixPackage();
+  
+  if (!musubixPath) {
+    // If musubix package not found, create default AGENTS.md
+    await createDefaultAgentsFile(projectPath, filesCreated);
+    return;
+  }
+
+  try {
+    // Copy AGENTS.md
+    const agentsSource = join(musubixPath, 'AGENTS.md');
+    const agentsDest = join(projectPath, 'AGENTS.md');
+    const agentsContent = await readFile(agentsSource, 'utf-8');
+    await writeFile(agentsDest, agentsContent);
+    filesCreated.push('AGENTS.md');
+
+    // Copy .github/ directory
+    const githubSource = join(musubixPath, '.github');
+    const githubDest = join(projectPath, '.github');
+    
+    try {
+      await cp(githubSource, githubDest, { recursive: true });
+      filesCreated.push('.github/');
+      
+      // List copied files
+      const promptsDir = join(githubDest, 'prompts');
+      const skillsDir = join(githubDest, 'skills');
+      
+      try {
+        const prompts = await readdir(promptsDir);
+        for (const file of prompts) {
+          filesCreated.push(`.github/prompts/${file}`);
+        }
+      } catch {
+        // prompts dir might not exist
+      }
+      
+      try {
+        const skills = await readdir(skillsDir);
+        for (const skill of skills) {
+          filesCreated.push(`.github/skills/${skill}/`);
+        }
+      } catch {
+        // skills dir might not exist
+      }
+    } catch {
+      // .github copy failed, create minimal structure
+      await createDefaultGithubFiles(projectPath, filesCreated);
+    }
+  } catch {
+    // Fallback to default files
+    await createDefaultAgentsFile(projectPath, filesCreated);
+    await createDefaultGithubFiles(projectPath, filesCreated);
+  }
+}
+
+/**
+ * Create default AGENTS.md if musubix package not found
+ */
+async function createDefaultAgentsFile(
+  projectPath: string,
+  filesCreated: string[]
+): Promise<void> {
+  const agentsContent = `# MUSUBIX Project - AI Coding Agent Guide
+
+> **AI Coding Agent向け**: このファイルはAIエージェント（GitHub Copilot、Claude等）がプロジェクトを理解するためのガイドです。
+
+## 🎯 プロジェクト概要
+
+このプロジェクトは **MUSUBIX** (Neuro-Symbolic AI Coding System) を使用しています。
+
+## 📋 9憲法条項（Constitutional Articles）
+
+| Article | 原則 |
+|---------|------|
+| I | Library-First Architecture |
+| II | CLI Interface Mandate |
+| III | Test-First Development |
+| IV | Project Memory |
+| V | Traceability |
+| VI | Agent Memory Format |
+| VII | Simplicity Gate |
+| VIII | Anti-Abstraction |
+| IX | Integration Testing |
+
+## 📂 プロジェクト構造
+
+- \`steering/\` - プロジェクトメモリ（決定前に必ず参照）
+- \`storage/specs/\` - 要件・設計・タスク仕様
+- \`musubix.config.json\` - MUSUBIX設定
+
+## 🛠️ MUSUBIX CLI
+
+\`\`\`bash
+npx musubix --help
+npx musubix requirements analyze <file>
+npx musubix design generate <file>
+npx musubix codegen generate <file>
+\`\`\`
+
+---
+
+**Generated by**: MUSUBIX v${VERSION}
+**Date**: ${new Date().toISOString().split('T')[0]}
+`;
+
+  await writeFile(join(projectPath, 'AGENTS.md'), agentsContent);
+  filesCreated.push('AGENTS.md');
+}
+
+/**
+ * Create default .github files
+ */
+async function createDefaultGithubFiles(
+  projectPath: string,
+  filesCreated: string[]
+): Promise<void> {
+  // Create .github/copilot-instructions.md
+  const copilotInstructions = `# GitHub Copilot Instructions
+
+このプロジェクトは MUSUBIX (Neuro-Symbolic AI Coding System) を使用しています。
+
+## 基本原則
+
+1. **steering/ を参照**: 決定前にプロジェクトメモリを確認
+2. **EARS形式**: 要件は EARS 形式で記述
+3. **トレーサビリティ**: コードコメントに要件ID (REQ-*) を記載
+4. **テスト先行**: Red-Green-Blue サイクルを遵守
+
+## コマンド
+
+\`\`\`bash
+npx musubix requirements analyze <file>
+npx musubix design generate <file>
+npx musubix codegen generate <file>
+npx musubix test generate <file>
+\`\`\`
+
+## 参照ドキュメント
+
+- \`AGENTS.md\` - AI エージェントガイド
+- \`steering/rules/constitution.md\` - 憲法条項
+- \`steering/product.md\` - プロダクトコンテキスト
+`;
+
+  await mkdir(join(projectPath, '.github'), { recursive: true });
+  await writeFile(
+    join(projectPath, '.github', 'copilot-instructions.md'),
+    copilotInstructions
+  );
+  filesCreated.push('.github/copilot-instructions.md');
 }

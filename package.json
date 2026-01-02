@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "Neuro-Symbolic AI Coding System - MUSUBI × YATA Integration",
   "type": "module",
   "workspaces": [
@@ -13,8 +13,14 @@
   "files": [
     "packages/*/dist",
     "packages/*/bin",
+    "AGENTS.md",
     "README.md",
-    "LICENSE"
+    "README.ja.md",
+    "LICENSE",
+    "docs/",
+    "steering/",
+    "templates/",
+    ".github/"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
@@ -55,9 +61,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.25.1",
-    "@nahisaho/musubix-core": "^1.0.0",
-    "@nahisaho/musubix-mcp-server": "^1.0.0",
-    "@nahisaho/musubix-yata-client": "^1.0.0",
-    "musubix": "^1.0.0"
+    "@nahisaho/musubix-core": "^1.0.3",
+    "@nahisaho/musubix-mcp-server": "^1.0.2",
+    "@nahisaho/musubix-yata-client": "^1.0.2"
   }
 }
