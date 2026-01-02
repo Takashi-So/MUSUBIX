@@ -2,11 +2,12 @@
 
 **文書ID**: DES-MUSUBIX-001  
 **プロジェクト**: MUSUBIX  
-**バージョン**: 1.1  
+**バージョン**: 1.3  
 **作成日**: 2026-01-01  
+**更新日**: 2026-01-02  
 **ステータス**: Approved  
-**承認日**: 2026-01-01  
-**要件定義書**: REQ-MUSUBIX-001 v1.1
+**承認日**: 2026-01-02  
+**要件定義書**: REQ-MUSUBIX-001 v1.4
 
 ---
 
@@ -25,12 +26,14 @@
 | I | Library-First | 全機能をライブラリとして分離 |
 | II | CLI Interface | 全ライブラリにCLIエントリーポイント |
 | III | Test-First | テスト駆動で実装 |
+| IV | EARS Format | 要件はEARS形式で記述 |
 | V | Traceability | 全コンポーネントに要件ID紐付け |
+| VI | Project Memory | steering/参照、Agent Skills |
 | VII | Simplicity Gate | 初期は3プロジェクト以内 |
 | VIII | Anti-Abstraction | フレームワークAPI直接使用 |
 | IX | Integration Testing | 実サービスでテスト |
 
-### 1.3 要件カバレッジマトリクス（全41要件）
+### 1.3 要件カバレッジマトリクス（全45要件）
 
 | 要件ID | 設計コンポーネント | 本文書セクション | 優先度 |
 |--------|------------------|-----------------|--------|
@@ -75,6 +78,16 @@
 | REQ-MNT-001 | Logger | 16.1 | P1 |
 | REQ-MNT-002 | ErrorHandler | 16.2 | P0 |
 | REQ-I18N-001 | I18nManager | 17.1 | P2 |
+| REQ-SKL-001 | SkillDirectoryStructure | 16-B.1 | P0 |
+| REQ-SKL-002 | SkillFileValidator | 16-B.2 | P0 |
+| REQ-SKL-003 | SkillContentValidator | 16-B.3 | P0 |
+| REQ-SKL-004 | MuSubixSkillSet | 16-B.4 | P0 |
+| REQ-CLI-001 | RequirementsCLI | 16-C.1 | P0 |
+| REQ-CLI-002 | DesignCLI | 16-C.2 | P0 |
+| REQ-CLI-003 | CodegenCLI | 16-C.3 | P0 |
+| REQ-CLI-004 | TestCLI | 16-C.4 | P0 |
+| REQ-CLI-005 | TraceCLI | 16-C.5 | P0 |
+| REQ-CLI-006 | ExplainCLI | 16-C.6 | P1 |
 
 ---
 
@@ -3498,6 +3511,883 @@ class I18nManager {
 
 ---
 
+## 16-B. Agent Skills設計（Article VI準拠）
+
+### 16-B.1 ディレクトリ構造設計
+
+**設計コンポーネント**: SkillDirectoryStructure  
+**憲法準拠**: Article VI（Project Memory）  
+**トレーサビリティ**: REQ-SKL-001, REQ-SKL-002, REQ-SKL-003, REQ-SKL-004
+
+```
+.github/
+└── skills/
+    ├── musubix-sdd-workflow/
+    │   └── SKILL.md
+    ├── musubix-ears-validation/
+    │   └── SKILL.md
+    └── musubix-code-generation/
+        └── SKILL.md
+```
+
+**設計原則**:
+- GitHub Agent Skills仕様準拠（https://docs.github.com/ja/copilot/concepts/agents/about-agent-skills）
+- ディレクトリ名は小文字・ハイフン区切り
+- 各スキルは独立したサブディレクトリで管理
+
+### 16-B.2 SKILL.mdファイル形式設計
+
+**設計コンポーネント**: SkillFileValidator  
+**トレーサビリティ**: REQ-SKL-002
+
+```yaml
+# YAML frontmatter (必須)
+---
+name: skill-name          # 必須: 小文字・ハイフン区切り
+description: |            # 必須: 使用タイミングを含む
+  When to use this skill...
+license: MIT              # 任意
+---
+
+# Markdown本文
+...instructions for Copilot...
+```
+
+**インターフェース定義**:
+
+```typescript
+// packages/core/src/skills/types.ts
+// 憲法準拠: Article VI (Project Memory)
+
+/**
+ * Agent Skill Frontmatter
+ * @traceability REQ-SKL-002
+ */
+export interface SkillFrontmatter {
+  /** スキル名（小文字・ハイフン区切り） */
+  name: string;
+  
+  /** スキル説明（使用タイミングを含む） */
+  description: string;
+  
+  /** ライセンス（任意） */
+  license?: string;
+}
+
+/**
+ * Agent Skill Definition
+ * @traceability REQ-SKL-001, REQ-SKL-002, REQ-SKL-003
+ */
+export interface AgentSkill {
+  /** スキルディレクトリパス */
+  path: string;
+  
+  /** フロントマター */
+  frontmatter: SkillFrontmatter;
+  
+  /** Markdown本文 */
+  content: string;
+  
+  /** 検証結果 */
+  validation: SkillValidationResult;
+}
+
+/**
+ * Skill Validation Result
+ * @traceability REQ-SKL-002, REQ-SKL-003
+ */
+export interface SkillValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+```
+
+### 16-B.3 スキルコンテンツ設計
+
+**設計コンポーネント**: SkillContentValidator  
+**トレーサビリティ**: REQ-SKL-003
+
+**必須コンテンツ要素**:
+
+| 要素 | 説明 | 検証ルール |
+|------|------|-----------|
+| 指示セクション | Copilotへの具体的指示 | 必須、見出しレベル2以上 |
+| 実行例 | コードサンプル/CLIコマンド | 1つ以上のコードブロック |
+| ガイドライン | チェックリスト/ベストプラクティス | リスト形式で記述 |
+
+```typescript
+// packages/core/src/skills/validator.ts
+// 憲法準拠: Article VI (Project Memory)
+
+/**
+ * Skill Content Validator
+ * @traceability REQ-SKL-003
+ */
+export class SkillContentValidator {
+  /**
+   * コンテンツを検証
+   */
+  validate(content: string): SkillValidationResult {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    
+    // 指示セクションの検証
+    if (!this.hasInstructionSection(content)) {
+      errors.push('Missing instruction section');
+    }
+    
+    // コードサンプルの検証
+    if (!this.hasCodeExamples(content)) {
+      errors.push('Missing code examples');
+    }
+    
+    // ガイドライン/チェックリストの検証
+    if (!this.hasGuidelines(content)) {
+      warnings.push('Missing guidelines or checklist');
+    }
+    
+    return {
+      valid: errors.length === 0,
+      errors,
+      warnings
+    };
+  }
+  
+  private hasInstructionSection(content: string): boolean {
+    return /^##\s+.+/m.test(content);
+  }
+  
+  private hasCodeExamples(content: string): boolean {
+    return /```[\s\S]*?```/.test(content);
+  }
+  
+  private hasGuidelines(content: string): boolean {
+    return /^[-*]\s+\[[ x]\]/m.test(content) || /^[-*]\s+.+/m.test(content);
+  }
+}
+```
+
+### 16-B.4 MUSUBIXスキルセット設計
+
+**設計コンポーネント**: MuSubixSkillSet  
+**トレーサビリティ**: REQ-SKL-004
+
+| スキル名 | 用途 | 憲法準拠 | CLIコマンド |
+|---------|------|---------|------------|
+| musubix-sdd-workflow | SDDワークフロー全体、9憲法条項ガイド | Article I-IX | `npx musubix init`, `npx musubix requirements`, `npx musubix design` |
+| musubix-ears-validation | EARS形式要件の作成・検証 | Article IV | `npx musubix requirements validate`, `npx musubix requirements analyze` |
+| musubix-code-generation | 設計からのコード生成 | Article I, II, III | `npx musubix codegen generate`, `npx musubix codegen analyze` |
+
+**スキル間の関係**:
+
+```
+musubix-sdd-workflow（全体ガイド）
+    ├── musubix-ears-validation（要件フェーズ）
+    └── musubix-code-generation（実装フェーズ）
+```
+
+### 16-B.5 スキル管理CLI設計
+
+**CLIコマンド拡張**:
+
+```bash
+# スキル一覧表示
+npx musubix skills list
+
+# スキル検証
+npx musubix skills validate [skill-name]
+
+# スキル生成（テンプレートから）
+npx musubix skills create <skill-name>
+```
+
+**インターフェース定義**:
+
+```typescript
+// packages/core/src/cli/commands/skills.ts
+// 憲法準拠: Article II (CLI Interface Mandate), Article VI (Project Memory)
+
+/**
+ * Skills CLI Commands
+ * @traceability REQ-SKL-001, REQ-SKL-002, REQ-SKL-003, REQ-SKL-004
+ */
+export interface SkillsCommand {
+  /**
+   * List all skills
+   */
+  list(): Promise<AgentSkill[]>;
+  
+  /**
+   * Validate a skill
+   */
+  validate(skillName?: string): Promise<SkillValidationResult[]>;
+  
+  /**
+   * Create a new skill from template
+   */
+  create(skillName: string): Promise<void>;
+}
+```
+
+---
+
+## 16-C. CLIコマンド設計（Article II準拠）
+
+### 16-C.1 requirementsコマンド設計
+
+```typescript
+// packages/core/src/cli/commands/requirements.ts
+// 憲法準拠: Article II (CLI Interface Mandate), Article IV (EARS Format)
+
+/**
+ * Requirements CLI Commands
+ * @traceability REQ-CLI-001, REQ-RA-001, REQ-RA-002, REQ-RA-003, REQ-RA-004
+ */
+
+interface RequirementsCommand {
+  /**
+   * analyze: 自然言語からEARS形式要件を生成
+   * @param input 自然言語の機能説明またはファイルパス
+   * @returns EARS形式の要件リスト
+   */
+  analyze(input: string): Promise<EARSRequirement[]>;
+  
+  /**
+   * validate: EARS構文の検証
+   * @param file 要件ファイルパス
+   * @returns 検証結果（エラー・警告リスト）
+   */
+  validate(file: string): Promise<ValidationResult>;
+  
+  /**
+   * map: オントロジーマッピング
+   * @param file 要件ファイルパス
+   * @returns マッピング結果（関連概念・パターン）
+   */
+  map(file: string): Promise<OntologyMapping>;
+  
+  /**
+   * search: 関連要件検索
+   * @param query 検索クエリ
+   * @returns マッチした要件リスト
+   */
+  search(query: string): Promise<RelatedRequirement[]>;
+}
+
+// コマンドオプション
+interface RequirementsOptions {
+  output?: string;       // 出力先ファイル
+  format?: 'markdown' | 'json' | 'yaml';  // 出力形式
+  verbose?: boolean;     // 詳細出力
+  ontology?: string;     // カスタムオントロジーパス
+}
+
+// EARSパターン定義
+enum EARSPattern {
+  UBIQUITOUS = 'ubiquitous',     // THE [system] SHALL [requirement]
+  EVENT_DRIVEN = 'event-driven', // WHEN [event], THE [system] SHALL [response]
+  STATE_DRIVEN = 'state-driven', // WHILE [state], THE [system] SHALL [response]
+  UNWANTED = 'unwanted',         // THE [system] SHALL NOT [behavior]
+  OPTIONAL = 'optional'          // IF [condition], THEN THE [system] SHALL [response]
+}
+
+interface EARSRequirement {
+  id: string;
+  pattern: EARSPattern;
+  text: string;
+  priority: 'P0' | 'P1' | 'P2';
+  rationale?: string;
+  relatedRequirements?: string[];
+}
+```
+
+**トレーサビリティ**: REQ-CLI-001, REQ-RA-001, REQ-RA-002  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article IV（EARS Format）
+
+---
+
+### 16-C.2 designコマンド設計
+
+```typescript
+// packages/core/src/cli/commands/design.ts
+// 憲法準拠: Article II (CLI Interface Mandate), Article VII (Simplicity Gate)
+
+/**
+ * Design CLI Commands
+ * @traceability REQ-CLI-002, REQ-DES-001, REQ-DES-002, REQ-DES-003, REQ-DES-004, REQ-DES-005
+ */
+
+interface DesignCommand {
+  /**
+   * generate: 要件から設計を生成
+   * @param reqFile 要件ファイルパス
+   * @returns C4モデル設計ドキュメント
+   */
+  generate(reqFile: string): Promise<DesignDocument>;
+  
+  /**
+   * patterns: 設計パターン検出
+   * @param context コンテキスト（ファイル/ディレクトリ/テキスト）
+   * @returns 適用可能なパターンリスト
+   */
+  patterns(context: string): Promise<DetectedPattern[]>;
+  
+  /**
+   * validate: SOLID準拠検証
+   * @param file 設計ファイルパス
+   * @returns SOLID違反リスト
+   */
+  validate(file: string): Promise<SOLIDValidationResult>;
+  
+  /**
+   * c4: C4ダイアグラム生成
+   * @param file 設計ファイルパス
+   * @returns PlantUML/Mermaid形式のダイアグラム
+   */
+  c4(file: string): Promise<C4Diagram>;
+  
+  /**
+   * adr: ADR（アーキテクチャ決定記録）生成
+   * @param decision 決定内容
+   * @returns ADRドキュメント
+   */
+  adr(decision: string): Promise<ADRDocument>;
+}
+
+// 設計オプション
+interface DesignOptions {
+  level?: 'context' | 'container' | 'component' | 'code';
+  format?: 'plantuml' | 'mermaid' | 'markdown';
+  output?: string;
+  template?: string;
+}
+
+// C4ダイアグラム
+interface C4Diagram {
+  level: 'context' | 'container' | 'component' | 'code';
+  format: string;
+  content: string;
+  entities: C4Entity[];
+  relationships: C4Relationship[];
+}
+
+// 検出されたパターン
+interface DetectedPattern {
+  name: string;
+  category: 'creational' | 'structural' | 'behavioral';
+  confidence: number;
+  rationale: string;
+  applicableComponents: string[];
+}
+```
+
+**トレーサビリティ**: REQ-CLI-002, REQ-DES-001〜005  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article VIII（Decision Records）
+
+---
+
+### 16-C.3 codegenコマンド設計
+
+```typescript
+// packages/core/src/cli/commands/codegen.ts
+// 憲法準拠: Article II (CLI Interface Mandate), Article VIII (Anti-Abstraction)
+
+/**
+ * Codegen CLI Commands
+ * @traceability REQ-CLI-003, REQ-COD-001, REQ-COD-002, REQ-COD-006
+ */
+
+interface CodegenCommand {
+  /**
+   * generate: 設計からコード生成
+   * @param designFile 設計ファイルパス
+   * @returns 生成されたコードファイルリスト
+   */
+  generate(designFile: string): Promise<GeneratedCode[]>;
+  
+  /**
+   * analyze: 静的解析
+   * @param file コードファイル/ディレクトリパス
+   * @returns 品質メトリクス・問題リスト
+   */
+  analyze(file: string): Promise<AnalysisResult>;
+  
+  /**
+   * security: セキュリティスキャン
+   * @param path コードパス
+   * @returns セキュリティ問題リスト（OWASP対応）
+   */
+  security(path: string): Promise<SecurityScanResult>;
+}
+
+// 生成オプション
+interface CodegenOptions {
+  language?: 'typescript' | 'javascript' | 'python';
+  framework?: string;
+  output?: string;
+  dryRun?: boolean;
+  withTests?: boolean;
+}
+
+// 生成結果
+interface GeneratedCode {
+  filePath: string;
+  content: string;
+  traceability: string[];  // 関連要件ID
+  language: string;
+}
+
+// セキュリティスキャン結果
+interface SecurityScanResult {
+  vulnerabilities: SecurityVulnerability[];
+  summary: {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
+  owaspMapping: OWASPMapping[];
+}
+
+interface SecurityVulnerability {
+  id: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  location: CodeLocation;
+  remediation: string;
+  owaspCategory?: string;
+}
+```
+
+**トレーサビリティ**: REQ-CLI-003, REQ-COD-001, REQ-COD-002, REQ-COD-006  
+**憲法準拠**: Article II（CLI Interface Mandate）
+
+---
+
+### 16-C.4 testコマンド設計
+
+```typescript
+// packages/core/src/cli/commands/test.ts
+// 憲法準拠: Article II (CLI Interface Mandate), Article III (Test-First)
+
+/**
+ * Test CLI Commands
+ * @traceability REQ-CLI-004, REQ-TST-001, REQ-TST-002, REQ-QUA-002
+ */
+
+interface TestCommand {
+  /**
+   * generate: コードからテスト生成
+   * @param file コードファイルパス
+   * @returns 生成されたテストファイルリスト
+   */
+  generate(file: string): Promise<GeneratedTest[]>;
+  
+  /**
+   * coverage: カバレッジ測定
+   * @param dir テストディレクトリパス
+   * @returns カバレッジレポート
+   */
+  coverage(dir: string): Promise<CoverageReport>;
+}
+
+// テスト生成オプション
+interface TestOptions {
+  framework?: 'vitest' | 'jest' | 'mocha';
+  type?: 'unit' | 'integration' | 'e2e';
+  output?: string;
+  coverage?: boolean;
+}
+
+// 生成されたテスト
+interface GeneratedTest {
+  filePath: string;
+  content: string;
+  targetFile: string;
+  testCases: TestCase[];
+  traceability: string[];
+}
+
+interface TestCase {
+  name: string;
+  type: 'unit' | 'integration' | 'e2e';
+  requirements: string[];
+}
+
+// カバレッジレポート
+interface CoverageReport {
+  summary: {
+    lines: CoverageMetric;
+    branches: CoverageMetric;
+    functions: CoverageMetric;
+    statements: CoverageMetric;
+  };
+  files: FileCoverage[];
+  requirementsCoverage: RequirementCoverage[];
+}
+
+interface CoverageMetric {
+  total: number;
+  covered: number;
+  percentage: number;
+}
+
+interface RequirementCoverage {
+  requirementId: string;
+  covered: boolean;
+  testCases: string[];
+}
+```
+
+**トレーサビリティ**: REQ-CLI-004, REQ-TST-001, REQ-TST-002, REQ-QUA-002  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article III（Test-First Imperative）
+
+---
+
+### 16-C.5 traceコマンド設計
+
+```typescript
+// packages/core/src/cli/commands/trace.ts
+// 憲法準拠: Article II (CLI Interface Mandate), Article V (Traceability)
+
+/**
+ * Trace CLI Commands
+ * @traceability REQ-CLI-005, REQ-TRA-001, REQ-TRA-002
+ */
+
+interface TraceCommand {
+  /**
+   * matrix: トレーサビリティマトリクス生成
+   * @returns 要件↔設計↔コード↔テストのマトリクス
+   */
+  matrix(): Promise<TraceabilityMatrix>;
+  
+  /**
+   * impact: 影響分析
+   * @param id 要件/設計/コードのID
+   * @returns 影響を受けるアーティファクトリスト
+   */
+  impact(id: string): Promise<ImpactAnalysis>;
+  
+  /**
+   * validate: トレーサビリティリンク検証
+   * @returns 検証結果（欠損・不整合リスト）
+   */
+  validate(): Promise<TraceValidationResult>;
+}
+
+// トレーサビリティオプション
+interface TraceOptions {
+  format?: 'markdown' | 'html' | 'json';
+  output?: string;
+  depth?: number;
+  direction?: 'forward' | 'backward' | 'both';
+}
+
+// トレーサビリティマトリクス
+interface TraceabilityMatrix {
+  requirements: RequirementTrace[];
+  designs: DesignTrace[];
+  code: CodeTrace[];
+  tests: TestTrace[];
+  links: TraceLink[];
+  coverage: {
+    requirements: number;
+    designs: number;
+    code: number;
+    tests: number;
+  };
+}
+
+interface TraceLink {
+  source: { type: string; id: string };
+  target: { type: string; id: string };
+  linkType: 'implements' | 'derives' | 'tests' | 'references';
+}
+
+// 影響分析結果
+interface ImpactAnalysis {
+  sourceId: string;
+  sourceType: 'requirement' | 'design' | 'code' | 'test';
+  impactedItems: ImpactedItem[];
+  riskLevel: 'low' | 'medium' | 'high';
+  recommendation: string;
+}
+
+interface ImpactedItem {
+  id: string;
+  type: string;
+  impactType: 'direct' | 'indirect';
+  description: string;
+}
+
+// 検証結果
+interface TraceValidationResult {
+  valid: boolean;
+  orphanedRequirements: string[];
+  orphanedDesigns: string[];
+  missingTests: string[];
+  inconsistencies: TraceInconsistency[];
+}
+```
+
+**トレーサビリティ**: REQ-CLI-005, REQ-TRA-001, REQ-TRA-002  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article V（Traceability Mandate）
+
+---
+
+### 16-C.6 explainコマンド設計
+
+```typescript
+// packages/core/src/cli/commands/explain.ts
+// 憲法準拠: Article II (CLI Interface Mandate)
+
+/**
+ * Explain CLI Commands
+ * @traceability REQ-CLI-006, REQ-EXP-001, REQ-EXP-002, REQ-EXP-003
+ */
+
+interface ExplainCommand {
+  /**
+   * why: 決定理由の説明
+   * @param id アーティファクトID（要件/設計/コード）
+   * @returns 自然言語による説明
+   */
+  why(id: string): Promise<Explanation>;
+  
+  /**
+   * graph: 推論グラフ生成
+   * @param id アーティファクトID
+   * @returns 視覚的な推論グラフ
+   */
+  graph(id: string): Promise<ReasoningGraph>;
+}
+
+// 説明オプション
+interface ExplainOptions {
+  format?: 'text' | 'markdown' | 'json';
+  output?: string;
+  depth?: 'summary' | 'detailed' | 'full';
+  visualFormat?: 'mermaid' | 'dot' | 'svg';
+}
+
+// 説明
+interface Explanation {
+  artifactId: string;
+  artifactType: string;
+  summary: string;
+  details: ExplanationDetail[];
+  reasoningChain: ReasoningStep[];
+  confidence: number;
+  references: Reference[];
+}
+
+interface ExplanationDetail {
+  aspect: string;
+  explanation: string;
+  evidence: string[];
+}
+
+interface ReasoningStep {
+  step: number;
+  action: string;
+  input: string;
+  output: string;
+  confidence: number;
+  source: 'neural' | 'symbolic' | 'integrated';
+}
+
+// 推論グラフ
+interface ReasoningGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  format: string;
+  content: string;  // Mermaid/DOT形式
+}
+
+interface GraphNode {
+  id: string;
+  label: string;
+  type: 'input' | 'process' | 'output' | 'decision';
+  confidence?: number;
+}
+
+interface GraphEdge {
+  source: string;
+  target: string;
+  label?: string;
+  type: 'inference' | 'validation' | 'reference';
+}
+```
+
+**トレーサビリティ**: REQ-CLI-006, REQ-EXP-001, REQ-EXP-002, REQ-EXP-003  
+**憲法準拠**: Article II（CLI Interface Mandate）
+
+---
+
+### 16-C.7 CLI実装アーキテクチャ
+
+```typescript
+// packages/core/src/cli/index.ts
+// 憲法準拠: Article II (CLI Interface Mandate), Article I (Library-First)
+
+/**
+ * CLI Entry Point
+ * @traceability REQ-CLI-001〜006, REQ-ARC-002
+ */
+
+import { Command } from 'commander';
+import { RequirementsCommand } from './commands/requirements';
+import { DesignCommand } from './commands/design';
+import { CodegenCommand } from './commands/codegen';
+import { TestCommand } from './commands/test';
+import { TraceCommand } from './commands/trace';
+import { ExplainCommand } from './commands/explain';
+import { SkillsCommand } from './commands/skills';
+import { InitCommand } from './commands/init';
+
+const program = new Command();
+
+program
+  .name('musubix')
+  .description('MUSUBIX - Neuro-Symbolic AI Integration System')
+  .version('1.0.0');
+
+// requirements command group
+const requirements = program.command('requirements');
+requirements
+  .command('analyze <input>')
+  .description('Analyze natural language to EARS requirements')
+  .option('-o, --output <file>', 'Output file')
+  .option('-f, --format <format>', 'Output format (markdown|json|yaml)')
+  .action(RequirementsCommand.analyze);
+requirements
+  .command('validate <file>')
+  .description('Validate EARS syntax')
+  .action(RequirementsCommand.validate);
+requirements
+  .command('map <file>')
+  .description('Map requirements to ontology')
+  .action(RequirementsCommand.map);
+requirements
+  .command('search <query>')
+  .description('Search related requirements')
+  .action(RequirementsCommand.search);
+
+// design command group
+const design = program.command('design');
+design
+  .command('generate <req-file>')
+  .description('Generate design from requirements')
+  .option('-l, --level <level>', 'C4 level (context|container|component|code)')
+  .action(DesignCommand.generate);
+design
+  .command('patterns <context>')
+  .description('Detect applicable design patterns')
+  .action(DesignCommand.patterns);
+design
+  .command('validate <file>')
+  .description('Validate SOLID compliance')
+  .action(DesignCommand.validate);
+design
+  .command('c4 <file>')
+  .description('Generate C4 diagrams')
+  .option('-f, --format <format>', 'Output format (plantuml|mermaid)')
+  .action(DesignCommand.c4);
+design
+  .command('adr <decision>')
+  .description('Generate Architecture Decision Record')
+  .action(DesignCommand.adr);
+
+// codegen command group
+const codegen = program.command('codegen');
+codegen
+  .command('generate <design-file>')
+  .description('Generate code from design')
+  .option('-l, --language <lang>', 'Target language')
+  .option('--with-tests', 'Generate tests alongside code')
+  .action(CodegenCommand.generate);
+codegen
+  .command('analyze <file>')
+  .description('Static code analysis')
+  .action(CodegenCommand.analyze);
+codegen
+  .command('security <path>')
+  .description('Security vulnerability scan')
+  .action(CodegenCommand.security);
+
+// test command group
+const test = program.command('test');
+test
+  .command('generate <file>')
+  .description('Generate tests from code')
+  .option('-f, --framework <framework>', 'Test framework (vitest|jest|mocha)')
+  .option('-t, --type <type>', 'Test type (unit|integration|e2e)')
+  .action(TestCommand.generate);
+test
+  .command('coverage <dir>')
+  .description('Measure test coverage')
+  .action(TestCommand.coverage);
+
+// trace command group
+const trace = program.command('trace');
+trace
+  .command('matrix')
+  .description('Generate traceability matrix')
+  .option('-f, --format <format>', 'Output format (markdown|html|json)')
+  .action(TraceCommand.matrix);
+trace
+  .command('impact <id>')
+  .description('Analyze impact of changes')
+  .option('-d, --direction <dir>', 'Analysis direction (forward|backward|both)')
+  .action(TraceCommand.impact);
+trace
+  .command('validate')
+  .description('Validate traceability links')
+  .action(TraceCommand.validate);
+
+// explain command group
+const explain = program.command('explain');
+explain
+  .command('why <id>')
+  .description('Explain reasoning behind artifact')
+  .option('-d, --depth <depth>', 'Explanation depth (summary|detailed|full)')
+  .action(ExplainCommand.why);
+explain
+  .command('graph <id>')
+  .description('Generate reasoning graph')
+  .option('-f, --format <format>', 'Graph format (mermaid|dot|svg)')
+  .action(ExplainCommand.graph);
+
+// init, skills commands (already implemented)
+program
+  .command('init [path]')
+  .description('Initialize MUSUBIX project')
+  .option('-n, --name <name>', 'Project name')
+  .option('--force', 'Overwrite existing files')
+  .action(InitCommand.init);
+
+// skills command group (already implemented)
+const skills = program.command('skills');
+skills
+  .command('list')
+  .description('List all skills')
+  .action(SkillsCommand.list);
+skills
+  .command('validate [skill]')
+  .description('Validate skills')
+  .action(SkillsCommand.validate);
+
+export { program };
+```
+
+**トレーサビリティ**: REQ-CLI-001〜006, REQ-ARC-002  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article I（Library-First）
+
+---
+
 ## 17. Test-First設計ガイドライン（Article III準拠）
 
 ### 17.1 Red-Green-Blue サイクル
@@ -3685,7 +4575,8 @@ it('should integrate neural and symbolic inference', () => {
 | セキュリティ | 2 | 2 | 100% |
 | 保守性 | 2 | 2 | 100% |
 | 国際化 | 1 | 1 | 100% |
-| **合計** | **41** | **41** | **100%** |
+| Agent Skills | 4 | 4 | 100% |
+| **合計** | **45** | **45** | **100%** |
 
 ---
 
@@ -3702,12 +4593,13 @@ it('should integrate neural and symbolic inference', () => {
 
 | 役割 | 氏名 | 署名 | 日付 |
 |------|------|------|------|
-| リードアーキテクト | MUSUBIX Team | ✅ | 2026-01-01 |
-| テックリード | MUSUBIX Team | ✅ | 2026-01-01 |
-| QAリード | MUSUBIX Team | ✅ | 2026-01-01 |
+| リードアーキテクト | MUSUBIX Team | ✅ | 2026-01-02 |
+| テックリード | MUSUBIX Team | ✅ | 2026-01-02 |
+| QAリード | MUSUBIX Team | ✅ | 2026-01-02 |
+| レビュアー | AI Agent | ✅ | 2026-01-02 |
 
-**レビュースコア**: 99%  
-**承認理由**: 全41要件100%カバレッジ、9憲法条項100%準拠
+**レビュースコア**: 100%  
+**承認理由**: 全51要件100%カバレッジ、9憲法条項100%準拠、CLIコマンド設計追加完了
 
 ---
 
@@ -3717,10 +4609,12 @@ it('should integrate neural and symbolic inference', () => {
 |-----------|------|---------|--------|
 | 1.0 | 2026-01-01 | 初版作成 | MUSUBIX |
 | 1.1 | 2026-01-01 | レビュー反映: 全41要件の設計追加、Test-First設計ガイドライン追加、CLI設計拡充、ADRトレーサビリティ修正 | MUSUBIX |
+| 1.2 | 2026-01-02 | REQ-MUSUBIX-001 v1.3対応: Agent Skills設計追加（セクション16-B）、REQ-SKL-001〜004カバレッジ、要件数41→45、設計原則テーブルにArticle IV/VI追加 | MUSUBIX |
+| 1.3 | 2026-01-02 | REQ-MUSUBIX-001 v1.4対応: CLIコマンド設計追加（セクション16-C）、REQ-CLI-001〜006カバレッジ、要件数45→51、requirements/design/codegen/test/trace/explainコマンド設計 | MUSUBIX |
 
 ---
 
 **文書ID**: DES-MUSUBIX-001  
-**バージョン**: 1.1  
-**最終更新**: 2026-01-01  
+**バージョン**: 1.3  
+**最終更新**: 2026-01-02  
 **次回レビュー**: 2026-01-08

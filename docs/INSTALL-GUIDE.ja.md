@@ -25,9 +25,9 @@ MUSUBIX は以下の2つのコンポーネントで構成されています：
 ```mermaid
 flowchart LR
     subgraph MUSUBIX["MUSUBIX（Node.js）"]
-        Core["@musubix/core"]
-        MCP["@musubix/mcp-server"]
-        Client["@musubix/yata-client"]
+        Core["@nahisaho/musubix-core"]
+        MCP["@nahisaho/musubix-mcp-server"]
+        Client["@nahisaho/musubix-yata-client"]
     end
     
     subgraph YATA["YATA（Python）"]
@@ -95,18 +95,30 @@ npx musubix --help
 npx musubix init
 
 # MCP サーバー起動
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
 ### 方法3: プロジェクトへのインストール
 
 ```bash
-# 個別パッケージのインストール
-npm install @musubix/core
-npm install @musubix/mcp-server
-npm install @musubix/yata-client  # YATA連携用
+# 統合パッケージ（推奨）
+npm install musubix
+
+# または個別パッケージのインストール
+npm install @nahisaho/musubix-core
+npm install @nahisaho/musubix-mcp-server
+npm install @nahisaho/musubix-yata-client  # YATA連携用
 ```
+
+#### パッケージ比較
+
+| パッケージ | 説明 | 用途 |
+|-----------|------|------|
+| `musubix` | 統合パッケージ | 全機能、簡単セットアップ |
+| `@nahisaho/musubix-core` | コアライブラリのみ | 最小限のインストール |
+| `@nahisaho/musubix-mcp-server` | MCPサーバーのみ | AIプラットフォーム連携 |
+| `@nahisaho/musubix-yata-client` | YATAクライアントのみ | 知識グラフ機能 |
 
 ### 方法4: ソースからビルド
 
@@ -195,7 +207,7 @@ uv run yata validate --graph graph.json --repair
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     },
     "yata": {
       "command": "uv",
@@ -218,7 +230,7 @@ uv run yata validate --graph graph.json --repair
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     },
     "yata": {
       "command": "uv",
@@ -227,6 +239,39 @@ uv run yata validate --graph graph.json --repair
     }
   }
 }
+```
+
+### Claude Code（CLI）
+
+プロジェクトルートに `.mcp.json` を作成：
+
+```json
+{
+  "mcpServers": {
+    "musubix": {
+      "command": "npx",
+      "args": ["@nahisaho/musubix-mcp-server"]
+    },
+    "yata": {
+      "command": "uv",
+      "args": ["run", "yata", "serve"],
+      "cwd": "/path/to/YATA"
+    }
+  }
+}
+```
+
+または `claude mcp add` コマンドで設定：
+
+```bash
+# MUSUBIX MCP サーバーを追加
+claude mcp add musubix -- npx @nahisaho/musubix-mcp-server
+
+# YATA MCP サーバーを追加（オプション）
+claude mcp add yata -- uv run yata serve
+
+# 設定確認
+claude mcp list
 ```
 
 ### Cursor IDE
@@ -238,7 +283,7 @@ uv run yata validate --graph graph.json --repair
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     },
     "yata": {
       "command": "uv",
@@ -284,7 +329,7 @@ cd /path/to/YATA
 uv run yata serve
 
 # MUSUBIX から YATA に接続確認
-# （@musubix/yata-client を使用したアプリケーションで確認）
+# （@nahisaho/musubix-yata-client を使用したアプリケーションで確認）
 ```
 
 ---

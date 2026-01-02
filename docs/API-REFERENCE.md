@@ -44,9 +44,9 @@ MUSUBIX is a neuro-symbolic AI system combining:
 ## Installation
 
 ```bash
-npm install @musubix/core
+npm install @nahisaho/musubix-core
 # or
-pnpm add @musubix/core
+pnpm add @nahisaho/musubix-core
 ```
 
 ---
@@ -59,7 +59,7 @@ import {
   createC4ModelGenerator,
   createTaskGenerator,
   createConstitutionalValidator
-} from '@musubix/core';
+} from '@nahisaho/musubix-core';
 
 // 1. Analyze requirements
 const analyzer = createRequirementsAnalyzer();
@@ -89,7 +89,7 @@ const result = validator.validate(artifact);
 Analyzes and structures requirement specifications.
 
 ```typescript
-import { createRequirementsAnalyzer } from '@musubix/core';
+import { createRequirementsAnalyzer } from '@nahisaho/musubix-core';
 
 const analyzer = createRequirementsAnalyzer({
   strictMode: true,
@@ -125,7 +125,7 @@ interface AnalyzerConfig {
 Decomposes complex requirements into smaller units.
 
 ```typescript
-import { createRequirementsDecomposer } from '@musubix/core';
+import { createRequirementsDecomposer } from '@nahisaho/musubix-core';
 
 const decomposer = createRequirementsDecomposer({
   maxDepth: 4,
@@ -159,7 +159,7 @@ const result = decomposer.decompose(requirement, 'functional');
 Finds related requirements using semantic similarity.
 
 ```typescript
-import { createRelatedRequirementsFinder } from '@musubix/core';
+import { createRelatedRequirementsFinder } from '@nahisaho/musubix-core';
 
 const finder = createRelatedRequirementsFinder({
   similarityThreshold: 0.7,
@@ -186,7 +186,7 @@ const related = finder.findRelated(requirement, allRequirements);
 Generates C4 architecture diagrams.
 
 ```typescript
-import { createC4ModelGenerator } from '@musubix/core';
+import { createC4ModelGenerator } from '@nahisaho/musubix-core';
 
 const generator = createC4ModelGenerator({
   defaultFormat: 'mermaid'
@@ -219,7 +219,7 @@ const containerDiagram = generator.generateContainer(systemSpec);
 Generates Architecture Decision Records.
 
 ```typescript
-import { createADRGenerator } from '@musubix/core';
+import { createADRGenerator } from '@nahisaho/musubix-core';
 
 const generator = createADRGenerator({
   template: 'madr',
@@ -246,7 +246,7 @@ const adr = generator.generate(decision);
 Generates implementation tasks from requirements.
 
 ```typescript
-import { createTaskGenerator } from '@musubix/core';
+import { createTaskGenerator } from '@nahisaho/musubix-core';
 
 const generator = createTaskGenerator({
   estimateEffort: true,
@@ -271,7 +271,7 @@ const tasks = generator.generate(requirements);
 Validates code against coding standards.
 
 ```typescript
-import { createCodingStandardsChecker } from '@musubix/core';
+import { createCodingStandardsChecker } from '@nahisaho/musubix-core';
 
 const checker = createCodingStandardsChecker({
   rules: ['naming', 'formatting', 'documentation']
@@ -297,7 +297,7 @@ const violations = checker.check(code, 'typescript');
 Validates artifacts against 9 Constitutional Articles.
 
 ```typescript
-import { createConstitutionalValidator } from '@musubix/core';
+import { createConstitutionalValidator } from '@nahisaho/musubix-core';
 
 const validator = createConstitutionalValidator({
   strictMode: true,
@@ -338,7 +338,7 @@ const result = validator.validate(artifact);
 Manages internationalization and localization.
 
 ```typescript
-import { createI18nManager, t } from '@musubix/core';
+import { createI18nManager, t } from '@nahisaho/musubix-core';
 
 const i18n = createI18nManager({
   defaultLocale: 'en',
@@ -370,7 +370,7 @@ console.log(t('common.save')); // 保存
 Provides structured logging with multiple transports.
 
 ```typescript
-import { createLogger } from '@musubix/core';
+import { createLogger } from '@nahisaho/musubix-core';
 
 const logger = createLogger({
   level: 'info',
@@ -397,7 +397,7 @@ logger.info('Operation completed', { duration: 150 });
 Profiles and measures performance.
 
 ```typescript
-import { createPerformanceProfiler } from '@musubix/core';
+import { createPerformanceProfiler } from '@nahisaho/musubix-core';
 
 const profiler = createPerformanceProfiler();
 
@@ -422,7 +422,7 @@ const result = profiler.end('operation');
 ### Starting the Server
 
 ```typescript
-import { createMCPServer } from '@musubix/mcp-server';
+import { createMCPServer } from '@nahisaho/musubix-mcp-server';
 
 const server = createMCPServer({
   transport: 'stdio', // or 'sse'
@@ -464,7 +464,7 @@ await server.start();
 ### Connecting to YATA
 
 ```typescript
-import { createYATAClient } from '@musubix/yata-client';
+import { createYATAClient } from '@nahisaho/musubix-yata-client';
 
 const client = createYATAClient({
   endpoint: 'http://localhost:8000',
@@ -586,7 +586,7 @@ interface C4Diagram {
 All MUSUBIX functions follow a consistent error handling pattern:
 
 ```typescript
-import { MUSUBIXError, ErrorCode } from '@musubix/core';
+import { MUSUBIXError, ErrorCode } from '@nahisaho/musubix-core';
 
 try {
   const result = analyzer.analyze(text);

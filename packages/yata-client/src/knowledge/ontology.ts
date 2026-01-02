@@ -7,7 +7,7 @@
  * @module knowledge/ontology
  * 
  * @see REQ-INT-101 - YATA Integration
- * @see REQ-NS-102 - Knowledge Base
+ * @see REQ-INT-002 - Knowledge Base
  */
 
 import type { KnowledgeNode, KnowledgeEdge } from '../types.js';

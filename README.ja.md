@@ -1,10 +1,11 @@
 # MUSUBIX - ニューロシンボリックAI統合システム
 
+[![npm version](https://img.shields.io/npm/v/musubix.svg)](https://www.npmjs.com/package/musubix)
+[![npm core](https://img.shields.io/npm/v/@nahisaho/musubix-core.svg?label=@nahisaho/musubix-core)](https://www.npmjs.com/package/@nahisaho/musubix-core)
+[![npm mcp](https://img.shields.io/npm/v/@nahisaho/musubix-mcp-server.svg?label=@nahisaho/musubix-mcp-server)](https://www.npmjs.com/package/@nahisaho/musubix-mcp-server)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
-[![Tests](https://img.shields.io/badge/tests-16%20passed-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 
@@ -29,9 +30,9 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 flowchart TB
     subgraph MUSUBIX["MUSUBIX System"]
         subgraph Packages["Packages"]
-            Core["@musubix/core"]
-            MCP["@musubix/mcp-server"]
-            YATA["@musubix/yata-client"]
+            Core["@nahisaho/musubix-core"]
+            MCP["@nahisaho/musubix-mcp-server"]
+            YATA["@nahisaho/musubix-yata-client"]
         end
         
         Core <--> MCP
@@ -89,7 +90,7 @@ npx musubix init
 npx musubix --help
 
 # MCPサーバー起動
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
@@ -97,9 +98,9 @@ npx musubix-mcp --transport stdio
 
 ```bash
 # 個別パッケージのインストール
-npm install @musubix/core
-npm install @musubix/mcp-server
-npm install @musubix/yata-client
+npm install @nahisaho/musubix-core
+npm install @nahisaho/musubix-mcp-server
+npm install @nahisaho/musubix-yata-client
 ```
 
 ### ソースからビルド
@@ -156,7 +157,7 @@ npm run type-check
 
 \`\`\`bash
 # MCPサーバー起動
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 \`\`\`
 
 ## ドキュメント

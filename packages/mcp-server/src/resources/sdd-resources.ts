@@ -7,7 +7,7 @@
  * @module resources
  * 
  * @see REQ-INT-102 - MCP Server
- * @see REQ-CORE-101 - SDD Workflow
+ * @see REQ-INT-102 - SDD Workflow
  */
 
 import type {

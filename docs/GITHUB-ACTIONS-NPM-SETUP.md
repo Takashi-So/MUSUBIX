@@ -97,7 +97,7 @@ npm ERR! 403 Forbidden - Package name too similar to existing packages
 
 **解決策**:
 - パッケージ名がnpmで利用可能か確認
-- スコープ付きパッケージ名（@musubix/xxx）を使用
+- スコープ付きパッケージ名（@nahisaho/musubix-xxx）を使用
 
 ### 4.3 バージョンの重複
 

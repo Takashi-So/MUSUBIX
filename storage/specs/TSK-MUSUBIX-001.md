@@ -2,10 +2,11 @@
 
 **文書ID**: TSK-MUSUBIX-001  
 **プロジェクト**: MUSUBIX  
-**バージョン**: 1.0  
+**バージョン**: 1.3  
 **作成日**: 2026-01-01  
+**更新日**: 2026-01-03  
 **ステータス**: Active  
-**設計書**: DES-MUSUBIX-001 v1.1 (Approved)
+**設計書**: DES-MUSUBIX-001 v1.3 (Approved)
 
 ---
 
@@ -30,8 +31,10 @@ MUSUBIX/
 | P0（必須） | 31 | 15日 | Sprint 1-3C |
 | P1（重要） | 9 | 5日 | Sprint 4 |
 | P2（任意） | 3 | 2日 | Sprint 5 |
+| Agent Skills | 5 | 1日 | Sprint 5 |
 | 統合/文書 | 3 | 2日 | Sprint 5 |
-| **合計** | **56** | **27日** | **7 Sprints** |
+| CLIコマンド | 18 | 9日 | Sprint 6 |
+| **合計** | **69** | **34日** | **8 Sprints** |
 
 ### 1.3 改善版スプリント計画
 
@@ -43,8 +46,9 @@ MUSUBIX/
 | Sprint 3B | 4日 | 8 | 32h | コード生成・テスト生成 |
 | Sprint 3C | 2日 | 5 | 20h | 説明生成・エラーリカバリ |
 | Sprint 4 | 5日 | 9 | 38h | 拡張機能（P1） |
-| Sprint 5 | 4日 | 6 | 30h | 仕上げ（P2・統合テスト） |
-| **合計** | **27日** | **56** | **214h** | - |
+| Sprint 5 | 5日 | 11 | 44h | 仕上げ（P2・Agent Skills・統合テスト） |
+| Sprint 6 | 6日 | 18 | 54h | CLIコマンド実装 |
+| **合計** | **34日** | **69** | **282h** | - |
 
 ---
 
@@ -244,7 +248,17 @@ MUSUBIX/
 | TSK-052 | VisualExplanationGenerator | REQ-EXP-003 | 6h | TSK-039 |
 | TSK-053 | I18nManager | REQ-I18N-001 | 4h | TSK-005 |
 
-### 8.2 統合テスト・ドキュメント
+### 8.2 Agent Skills（Article VI準拠）
+
+| タスクID | タスク名 | 対応要件 | 見積もり | 依存 |
+|---------|---------|---------|---------|------|
+| TSK-057 | Agent Skillsディレクトリ構造作成 | REQ-SKL-001 | 1h | - |
+| TSK-058 | SKILL.mdファイル形式実装 | REQ-SKL-002 | 2h | TSK-057 |
+| TSK-059 | スキルコンテンツ作成 | REQ-SKL-003 | 3h | TSK-058 |
+| TSK-060 | MUSUBIXスキルセット実装 | REQ-SKL-004 | 4h | TSK-059 |
+| TSK-061 | Skills CLI実装 | REQ-SKL-001〜004 | 4h | TSK-006, TSK-060 |
+
+### 8.3 統合テスト・ドキュメント
 
 | タスクID | タスク名 | 対応要件 | 見積もり | 依存 |
 |---------|---------|---------|---------|------|
@@ -252,17 +266,83 @@ MUSUBIX/
 | TSK-055 | APIドキュメント生成 | - | 4h | 全タスク |
 | TSK-056 | ユーザーガイド作成 | - | 4h | TSK-055 |
 
-### 8.3 Sprint 5 成果物
+### 8.4 Sprint 5 成果物
 
 - [x] 要件分解機能
 - [x] 視覚的説明生成
 - [x] 日英多言語対応
+- [x] Agent Skills（3スキル）
+- [x] Skills CLI
 - [x] E2E統合テスト完了
 - [x] ドキュメント完成
 
 ---
 
-## 9. 依存関係グラフ
+## 9. Sprint 6: CLIコマンド実装（6日）
+
+### 9.1 requirementsコマンド
+
+| タスクID | タスク名 | 対応要件 | 見積もり | 依存 |
+|---------|---------|---------|---------|------|
+| TSK-062 | requirements analyzeサブコマンド | REQ-CLI-001 | 4h | TSK-006, TSK-023 |
+| TSK-063 | requirements validateサブコマンド | REQ-CLI-001 | 3h | TSK-006, TSK-023 |
+| TSK-064 | requirements mapサブコマンド | REQ-CLI-001 | 3h | TSK-006, TSK-014 |
+| TSK-065 | requirements searchサブコマンド | REQ-CLI-001 | 3h | TSK-006, TSK-042 |
+
+### 9.2 designコマンド
+
+| タスクID | タスク名 | 対応要件 | 見積もり | 依存 |
+|---------|---------|---------|---------|------|
+| TSK-066 | design generateサブコマンド | REQ-CLI-002 | 4h | TSK-006, TSK-024 |
+| TSK-067 | design patternsサブコマンド | REQ-CLI-002 | 3h | TSK-006, TSK-026 |
+| TSK-068 | design validateサブコマンド | REQ-CLI-002 | 3h | TSK-006, TSK-025 |
+| TSK-069 | design c4サブコマンド | REQ-CLI-002 | 3h | TSK-006, TSK-043 |
+| TSK-070 | design adrサブコマンド | REQ-CLI-002 | 2h | TSK-006, TSK-044 |
+
+### 9.3 codegenコマンド
+
+| タスクID | タスク名 | 対応要件 | 見積もり | 依存 |
+|---------|---------|---------|---------|------|
+| TSK-071 | codegen generateサブコマンド | REQ-CLI-003 | 4h | TSK-006, TSK-029 |
+| TSK-072 | codegen analyzeサブコマンド | REQ-CLI-003 | 3h | TSK-006, TSK-030 |
+| TSK-073 | codegen securityサブコマンド | REQ-CLI-003 | 3h | TSK-006, TSK-033 |
+
+### 9.4 testコマンド
+
+| タスクID | タスク名 | 対応要件 | 見積もり | 依存 |
+|---------|---------|---------|---------|------|
+| TSK-074 | test generateサブコマンド | REQ-CLI-004 | 4h | TSK-006, TSK-035 |
+| TSK-075 | test coverageサブコマンド | REQ-CLI-004 | 3h | TSK-006, TSK-037 |
+
+### 9.5 traceコマンド
+
+| タスクID | タスク名 | 対応要件 | 見積もり | 依存 |
+|---------|---------|---------|---------|------|
+| TSK-076 | trace matrixサブコマンド | REQ-CLI-005 | 3h | TSK-006, TSK-035 |
+| TSK-077 | trace impactサブコマンド | REQ-CLI-005 | 3h | TSK-006, TSK-035 |
+| TSK-078 | trace validateサブコマンド | REQ-CLI-005 | 2h | TSK-006, TSK-035 |
+
+### 9.6 explainコマンド
+
+| タスクID | タスク名 | 対応要件 | 見積もり | 依存 |
+|---------|---------|---------|---------|------|
+| TSK-079 | explain whyサブコマンド | REQ-CLI-006 | 3h | TSK-006, TSK-039 |
+| TSK-080 | explain graphサブコマンド | REQ-CLI-006 | 3h | TSK-006, TSK-052 |
+
+### 9.7 Sprint 6 成果物
+
+- [x] requirements CLI（analyze/validate/map/search） ✅ 2026-01-02
+- [x] design CLI（generate/patterns/validate/c4/adr） ✅ 2026-01-02
+- [x] codegen CLI（generate/analyze/security） ✅ 2026-01-02
+- [x] test CLI（generate/coverage） ✅ 2026-01-02
+- [x] trace CLI（matrix/impact/validate） ✅ 2026-01-02
+- [x] explain CLI（why/graph） ✅ 2026-01-02
+- [x] CLIテスト（ユニット・統合） ✅ 2026-01-02 (既存233テスト通過)
+- [x] CLIドキュメント更新 ✅ 2026-01-02 (AGENTS.md一致確認)
+
+---
+
+## 10. 依存関係グラフ
 
 ```
 Sprint 1 (基盤) - 3日
@@ -301,11 +381,28 @@ TSK-023 ─► TSK-051
 TSK-039 ─► TSK-052
 TSK-005 ─► TSK-053
 全タスク ─► TSK-054 ─► TSK-055 ─► TSK-056
+
+Sprint 6 (CLIコマンド) - 6日
+TSK-006, TSK-023 ─► TSK-062/063
+TSK-006, TSK-014 ─► TSK-064
+TSK-006, TSK-042 ─► TSK-065
+TSK-006, TSK-024 ─► TSK-066
+TSK-006, TSK-026 ─► TSK-067
+TSK-006, TSK-025 ─► TSK-068
+TSK-006, TSK-043 ─► TSK-069
+TSK-006, TSK-044 ─► TSK-070
+TSK-006, TSK-029 ─► TSK-071
+TSK-006, TSK-030 ─► TSK-072
+TSK-006, TSK-033 ─► TSK-073
+TSK-006, TSK-035 ─► TSK-074/076/077/078
+TSK-006, TSK-037 ─► TSK-075
+TSK-006, TSK-039 ─► TSK-079
+TSK-006, TSK-052 ─► TSK-080
 ```
 
 ---
 
-## 10. Test-First実装ガイド（Article III）
+## 11. Test-First実装ガイド（Article III）
 
 各タスクは以下の順序で実装する：
 
@@ -322,15 +419,15 @@ TSK-005 ─► TSK-053
    └─► コード品質向上
 ```
 
-### 10.2 テストファイル命名規則
+### 11.2 テストファイル命名規則
 
 | パッケージ | ユニットテスト | 統合テスト |
-|-----------|--------------|-----------|
+|-----------|--------------|------------|
 | core | `__tests__/unit/*.test.ts` | `__tests__/integration/*.test.ts` |
 | mcp-server | `__tests__/unit/*.test.ts` | `__tests__/integration/*.test.ts` |
 | yata-client | `__tests__/unit/*.test.ts` | `__tests__/integration/*.test.ts` |
 
-### 10.3 カバレッジ目標
+### 11.3 カバレッジ目標
 
 | 種別 | 目標 |
 |------|------|
@@ -340,7 +437,7 @@ TSK-005 ─► TSK-053
 
 ---
 
-## 11. 承認
+## 12. 承認
 
 | 役割 | 氏名 | 署名 | 日付 |
 |------|------|------|------|
@@ -357,9 +454,11 @@ TSK-005 ─► TSK-053
 |-----------|------|---------|--------|
 | 1.0 | 2026-01-01 | 初版作成（56タスク、5スプリント） | MUSUBIX |
 | 1.1 | 2026-01-01 | Sprint 3を3A/3B/3Cに分割、27日間に最適化 | MUSUBIX |
+| 1.2 | 2026-01-02 | Agent Skills対応: TSK-057〜061追加、タスク数56→61、REQ-SKL-001〜004カバレッジ | MUSUBIX |
+| 1.3 | 2026-01-03 | CLIコマンド対応: TSK-062〜080追加（Sprint 6）、タスク数61→69、REQ-CLI-001〜006カバレッジ、requirements/design/codegen/test/trace/explain CLI | MUSUBIX |
 
 ---
 
 **文書ID**: TSK-MUSUBIX-001  
-**バージョン**: 1.1  
-**最終更新**: 2026-01-01
+**バージョン**: 1.3  
+**最終更新**: 2026-01-03

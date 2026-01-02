@@ -7,7 +7,7 @@
  * @module reasoning/integrator
  * 
  * @see REQ-INT-001 - Neuro-Symbolic Integration
- * @see REQ-NS-101 - Symbolic Reasoning
+ * @see REQ-INT-001 - Symbolic Reasoning
  */
 
 import type { YataMCPClient } from '../mcp/client.js';

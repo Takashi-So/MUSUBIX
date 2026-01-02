@@ -1,7 +1,9 @@
 # MUSUBIX - Neuro-Symbolic AI Integration System
 
 [![CI](https://github.com/nahisaho/MUSUBIX/actions/workflows/ci.yml/badge.svg)](https://github.com/nahisaho/MUSUBIX/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/@musubix/core.svg)](https://www.npmjs.com/package/@musubix/core)
+[![npm version](https://img.shields.io/npm/v/musubix.svg)](https://www.npmjs.com/package/musubix)
+[![npm core](https://img.shields.io/npm/v/@nahisaho/musubix-core.svg?label=@nahisaho/musubix-core)](https://www.npmjs.com/package/@nahisaho/musubix-core)
+[![npm mcp](https://img.shields.io/npm/v/@nahisaho/musubix-mcp-server.svg?label=@nahisaho/musubix-mcp-server)](https://www.npmjs.com/package/@nahisaho/musubix-mcp-server)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
@@ -31,9 +33,9 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 flowchart TB
     subgraph MUSUBIX["MUSUBIX System"]
         subgraph Packages["Packages"]
-            Core["@musubix/core"]
-            MCP["@musubix/mcp-server"]
-            YATA["@musubix/yata-client"]
+            Core["@nahisaho/musubix-core"]
+            MCP["@nahisaho/musubix-mcp-server"]
+            YATA["@nahisaho/musubix-yata-client"]
         end
         
         Core <--> MCP
@@ -91,7 +93,7 @@ npx musubix init
 npx musubix --help
 
 # Start MCP Server
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
@@ -99,9 +101,9 @@ npx musubix-mcp --transport stdio
 
 ```bash
 # Install individual packages
-npm install @musubix/core
-npm install @musubix/mcp-server
-npm install @musubix/yata-client
+npm install @nahisaho/musubix-core
+npm install @nahisaho/musubix-mcp-server
+npm install @nahisaho/musubix-yata-client
 ```
 
 ### Build from Source
@@ -158,7 +160,7 @@ Provides 34 tools and 3 prompts:
 
 ```bash
 # Start MCP Server
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 ```
 
 ## Documentation

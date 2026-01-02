@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-01-03
+
+### Added
+
+#### CLI コマンド完全実装（Sprint 6）
+
+すべてのCLIコマンドが実装され、AGENTS.mdおよびドキュメントの記載と完全に一致。
+
+**requirements コマンド**
+- `musubix requirements analyze <file>` - 自然言語からEARS要件への変換
+- `musubix requirements validate <file>` - EARS構文検証
+- `musubix requirements map <file>` - オントロジーマッピング
+- `musubix requirements search <query>` - 関連要件検索
+
+**design コマンド**
+- `musubix design generate <file>` - 要件から設計生成
+- `musubix design patterns <context>` - デザインパターン検出
+- `musubix design validate <file>` - SOLID準拠検証
+- `musubix design c4 <file>` - C4ダイアグラム生成（Mermaid/PlantUML）
+- `musubix design adr <decision>` - ADRドキュメント生成
+
+**codegen コマンド**
+- `musubix codegen generate <file>` - 設計からコード生成
+- `musubix codegen analyze <file>` - 静的コード解析
+- `musubix codegen security <path>` - セキュリティスキャン（CWE対応）
+
+**test コマンド**
+- `musubix test generate <file>` - テスト生成（vitest/jest/mocha/pytest対応）
+- `musubix test coverage <dir>` - カバレッジ測定・HTMLレポート
+
+**trace コマンド**
+- `musubix trace matrix` - トレーサビリティマトリクス生成（HTML/CSV/Markdown）
+- `musubix trace impact <id>` - 変更影響分析
+- `musubix trace validate` - トレーサビリティリンク検証
+
+**explain コマンド**
+- `musubix explain why <id>` - 決定理由の説明生成
+- `musubix explain graph <id>` - 推論グラフ生成（Mermaid）
+
+### Changed
+- TSK-MUSUBIX-001.md Sprint 6 成果物を完了ステータスに更新
+
+### Fixed
+- TypeScript型エラー修正（未使用インポート、プロパティ名修正）
+
+---
+
 ## [1.0.0] - 2026-01-02
 
 ### 🎉 Initial Release
@@ -21,17 +68,17 @@ npm install -g musubix
 
 # npx で直接実行
 npx musubix init
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 
 # スコープ付きパッケージとして
-npm install @musubix/core @musubix/mcp-server @musubix/yata-client
+npm install @nahisaho/musubix-core @nahisaho/musubix-mcp-server @nahisaho/musubix-yata-client
 ```
 
 #### CLI コマンド
 - `musubix` - メインCLI
 - `musubix-mcp` - MCPサーバー起動
 
-#### Core Package (@musubix/core)
+#### Core Package (@nahisaho/musubix-core)
 - **認証・認可** (`auth/`)
   - AuthManager - JWT/OAuth認証管理
   
@@ -88,14 +135,14 @@ npm install @musubix/core @musubix/mcp-server @musubix/yata-client
   - QualityMetricsCalculator - 品質メトリクス計算
   - CodingStandardsChecker - コーディング規約チェック
 
-#### MCP Server Package (@musubix/mcp-server)
+#### MCP Server Package (@nahisaho/musubix-mcp-server)
 - MCPServer基盤（stdio/SSE対応）
 - 34個のMCPツール定義
 - 3個のMCPプロンプト定義
 - MCPリソース定義
 - PlatformAdapter（GitHub Copilot/Cursor対応）
 
-#### YATA Client Package (@musubix/yata-client)
+#### YATA Client Package (@nahisaho/musubix-yata-client)
 - YATAClient基盤
 - GraphQueryInterface
 - OntologyMapper

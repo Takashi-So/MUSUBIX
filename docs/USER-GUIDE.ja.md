@@ -83,7 +83,7 @@ npx musubix --help
 npx musubix init my-project
 
 # MCPサーバー起動
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
@@ -91,9 +91,9 @@ npx musubix-mcp --transport stdio
 
 ```bash
 # 個別パッケージのインストール
-npm install @musubix/core
-npm install @musubix/mcp-server
-npm install @musubix/yata-client  # YATA連携用（オプション）
+npm install @nahisaho/musubix-core
+npm install @nahisaho/musubix-mcp-server
+npm install @nahisaho/musubix-yata-client  # YATA連携用（オプション）
 ```
 
 ### 方法4: ソースからビルド
@@ -200,7 +200,7 @@ import {
   createC4ModelGenerator,
   createTaskGenerator,
   createConstitutionalValidator
-} from '@musubix/core';
+} from '@nahisaho/musubix-core';
 
 // 1. 要件の分析
 const analyzer = createRequirementsAnalyzer();
@@ -308,7 +308,7 @@ steering/
 ### RequirementsAnalyzer の使用
 
 ```typescript
-import { createRequirementsAnalyzer } from '@musubix/core';
+import { createRequirementsAnalyzer } from '@nahisaho/musubix-core';
 
 const analyzer = createRequirementsAnalyzer({
   strictMode: true,    // 厳密な検証
@@ -332,7 +332,7 @@ console.log('優先度:', result.priority); // must
 複雑な要件を小さな単位に分解：
 
 ```typescript
-import { createRequirementsDecomposer } from '@musubix/core';
+import { createRequirementsDecomposer } from '@nahisaho/musubix-core';
 
 const decomposer = createRequirementsDecomposer({
   maxDepth: 4,        // 最大分解深度
@@ -362,7 +362,7 @@ C4モデルは4つのレベルでシステムを表現します：
 4. **Code**: コードレベルの詳細
 
 ```typescript
-import { createC4ModelGenerator } from '@musubix/core';
+import { createC4ModelGenerator } from '@nahisaho/musubix-core';
 
 const generator = createC4ModelGenerator({
   defaultFormat: 'mermaid'
@@ -391,7 +391,7 @@ console.log(generator.export(contextDiagram, 'mermaid'));
 重要なアーキテクチャ決定を記録：
 
 ```typescript
-import { createADRGenerator } from '@musubix/core';
+import { createADRGenerator } from '@nahisaho/musubix-core';
 
 const adrGenerator = createADRGenerator({
   template: 'madr',
@@ -426,7 +426,7 @@ console.log(adr.export());
 要件から実装タスクを生成：
 
 ```typescript
-import { createTaskGenerator } from '@musubix/core';
+import { createTaskGenerator } from '@nahisaho/musubix-core';
 
 const taskGenerator = createTaskGenerator({
   estimateEffort: true,   // 工数見積もり
@@ -469,7 +469,7 @@ prioritized.forEach((task, index) => {
 ### 憲法に基づく検証
 
 ```typescript
-import { createConstitutionalValidator } from '@musubix/core';
+import { createConstitutionalValidator } from '@nahisaho/musubix-core';
 
 const validator = createConstitutionalValidator({
   strictMode: true,
@@ -516,7 +516,7 @@ console.log(`  テスト: ${result.coverage.tests}%`);
 ```bash
 # stdio モード（推奨）
 musubix-mcp
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 
 # SSE モード
 musubix-mcp --transport sse --port 8080
@@ -525,7 +525,7 @@ musubix-mcp --transport sse --port 8080
 #### プログラムから起動
 
 ```typescript
-import { startServer, createMCPServer } from '@musubix/mcp-server';
+import { startServer, createMCPServer } from '@nahisaho/musubix-mcp-server';
 
 // 簡易起動
 await startServer({ transport: 'stdio' });
@@ -550,7 +550,7 @@ console.log('MCPサーバーが起動しました');
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     },
     "yata": {
       "command": "uv",
@@ -573,7 +573,7 @@ console.log('MCPサーバーが起動しました');
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     },
     "yata": {
       "command": "uv",
@@ -593,7 +593,7 @@ console.log('MCPサーバーが起動しました');
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     }
   }
 }
@@ -643,7 +643,7 @@ uv run yata serve --transport sse --port 8080
 ### YATAクライアントの設定
 
 ```typescript
-import { createYATAClient } from '@musubix/yata-client';
+import { createYATAClient } from '@nahisaho/musubix-yata-client';
 
 const yata = createYATAClient({
   transport: 'stdio',  // または { type: 'sse', endpoint: 'http://localhost:8080' }

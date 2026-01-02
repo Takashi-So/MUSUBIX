@@ -1,6 +1,6 @@
 {
-  "name": "@musubix/core",
-  "version": "1.0.0",
+  "name": "@nahisaho/musubix-core",
+  "version": "1.0.1",
   "description": "MUSUBIX Core Library - Neuro-Symbolic Integration Engine",
   "type": "module",
   "main": "./dist/index.js",
@@ -60,21 +60,23 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "commander": "^11.1.0",
+    "@modelcontextprotocol/sdk": "1.25.1",
     "chalk": "^5.3.0",
+    "commander": "^11.1.0",
     "ora": "^8.0.0",
+    "yaml": "^2.7.0",
     "zod": "^3.22.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "typescript": "^5.3.0",
-    "vitest": "^1.0.0"
+    "vitest": "^4.0.16"
   },
   "peerDependencies": {
-    "@musubix/yata-client": ">=0.1.0"
+    "@nahisaho/musubix-yata-client": ">=0.1.0"
   },
   "peerDependenciesMeta": {
-    "@musubix/yata-client": {
+    "@nahisaho/musubix-yata-client": {
       "optional": true
     }
   },

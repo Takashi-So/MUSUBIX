@@ -6,8 +6,8 @@
  * @packageDocumentation
  * @module reasoning/contradiction
  * 
- * @see REQ-NS-101 - Symbolic Reasoning
- * @see REQ-NS-104 - Contradiction Detection
+ * @see REQ-INT-001 - Symbolic Reasoning
+ * @see REQ-INT-004 - Contradiction Detection
  */
 
 import type { KnowledgeNode, KnowledgeEdge } from '../types.js';

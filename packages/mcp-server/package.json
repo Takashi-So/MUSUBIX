@@ -1,6 +1,6 @@
 {
-  "name": "@musubix/mcp-server",
-  "version": "1.0.0",
+  "name": "@nahisaho/musubix-mcp-server",
+  "version": "1.0.1",
   "description": "MUSUBIX MCP Server - Model Context Protocol Server for AI Platforms",
   "type": "module",
   "main": "./dist/index.js",
@@ -44,16 +44,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.5.0",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "zod": "^3.22.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "typescript": "^5.3.0",
-    "vitest": "^1.0.0"
+    "vitest": "^4.0.16"
   },
   "peerDependencies": {
-    "@musubix/core": ">=0.1.0"
+    "@nahisaho/musubix-core": ">=0.1.0"
   },
   "keywords": [
     "musubix",

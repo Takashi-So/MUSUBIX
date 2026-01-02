@@ -393,7 +393,7 @@ musubix-mcp --transport websocket --port 3001
 ### Programmatic Startup
 
 ```typescript
-import { startServer, createMCPServer } from '@musubix/mcp-server';
+import { startServer, createMCPServer } from '@nahisaho/musubix-mcp-server';
 
 // Simple startup
 await startServer();
@@ -499,7 +499,7 @@ Add to `.cursor/mcp.json`:
 ### YATA Client (from MUSUBIX)
 
 ```typescript
-import { createYATAClient } from '@musubix/yata-client';
+import { createYATAClient } from '@nahisaho/musubix-yata-client';
 
 // Create client
 const yata = createYATAClient({

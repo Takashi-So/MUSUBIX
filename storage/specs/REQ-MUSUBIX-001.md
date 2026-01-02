@@ -2,8 +2,9 @@
 
 **文書ID**: REQ-MUSUBIX-001  
 **プロジェクト**: MUSUBIX  
-**バージョン**: 1.1  
+**バージョン**: 1.4  
 **作成日**: 2026-01-01  
+**更新日**: 2026-01-02  
 **ステータス**: Approved  
 **準拠規格**: EARS（Easy Approach to Requirements Syntax）
 
@@ -188,7 +189,8 @@ AND THE システム SHALL 構文エラーがある場合は修正案を提示�
 - [ ] 構文検証精度95%以上
 - [ ] 修正提案の妥当性をエキスパートが確認
 
-**トレーサビリティ**: DES-RA-001, TEST-RA-001
+**トレーサビリティ**: DES-RA-001, TEST-RA-001  
+**憲法準拠**: Article IV（EARS Format）
 
 ---
 
@@ -527,7 +529,8 @@ AND THE システム SHALL カバレッジ80%以上を目標とする。
 - [ ] カバレッジ目標達成率85%以上
 - [ ] 要件マッピング100%
 
-**トレーサビリティ**: DES-TST-001, TEST-TST-001
+**トレーサビリティ**: DES-TST-001, TEST-TST-001  
+**憲法準拠**: Article III（Test-First）
 
 ---
 
@@ -643,7 +646,8 @@ AND THE システム SHALL カバレッジ100%を保証する。
 - [ ] カバレッジ100%達成
 - [ ] リンク切れ0件
 
-**トレーサビリティ**: DES-TRA-001, TEST-TRA-001
+**トレーサビリティ**: DES-TRA-001, TEST-TRA-001  
+**憲法準拠**: Article V（Traceability）
 
 ---
 
@@ -663,7 +667,8 @@ AND THE システム SHALL 変更推奨事項を提示する。
 - [ ] 影響範囲特定精度95%以上
 - [ ] レポート生成成功率100%
 
-**トレーサビリティ**: DES-TRA-002, TEST-TRA-002
+**トレーサビリティ**: DES-TRA-002, TEST-TRA-002  
+**憲法準拠**: Article V（Traceability）
 
 ---
 
@@ -985,7 +990,289 @@ AND THE システム SHALL ドキュメントを選択言語で提供する。
 
 ---
 
-## 17. 要件トレーサビリティマトリクス
+## 17. GitHub Agent Skills要件
+
+### REQ-SKL-001: Agent Skillsディレクトリ構造
+
+**種別**: UBIQUITOUS  
+**優先度**: P0（必須）
+
+**要件**:  
+THE システム SHALL `.github/skills/` ディレクトリにAgent Skillsを格納し、  
+AND THE システム SHALL 各スキルを独立したサブディレクトリとして構成し、  
+AND THE システム SHALL サブディレクトリ名を小文字・ハイフン区切りとする。
+
+**検証方法**: ディレクトリ構造検証  
+**受入基準**:
+- [ ] `.github/skills/` ディレクトリが存在する
+- [ ] 各スキルが独立サブディレクトリを持つ
+- [ ] ディレクトリ名が小文字・ハイフン区切り
+
+**トレーサビリティ**: DES-SKL-001, TEST-SKL-001  
+**憲法準拠**: Article VI（Project Memory）  
+**外部仕様**: https://docs.github.com/ja/copilot/concepts/agents/about-agent-skills
+
+---
+
+### REQ-SKL-002: SKILL.mdファイル形式
+
+**種別**: UBIQUITOUS  
+**優先度**: P0（必須）
+
+**要件**:  
+THE 各スキルディレクトリ SHALL `SKILL.md` ファイルを含み、  
+AND THE `SKILL.md` SHALL YAML frontmatter を含み、  
+AND THE frontmatter SHALL `name` フィールド（必須・小文字・ハイフン区切り）を含み、  
+AND THE frontmatter SHALL `description` フィールド（必須・使用タイミングを含む）を含み、  
+AND THE frontmatter SHALL `license` フィールド（任意）を含むことができる。
+
+**検証方法**: ファイル形式検証  
+**受入基準**:
+- [ ] 全スキルディレクトリに `SKILL.md` が存在
+- [ ] YAML frontmatter が正しくパースできる
+- [ ] `name` が小文字・ハイフン区切り
+- [ ] `description` が存在し、使用タイミングを含む
+
+**トレーサビリティ**: DES-SKL-002, TEST-SKL-002  
+**憲法準拠**: Article VI（Project Memory）  
+**外部仕様**: https://docs.github.com/ja/copilot/concepts/agents/about-agent-skills
+
+---
+
+### REQ-SKL-003: スキルコンテンツ
+
+**種別**: UBIQUITOUS  
+**優先度**: P0（必須）
+
+**要件**:  
+THE `SKILL.md` SHALL Markdown本文を含み、  
+AND THE 本文 SHALL Copilotへの指示を記述し、  
+AND THE 本文 SHALL 実行例やコードサンプルを含み、  
+AND THE 本文 SHALL ガイドラインやチェックリストを含む。
+
+**検証方法**: コンテンツ検証  
+**受入基準**:
+- [ ] 指示セクションが存在
+- [ ] 実行例が1つ以上含まれる
+- [ ] ガイドラインまたはチェックリストが含まれる
+
+**トレーサビリティ**: DES-SKL-003, TEST-SKL-003  
+**憲法準拠**: Article VI（Project Memory）
+
+---
+
+### REQ-SKL-004: MUSUBIXスキルセット
+
+**種別**: UBIQUITOUS  
+**優先度**: P0（必須）
+
+**要件**:  
+THE システム SHALL 以下の3つのAgent Skillsを提供する:
+
+| スキル名 | 用途 |
+|---------|------|
+| `musubix-sdd-workflow` | SDDワークフロー全体、9憲法条項ガイド |
+| `musubix-ears-validation` | EARS形式要件の作成・検証 |
+| `musubix-code-generation` | 設計からのコード生成 |
+
+AND THE 各スキル SHALL 対応するCLIコマンドを記載し、  
+AND THE 各スキル SHALL 憲法条項への準拠方法を記載する。
+
+**検証方法**: スキル存在検証  
+**受入基準**:
+- [ ] 3つのスキルが全て存在
+- [ ] 各スキルにCLIコマンドが記載
+- [ ] 各スキルに憲法準拠情報が記載
+
+**トレーサビリティ**: DES-SKL-004, TEST-SKL-004  
+**憲法準拠**: Article VI（Project Memory）
+
+---
+
+## 17. CLIコマンド要件
+
+### REQ-CLI-001: Requirements CLIコマンド
+
+**種別**: EVENT-DRIVEN  
+**優先度**: P0（必須）
+
+**要件**:  
+WHEN ユーザーが`musubix requirements`コマンドを実行した場合,  
+THE システム SHALL 以下のサブコマンドを提供する:
+
+| サブコマンド | 説明 | 例 |
+|-------------|------|-----|
+| `analyze <file>` | 自然言語からEARS形式に変換 | `musubix requirements analyze input.md` |
+| `validate <file>` | EARS構文を検証 | `musubix requirements validate REQ-001.md` |
+| `map <file>` | オントロジーにマッピング | `musubix requirements map REQ-001.md` |
+| `search <query>` | 関連要件を検索 | `musubix requirements search "認証"` |
+
+AND THE システム SHALL `--json`オプションでJSON出力をサポートし、  
+AND THE システム SHALL `--verbose`オプションで詳細出力をサポートする。
+
+**検証方法**: CLIテスト、E2Eテスト  
+**受入基準**:
+- [ ] 4つのサブコマンドが全て動作する
+- [ ] --json出力が正しいJSON形式
+- [ ] --verboseで追加情報が表示される
+- [ ] ヘルプが適切に表示される
+
+**トレーサビリティ**: DES-CLI-001, TEST-CLI-001  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article IV（EARS Format）
+
+---
+
+### REQ-CLI-002: Design CLIコマンド
+
+**種別**: EVENT-DRIVEN  
+**優先度**: P0（必須）
+
+**要件**:  
+WHEN ユーザーが`musubix design`コマンドを実行した場合,  
+THE システム SHALL 以下のサブコマンドを提供する:
+
+| サブコマンド | 説明 | 例 |
+|-------------|------|-----|
+| `generate <file>` | 要件から設計を生成 | `musubix design generate REQ-001.md` |
+| `patterns <context>` | デザインパターンを検出 | `musubix design patterns "認証システム"` |
+| `validate <file>` | SOLID原則を検証 | `musubix design validate DES-001.md` |
+| `c4 <file>` | C4ダイアグラムを生成 | `musubix design c4 DES-001.md` |
+| `adr <decision>` | ADRを生成 | `musubix design adr "JWT認証を採用"` |
+
+AND THE システム SHALL `--output <dir>`オプションで出力先を指定可能にし、  
+AND THE システム SHALL `--format <fmt>`オプションでフォーマットを指定可能にする。
+
+**検証方法**: CLIテスト、E2Eテスト  
+**受入基準**:
+- [ ] 5つのサブコマンドが全て動作する
+- [ ] 出力先指定が機能する
+- [ ] フォーマット指定が機能する（markdown, plantuml）
+- [ ] ヘルプが適切に表示される
+
+**トレーサビリティ**: DES-CLI-002, TEST-CLI-002  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article VII（Design Patterns）
+
+---
+
+### REQ-CLI-003: Codegen CLIコマンド
+
+**種別**: EVENT-DRIVEN  
+**優先度**: P0（必須）
+
+**要件**:  
+WHEN ユーザーが`musubix codegen`コマンドを実行した場合,  
+THE システム SHALL 以下のサブコマンドを提供する:
+
+| サブコマンド | 説明 | 例 |
+|-------------|------|-----|
+| `generate <file>` | 設計からコードを生成 | `musubix codegen generate DES-001.md` |
+| `analyze <file>` | 静的解析を実行 | `musubix codegen analyze src/` |
+| `security <path>` | セキュリティスキャン | `musubix codegen security src/` |
+
+AND THE システム SHALL `--language <lang>`オプションで出力言語を指定可能にし、  
+AND THE システム SHALL `--framework <fw>`オプションでフレームワークを指定可能にする。
+
+**検証方法**: CLIテスト、E2Eテスト  
+**受入基準**:
+- [ ] 3つのサブコマンドが全て動作する
+- [ ] 言語指定が機能する（typescript, python, java等）
+- [ ] フレームワーク指定が機能する
+- [ ] ヘルプが適切に表示される
+
+**トレーサビリティ**: DES-CLI-003, TEST-CLI-003  
+**憲法準拠**: Article II（CLI Interface Mandate）
+
+---
+
+### REQ-CLI-004: Test CLIコマンド
+
+**種別**: EVENT-DRIVEN  
+**優先度**: P0（必須）
+
+**要件**:  
+WHEN ユーザーが`musubix test`コマンドを実行した場合,  
+THE システム SHALL 以下のサブコマンドを提供する:
+
+| サブコマンド | 説明 | 例 |
+|-------------|------|-----|
+| `generate <file>` | テストコードを生成 | `musubix test generate src/auth.ts` |
+| `coverage <dir>` | カバレッジを測定 | `musubix test coverage src/` |
+
+AND THE システム SHALL `--framework <fw>`オプションでテストフレームワークを指定可能にし、  
+AND THE システム SHALL `--min-coverage <n>`オプションで最低カバレッジを指定可能にする。
+
+**検証方法**: CLIテスト、E2Eテスト  
+**受入基準**:
+- [ ] 2つのサブコマンドが全て動作する
+- [ ] フレームワーク指定が機能する（vitest, jest, pytest等）
+- [ ] カバレッジ閾値チェックが機能する
+- [ ] ヘルプが適切に表示される
+
+**トレーサビリティ**: DES-CLI-004, TEST-CLI-004  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article III（Test-First）
+
+---
+
+### REQ-CLI-005: Trace CLIコマンド
+
+**種別**: EVENT-DRIVEN  
+**優先度**: P0（必須）
+
+**要件**:  
+WHEN ユーザーが`musubix trace`コマンドを実行した場合,  
+THE システム SHALL 以下のサブコマンドを提供する:
+
+| サブコマンド | 説明 | 例 |
+|-------------|------|-----|
+| `matrix` | トレーサビリティマトリクスを生成 | `musubix trace matrix` |
+| `impact <id>` | 変更影響分析を実行 | `musubix trace impact REQ-001` |
+| `validate` | トレーサビリティリンクを検証 | `musubix trace validate` |
+
+AND THE システム SHALL `--format <fmt>`オプションでフォーマットを指定可能にし、  
+AND THE システム SHALL `--output <file>`オプションで出力ファイルを指定可能にする。
+
+**検証方法**: CLIテスト、E2Eテスト  
+**受入基準**:
+- [ ] 3つのサブコマンドが全て動作する
+- [ ] フォーマット指定が機能する（markdown, csv, html）
+- [ ] 出力ファイル指定が機能する
+- [ ] ヘルプが適切に表示される
+
+**トレーサビリティ**: DES-CLI-005, TEST-CLI-005  
+**憲法準拠**: Article II（CLI Interface Mandate）, Article V（Traceability）
+
+---
+
+### REQ-CLI-006: Explain CLIコマンド
+
+**種別**: EVENT-DRIVEN  
+**優先度**: P1（重要）
+
+**要件**:  
+WHEN ユーザーが`musubix explain`コマンドを実行した場合,  
+THE システム SHALL 以下のサブコマンドを提供する:
+
+| サブコマンド | 説明 | 例 |
+|-------------|------|-----|
+| `why <id>` | 決定理由を説明 | `musubix explain why DES-001` |
+| `graph <id>` | 推論グラフを生成 | `musubix explain graph DES-001` |
+
+AND THE システム SHALL `--level <n>`オプションで説明の詳細度を指定可能にし、  
+AND THE システム SHALL `--audience <type>`オプションで対象者を指定可能にする。
+
+**検証方法**: CLIテスト、E2Eテスト  
+**受入基準**:
+- [ ] 2つのサブコマンドが全て動作する
+- [ ] 詳細度指定が機能する（1-3）
+- [ ] 対象者指定が機能する（developer, manager, stakeholder）
+- [ ] ヘルプが適切に表示される
+
+**トレーサビリティ**: DES-CLI-006, TEST-CLI-006  
+**憲法準拠**: Article II（CLI Interface Mandate）
+
+---
+
+## 18. 要件トレーサビリティマトリクス
 
 | 要件ID | カテゴリ | 設計コンポーネント | テストケース | 優先度 | 憲法準拠 |
 |--------|---------|------------------|-------------|--------|----------|
@@ -1030,19 +1317,30 @@ AND THE システム SHALL ドキュメントを選択言語で提供する。
 | REQ-MNT-001 | 保守性 | Logger | TEST-MNT-001 | P1 | - |
 | REQ-MNT-002 | 保守性 | ErrorHandler | TEST-MNT-002 | P0 | - |
 | REQ-I18N-001 | 国際化 | I18nManager | TEST-I18N-001 | P2 | - |
+| REQ-SKL-001 | Agent Skills | SkillDirectoryStructure | TEST-SKL-001 | P0 | Article VI |
+| REQ-SKL-002 | Agent Skills | SkillFileValidator | TEST-SKL-002 | P0 | Article VI |
+| REQ-SKL-003 | Agent Skills | SkillContentValidator | TEST-SKL-003 | P0 | Article VI |
+| REQ-SKL-004 | Agent Skills | MuSubixSkillSet | TEST-SKL-004 | P0 | Article VI |
+| REQ-CLI-001 | CLIコマンド | RequirementsCLI | TEST-CLI-001 | P0 | Article II, IV |
+| REQ-CLI-002 | CLIコマンド | DesignCLI | TEST-CLI-002 | P0 | Article II, VII |
+| REQ-CLI-003 | CLIコマンド | CodegenCLI | TEST-CLI-003 | P0 | Article II |
+| REQ-CLI-004 | CLIコマンド | TestCLI | TEST-CLI-004 | P0 | Article II, III |
+| REQ-CLI-005 | CLIコマンド | TraceCLI | TEST-CLI-005 | P0 | Article II, V |
+| REQ-CLI-006 | CLIコマンド | ExplainCLI | TEST-CLI-006 | P1 | Article II |
 
 ---
 
-## 18. 要件サマリー
+## 19. 要件サマリー
 
 ### 優先度別集計
 
 | 優先度 | 件数 | 割合 |
 |--------|------|------|
-| P0（必須） | 31 | 76% |
-| P1（重要） | 7 | 17% |
-| P2（任意） | 3 | 7% |
-| **合計** | **41** | **100%** |
+| P0（必須） | 36 | 71% |
+| P1（重要） | 8 | 16% |
+| P2（任意） | 3 | 6% |
+| Agent Skills | 4 | 8% |
+| **合計** | **51** | **100%** |
 
 ### カテゴリ別集計
 
@@ -1057,25 +1355,27 @@ AND THE システム SHALL ドキュメントを選択言語で提供する。
 | 説明生成 | 3 |
 | トレーサビリティ | 2 |
 | エラーリカバリ | 3 |
+| CLIコマンド | 6 |
 | パフォーマンス | 2 |
 | 品質 | 2 |
 | セキュリティ | 2 |
 | 互換性 | 2 |
 | 保守性 | 2 |
 | 国際化 | 1 |
-| **合計** | **41** |
+| Agent Skills | 4 |
+| **合計** | **51** |
 
 ### 憲法準拠状況
 
 | Article | 原則 | 対応要件 |
 |---------|--------|----------|
 | I | Library-First | REQ-ARC-001 |
-| II | CLI Interface | REQ-ARC-002 |
-| III | Test-First | REQ-TST-001, REQ-QUA-002 |
-| IV | EARS Format | REQ-RA-001 |
-| V | Traceability | REQ-TRA-001, REQ-TRA-002 |
-| VI | Project Memory | (システム全体) |
-| VII | Simplicity Gate | (設計時に検証) |
+| II | CLI Interface | REQ-ARC-002, REQ-CLI-001～006 |
+| III | Test-First | REQ-TST-001, REQ-QUA-002, REQ-CLI-004 |
+| IV | EARS Format | REQ-RA-001, REQ-CLI-001 |
+| V | Traceability | REQ-TRA-001, REQ-TRA-002, REQ-CLI-005 |
+| VI | Project Memory | REQ-SKL-001, REQ-SKL-002, REQ-SKL-003, REQ-SKL-004 |
+| VII | Design Patterns | REQ-CLI-002 |
 | VIII | Anti-Abstraction | (設計時に検証) |
 | IX | Integration Testing | REQ-TST-002 |
 
@@ -1097,10 +1397,13 @@ AND THE システム SHALL ドキュメントを選択言語で提供する。
 |-----------|------|---------|--------|
 | 1.0 | 2026-01-01 | 初版作成 | MUSUBIX |
 | 1.1 | 2026-01-01 | 憲法準拠レビュー反映: アーキテクチャ要件追加、エラーリカバリ要件追加、国際化要件追加、数値基準具体化、セキュリティ脆弱性リスト拡充、REQ-TST-002をP0に格上げ | MUSUBIX |
+| 1.2 | 2026-01-02 | GitHub Agent Skills仕様準拠: REQ-SKL-001〜004追加、要件数41→45、Article VI対応 | MUSUBIX |
+| 1.3 | 2026-01-02 | 憲法準拠フィールド強化: REQ-SKL-001〜004にArticle VI、REQ-TST-001にArticle III、REQ-RA-001にArticle IV、REQ-TRA-001/002にArticle Vを追加 | MUSUBIX |
+| 1.4 | 2026-01-02 | CLIコマンド要件追加: REQ-CLI-001〜006追加（requirements, design, codegen, test, trace, explain）、要件数45→51 | MUSUBIX |
 
 ---
 
 **文書ID**: REQ-MUSUBIX-001  
-**バージョン**: 1.1  
-**最終更新**: 2026-01-01  
+**バージョン**: 1.4  
+**最終更新**: 2026-01-02  
 **次回レビュー**: 2026-01-15

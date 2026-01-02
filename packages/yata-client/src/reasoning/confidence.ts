@@ -6,8 +6,8 @@
  * @packageDocumentation
  * @module reasoning/confidence
  * 
- * @see REQ-NS-101 - Symbolic Reasoning
- * @see REQ-NS-103 - Confidence Scoring
+ * @see REQ-INT-001 - Symbolic Reasoning
+ * @see REQ-INT-003 - Confidence Scoring
  */
 
 /**

@@ -25,9 +25,9 @@ MUSUBIX consists of two main components:
 ```mermaid
 flowchart LR
     subgraph MUSUBIX["MUSUBIX (Node.js)"]
-        Core["@musubix/core"]
-        MCP["@musubix/mcp-server"]
-        Client["@musubix/yata-client"]
+        Core["@nahisaho/musubix-core"]
+        MCP["@nahisaho/musubix-mcp-server"]
+        Client["@nahisaho/musubix-yata-client"]
     end
     
     subgraph YATA["YATA (Python)"]
@@ -95,18 +95,30 @@ npx musubix --help
 npx musubix init
 
 # Start MCP server
-npx @musubix/mcp-server
+npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
 ### Method 3: Install to project
 
 ```bash
-# Install individual packages
-npm install @musubix/core
-npm install @musubix/mcp-server
-npm install @musubix/yata-client  # For YATA integration
+# All-in-one package (recommended)
+npm install musubix
+
+# Or install individual packages
+npm install @nahisaho/musubix-core
+npm install @nahisaho/musubix-mcp-server
+npm install @nahisaho/musubix-yata-client  # For YATA integration
 ```
+
+#### Package Comparison
+
+| Package | Description | Use Case |
+|---------|-------------|----------|
+| `musubix` | All-in-one bundle | Full features, quick setup |
+| `@nahisaho/musubix-core` | Core library only | Minimal installation |
+| `@nahisaho/musubix-mcp-server` | MCP server only | AI platform integration |
+| `@nahisaho/musubix-yata-client` | YATA client only | Knowledge graph features |
 
 ### Method 4: Build from source
 
@@ -195,7 +207,7 @@ Create `.vscode/mcp.json`:
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     },
     "yata": {
       "command": "uv",
@@ -218,7 +230,7 @@ Configuration file locations:
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     },
     "yata": {
       "command": "uv",
@@ -227,6 +239,39 @@ Configuration file locations:
     }
   }
 }
+```
+
+### Claude Code (CLI)
+
+Create `.mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "musubix": {
+      "command": "npx",
+      "args": ["@nahisaho/musubix-mcp-server"]
+    },
+    "yata": {
+      "command": "uv",
+      "args": ["run", "yata", "serve"],
+      "cwd": "/path/to/YATA"
+    }
+  }
+}
+```
+
+Or configure via `claude mcp add`:
+
+```bash
+# Add MUSUBIX MCP server
+claude mcp add musubix -- npx @nahisaho/musubix-mcp-server
+
+# Add YATA MCP server (optional)
+claude mcp add yata -- uv run yata serve
+
+# Verify configuration
+claude mcp list
 ```
 
 ### Cursor IDE
@@ -238,7 +283,7 @@ Create `.cursor/mcp.json`:
   "mcpServers": {
     "musubix": {
       "command": "npx",
-      "args": ["@musubix/mcp-server"]
+      "args": ["@nahisaho/musubix-mcp-server"]
     },
     "yata": {
       "command": "uv",
@@ -284,7 +329,7 @@ cd /path/to/YATA
 uv run yata serve
 
 # Verify MUSUBIX can connect to YATA
-# (Use an application with @musubix/yata-client)
+# (Use an application with @nahisaho/musubix-yata-client)
 ```
 
 ---

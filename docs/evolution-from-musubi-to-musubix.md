@@ -7,7 +7,7 @@ tags:
   - LLM
   - ニューロシンボリック
 private: false
-updated_at: '2026-01-02'
+updated_at: '2026-01-03'
 id: null
 organization_url_name: null
 slide: false
@@ -275,9 +275,9 @@ flowchart TB
 flowchart TB
     subgraph MUSUBIX["MUSUBIX System"]
         subgraph Packages["パッケージ構成"]
-            Core["@musubix/core<br/>56モジュール"]
-            MCP["@musubix/mcp-server<br/>34ツール, 3プロンプト"]
-            YATA_Client["@musubix/yata-client"]
+            Core["@nahisaho/musubix-core<br/>56モジュール"]
+            MCP["@nahisaho/musubix-mcp-server<br/>9ツール, 6プロンプト"]
+            YATA_Client["@nahisaho/musubix-yata-client"]
         end
         
         subgraph Integration["統合レイヤー"]
@@ -485,12 +485,12 @@ MUSUBIXは以下の新規モジュールを追加：
 | | ExplanationGenerator | 説明生成 |
 | | VisualExplanationGenerator | 視覚的説明生成 |
 
-## 4.4 MCPサーバー（34ツール、3プロンプト）
+## 4.4 MCPサーバー（9ツール、6プロンプト）
 
 ```mermaid
 flowchart TB
     subgraph MCPServer["MCP Server"]
-        subgraph Tools["34 Tools"]
+        subgraph Tools["9 Tools"]
             T1[要件系ツール]
             T2[設計系ツール]
             T3[コード系ツール]
@@ -498,10 +498,13 @@ flowchart TB
             T5[説明系ツール]
         end
         
-        subgraph Prompts["3 Prompts"]
-            P1[requirements-hearing]
-            P2[design-review]
-            P3[code-explanation]
+        subgraph Prompts["6 Prompts"]
+            P1[sdd-steering]
+            P2[sdd-requirements]
+            P3[sdd-design]
+            P4[sdd-tasks]
+            P5[sdd-implement]
+            P6[sdd-validate]
         end
     end
     
@@ -681,9 +684,76 @@ flowchart TB
 
 これらの機能は、MUSUBIXの核心である「知識の永続化」と「形式的検証」の強みを活かしたものであり、AIコーディング支援の次なるステージを切り開きます。
 
+# 8. インストール方法
+
+MUSUBIXはnpmで公開されており、簡単にインストールできます。
+
+## 8.1 クイックスタート
+
+```bash
+# 統合パッケージ（推奨）
+npm install musubix
+
+# または npx で直接実行
+npx musubix --help
+npx musubix-mcp
+```
+
+## 8.2 パッケージ一覧
+
+| パッケージ | インストールコマンド | 説明 |
+|-----------|---------------------|------|
+| **musubix** | `npm install musubix` | 統合パッケージ（全機能） |
+| @nahisaho/musubix-core | `npm install @nahisaho/musubix-core` | コアライブラリ |
+| @nahisaho/musubix-mcp-server | `npm install @nahisaho/musubix-mcp-server` | MCPサーバー |
+| @nahisaho/musubix-yata-client | `npm install @nahisaho/musubix-yata-client` | YATAクライアント |
+
+## 8.3 AI Platform連携
+
+### Claude Code（CLI）
+
+```bash
+# MUSUBIX MCP サーバーを追加
+claude mcp add musubix -- npx @nahisaho/musubix-mcp-server
+
+# 設定確認
+claude mcp list
+```
+
+または `.mcp.json` をプロジェクトルートに作成：
+
+```json
+{
+  "mcpServers": {
+    "musubix": {
+      "command": "npx",
+      "args": ["@nahisaho/musubix-mcp-server"]
+    }
+  }
+}
+```
+
+### Claude Desktop / GitHub Copilot / Cursor IDE
+
+`.vscode/mcp.json` を作成：
+
+```json
+{
+  "mcpServers": {
+    "musubix": {
+      "command": "npx",
+      "args": ["@nahisaho/musubix-mcp-server"]
+    }
+  }
+}
+```
+
+詳細は [インストールガイド](https://github.com/nahisaho/MUSUBIX/blob/main/docs/INSTALL-GUIDE.ja.md) を参照してください。
+
 # 参考リンク
 
 - [MUSUBIX GitHub](https://github.com/nahisaho/MUSUBIX)
+- [MUSUBIX npm](https://www.npmjs.com/package/musubix)
 - [MUSUBI GitHub](https://github.com/nahisaho/MUSUBI)
 - [YATA GitHub](https://github.com/nahisaho/YATA)
 
@@ -691,4 +761,4 @@ flowchart TB
 
 **著者**: nahisaho  
 **公開日**: 2026-01-02  
-**更新日**: 2026-01-02
+**更新日**: 2026-01-03
