@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.13] - 2026-01-03
+
+### Improved
+- **C4設計テーブルパーサー強化**: 5列テーブル対応・日本語ヘッダー対応
+  - Pattern列を含む5列形式のC4テーブル対応
+  - `### コンポーネント一覧` 日本語ヘッダー認識
+  - `Component Diagram` セクション検出追加
+  - 関係テーブルとコンポーネントテーブルの区別改善
+
+### Self-Learning Results
+- 仮想プロジェクト（会員制ショッピングサイト）を使用した自己学習実施
+- フィードバック収集: 15件（accept: 6, reject: 6, modify: 3）
+- パターン信頼度向上: code avoid 75% → 95%
+- 学習データ: `storage/learning-data-member-shopping.json`
+
+---
+
 ## [1.0.12] - 2026-01-03
 
 ### Added
