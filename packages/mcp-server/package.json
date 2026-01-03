@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-mcp-server",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "MUSUBIX MCP Server - Model Context Protocol Server for AI Platforms",
   "type": "module",
   "main": "./dist/index.js",
