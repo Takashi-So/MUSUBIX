@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.11] - 2026-01-03
+
+### Added
+- **自己学習機能** (REQ-LEARN-001〜006): プロジェクト開発を通じた能動的学習
+  - `FeedbackCollector`: ユーザーフィードバック収集・永続化
+  - `PatternExtractor`: 繰り返しパターンの自動抽出
+  - `LearningEngine`: 適応的推論の統合エンジン
+- **CLI learn コマンド**: 自己学習システムの管理
+  - `musubix learn status` - 学習状態ダッシュボード
+  - `musubix learn feedback <id>` - フィードバック記録
+  - `musubix learn patterns` - パターン一覧表示
+  - `musubix learn add-pattern <name>` - パターン手動登録
+  - `musubix learn remove-pattern <id>` - パターン削除
+  - `musubix learn recommend` - コンテキストベースの推奨
+  - `musubix learn decay` - 未使用パターンの減衰
+  - `musubix learn export` - 学習データエクスポート
+  - `musubix learn import <file>` - 学習データインポート
+- **プライバシー保護**: 機密情報の自動フィルタリング（REQ-LEARN-006）
+- **パターン信頼度**: 使用頻度に基づく動的信頼度計算
+- **パターン減衰**: 未使用パターンの自動減衰・アーカイブ
+
+### Tests
+- 自己学習モジュール: 23テスト追加
+- 全285テスト合格
+
+---
+
 ## [1.0.10] - 2026-01-03
 
 ### Added

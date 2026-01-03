@@ -40,6 +40,9 @@ export * from './explanation/index.js';
 // Export error recovery
 export * from './error/index.js';
 
+// Export learning system
+export * from './learning/index.js';
+
 // Re-export modules (will be implemented in subsequent tasks)
 // export * from './integrator/index.js';
 // export * from './requirements/index.js';

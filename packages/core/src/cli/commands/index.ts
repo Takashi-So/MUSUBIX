@@ -19,6 +19,7 @@ import { registerCodegenCommand } from './codegen.js';
 import { registerTestCommand } from './test.js';
 import { registerTraceCommand } from './trace.js';
 import { registerExplainCommand } from './explain.js';
+import { registerLearnCommand } from './learn.js';
 
 /**
  * Register all CLI commands
@@ -38,6 +39,9 @@ export function registerCommands(program: Command): void {
   registerTestCommand(program);
   registerTraceCommand(program);
   registerExplainCommand(program);
+  
+  // Self-learning commands (REQ-LEARN-001〜006)
+  registerLearnCommand(program);
 }
 
 // Core command exports
@@ -52,3 +56,6 @@ export { registerCodegenCommand } from './codegen.js';
 export { registerTestCommand } from './test.js';
 export { registerTraceCommand } from './trace.js';
 export { registerExplainCommand } from './explain.js';
+
+// Self-learning command export
+export { registerLearnCommand } from './learn.js';
