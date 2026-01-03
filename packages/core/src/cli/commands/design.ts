@@ -1881,19 +1881,122 @@ function validateDesign(designContent: string, strict: boolean): {
 }
 
 /**
- * Generate Mermaid diagram
+ * Generate Mermaid diagram with enhanced formatting
  */
 function generateMermaidDiagram(model: C4Model): string {
-  let diagram = `---\ntitle: ${model.title}\n---\nflowchart TD\n`;
-
-  for (const element of model.elements) {
-    const shape = element.type === 'person' ? '([' : element.type === 'software_system' ? '[' : '[[';
-    const closeShape = element.type === 'person' ? '])' : element.type === 'software_system' ? ']' : ']]';
-    diagram += `  ${element.id}${shape}"${element.name}"${closeShape}\n`;
+  // Create descriptive title based on elements
+  const componentNames = model.elements
+    .filter(e => e.type !== 'person')
+    .slice(0, 3)
+    .map(e => e.name);
+  const titleSuffix = componentNames.length > 0 ? ` - ${componentNames.join(', ')}${model.elements.length > 4 ? '...' : ''}` : '';
+  const diagramTitle = `${model.level.charAt(0).toUpperCase() + model.level.slice(1)} Diagram${titleSuffix}`;
+  
+  let diagram = `---\ntitle: ${diagramTitle}\n---\nflowchart TD\n`;
+  
+  // Add subgraphs for better organization
+  const persons = model.elements.filter(e => e.type === 'person');
+  const systems = model.elements.filter(e => e.type === 'software_system');
+  const containers = model.elements.filter(e => e.type === 'container');
+  const components = model.elements.filter(e => e.type === 'component');
+  
+  // Add styling classes
+  diagram += `\n  %% Styling\n`;
+  diagram += `  classDef person fill:#08427b,stroke:#052e56,color:#fff\n`;
+  diagram += `  classDef system fill:#1168bd,stroke:#0b4884,color:#fff\n`;
+  diagram += `  classDef container fill:#438dd5,stroke:#2e6295,color:#fff\n`;
+  diagram += `  classDef component fill:#85bbf0,stroke:#5d82a8,color:#000\n`;
+  diagram += `\n`;
+  
+  // Render persons (actors)
+  if (persons.length > 0) {
+    diagram += `  subgraph Actors["👤 Actors"]\n`;
+    for (const person of persons) {
+      diagram += `    ${person.id}(["${person.name}"])\n`;
+    }
+    diagram += `  end\n\n`;
   }
-
+  
+  // Render systems, containers, and components
+  const nonPersonElements = [...systems, ...containers, ...components];
+  
+  if (nonPersonElements.length > 0) {
+    // Group components by type for better visualization
+    if (systems.length > 0 && (containers.length > 0 || components.length > 0)) {
+      diagram += `  subgraph Systems["🖥️ External Systems"]\n`;
+      for (const sys of systems) {
+        diagram += `    ${sys.id}["${sys.name}<br/><small>${sys.description || ''}</small>"]\n`;
+      }
+      diagram += `  end\n\n`;
+    } else {
+      for (const sys of systems) {
+        diagram += `  ${sys.id}["${sys.name}<br/><small>${sys.description || ''}</small>"]\n`;
+      }
+    }
+    
+    if (containers.length > 0) {
+      diagram += `  subgraph Containers["📦 Containers"]\n`;
+      for (const container of containers) {
+        const tech = container.technology ? `[${container.technology}]` : '';
+        diagram += `    ${container.id}[["${container.name}${tech}<br/><small>${container.description || ''}</small>"]]\n`;
+      }
+      diagram += `  end\n\n`;
+    }
+    
+    if (components.length > 0) {
+      // Group components by service type
+      const services = components.filter(c => c.name.includes('Service'));
+      const repositories = components.filter(c => c.name.includes('Repository') || c.name.includes('Data'));
+      const managers = components.filter(c => c.name.includes('Manager'));
+      const others = components.filter(c => 
+        !c.name.includes('Service') && 
+        !c.name.includes('Repository') && 
+        !c.name.includes('Data') &&
+        !c.name.includes('Manager')
+      );
+      
+      if (services.length > 0 || managers.length > 0) {
+        diagram += `  subgraph Services["⚙️ Services"]\n`;
+        for (const svc of [...services, ...managers]) {
+          const tech = svc.technology ? `[${svc.technology}]` : '';
+          diagram += `    ${svc.id}[["${svc.name}${tech}"]]\n`;
+        }
+        diagram += `  end\n\n`;
+      }
+      
+      if (repositories.length > 0) {
+        diagram += `  subgraph DataLayer["💾 Data Layer"]\n`;
+        for (const repo of repositories) {
+          diagram += `    ${repo.id}[("${repo.name}")]\n`;
+        }
+        diagram += `  end\n\n`;
+      }
+      
+      for (const other of others) {
+        const tech = other.technology ? `[${other.technology}]` : '';
+        diagram += `  ${other.id}[["${other.name}${tech}"]]\n`;
+      }
+    }
+  }
+  
+  diagram += `\n  %% Relationships\n`;
   for (const rel of model.relationships) {
-    diagram += `  ${rel.source} -->|${rel.description}| ${rel.target}\n`;
+    diagram += `  ${rel.source} -->|"${rel.description}"| ${rel.target}\n`;
+  }
+  
+  // Apply styles
+  diagram += `\n  %% Apply styles\n`;
+  if (persons.length > 0) {
+    diagram += `  class ${persons.map(p => p.id).join(',')} person\n`;
+  }
+  if (systems.length > 0) {
+    diagram += `  class ${systems.map(s => s.id).join(',')} system\n`;
+  }
+  if (containers.length > 0) {
+    diagram += `  class ${containers.map(c => c.id).join(',')} container\n`;
+  }
+  if (components.length > 0) {
+    diagram += `  class ${components.map(c => c.id).join(',')} component\n`;
   }
 
   return diagram;

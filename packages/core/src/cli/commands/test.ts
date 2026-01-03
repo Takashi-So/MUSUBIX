@@ -14,7 +14,7 @@
  */
 
 import type { Command } from 'commander';
-import { readFile, writeFile, mkdir, readdir } from 'fs/promises';
+import { readFile, writeFile, mkdir, readdir, stat } from 'fs/promises';
 import { resolve, dirname, extname, basename, join } from 'path';
 import { ExitCode, getGlobalOptions, outputResult } from '../base.js';
 
@@ -167,76 +167,150 @@ export function registerTestCommand(program: Command): void {
 
   // test generate
   test
-    .command('generate <file>')
-    .description('Generate tests for source file or requirements document')
-    .option('-o, --output <file>', 'Output file')
+    .command('generate <path>')
+    .description('Generate tests for source file, directory, or requirements document')
+    .option('-o, --output <path>', 'Output file or directory')
     .option('-f, --framework <name>', 'Test framework', 'vitest')
     .option('-s, --style <style>', 'Test style (unit|integration|e2e)', 'unit')
-    .action(async (file: string, options: TestOptions) => {
+    .option('-r, --recursive', 'Process directories recursively', true)
+    .action(async (inputPath: string, options: TestOptions & { recursive?: boolean }) => {
       const globalOpts = getGlobalOptions(program);
 
       try {
-        const filePath = resolve(process.cwd(), file);
-        const content = await readFile(filePath, 'utf-8');
-
+        const resolvedPath = resolve(process.cwd(), inputPath);
+        const pathStats = await stat(resolvedPath);
+        
         const framework = options.framework ?? 'vitest';
         const style = options.style ?? 'unit';
-
-        // Check if this is an EARS requirements document
-        const isEarsDoc = content.includes('EARS') || content.includes('SHALL') || content.includes('REQ-');
         
-        let tests: Array<{ content: string; testCount: number }>;
-        if (isEarsDoc) {
-          tests = generateTestsFromRequirements(filePath, content, framework, style);
+        let allGeneratedTests: GeneratedTest[] = [];
+        let totalTestCount = 0;
+        
+        if (pathStats.isDirectory()) {
+          // Directory mode: process all source files in directory
+          const sourceFiles = await findSourceFiles(resolvedPath, options.recursive ?? true);
+          
+          if (sourceFiles.length === 0) {
+            if (!globalOpts.quiet) {
+              console.log(`⚠️ No source files found in ${resolvedPath}`);
+            }
+            process.exit(ExitCode.SUCCESS);
+          }
+          
+          if (!globalOpts.quiet) {
+            console.log(`📁 Processing ${sourceFiles.length} source file(s) in ${resolvedPath}`);
+          }
+          
+          for (const sourceFile of sourceFiles) {
+            try {
+              const content = await readFile(sourceFile, 'utf-8');
+              const isEarsDoc = content.includes('EARS') || content.includes('SHALL') || content.includes('REQ-');
+              
+              let tests: Array<{ content: string; testCount: number }>;
+              if (isEarsDoc) {
+                tests = generateTestsFromRequirements(sourceFile, content, framework, style);
+              } else {
+                tests = generateTestsForFile(sourceFile, content, framework, style);
+              }
+              
+              // Determine output path for this file
+              let outputPath: string;
+              if (options.output) {
+                const outputDir = resolve(process.cwd(), options.output);
+                const name = basename(sourceFile, extname(sourceFile));
+                const ext = framework === 'pytest' ? '.py' : '.ts';
+                outputPath = resolve(outputDir, `${name}.test${ext}`);
+              } else {
+                const dir = dirname(sourceFile);
+                const name = basename(sourceFile, extname(sourceFile));
+                const ext = framework === 'pytest' ? '.py' : '.ts';
+                outputPath = resolve(dir, '__tests__', `${name}.test${ext}`);
+              }
+              
+              await mkdir(dirname(outputPath), { recursive: true });
+              
+              for (const testContent of tests) {
+                await writeFile(outputPath, testContent.content, 'utf-8');
+                totalTestCount += testContent.testCount;
+                allGeneratedTests.push({
+                  filename: outputPath,
+                  content: testContent.content,
+                  testCount: testContent.testCount,
+                  metadata: {
+                    sourceFile,
+                    framework,
+                    style,
+                  },
+                });
+              }
+              
+              if (!globalOpts.quiet) {
+                console.log(`  ✅ ${basename(sourceFile)} → ${tests.reduce((sum, t) => sum + t.testCount, 0)} test(s)`);
+              }
+            } catch (fileError) {
+              if (!globalOpts.quiet) {
+                console.error(`  ⚠️ Skipped ${basename(sourceFile)}: ${(fileError as Error).message}`);
+              }
+            }
+          }
         } else {
-          tests = generateTestsForFile(filePath, content, framework, style);
-        }
+          // Single file mode (original behavior)
+          const content = await readFile(resolvedPath, 'utf-8');
+          const isEarsDoc = content.includes('EARS') || content.includes('SHALL') || content.includes('REQ-');
+          
+          let tests: Array<{ content: string; testCount: number }>;
+          if (isEarsDoc) {
+            tests = generateTestsFromRequirements(resolvedPath, content, framework, style);
+          } else {
+            tests = generateTestsForFile(resolvedPath, content, framework, style);
+          }
 
-        // Determine output path
-        let outputPath: string;
-        if (options.output) {
-          outputPath = resolve(process.cwd(), options.output);
-        } else {
-          const dir = dirname(filePath);
-          const name = basename(filePath, extname(filePath));
-          const ext = framework === 'pytest' ? '.py' : '.ts';
-          outputPath = resolve(dir, '__tests__', `${name}.test${ext}`);
-        }
+          // Determine output path
+          let outputPath: string;
+          if (options.output) {
+            outputPath = resolve(process.cwd(), options.output);
+          } else {
+            const dir = dirname(resolvedPath);
+            const name = basename(resolvedPath, extname(resolvedPath));
+            const ext = framework === 'pytest' ? '.py' : '.ts';
+            outputPath = resolve(dir, '__tests__', `${name}.test${ext}`);
+          }
 
-        await mkdir(dirname(outputPath), { recursive: true });
+          await mkdir(dirname(outputPath), { recursive: true });
 
-        let totalTests = 0;
-        const generatedTests: GeneratedTest[] = [];
-
-        for (const testContent of tests) {
-          await writeFile(outputPath, testContent.content, 'utf-8');
-          totalTests += testContent.testCount;
-          generatedTests.push({
-            filename: outputPath,
-            content: testContent.content,
-            testCount: testContent.testCount,
-            metadata: {
-              sourceFile: filePath,
-              framework,
-              style,
-            },
-          });
+          for (const testContent of tests) {
+            await writeFile(outputPath, testContent.content, 'utf-8');
+            totalTestCount += testContent.testCount;
+            allGeneratedTests.push({
+              filename: outputPath,
+              content: testContent.content,
+              testCount: testContent.testCount,
+              metadata: {
+                sourceFile: resolvedPath,
+                framework,
+                style,
+              },
+            });
+          }
         }
 
         const result: TestGenerationResult = {
           success: true,
-          tests: generatedTests,
+          tests: allGeneratedTests,
           summary: {
-            totalFiles: generatedTests.length,
-            totalTests,
+            totalFiles: allGeneratedTests.length,
+            totalTests: totalTestCount,
             framework,
           },
-          message: `Generated ${totalTests} tests in ${generatedTests.length} file(s)`,
+          message: `Generated ${totalTestCount} tests in ${allGeneratedTests.length} file(s)`,
         };
 
         if (!globalOpts.quiet) {
-          console.log(`✅ Tests generated: ${outputPath}`);
-          console.log(`   - ${totalTests} test cases`);
+          if (pathStats.isDirectory()) {
+            console.log(`\n✅ Tests generated: ${allGeneratedTests.length} file(s), ${totalTestCount} test case(s)`);
+          } else {
+            console.log(`✅ Tests generated: ${allGeneratedTests[0]?.filename || 'unknown'} (${totalTestCount} test cases)`);
+          }
           console.log(`   - Framework: ${framework}`);
           console.log(`   - Style: ${style}`);
         }
@@ -700,6 +774,44 @@ function extractFunctions(content: string): Array<{ name: string; params: string
   }
 
   return functions;
+}
+
+/**
+ * Find source files in a directory
+ * @param dir - Directory to search
+ * @param recursive - Whether to search recursively
+ * @returns Array of source file paths
+ */
+async function findSourceFiles(dir: string, recursive: boolean): Promise<string[]> {
+  const sourceFiles: string[] = [];
+  const sourceExtensions = ['.ts', '.js', '.tsx', '.jsx', '.md', '.py'];
+  const ignoreDirs = ['node_modules', 'dist', 'build', '.git', '__tests__', 'coverage', '.next'];
+  
+  async function scanDir(currentDir: string): Promise<void> {
+    const entries = await readdir(currentDir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = join(currentDir, entry.name);
+      
+      if (entry.isDirectory()) {
+        if (recursive && !ignoreDirs.includes(entry.name) && !entry.name.startsWith('.')) {
+          await scanDir(fullPath);
+        }
+      } else if (entry.isFile()) {
+        const ext = extname(entry.name).toLowerCase();
+        // Include source files but exclude test files
+        if (sourceExtensions.includes(ext) && 
+            !entry.name.includes('.test.') && 
+            !entry.name.includes('.spec.') &&
+            !entry.name.startsWith('test_')) {
+          sourceFiles.push(fullPath);
+        }
+      }
+    }
+  }
+  
+  await scanDir(dir);
+  return sourceFiles;
 }
 
 /**

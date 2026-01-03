@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.19] - 2026-01-04
+
+### Added
+- **test generate ディレクトリサポート**: ディレクトリ全体のソースファイルに対するテスト生成
+  - `npx musubix test generate src/` でディレクトリ内の全ソースファイルを処理
+  - 再帰的な処理オプション（`--recursive`、デフォルトON）
+  - node_modules, dist, __tests__ などの除外ディレクトリ自動スキップ
+  - ファイルごとの進捗表示と結果サマリー
+
+### Improved
+- **C4ダイアグラム生成の品質向上**: より情報量の多いMermaidダイアグラム出力
+  - 記述的なタイトル（例: `Component Diagram - ClaimService, PolicyService...`）
+  - サブグラフによるコンポーネント分類（Actors, Services, Data Layer）
+  - C4スタイルに準拠したカラースキーム（classDef）
+  - コンポーネントタイプ別のアイコン表示（👤, ⚙️, 💾）
+  - 技術スタック情報の自動付与（[TypeScript]）
+
+### Fixed
+- **test generate EISDIR エラー**: ディレクトリを指定した際に発生していたエラーを修正
+  - 100%の失敗率だった問題を完全解決
+
+### Tests
+- 100プロジェクトバッチテスト: 9/9フェーズ成功（test generateを含む）
+- 全285テスト合格
+
+---
+
 ## [1.0.18] - 2026-01-04
 
 ### Added

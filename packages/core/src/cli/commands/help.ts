@@ -100,10 +100,11 @@ const COMMAND_HELP: Record<string, CommandHelp> = {
     usage: 'musubix test <subcommand> [options]',
     examples: [
       'musubix test generate src/index.ts   # Generate tests for file',
+      'musubix test generate src/           # Generate tests for directory',
       'musubix test coverage tests/         # Measure coverage',
     ],
     options: [
-      'generate <file>   Generate tests',
+      'generate <path>   Generate tests for file or directory',
       'coverage <dir>    Measure coverage',
     ],
   },
