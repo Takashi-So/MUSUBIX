@@ -1,8 +1,8 @@
 # Technology Stack
 
 **Project**: MUSUBIX
-**Last Updated**: 2026-01-03
-**Version**: 1.0.10
+**Last Updated**: 2026-01-04
+**Version**: 1.0.18
 **Status**: Production Ready
 
 ---
@@ -28,9 +28,9 @@ MUSUBIXはニューロシンボリックAIコーディングシステムであ�
 
 ```
 packages/
-├── core/           # @nahisaho/musubix-core (v1.0.9)
-├── mcp-server/     # @nahisaho/musubix-mcp-server (v1.0.3)
-└── yata-client/    # @nahisaho/musubix-yata-client (v1.0.3)
+├── core/           # @nahisaho/musubix-core (v1.0.18)
+├── mcp-server/     # @nahisaho/musubix-mcp-server (v1.0.18)
+└── yata-client/    # @nahisaho/musubix-yata-client (v1.0.18)
 ```
 
 ### Core Package モジュール
@@ -43,9 +43,29 @@ packages/
 | `design/` | 設計 | パターン検出、C4モデル、ADR生成 |
 | `error/` | エラーハンドリング | 構造化エラー、リカバリー |
 | `explanation/` | 説明生成 | 推論グラフ、可視化 |
+| `learning/` | 自己学習 | フィードバック収集、パターン抽出 |
 | `requirements/` | 要件分析 | EARS検証、オントロジーマッピング |
 | `traceability/` | トレーサビリティ | アーティファクト追跡、カバレッジ分析 |
 | `validators/` | 検証 | EARS検証器 |
+
+## Domain Support
+
+| カテゴリ | ドメイン数 | コンポーネント数 |
+|---------|-----------|-----------------|
+| 合計 | 60 | ~390 |
+
+### 対応ドメイン一覧
+
+- **汎用**: general
+- **業種特化**: healthcare, banking, insurance, realestate, hotel, restaurant, retail, ecommerce, logistics, manufacturing, construction, agriculture, agritech
+- **専門サービス**: legal, accounting, hr, recruitment, marketing, crm
+- **教育・学習**: education, elearning, library
+- **エンターテイメント**: game, music, media, cinema, museum, streaming, podcast, news
+- **交通・物流**: travel, aviation, railway, shipping, vehicle, parking
+- **通信・IT**: telecom, iot, security
+- **医療・福祉**: pharmacy, veterinary, caregiving, childcare
+- **イベント・冠婚葬祭**: event, ticketing, wedding, funeral
+- **その他**: fitness, sports, beauty, petcare, rental, laundry, subscription, crowdfunding, auction, charity, government, election, survey, energy, environment, archive, social, property, warehouse
 
 ## Key Features
 

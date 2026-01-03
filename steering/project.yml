@@ -1,15 +1,43 @@
-# MUSUBI Project Configuration
+# MUSUBIX Project Configuration
 name: MUSUBIX
-description: A software project using MUSUBI SDD
+description: Neuro-Symbolic AI Integration System - Neural (LLM) + Symbolic (YATA Knowledge Graph)
 locale: ja
-version: "0.1.0"
+version: "1.0.18"
 created: 2026-01-01
+updated: 2026-01-04
 
 # Technology Stack
 tech_stack:
-  approach: undecided
+  approach: monorepo
   languages:
-    - undecided  # To be determined
+    - TypeScript
+  runtime: Node.js >= 20.0.0
+  package_manager: npm >= 10.0.0
+  test_framework: Vitest
+  build_system: npm workspaces
+
+# Packages
+packages:
+  - name: "@nahisaho/musubix-core"
+    path: packages/core
+    description: Core library - CLI, EARS validation, code generation, design patterns
+  - name: "@nahisaho/musubix-mcp-server"
+    path: packages/mcp-server
+    description: MCP Server - 9 tools, 3 prompts
+  - name: "@nahisaho/musubix-yata-client"
+    path: packages/yata-client
+    description: YATA Client - Knowledge graph integration
+
+# Domain Support
+domains:
+  count: 60
+  components: ~390
+  categories:
+    - general (13 components)
+    - manufacturing, logistics, education (8 each)
+    - travel, telecom, sports, shipping, security, realestate, property, marketing, hotel, healthcare, game, environment, childcare, caregiving, beauty, banking, aviation, archive, agritech, agriculture (7 each)
+    - warehouse, vehicle, restaurant, recruitment, pharmacy, petcare, music, insurance, hr, fitness, event, ecommerce, accounting (6 each)
+    - wedding, veterinary, ticketing, survey, subscription, streaming, social, rental, railway, podcast, parking, news, museum, media, library, legal, laundry, iot, government, funeral, energy, election, elearning, crowdfunding, crm, construction, cinema, charity, auction (5 each)
 
 
 # Review Gate Settings (v6.2.0)
