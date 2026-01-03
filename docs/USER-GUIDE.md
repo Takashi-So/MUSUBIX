@@ -11,10 +11,12 @@
 3. [CLI Usage](#cli-usage)
 4. [Quick Start](#quick-start)
 5. [SDD Workflow](#sdd-workflow)
-6. [MCP Server Integration](#mcp-server-integration)
-7. [YATA Integration](#yata-integration)
-8. [Best Practices](#best-practices)
-9. [Troubleshooting](#troubleshooting)
+6. [Self-Learning System](#self-learning-system)
+7. [C4 Code Generation](#c4-code-generation)
+8. [MCP Server Integration](#mcp-server-integration)
+9. [YATA Integration](#yata-integration)
+10. [Best Practices](#best-practices)
+11. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -375,6 +377,130 @@ result.articleResults.forEach(article => {
 
 ---
 
+## Self-Learning System
+
+MUSUBIX includes a self-learning system that improves through feedback collection and pattern extraction.
+
+### Learning CLI Commands
+
+```bash
+# View learning status dashboard
+musubix learn status
+
+# Record feedback on an artifact
+musubix learn feedback <artifact-id> --type accept|reject|modify --artifact-type requirement|design|code|test --reason "explanation"
+
+# List learned patterns
+musubix learn patterns
+
+# Manually register a pattern
+musubix learn add-pattern <name> --category code|design|requirement|test --action prefer|avoid --description "pattern description"
+
+# Remove a pattern
+musubix learn remove-pattern <pattern-id>
+
+# Get context-based recommendations
+musubix learn recommend --artifact-type code
+
+# Apply decay to unused patterns
+musubix learn decay
+
+# Export learning data
+musubix learn export --output learning-data.json
+
+# Import learning data
+musubix learn import learning-data.json
+```
+
+### Programmatic Usage
+
+```typescript
+import { createLearningEngine } from '@nahisaho/musubix-core';
+
+const learningEngine = createLearningEngine();
+
+// Record feedback
+await learningEngine.recordFeedback({
+  type: 'accept',
+  artifactType: 'code',
+  artifactId: 'AUTH-001',
+  reason: 'Good implementation of JWT authentication'
+});
+
+// Get recommendations
+const recommendations = await learningEngine.getRecommendations({
+  artifactType: 'code',
+  context: 'authentication'
+});
+
+// Export learning data
+const data = await learningEngine.exportData();
+```
+
+### Pattern Extraction
+
+Patterns are automatically extracted when similar feedback is recorded multiple times (default threshold: 3).
+
+```typescript
+// Patterns gain confidence with each occurrence
+// High-confidence patterns (≥70%) appear in recommendations
+const stats = await learningEngine.getStats();
+console.log(`Total patterns: ${stats.totalPatterns}`);
+console.log(`High confidence patterns: ${stats.highConfidencePatterns}`);
+```
+
+---
+
+## C4 Code Generation
+
+Generate TypeScript skeleton code from C4 design documents.
+
+### CLI Usage
+
+```bash
+# Generate code from C4 design
+musubix codegen generate design-c4.md --output src/
+
+# With specific language
+musubix codegen generate design-c4.md --output src/ --language typescript
+```
+
+### Generated Code Structure
+
+From a C4 design with components like:
+
+| ID | Name | Type | Description |
+|----|------|------|-------------|
+| auth | AuthService | component | Authentication |
+
+MUSUBIX generates:
+
+```typescript
+// auth-service.ts
+export interface IAuthService {
+  authenticate(credentials: { username: string; password: string }): Promise<{ token: string }>;
+  validate(token: string): Promise<boolean>;
+}
+
+export class AuthService implements IAuthService {
+  async authenticate(credentials: { username: string; password: string }): Promise<{ token: string }> {
+    // TODO: Implement authenticate
+    throw new Error('Not implemented');
+  }
+  
+  async validate(token: string): Promise<boolean> {
+    // TODO: Implement validate
+    throw new Error('Not implemented');
+  }
+}
+
+export function createAuthService(): IAuthService {
+  return new AuthService();
+}
+```
+
+---
+
 ## MCP Server Integration
 
 ### CLI Startup
@@ -659,6 +785,6 @@ const client = createYATAClient({
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: 2026-01-02  
+**Version**: 1.0.12  
+**Last Updated**: 2026-01-03  
 **MUSUBIX Project**

@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-262%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-285%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.0.10** - EARS pattern detection improvements, performance optimizations
+> **v1.0.12** - Self-learning system, C4 code generation, Japanese EARS support
 
 **[日本語版 README](README.ja.md)**
 
@@ -29,6 +29,8 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 - 💬 **Interactive Q&A Hearing** - Dialogue-based requirements gathering support
 - 🌐 **Internationalization (i18n)** - Japanese and English support
 - 🔒 **Security Scanning** - Vulnerability detection and authentication management
+- 📚 **Self-Learning System** - Adaptive improvement through feedback collection and pattern extraction
+- 🏗️ **C4 Code Generation** - Generate TypeScript skeleton from C4 design documents
 
 ## Architecture
 
@@ -65,6 +67,7 @@ flowchart TB
 | `packages/core/design/` | Design Patterns & C4 Models |
 | `packages/core/error/` | Error Handling |
 | `packages/core/explanation/` | Explanation Generation & Visualization |
+| `packages/core/learning/` | Self-Learning & Pattern Extraction |
 | `packages/core/requirements/` | Requirements Analysis & Decomposition |
 | `packages/core/traceability/` | Traceability |
 | `packages/core/types/` | Type Definitions |
@@ -204,5 +207,5 @@ See [CHANGELOG.md](CHANGELOG.md)
 ---
 
 **Document ID**: README  
-**Version**: 1.0.0  
-**Last Updated**: 2026-01-02
+**Version**: 1.0.12  
+**Last Updated**: 2026-01-03

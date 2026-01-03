@@ -13,10 +13,12 @@
 7. [設計フェーズ](#設計フェーズ)
 8. [タスクフェーズ](#タスクフェーズ)
 9. [検証フェーズ](#検証フェーズ)
-10. [MCPサーバー連携](#mcpサーバー連携)
-11. [YATA知識グラフ](#yata知識グラフ)
-12. [ベストプラクティス](#ベストプラクティス)
-13. [トラブルシューティング](#トラブルシューティング)
+10. [自己学習システム](#自己学習システム)
+11. [C4コード生成](#c4コード生成)
+12. [MCPサーバー連携](#mcpサーバー連携)
+13. [YATA知識グラフ](#yata知識グラフ)
+14. [ベストプラクティス](#ベストプラクティス)
+15. [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -507,6 +509,130 @@ console.log(`  テスト: ${result.coverage.tests}%`);
 
 ---
 
+## 自己学習システム
+
+MUSUBIXには、フィードバック収集とパターン抽出により改善を続ける自己学習システムが含まれています。
+
+### 学習CLIコマンド
+
+```bash
+# 学習状態ダッシュボードを表示
+musubix learn status
+
+# 成果物にフィードバックを記録
+musubix learn feedback <artifact-id> --type accept|reject|modify --artifact-type requirement|design|code|test --reason "説明"
+
+# 学習済みパターン一覧を表示
+musubix learn patterns
+
+# パターンを手動登録
+musubix learn add-pattern <name> --category code|design|requirement|test --action prefer|avoid --description "パターンの説明"
+
+# パターンを削除
+musubix learn remove-pattern <pattern-id>
+
+# コンテキストベースの推奨を取得
+musubix learn recommend --artifact-type code
+
+# 未使用パターンの減衰を適用
+musubix learn decay
+
+# 学習データをエクスポート
+musubix learn export --output learning-data.json
+
+# 学習データをインポート
+musubix learn import learning-data.json
+```
+
+### プログラムからの使用
+
+```typescript
+import { createLearningEngine } from '@nahisaho/musubix-core';
+
+const learningEngine = createLearningEngine();
+
+// フィードバックを記録
+await learningEngine.recordFeedback({
+  type: 'accept',
+  artifactType: 'code',
+  artifactId: 'AUTH-001',
+  reason: 'JWT認証の良い実装'
+});
+
+// 推奨を取得
+const recommendations = await learningEngine.getRecommendations({
+  artifactType: 'code',
+  context: 'authentication'
+});
+
+// 学習データをエクスポート
+const data = await learningEngine.exportData();
+```
+
+### パターン抽出
+
+類似のフィードバックが複数回（デフォルト閾値：3回）記録されると、パターンが自動的に抽出されます。
+
+```typescript
+// パターンは出現ごとに信頼度が上昇
+// 高信頼度パターン（≥70%）は推奨に表示される
+const stats = await learningEngine.getStats();
+console.log(`総パターン数: ${stats.totalPatterns}`);
+console.log(`高信頼度パターン: ${stats.highConfidencePatterns}`);
+```
+
+---
+
+## C4コード生成
+
+C4設計ドキュメントからTypeScriptスケルトンコードを生成します。
+
+### CLIの使用
+
+```bash
+# C4設計からコード生成
+musubix codegen generate design-c4.md --output src/
+
+# 言語を指定
+musubix codegen generate design-c4.md --output src/ --language typescript
+```
+
+### 生成されるコード構造
+
+以下のようなコンポーネントを持つC4設計から：
+
+| ID | Name | Type | Description |
+|----|------|------|-------------|
+| auth | AuthService | component | 認証 |
+
+MUSUBIXは以下を生成します：
+
+```typescript
+// auth-service.ts
+export interface IAuthService {
+  authenticate(credentials: { username: string; password: string }): Promise<{ token: string }>;
+  validate(token: string): Promise<boolean>;
+}
+
+export class AuthService implements IAuthService {
+  async authenticate(credentials: { username: string; password: string }): Promise<{ token: string }> {
+    // TODO: authenticateを実装
+    throw new Error('Not implemented');
+  }
+  
+  async validate(token: string): Promise<boolean> {
+    // TODO: validateを実装
+    throw new Error('Not implemented');
+  }
+}
+
+export function createAuthService(): IAuthService {
+  return new AuthService();
+}
+```
+
+---
+
 ## MCPサーバー連携
 
 ### MCPサーバーの起動
@@ -819,6 +945,6 @@ const client = createYATAClient({
 
 ---
 
-**バージョン**: 1.0.0  
-**最終更新**: 2026-01-02  
+**バージョン**: 1.0.12  
+**最終更新**: 2026-01-03  
 **MUSUBIX Project**

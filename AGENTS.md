@@ -8,7 +8,7 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.0.11 |
+| **バージョン** | 1.0.12 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
@@ -249,6 +249,15 @@ npm run clean
 - **Component**: コンテナ内部構造
 - **Code**: 実装詳細
 
+**C4コード生成** (v1.0.12 NEW!):
+```bash
+# C4設計ドキュメントからTypeScriptスケルトンコードを自動生成
+npx musubix codegen generate <design.md> --output src/
+```
+- 設計パターン（Repository, Service, Factory等）を自動検出
+- コンポーネントごとにTypeScriptファイル生成
+- 設計との完全なトレーサビリティを維持
+
 ### 4. 完全なトレーサビリティ
 ```
 要件(REQ-*) → 設計(DES-*) → タスク(TSK-*) → コード → テスト
@@ -304,6 +313,6 @@ npm run clean
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-03
-**Version**: 1.0.11
+**Last Updated**: 2026-01-05
+**Version**: 1.0.12
 **Repository**: https://github.com/nahisaho/MUSUBIX

@@ -628,6 +628,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**Version:** 1.0.0  
-**Generated:** 2024  
+**Version:** 1.0.12  
+**Generated:** 2026-01-03  
 **MUSUBIX Core Package**

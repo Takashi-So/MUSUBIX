@@ -6,11 +6,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-262%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-285%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.0.10** - EARSパターン検出改善、パフォーマンス最適化
+> **v1.0.12** - 自己学習システム、C4コード生成、日本語EARSサポート
 
 ## 概要
 
@@ -26,6 +26,8 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 - 💬 **一問一答形式ヒアリング** - 対話的な要件定義サポート
 - 🌐 **多言語対応（i18n）** - 日本語・英語対応
 - 🔒 **セキュリティスキャン** - 脆弱性検出・認証管理
+- 📚 **自己学習システム** - フィードバック収集とパターン抽出による適応的改善
+- 🏗️ **C4コード生成** - C4設計ドキュメントからTypeScriptスケルトン生成
 
 ## アーキテクチャ
 
@@ -62,6 +64,7 @@ flowchart TB
 | `packages/core/design/` | 設計パターン・C4モデル |
 | `packages/core/error/` | エラーハンドリング |
 | `packages/core/explanation/` | 説明生成・可視化 |
+| `packages/core/learning/` | 自己学習・パターン抽出 |
 | `packages/core/requirements/` | 要件分析・分解 |
 | `packages/core/traceability/` | トレーサビリティ |
 | `packages/core/types/` | 型定義 |
@@ -201,5 +204,5 @@ nahisaho
 ---
 
 **文書ID**: README  
-**バージョン**: 1.0.0  
-**最終更新**: 2026-01-02
+**バージョン**: 1.0.12  
+**最終更新**: 2026-01-03
