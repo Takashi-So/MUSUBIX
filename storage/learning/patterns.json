@@ -12,8 +12,8 @@
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
     "confidence": 0.95,
-    "occurrences": 83,
-    "lastUsed": "2026-01-03T14:37:54.012Z",
+    "occurrences": 147,
+    "lastUsed": "2026-01-03T14:48:18.011Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
     "source": "auto"
   },
@@ -30,8 +30,8 @@
       "content": "C4 design code generation successful - 25 TypeScript files generated"
     },
     "confidence": 0.95,
-    "occurrences": 54,
-    "lastUsed": "2026-01-03T14:37:54.011Z",
+    "occurrences": 274,
+    "lastUsed": "2026-01-03T14:48:18.011Z",
     "createdAt": "2026-01-03T13:41:53.216Z",
     "source": "auto"
   },
@@ -50,8 +50,8 @@
       "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
     },
     "confidence": 0.95,
-    "occurrences": 30,
-    "lastUsed": "2026-01-03T14:37:54.012Z",
+    "occurrences": 78,
+    "lastUsed": "2026-01-03T14:48:18.011Z",
     "createdAt": "2026-01-03T14:16:40.627Z",
     "source": "auto"
   },
@@ -70,8 +70,8 @@
       "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
     },
     "confidence": 0.95,
-    "occurrences": 37,
-    "lastUsed": "2026-01-03T14:37:54.012Z",
+    "occurrences": 117,
+    "lastUsed": "2026-01-03T14:48:18.011Z",
     "createdAt": "2026-01-03T14:27:44.066Z",
     "source": "auto"
   },
@@ -88,9 +88,27 @@
       "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
     },
     "confidence": 0.95,
-    "occurrences": 15,
-    "lastUsed": "2026-01-03T14:37:54.011Z",
+    "occurrences": 63,
+    "lastUsed": "2026-01-03T14:48:18.011Z",
     "createdAt": "2026-01-03T14:37:30.109Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-E5AEFFBA",
+    "name": "Auto: design prefer",
+    "category": "design",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Design elements correctly reference requirement IDs in JSDoc comments"
+    },
+    "confidence": 0.3,
+    "occurrences": 3,
+    "lastUsed": "2026-01-03T14:48:18.010Z",
+    "createdAt": "2026-01-03T14:48:18.010Z",
     "source": "auto"
   }
 ]

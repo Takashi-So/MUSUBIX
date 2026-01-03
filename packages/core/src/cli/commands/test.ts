@@ -445,28 +445,40 @@ function extractEarsRequirements(content: string): Array<{
   }
   
   // Format 2: Section format (new MUSUBIX format)
-  // #### REQ-XX-001: タイトル
+  // ## REQ-XX-001: タイトル
   // - **Pattern**: Event-driven
   // - **Statement**: WHEN... THE system SHALL...
   // - **Priority**: P0
-  const sectionRegex = /#{3,4}\s*(REQ-[\w-]+):\s*[^\n]+\n(?:[\s\S]*?-\s*\*\*Pattern\*\*:\s*(\w+(?:-\w+)?)\s*\n)?(?:[\s\S]*?-\s*\*\*Statement\*\*:\s*([^\n]+)\n)?(?:[\s\S]*?-\s*\*\*Priority\*\*:\s*(P\d)\s*)?/g;
+  // Split content into sections by requirement headers
+  const sections = content.split(/(?=#{2,4}\s*REQ-)/);
   
-  let sectionMatch;
-  while ((sectionMatch = sectionRegex.exec(content)) !== null) {
-    const id = sectionMatch[1];
-    if (!seenIds.has(id)) {
-      seenIds.add(id);
-      const pattern = sectionMatch[2] || 'ubiquitous';
-      const statement = sectionMatch[3] || '';
-      const priority = sectionMatch[4] || 'P1';
-      
-      requirements.push({
-        id,
-        pattern: pattern.toLowerCase().replace('-', '_'),
-        priority,
-        description: statement.trim(),
-      });
-    }
+  for (const section of sections) {
+    // Match requirement ID from section header
+    const headerMatch = section.match(/^#{2,4}\s*(REQ-[\w-]+):\s*([^\n]+)/);
+    if (!headerMatch) continue;
+    
+    const id = headerMatch[1];
+    if (seenIds.has(id)) continue;
+    
+    // Extract pattern from "- **Pattern**: xxx" format
+    const patternMatch = section.match(/-\s*\*\*Pattern\*\*:\s*([\w-]+)/i);
+    const pattern = patternMatch ? patternMatch[1].toLowerCase().replace('-', '_') : 'ubiquitous';
+    
+    // Extract statement from "- **Statement**: xxx" format
+    const statementMatch = section.match(/-\s*\*\*Statement\*\*:\s*([^\n]+)/i);
+    const statement = statementMatch ? statementMatch[1].trim() : '';
+    
+    // Extract priority from "- **Priority**: Px" format
+    const priorityMatch = section.match(/-\s*\*\*Priority\*\*:\s*(P\d)/i);
+    const priority = priorityMatch ? priorityMatch[1] : 'P1';
+    
+    seenIds.add(id);
+    requirements.push({
+      id,
+      pattern,
+      priority,
+      description: statement,
+    });
   }
   
   // Format 3: Legacy format

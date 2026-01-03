@@ -1315,7 +1315,8 @@ function parseC4DesignComponents(content: string): C4Component[] {
   
   // Match table rows: | ID | Name | Type | Description | or | ID | Name | Type | Description | Pattern |
   // Support both 4 and 5 column formats
-  const tableRowRegex = /\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*([^|]+?)\s*\|(?:\s*([^|]*?)\s*\|)?/g;
+  // Use [^|\n] to avoid matching across lines, and [ \t]* instead of \s* to avoid newlines
+  const tableRowRegex = /\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*([^|\n]+?)\s*\|(?:[ \t]*([^|\n]*?)[ \t]*\|)?/g;
   let match;
   
   while ((match = tableRowRegex.exec(content)) !== null) {
@@ -1406,7 +1407,8 @@ function generateC4ComponentCode(
     }
     
     // Default: Use method stubs
-    const methodStubs = generateMethodStubsForComponent(pattern || type, description);
+    // Pass both name and description for better domain context matching
+    const methodStubs = generateMethodStubsForComponent(pattern || type, `${name.toLowerCase()} ${description}`);
     
     return `/**
  * ${className}
@@ -1489,7 +1491,154 @@ function generateMethodStubsForComponent(type: string, description: string): Arr
     async: boolean;
   }> = [];
   
-  // Service patterns - CRUD operations
+  // Order/Booking service patterns
+  if (lowerDesc.includes('order') || lowerDesc.includes('注文') || lowerDesc.includes('予約') || lowerDesc.includes('booking')) {
+    methods.push(
+      {
+        name: 'create',
+        params: 'data: OrderInput',
+        returnType: 'Promise<Order>',
+        description: 'Create a new order',
+        async: true,
+      },
+      {
+        name: 'submit',
+        params: 'orderId: string',
+        returnType: 'Promise<Order>',
+        description: 'Submit order for processing',
+        async: true,
+      },
+      {
+        name: 'cancel',
+        params: 'orderId: string, reason?: string',
+        returnType: 'Promise<boolean>',
+        description: 'Cancel an order',
+        async: true,
+      },
+      {
+        name: 'getStatus',
+        params: 'orderId: string',
+        returnType: 'Promise<OrderStatus>',
+        description: 'Get order status',
+        async: true,
+      },
+      {
+        name: 'getByCustomer',
+        params: 'customerId: string',
+        returnType: 'Promise<Order[]>',
+        description: 'Get orders by customer',
+        async: true,
+      }
+    );
+    return methods;
+  }
+  
+  // Schedule/Appointment service patterns
+  if (lowerDesc.includes('schedule') || lowerDesc.includes('appointment') || lowerDesc.includes('スケジュール') || lowerDesc.includes('予定')) {
+    methods.push(
+      {
+        name: 'book',
+        params: 'slot: TimeSlot, details: BookingDetails',
+        returnType: 'Promise<Appointment>',
+        description: 'Book an appointment',
+        async: true,
+      },
+      {
+        name: 'checkAvailability',
+        params: 'date: Date, duration: number',
+        returnType: 'Promise<TimeSlot[]>',
+        description: 'Check available time slots',
+        async: true,
+      },
+      {
+        name: 'reschedule',
+        params: 'appointmentId: string, newSlot: TimeSlot',
+        returnType: 'Promise<Appointment>',
+        description: 'Reschedule an appointment',
+        async: true,
+      },
+      {
+        name: 'cancel',
+        params: 'appointmentId: string',
+        returnType: 'Promise<boolean>',
+        description: 'Cancel an appointment',
+        async: true,
+      }
+    );
+    return methods;
+  }
+  
+  // Pricing/Payment service patterns
+  if (lowerDesc.includes('pricing') || lowerDesc.includes('payment') || lowerDesc.includes('price') || lowerDesc.includes('価格') || lowerDesc.includes('決済')) {
+    methods.push(
+      {
+        name: 'calculate',
+        params: 'items: PricingItem[]',
+        returnType: 'Promise<PricingResult>',
+        description: 'Calculate total price',
+        async: true,
+      },
+      {
+        name: 'applyDiscount',
+        params: 'basePrice: number, discountCode: string',
+        returnType: 'Promise<{ price: number; discount: number }>',
+        description: 'Apply discount to price',
+        async: true,
+      },
+      {
+        name: 'processPayment',
+        params: 'amount: number, paymentMethod: PaymentMethod',
+        returnType: 'Promise<PaymentResult>',
+        description: 'Process payment',
+        async: true,
+      },
+      {
+        name: 'refund',
+        params: 'transactionId: string, amount?: number',
+        returnType: 'Promise<RefundResult>',
+        description: 'Process refund',
+        async: true,
+      }
+    );
+    return methods;
+  }
+  
+  // Inventory service patterns
+  if (lowerDesc.includes('inventory') || lowerDesc.includes('stock') || lowerDesc.includes('在庫')) {
+    methods.push(
+      {
+        name: 'checkStock',
+        params: 'itemId: string',
+        returnType: 'Promise<StockLevel>',
+        description: 'Check stock level',
+        async: true,
+      },
+      {
+        name: 'reserve',
+        params: 'itemId: string, quantity: number',
+        returnType: 'Promise<Reservation>',
+        description: 'Reserve stock',
+        async: true,
+      },
+      {
+        name: 'release',
+        params: 'reservationId: string',
+        returnType: 'Promise<boolean>',
+        description: 'Release reserved stock',
+        async: true,
+      },
+      {
+        name: 'updateStock',
+        params: 'itemId: string, delta: number',
+        returnType: 'Promise<StockLevel>',
+        description: 'Update stock level',
+        async: true,
+      }
+    );
+    return methods;
+  }
+  
+  // Service patterns - CRUD operations (generic fallback)
   if (lowerType === 'service' || lowerDesc.includes('crud') || lowerDesc.includes('管理')) {
     methods.push(
       {
@@ -1571,16 +1720,30 @@ function generateMethodStubsForComponent(type: string, description: string): Arr
     methods.push(
       {
         name: 'validate',
-        params: 'input: unknown',
-        returnType: '{ valid: boolean; errors: string[] }',
-        description: 'Validate input',
+        params: 'input: ValidationInput',
+        returnType: 'ValidationResult',
+        description: 'Validate input data',
+        async: false,
+      },
+      {
+        name: 'validateField',
+        params: 'fieldName: string, value: string | number | boolean',
+        returnType: '{ valid: boolean; error?: string }',
+        description: 'Validate a single field',
         async: false,
       },
       {
         name: 'sanitize',
         params: 'input: string',
         returnType: 'string',
-        description: 'Sanitize input',
+        description: 'Sanitize input string',
+        async: false,
+      },
+      {
+        name: 'getValidationRules',
+        params: '',
+        returnType: 'ValidationRule[]',
+        description: 'Get validation rules',
         async: false,
       }
     );
@@ -1691,8 +1854,22 @@ function generateMethodStubsForComponent(type: string, description: string): Arr
       {
         name: 'toJSON',
         params: '',
-        returnType: 'Record<string, unknown>',
+        returnType: 'EntityData',
         description: 'Convert to JSON object',
+        async: false,
+      },
+      {
+        name: 'clone',
+        params: '',
+        returnType: 'this',
+        description: 'Create a deep clone',
+        async: false,
+      },
+      {
+        name: 'equals',
+        params: 'other: this',
+        returnType: 'boolean',
+        description: 'Check equality with another entity',
         async: false,
       },
       {
@@ -1706,8 +1883,8 @@ function generateMethodStubsForComponent(type: string, description: string): Arr
     return methods;
   }
   
-  // Component/UI patterns
-  if (lowerType === 'component' || lowerDesc.includes('表示') || lowerDesc.includes('ui') || lowerDesc.includes('display')) {
+  // Component/UI patterns (check before specific domain patterns)
+  if (lowerType === 'component' && (lowerDesc.includes('表示') || lowerDesc.includes('ui') || lowerDesc.includes('display') || lowerDesc.includes('view') || lowerDesc.includes('画面'))) {
     methods.push(
       {
         name: 'render',
