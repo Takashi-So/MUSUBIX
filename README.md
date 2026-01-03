@@ -11,7 +11,7 @@
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.0.12** - Self-learning system, C4 code generation, Japanese EARS support
+> **v1.0.18** - 60 domains, ~390 domain-specific components, enhanced design generation
 
 **[日本語版 README](README.ja.md)**
 

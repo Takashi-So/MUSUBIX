@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.18] - 2026-01-04
+
+### Added
+- **60ドメイン対応**: 業界・業種特化のドメイン認識を大幅拡張
+  - 新規25ドメイン: pharmacy, veterinary, museum, cinema, parking, laundry, rental, subscription, crowdfunding, auction, wedding, funeral, charity, government, election, survey, elearning, news, podcast, streaming など
+  - 合計約390個のドメイン固有コンポーネント定義
+
+### Improved
+- **既存ドメインのコンポーネント拡充**: 全ドメインが最低5個以上のコンポーネントを持つよう強化
+  - security: 4→7個（EncryptionService, FirewallService, IdentityService, SecurityIncidentService追加）
+  - environment: 3→7個（PollutionService, BiodiversityService, EnergyEfficiencyService, WaterQualityService追加）
+  - beauty: 3→7個（BeautyMenuService, BeautyCustomerService, BeautyProductService, BeautyCouponService追加）
+  - その他12ドメインのコンポーネント拡充
+
+### Tests
+- 全285テスト合格
+- 100プロジェクトでの設計生成テスト実施
+
+---
+
 ## [1.0.13] - 2026-01-03
 
 ### Improved
