@@ -11,10 +11,28 @@
       "type": "avoid",
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
-    "confidence": 0.75,
-    "occurrences": 9,
-    "lastUsed": "2026-01-03T13:18:17.107Z",
+    "confidence": 0.95,
+    "occurrences": 27,
+    "lastUsed": "2026-01-03T13:42:06.617Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-FC49A670",
+    "name": "Auto: code prefer",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "C4 design code generation successful - 25 TypeScript files generated"
+    },
+    "confidence": 0.6000000000000001,
+    "occurrences": 6,
+    "lastUsed": "2026-01-03T13:42:06.617Z",
+    "createdAt": "2026-01-03T13:41:53.216Z",
     "source": "auto"
   }
 ]

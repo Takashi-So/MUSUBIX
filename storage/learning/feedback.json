@@ -118,5 +118,65 @@
       "tags": []
     },
     "reason": "日本語EARS形式の複数行パターン認識が改善。WHEN+AND THE、WHILE+THE等の複合パターンを正しく認識するようになった"
+  },
+  {
+    "id": "FB-3972A391",
+    "timestamp": "2026-01-03T13:38:00.700Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-SHOP-001",
+    "context": {
+      "project": "member-shopping",
+      "tags": []
+    },
+    "reason": "22 EARS requirements validated"
+  },
+  {
+    "id": "FB-B60AA914",
+    "timestamp": "2026-01-03T13:38:52.375Z",
+    "type": "modify",
+    "artifactType": "design",
+    "artifactId": "DES-SHOP-001",
+    "context": {
+      "project": "member-shopping",
+      "tags": []
+    },
+    "reason": "Traceability mapping needs improvement - all requirements mapped to user only"
+  },
+  {
+    "id": "FB-7B1F4A4E",
+    "timestamp": "2026-01-03T13:40:05.231Z",
+    "type": "reject",
+    "artifactType": "code",
+    "artifactId": "codegen-shop",
+    "context": {
+      "project": "member-shopping",
+      "tags": []
+    },
+    "reason": "codegen generate did not create any files from C4 design"
+  },
+  {
+    "id": "FB-4733108C",
+    "timestamp": "2026-01-03T13:41:53.212Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "codegen-shop-v2",
+    "context": {
+      "project": "member-shopping",
+      "tags": []
+    },
+    "reason": "C4 design code generation successful - 25 TypeScript files generated"
+  },
+  {
+    "id": "FB-5016B120",
+    "timestamp": "2026-01-03T13:42:06.613Z",
+    "type": "reject",
+    "artifactType": "test",
+    "artifactId": "test-gen-shop",
+    "context": {
+      "project": "member-shopping",
+      "tags": []
+    },
+    "reason": "test generate created 0 test cases"
   }
 ]

@@ -603,7 +603,11 @@ function generateCodeFromDesign(content: string, options: CodegenOptions): Gener
   const isEarsDoc = content.includes('EARS') || content.includes('SHALL') || content.includes('REQ-');
   
   // Check if this is a C4 design document (table-based)
-  const isC4Design = content.includes('C4 Component') || content.includes('### Elements');
+  const isC4Design = content.includes('C4 Component') || 
+                     content.includes('### Elements') || 
+                     content.includes('### コンポーネント一覧') ||
+                     content.includes('Component Diagram') ||
+                     (content.includes('| ID |') && content.includes('| Type |'));
   
   if (isC4Design) {
     // Parse C4 design document table format
@@ -1306,14 +1310,15 @@ interface DesignPattern {
 function parseC4DesignComponents(content: string): C4Component[] {
   const components: C4Component[] = [];
   
-  // Match table rows: | ID | Name | Type | Description |
-  const tableRowRegex = /\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*(.+?)\s*\|/g;
+  // Match table rows: | ID | Name | Type | Description | or | ID | Name | Type | Description | Pattern |
+  // Support both 4 and 5 column formats
+  const tableRowRegex = /\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*([^|]+?)\s*\|(?:\s*([^|]*?)\s*\|)?/g;
   let match;
   
   while ((match = tableRowRegex.exec(content)) !== null) {
     const [, id, name, type, description] = match;
-    // Skip header row
-    if (id === 'ID' || id === '----' || id.startsWith('-')) continue;
+    // Skip header row and separator row
+    if (id === 'ID' || id === '----' || id.startsWith('-') || name === '----' || name === 'Name') continue;
     
     components.push({
       id,
