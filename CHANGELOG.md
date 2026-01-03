@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.12] - 2026-01-03
+
+### Added
+- **C4設計からコード生成**: テーブル形式のC4コンポーネントを解析してTypeScriptコード生成
+  - インターフェース、クラス、ファクトリ関数を含む完全なスケルトンコード
+  - 設計パターン（Observer等）のコメント自動付与
+  - コンポーネント説明に基づくメソッドスタブ自動生成
+
+### Improved
+- **EARS複数行パターン認識**: 日本語EARS形式のサポート強化
+  - `WHEN 〜、THE システム SHALL 〜` 形式の認識
+  - `AND THE`、`かつ`、`または` による継続行のサポート
+  - Markdown形式の要件ドキュメントからの抽出精度向上
+- **codegen generate**: C4設計ドキュメントから実ファイル生成が動作するように修正
+
+### Self-Learning Results
+- 仮想プロジェクト（レストラン予約システム）を使用した自己学習実施
+- フィードバック収集: 10件（accept: 4, reject: 4, modify: 2）
+- パターン抽出: 1件（code avoid, 信頼度75%）
+- 学習データ: `storage/learning-data-v1.0.12.json`
+
+---
+
 ## [1.0.11] - 2026-01-03
 
 ### Added

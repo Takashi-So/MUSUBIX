@@ -112,45 +112,103 @@ export interface SearchResult {
 
 /**
  * Parse EARS requirements from text
+ * Supports both English and Japanese EARS format
  */
 function parseEARSRequirements(content: string): string[] {
   const lines = content.split('\n');
   const requirements: string[] = [];
   let currentReq = '';
+  let inRequirementSection = false;
 
-  for (const line of lines) {
-    const trimmed = line.trim();
+  // EARS keywords in English and Japanese
+  const startKeywords = /^(THE|WHEN|WHILE|IF|WHERE)\s/i;
+  const startKeywordsJa = /^(システム|THE\s*システム)/i;
+  const bulletStartKeywords = /^[-*]\s*(THE|WHEN|WHILE|IF|WHERE)\s/i;
+  const continueKeywords = /^(AND|OR)\s/i;
+  const continueKeywordsJa = /^(AND\s+THE|かつ|または)/i;
+  
+  // Japanese EARS pattern detection
+  const jaEarsStart = /^(WHEN|WHILE|IF)\s+.+[,、]$/i;
+  const jaEarsSystem = /^THE\s+(システム|system)/i;
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
     
-    // Skip empty lines and comments
-    if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('//')) {
-      if (currentReq) {
-        requirements.push(currentReq.trim());
+    // Skip empty lines, comments, and markdown headers
+    if (!trimmed || 
+        trimmed.startsWith('#') || 
+        trimmed.startsWith('//') ||
+        trimmed.startsWith('**') ||
+        trimmed.startsWith('|') ||
+        trimmed.startsWith('---')) {
+      if (currentReq && containsEarsKeyword(currentReq)) {
+        requirements.push(normalizeEarsRequirement(currentReq));
         currentReq = '';
       }
       continue;
     }
 
-    // Check for EARS keywords
+    // Detect EARS section markers
+    if (trimmed.match(/種別|pattern|パターン/i)) {
+      inRequirementSection = true;
+      continue;
+    }
+
+    // Check for EARS start keywords
     if (
-      trimmed.match(/^(THE|WHEN|WHILE|IF|WHERE)\s/i) ||
-      trimmed.match(/^-\s*(THE|WHEN|WHILE|IF|WHERE)\s/i)
+      trimmed.match(startKeywords) ||
+      trimmed.match(startKeywordsJa) ||
+      trimmed.match(bulletStartKeywords) ||
+      trimmed.match(jaEarsStart)
     ) {
-      if (currentReq) {
-        requirements.push(currentReq.trim());
+      // Save previous requirement if exists
+      if (currentReq && containsEarsKeyword(currentReq)) {
+        requirements.push(normalizeEarsRequirement(currentReq));
       }
-      currentReq = trimmed.replace(/^-\s*/, '');
-    } else if (currentReq && trimmed.match(/^(AND|OR)\s/i)) {
+      currentReq = trimmed.replace(/^[-*]\s*/, '');
+      inRequirementSection = true;
+    } 
+    // Check for Japanese multi-line EARS (e.g., "THE システム SHALL")
+    else if (currentReq && trimmed.match(jaEarsSystem)) {
       currentReq += ' ' + trimmed;
-    } else if (currentReq) {
+    }
+    // Check for continuation keywords (AND, OR, etc.)
+    else if (currentReq && (trimmed.match(continueKeywords) || trimmed.match(continueKeywordsJa))) {
       currentReq += ' ' + trimmed;
+    }
+    // Continue building multi-line requirement
+    else if (currentReq && !trimmed.match(/^REQ-|^###|^\*\*/) && inRequirementSection) {
+      // Check if this line completes the EARS pattern
+      if (trimmed.includes('SHALL') || trimmed.includes('する')) {
+        currentReq += ' ' + trimmed;
+      }
     }
   }
 
-  if (currentReq) {
-    requirements.push(currentReq.trim());
+  // Don't forget the last requirement
+  if (currentReq && containsEarsKeyword(currentReq)) {
+    requirements.push(normalizeEarsRequirement(currentReq));
   }
 
   return requirements;
+}
+
+/**
+ * Check if text contains EARS keywords
+ */
+function containsEarsKeyword(text: string): boolean {
+  return /SHALL|すべきである|しなければならない/i.test(text);
+}
+
+/**
+ * Normalize EARS requirement text
+ * Combines multi-line Japanese EARS into single line
+ */
+function normalizeEarsRequirement(text: string): string {
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/[、,]\s+/g, ', ')
+    .trim();
 }
 
 /**

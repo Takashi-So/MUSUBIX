@@ -1,0 +1,122 @@
+[
+  {
+    "id": "FB-23262916",
+    "timestamp": "2026-01-03T00:15:04.217Z",
+    "type": "modify",
+    "artifactType": "requirement",
+    "artifactId": "REQ-VALIDATE-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "複数行のEARS形式（WHEN+AND、WHILE+THE等）が個別の行として解析される。日本語の複合EARS文を正しく認識する改善が必要"
+  },
+  {
+    "id": "FB-109DAECC",
+    "timestamp": "2026-01-03T00:15:27.357Z",
+    "type": "modify",
+    "artifactType": "design",
+    "artifactId": "DES-GENERATE-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "C4設計生成でトレーサビリティが全てuserにマッピングされる。ReservationService, CancellationService, AuthService, NotificationService, ReportServiceなど要件ドメインに応じた適切なコンポーネントへのマッピングが必要"
+  },
+  {
+    "id": "FB-4C16D5CE",
+    "timestamp": "2026-01-03T00:15:41.590Z",
+    "type": "reject",
+    "artifactType": "code",
+    "artifactId": "CODE-GENERATE-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "codegen generateコマンドが成功メッセージを表示するが、実際のファイルが生成されない。TypeScriptのスケルトンコード（クラス、インターフェース、型定義）を出力する機能の実装が必要"
+  },
+  {
+    "id": "FB-6FDF95D3",
+    "timestamp": "2026-01-03T00:15:54.235Z",
+    "type": "reject",
+    "artifactType": "test",
+    "artifactId": "TEST-GENERATE-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "test generateコマンドが0テストケースを生成。EARS要件からテストケースを自動生成する機能が未実装。例: REQ-RBS-001の予約作成要件から予約作成の正常系・異常系テストを生成すべき"
+  },
+  {
+    "id": "FB-89222CE8",
+    "timestamp": "2026-01-03T00:15:58.441Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "DES-REVIEW-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "design generateのレビュー機能は優秀。SOLID原則分析、憲法準拠チェック、設計パターン検出が適切に動作している"
+  },
+  {
+    "id": "FB-218A0875",
+    "timestamp": "2026-01-03T00:16:04.684Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "CLI-OUTPUT-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "CLI出力のフォーマットが見やすい。絵文字、カラー、罫線を使った構造化出力が優秀"
+  },
+  {
+    "id": "FB-B41F6C00",
+    "timestamp": "2026-01-03T00:16:20.098Z",
+    "type": "reject",
+    "artifactType": "code",
+    "artifactId": "CODE-GENERATE-002",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "codegen generateでファイルが生成されない問題。コンポーネント定義からTypeScriptコードの実ファイル出力が必要"
+  },
+  {
+    "id": "FB-B2B4ED57",
+    "timestamp": "2026-01-03T00:16:21.200Z",
+    "type": "reject",
+    "artifactType": "code",
+    "artifactId": "CODE-GENERATE-003",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
+  },
+  {
+    "id": "FB-F4C6481A",
+    "timestamp": "2026-01-03T13:16:41.143Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "CODE-GENERATE-004",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "C4設計からコード生成が成功。インターフェース、クラス、ファクトリ関数を含むTypeScriptコードが正しく生成された"
+  },
+  {
+    "id": "FB-EC44A95E",
+    "timestamp": "2026-01-03T13:18:17.104Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "EARS-PARSE-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "日本語EARS形式の複数行パターン認識が改善。WHEN+AND THE、WHILE+THE等の複合パターンを正しく認識するようになった"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "PAT-CB21FC93",
+    "name": "Auto: code avoid",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "avoid",
+      "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
+    },
+    "confidence": 0.75,
+    "occurrences": 9,
+    "lastUsed": "2026-01-03T13:18:17.107Z",
+    "createdAt": "2026-01-03T00:16:21.203Z",
+    "source": "auto"
+  }
+]
