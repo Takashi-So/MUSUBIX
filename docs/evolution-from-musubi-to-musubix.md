@@ -7,7 +7,7 @@ tags:
   - LLM
   - ニューロシンボリック
 private: false
-updated_at: '2026-01-03'
+updated_at: '2026-01-04'
 id: null
 organization_url_name: null
 slide: false
@@ -21,13 +21,17 @@ AIコーディング支援ツールは急速に進化しています。本記事
 
 # TL;DR
 
+> **最新バージョン**: v1.0.18 | **60ドメイン対応** | **~390コンポーネント**
+
 | 項目 | MUSUBI | MUSUBIX |
-|------|--------|---------|
+|------|--------|---------||
 | **コンセプト** | 仕様駆動開発（SDD） | ニューロシンボリックAI |
 | **推論方式** | ニューラル（LLM）のみ | ニューラル + シンボリック |
 | **知識基盤** | プロジェクトメモリ | 知識グラフ（YATA） |
 | **信頼性** | LLMの確率的出力 | 形式的検証による確実性 |
 | **統合対象** | 7つのAIエージェント | MUSUBI + YATA + 7エージェント |
+| **ドメイン** | 汎用 | 60専門ドメイン対応 |
+| **自己学習** | なし | フィードバックベースの適応学習 |
 
 # 1. MUSUBIとは？
 
@@ -273,10 +277,10 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    subgraph MUSUBIX["MUSUBIX System"]
+    subgraph MUSUBIX["MUSUBIX System v1.0.18"]
         subgraph Packages["パッケージ構成"]
-            Core["@nahisaho/musubix-core<br/>56モジュール"]
-            MCP["@nahisaho/musubix-mcp-server<br/>9ツール, 6プロンプト"]
+            Core["@nahisaho/musubix-core<br/>56モジュール | 60ドメイン | ~390コンポーネント"]
+            MCP["@nahisaho/musubix-mcp-server<br/>9ツール, 3プロンプト"]
             YATA_Client["@nahisaho/musubix-yata-client"]
         end
         
@@ -284,6 +288,7 @@ flowchart TB
             NSI["NeuroSymbolicIntegrator"]
             CE["ConfidenceEvaluator"]
             CD["ContradictionDetector"]
+            LS["LearningSystem"]
         end
         
         Core --> Integration
@@ -436,7 +441,128 @@ flowchart LR
 | **技術オントロジー** | 設計パターン、フレームワーク | 設計の自動提案 |
 | **SDDオントロジー** | EARS、C4、ADRの形式知識 | 成果物の検証 |
 
-### 4.2.4 オントロジーマッピングの実例
+### 4.2.4 60ドメイン対応（v1.0.18）
+
+MUSUBIXは**60の専門ドメイン**に対応し、各ドメインに最適化されたコンポーネント推論を提供します。
+
+```mermaid
+flowchart TB
+    subgraph Domains["60ドメイン対応"]
+        subgraph Business["ビジネス系"]
+            B1[ecommerce]
+            B2[finance]
+            B3[crm]
+            B4[hr]
+            B5[marketing]
+        end
+        
+        subgraph Industry["産業系"]
+            I1[manufacturing]
+            I2[logistics]
+            I3[healthcare]
+            I4[agriculture]
+            I5[energy]
+        end
+        
+        subgraph Tech["技術系"]
+            T1[iot]
+            T2[security]
+            T3[ai]
+            T4[analytics]
+            T5[telecom]
+        end
+        
+        subgraph Service["サービス系"]
+            S1[education]
+            S2[travel]
+            S3[restaurant]
+            S4[beauty]
+            S5[entertainment]
+        end
+    end
+    
+    Domains --> Components["~390コンポーネント定義"]
+```
+
+| カテゴリ | ドメイン例 | コンポーネント例 |
+|---------|-----------|-----------------|
+| **ビジネス** | ecommerce, finance, crm | CartService, PaymentGateway, CustomerRepository |
+| **産業** | manufacturing, logistics | ProductionLine, InventoryTracker, QualityControl |
+| **ヘルスケア** | healthcare, pharmacy | PatientRecord, PrescriptionManager, DiagnosticService |
+| **サービス** | restaurant, hotel, travel | ReservationService, MenuManager, BookingEngine |
+| **技術** | iot, security, ai | DeviceManager, ThreatDetector, ModelInference |
+
+**対応ドメイン一覧**（60ドメイン）:
+
+<details>
+<summary>クリックして全ドメインを表示</summary>
+
+| # | ドメイン | 説明 |
+|---|---------|------|
+| 1 | general | 汎用 |
+| 2 | ecommerce | EC・通販 |
+| 3 | healthcare | ヘルスケア |
+| 4 | finance | 金融 |
+| 5 | education | 教育 |
+| 6 | manufacturing | 製造 |
+| 7 | logistics | 物流 |
+| 8 | crm | 顧客管理 |
+| 9 | hr | 人事 |
+| 10 | iot | IoT |
+| 11 | travel | 旅行 |
+| 12 | restaurant | 飲食店 |
+| 13 | realestate | 不動産 |
+| 14 | insurance | 保険 |
+| 15 | media | メディア |
+| 16 | gaming | ゲーム |
+| 17 | social | SNS |
+| 18 | analytics | 分析 |
+| 19 | booking | 予約 |
+| 20 | inventory | 在庫管理 |
+| 21 | auction | オークション |
+| 22 | subscription | サブスク |
+| 23 | marketplace | マーケットプレイス |
+| 24 | delivery | 配送 |
+| 25 | payment | 決済 |
+| 26 | chat | チャット |
+| 27 | document | 文書管理 |
+| 28 | workflow | ワークフロー |
+| 29 | notification | 通知 |
+| 30 | search | 検索 |
+| 31 | calendar | カレンダー |
+| 32 | project | プロジェクト管理 |
+| 33 | survey | アンケート |
+| 34 | voting | 投票 |
+| 35 | ticketing | チケット |
+| 36 | hotel | ホテル |
+| 37 | pharmacy | 薬局 |
+| 38 | veterinary | 動物病院 |
+| 39 | gym | フィットネス |
+| 40 | library | 図書館 |
+| 41 | museum | 美術館・博物館 |
+| 42 | parking | 駐車場 |
+| 43 | laundry | クリーニング |
+| 44 | rental | レンタル |
+| 45 | repair | 修理 |
+| 46 | cleaning | 清掃 |
+| 47 | catering | ケータリング |
+| 48 | wedding | ブライダル |
+| 49 | funeral | 葬儀 |
+| 50 | agriculture | 農業 |
+| 51 | energy | エネルギー |
+| 52 | waste | 廃棄物 |
+| 53 | recycling | リサイクル |
+| 54 | warehouse | 倉庫 |
+| 55 | vehicle | 車両管理 |
+| 56 | sports | スポーツ |
+| 57 | marketing | マーケティング |
+| 58 | aviation | 航空 |
+| 59 | shipping | 海運 |
+| 60 | telecom | 通信 |
+
+</details>
+
+### 4.2.5 オントロジーマッピングの実例
 
 ```typescript
 // MUSUBIXでのオントロジーマッピング例
@@ -478,14 +604,20 @@ MUSUBIXは以下の新規モジュールを追加：
 | | SOLIDValidator | SOLID検証 |
 | | C4ModelGenerator | C4モデル生成 |
 | | ADRGenerator | ADR生成 |
+| | DomainDetector | ドメイン自動検出（60ドメイン） |
+| | ComponentInference | コンポーネント推論（~390定義） |
 | **コード** | StaticAnalyzer | 静的解析 |
 | | SecurityScanner | セキュリティスキャン |
 | | QualityMetricsCalculator | 品質メトリクス |
 | **説明** | ReasoningChainRecorder | 推論チェーン記録 |
 | | ExplanationGenerator | 説明生成 |
 | | VisualExplanationGenerator | 視覚的説明生成 |
+| **学習** | FeedbackCollector | フィードバック収集 |
+| | PatternExtractor | パターン抽出 |
+| | AdaptiveReasoner | 適応的推論 |
+| | PrivacyFilter | プライバシー保護フィルター |
 
-## 4.4 MCPサーバー（9ツール、6プロンプト）
+## 4.4 MCPサーバー（9ツール、3プロンプト）
 
 ```mermaid
 flowchart TB
@@ -498,13 +630,10 @@ flowchart TB
             T5[説明系ツール]
         end
         
-        subgraph Prompts["6 Prompts"]
-            P1[sdd-steering]
-            P2[sdd-requirements]
-            P3[sdd-design]
-            P4[sdd-tasks]
-            P5[sdd-implement]
-            P6[sdd-validate]
+        subgraph Prompts["3 Prompts"]
+            P1[sdd_requirements_analysis]
+            P2[sdd_requirements_review]
+            P3[sdd_design_generation]
         end
     end
     
@@ -516,6 +645,42 @@ flowchart TB
     
     MCPServer --> Platforms
 ```
+
+## 4.5 自己学習システム（v1.0.12〜）
+
+MUSUBIXは**自己学習システム**を搭載し、フィードバックに基づいて推論を継続的に改善します。
+
+```mermaid
+flowchart LR
+    subgraph Learning["自己学習システム"]
+        F[フィードバック収集] --> P[パターン抽出]
+        P --> T{閾値判定}
+        T -->|超過| R[パターン登録]
+        T -->|未満| W[待機]
+        R --> A[適応的推論]
+    end
+    
+    subgraph Privacy["プライバシー保護"]
+        PF[PrivacyFilter]
+        LS[ローカルストレージのみ]
+    end
+    
+    Learning --> Privacy
+```
+
+| 機能 | 説明 | CLIコマンド |
+|------|------|------------|
+| **状態確認** | 学習状態ダッシュボード表示 | `npx musubix learn status` |
+| **フィードバック** | accept/reject/modifyの記録 | `npx musubix learn feedback <id>` |
+| **パターン一覧** | 学習済みパターン表示 | `npx musubix learn patterns` |
+| **パターン追加** | 手動パターン登録 | `npx musubix learn add-pattern <name>` |
+| **推奨取得** | コンテキストベースの推奨 | `npx musubix learn recommend` |
+| **データ移行** | エクスポート/インポート | `npx musubix learn export/import` |
+
+**プライバシー保護**:
+- すべての学習データはローカルストレージのみに保存
+- 機密情報の自動フィルタリング
+- 外部サーバーへのデータ送信なし
 
 # 5. 9つの憲法条項
 
@@ -761,4 +926,5 @@ claude mcp list
 
 **著者**: nahisaho  
 **公開日**: 2026-01-02  
-**更新日**: 2026-01-03
+**更新日**: 2026-01-04  
+**バージョン**: v1.0.18
