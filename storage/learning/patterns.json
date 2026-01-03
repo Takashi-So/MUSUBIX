@@ -12,8 +12,8 @@
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
     "confidence": 0.95,
-    "occurrences": 27,
-    "lastUsed": "2026-01-03T13:42:06.617Z",
+    "occurrences": 83,
+    "lastUsed": "2026-01-03T14:37:54.012Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
     "source": "auto"
   },
@@ -29,10 +29,68 @@
       "type": "prefer",
       "content": "C4 design code generation successful - 25 TypeScript files generated"
     },
-    "confidence": 0.6000000000000001,
-    "occurrences": 6,
-    "lastUsed": "2026-01-03T13:42:06.617Z",
+    "confidence": 0.95,
+    "occurrences": 54,
+    "lastUsed": "2026-01-03T14:37:54.011Z",
     "createdAt": "2026-01-03T13:41:53.216Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-A92140DD",
+    "name": "Auto: code suggest",
+    "category": "code",
+    "trigger": {
+      "context": {
+        "language": "typescript"
+      },
+      "conditions": []
+    },
+    "action": {
+      "type": "suggest",
+      "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
+    },
+    "confidence": 0.95,
+    "occurrences": 30,
+    "lastUsed": "2026-01-03T14:37:54.012Z",
+    "createdAt": "2026-01-03T14:16:40.627Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-298803B3",
+    "name": "Auto: code prefer",
+    "category": "code",
+    "trigger": {
+      "context": {
+        "language": "typescript"
+      },
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
+    },
+    "confidence": 0.95,
+    "occurrences": 37,
+    "lastUsed": "2026-01-03T14:37:54.012Z",
+    "createdAt": "2026-01-03T14:27:44.066Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-86DEF551",
+    "name": "Auto: requirement prefer",
+    "category": "requirement",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
+    },
+    "confidence": 0.95,
+    "occurrences": 15,
+    "lastUsed": "2026-01-03T14:37:54.011Z",
+    "createdAt": "2026-01-03T14:37:30.109Z",
     "source": "auto"
   }
 ]

@@ -178,5 +178,181 @@
       "tags": []
     },
     "reason": "test generate created 0 test cases"
+  },
+  {
+    "id": "FB-90560E2B",
+    "timestamp": "2026-01-03T14:16:40.272Z",
+    "type": "modify",
+    "artifactType": "code",
+    "artifactId": "batch-20-projects",
+    "context": {
+      "project": "musubix-learning",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "クラス名がBLOG_PLATFORMServiceのようにアンダースコア付き大文字になる。BlogPlatformServiceのようにPascalCaseが適切。"
+  },
+  {
+    "id": "FB-984C26A3",
+    "timestamp": "2026-01-03T14:16:40.376Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "batch-20-code-gen",
+    "context": {
+      "project": "musubix-learning",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "11ファイル生成は適切。Repository/Service/Validator/Entity等のパターン別メソッド生成は良好。"
+  },
+  {
+    "id": "FB-480BB6B8",
+    "timestamp": "2026-01-03T14:16:40.462Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "batch-20-test-gen",
+    "context": {
+      "project": "musubix-learning",
+      "tags": []
+    },
+    "reason": "17テストケース生成は適切。EARS要件からEvent-driven/Ubiquitous/Unwanted/State-drivenパターン別にテスト生成。"
+  },
+  {
+    "id": "FB-5F7E38DE",
+    "timestamp": "2026-01-03T14:16:40.541Z",
+    "type": "modify",
+    "artifactType": "code",
+    "artifactId": "file-naming",
+    "context": {
+      "project": "musubix-learning",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "ファイル名がblog-platformservice.tsのようにハイフン+小文字結合。blog-platform-service.tsのように区切りを維持すべき。"
+  },
+  {
+    "id": "FB-A7BB9282",
+    "timestamp": "2026-01-03T14:16:40.624Z",
+    "type": "modify",
+    "artifactType": "code",
+    "artifactId": "entity-naming",
+    "context": {
+      "project": "musubix-learning",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
+  },
+  {
+    "id": "FB-AA4E976E",
+    "timestamp": "2026-01-03T14:22:03.260Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "naming-fix",
+    "context": {
+      "project": "musubix-learning",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "クラス名の正規化を実装。BLOG_PLATFORMService → BlogPlatformService に正しく変換。toPascalCase関数を拡張してService/Entity/Repository等のサフィックスを保持。"
+  },
+  {
+    "id": "FB-2A2EA465",
+    "timestamp": "2026-01-03T14:27:44.057Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "batch-30-entity",
+    "context": {
+      "project": "musubix-learning",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
+  },
+  {
+    "id": "FB-C80577F9",
+    "timestamp": "2026-01-03T14:27:44.211Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "batch-30-repository",
+    "context": {
+      "project": "musubix-learning",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "Repositoryテンプレートをジェネリクス対応に改善。BaseEntity制約、QueryOptions、CRUD+count操作を実装。"
+  },
+  {
+    "id": "FB-14DD2AA2",
+    "timestamp": "2026-01-03T14:27:44.360Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "batch-30-service",
+    "context": {
+      "project": "musubix-learning",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "Serviceテンプレートを型安全に改善。CreateInput/UpdateInput/FilterOptions/Entity型を自動定義。検索・ソート・ページネーション実装済み。"
+  },
+  {
+    "id": "FB-A50317A9",
+    "timestamp": "2026-01-03T14:37:30.105Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "EARS-COMPLEX-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
+  },
+  {
+    "id": "FB-F0CA5EA3",
+    "timestamp": "2026-01-03T14:37:33.894Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "TRACEABILITY-KEYWORD-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "Intelligent keyword-based requirement-to-element mapping instead of mapping all to first element"
+  },
+  {
+    "id": "FB-73D0801E",
+    "timestamp": "2026-01-03T14:37:40.980Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "TEMPLATE-ENTITY-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "Entity template now includes DTO, proper properties (id/createdAt/updatedAt), update/validate/toJSON methods"
+  },
+  {
+    "id": "FB-46568690",
+    "timestamp": "2026-01-03T14:37:48.115Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "TEMPLATE-REPOSITORY-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "Repository template now uses generics <T extends BaseEntity>, includes QueryOptions and proper CRUD+count methods"
+  },
+  {
+    "id": "FB-8AC85029",
+    "timestamp": "2026-01-03T14:37:54.008Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "TEMPLATE-SERVICE-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "Service template now includes CreateInput/UpdateInput/FilterOptions/Entity type definitions"
   }
 ]

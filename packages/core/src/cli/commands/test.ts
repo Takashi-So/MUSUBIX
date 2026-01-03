@@ -415,6 +415,10 @@ function generateTestsForFile(
 
 /**
  * Extract EARS requirements from content
+ * Supports multiple formats:
+ * 1. Table format: | REQ-XX-001 | pattern | P0 | description |
+ * 2. Section format: #### REQ-XX-001: Title + **Pattern**: + **Statement**: + **Priority**:
+ * 3. Legacy format: ### REQ-XX-001 (Pattern - P0)
  */
 function extractEarsRequirements(content: string): Array<{
   id: string;
@@ -423,26 +427,55 @@ function extractEarsRequirements(content: string): Array<{
   description: string;
 }> {
   const requirements: Array<{ id: string; pattern: string; priority: string; description: string }> = [];
+  const seenIds = new Set<string>();
   
-  // Match EARS requirements from table
-  // Format: | REQ-XX-001 | pattern | P0 | description |
+  // Format 1: Table format
+  // | REQ-XX-001 | pattern | P0 | description |
   const tableMatches = content.matchAll(/\|\s*(REQ-[\w-]+)\s*\|\s*(\w+)\s*\|\s*(P\d)\s*\|\s*([^|]+)\|/g);
   for (const match of tableMatches) {
-    requirements.push({
-      id: match[1],
-      pattern: match[2].toLowerCase(),
-      priority: match[3],
-      description: match[4].trim(),
-    });
+    if (!seenIds.has(match[1])) {
+      seenIds.add(match[1]);
+      requirements.push({
+        id: match[1],
+        pattern: match[2].toLowerCase(),
+        priority: match[3],
+        description: match[4].trim(),
+      });
+    }
   }
   
-  // Also extract from detailed sections
-  // Format: ### REQ-XX-001 (Pattern - P0)
+  // Format 2: Section format (new MUSUBIX format)
+  // #### REQ-XX-001: タイトル
+  // - **Pattern**: Event-driven
+  // - **Statement**: WHEN... THE system SHALL...
+  // - **Priority**: P0
+  const sectionRegex = /#{3,4}\s*(REQ-[\w-]+):\s*[^\n]+\n(?:[\s\S]*?-\s*\*\*Pattern\*\*:\s*(\w+(?:-\w+)?)\s*\n)?(?:[\s\S]*?-\s*\*\*Statement\*\*:\s*([^\n]+)\n)?(?:[\s\S]*?-\s*\*\*Priority\*\*:\s*(P\d)\s*)?/g;
+  
+  let sectionMatch;
+  while ((sectionMatch = sectionRegex.exec(content)) !== null) {
+    const id = sectionMatch[1];
+    if (!seenIds.has(id)) {
+      seenIds.add(id);
+      const pattern = sectionMatch[2] || 'ubiquitous';
+      const statement = sectionMatch[3] || '';
+      const priority = sectionMatch[4] || 'P1';
+      
+      requirements.push({
+        id,
+        pattern: pattern.toLowerCase().replace('-', '_'),
+        priority,
+        description: statement.trim(),
+      });
+    }
+  }
+  
+  // Format 3: Legacy format
+  // ### REQ-XX-001 (Pattern - P0)
   // > The system SHALL...
-  const detailMatches = content.matchAll(/###\s*(REQ-[\w-]+)(?:\s*\((\w+)(?:\s*-\s*(P\d))?\))?[\s\S]*?>\s*(.+?)(?=\n\n|\n###|$)/g);
-  for (const match of detailMatches) {
-    const existing = requirements.find(r => r.id === match[1]);
-    if (!existing) {
+  const legacyMatches = content.matchAll(/###\s*(REQ-[\w-]+)(?:\s*\((\w+)(?:\s*-\s*(P\d))?\))?[\s\S]*?>\s*(.+?)(?=\n\n|\n###|$)/g);
+  for (const match of legacyMatches) {
+    if (!seenIds.has(match[1])) {
+      seenIds.add(match[1]);
       requirements.push({
         id: match[1],
         pattern: (match[2] || 'ubiquitous').toLowerCase(),
@@ -523,6 +556,7 @@ function generateTestsFromRequirements(
           break;
           
         case 'event-driven':
+        case 'event_driven':
           // WHEN tests - triggered by events
           lines.push(template.it(`should respond when event triggers (${req.id})`));
           lines.push(`    // Requirement: ${req.description}`);
@@ -535,6 +569,7 @@ function generateTestsFromRequirements(
           break;
           
         case 'state-driven':
+        case 'state_driven':
           // WHILE tests - state-based requirements
           lines.push(template.it(`should maintain behavior while in state (${req.id})`));
           lines.push(`    // Requirement: ${req.description}`);

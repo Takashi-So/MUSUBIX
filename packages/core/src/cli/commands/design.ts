@@ -672,21 +672,89 @@ function detectApplicablePatterns(content: string): DesignPattern[] {
 }
 
 /**
- * Generate traceability
+ * Generate traceability with intelligent requirement-to-element mapping
  */
 function generateTraceability(content: string, model: C4Model): Array<{ requirement: string; designElement: string }> {
   const traceability: Array<{ requirement: string; designElement: string }> = [];
 
-  // Extract requirement IDs
-  const reqMatches = content.match(/REQ-[A-Z]+-\d+/g) || [];
+  // Extract requirement IDs with their context
+  const reqPattern = /REQ-[A-Z]+-\d+(?:-[A-Z]+)?/g;
+  const reqMatches = content.match(reqPattern) || [];
+  const uniqueReqs = [...new Set(reqMatches)];
 
-  for (const req of reqMatches) {
-    if (model.elements.length > 0) {
-      traceability.push({
-        requirement: req,
-        designElement: model.elements[0].id,
-      });
+  // Build keyword-to-element mapping from model elements
+  const elementKeywords: Map<string, string[]> = new Map();
+  for (const el of model.elements) {
+    const keywords: string[] = [];
+    const nameLower = el.name.toLowerCase();
+    const descLower = el.description.toLowerCase();
+    
+    // Extract keywords from element name and description
+    if (nameLower.includes('service')) keywords.push('service', 'logic', 'business', 'process');
+    if (nameLower.includes('repository')) keywords.push('repository', 'data', 'store', 'persist', 'save');
+    if (nameLower.includes('validator')) keywords.push('valid', 'check', 'verify', 'confirm');
+    if (nameLower.includes('auth')) keywords.push('auth', 'login', 'user', 'session', 'permission');
+    if (nameLower.includes('notification')) keywords.push('notify', 'alert', 'message', 'email');
+    if (nameLower.includes('search')) keywords.push('search', 'find', 'query', 'filter');
+    if (nameLower.includes('export')) keywords.push('export', 'report', 'download', 'csv', 'pdf');
+    if (nameLower.includes('cache')) keywords.push('cache', 'memory', 'performance');
+    if (nameLower.includes('entity')) keywords.push('entity', 'model', 'data', 'record');
+    if (nameLower.includes('view')) keywords.push('view', 'display', 'ui', 'render', 'show');
+    if (nameLower.includes('form')) keywords.push('form', 'input', 'submit', 'create', 'edit');
+    
+    // Add description keywords
+    const descWords = descLower.split(/[\s,.-]+/).filter(w => w.length > 3);
+    keywords.push(...descWords);
+    
+    elementKeywords.set(el.id, keywords);
+  }
+
+  // Extract requirement context from content
+  const lines = content.split('\n');
+  const reqContextMap: Map<string, string> = new Map();
+  
+  for (let i = 0; i < lines.length; i++) {
+    for (const req of uniqueReqs) {
+      if (lines[i].includes(req)) {
+        // Get surrounding context (±3 lines)
+        const context = lines.slice(Math.max(0, i - 3), Math.min(lines.length, i + 4)).join(' ').toLowerCase();
+        reqContextMap.set(req, context);
+      }
     }
+  }
+
+  // Map each requirement to the most relevant design element
+  for (const req of uniqueReqs) {
+    const reqContext = reqContextMap.get(req) || req.toLowerCase();
+    let bestMatch = model.elements[0]?.id || 'unknown';
+    let bestScore = 0;
+
+    for (const [elementId, keywords] of elementKeywords) {
+      let score = 0;
+      for (const keyword of keywords) {
+        if (reqContext.includes(keyword)) {
+          score += 1;
+        }
+      }
+      // Boost score for requirement ID pattern matching
+      // e.g., REQ-XXX-SEC-001 should map to security-related elements
+      const reqParts = req.toLowerCase().split('-');
+      for (const part of reqParts) {
+        if (keywords.some(k => k.includes(part) || part.includes(k))) {
+          score += 2;
+        }
+      }
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = elementId;
+      }
+    }
+
+    traceability.push({
+      requirement: req,
+      designElement: bestMatch,
+    });
   }
 
   return traceability;

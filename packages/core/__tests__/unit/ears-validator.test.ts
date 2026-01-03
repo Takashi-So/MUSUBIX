@@ -118,16 +118,16 @@ describe('REQ-RA-001: EARS Validator', () => {
     });
   });
 
-  describe('Conditional/Unwanted Pattern (If...then)', () => {
-    it('should recognize conditional pattern with "If...then"', () => {
+  describe('Optional Pattern (If...then)', () => {
+    it('should recognize optional pattern with "If...then"', () => {
       const result = validator.validateRequirement(
         'If an error occurs, then the system shall log the error'
       );
       
       expect(result.valid).toBe(true);
       expect(result.patternMatch).toBeDefined();
-      // EARS: IF <condition> THEN maps to 'unwanted' pattern type
-      expect(result.patternMatch?.type).toBe('unwanted');
+      // EARS: IF <condition> THEN SHALL maps to 'optional' pattern type
+      expect(result.patternMatch?.type).toBe('optional');
       expect(result.patternMatch?.confidence).toBeGreaterThanOrEqual(0.85);
     });
 
@@ -138,8 +138,8 @@ describe('REQ-RA-001: EARS Validator', () => {
       
       expect(result.valid).toBe(true);
       expect(result.patternMatch).toBeDefined();
-      // EARS: IF <condition> maps to 'unwanted' pattern type
-      expect(result.patternMatch?.type).toBe('unwanted');
+      // EARS: IF <condition> SHALL maps to 'optional' pattern type
+      expect(result.patternMatch?.type).toBe('optional');
     });
   });
 

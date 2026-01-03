@@ -146,9 +146,9 @@ const EARS_PATTERNS: PatternDefinition[] = [
     }),
     description: 'The <system> shall not <behavior>',
   },
-  // Unwanted/Conditional: IF <condition>, THEN THE <system> SHALL <action>
+  // Optional/Conditional: IF <condition>, THEN THE <system> SHALL <action>
   {
-    type: 'unwanted',
+    type: 'optional',
     regex: /^if\s+(.+?),?\s+(?:then\s+)?(?:the\s+)?(.+?)\s+shall\s+(.+)$/i,
     extract: (match) => ({
       condition: match[1]?.trim(),
@@ -272,15 +272,29 @@ export class EARSValidator {
   /**
    * Match requirement against EARS patterns
    * 
+   * Pattern matching order:
+   * 1. Complex patterns (most specific - WHEN+WHILE, IF+WHEN combinations)
+   * 2. Specific patterns (event-driven, state-driven, unwanted, optional)
+   * 3. Ubiquitous (most generic)
+   * 
    * Performance optimization: Uses early exit when a specific pattern
    * matches with high confidence (>= 0.85). More specific patterns are
    * checked first to ensure accurate pattern detection.
    */
   private matchPattern(text: string): EARSPatternMatch | null {
-    // Quick pre-check: if no "shall", skip pattern matching
+    // Quick pre-check: if no "shall", skip pattern matching (except for Japanese)
     const lowerText = text.toLowerCase();
-    if (!lowerText.includes('shall')) {
+    const hasJapaneseShall = /すること|しなければならない|する$/.test(text);
+    if (!lowerText.includes('shall') && !hasJapaneseShall) {
       return null;
+    }
+
+    // Check for complex patterns FIRST (most specific)
+    if (this.options.allowComplex) {
+      const complexMatch = this.matchComplexPattern(text);
+      if (complexMatch && complexMatch.confidence >= 0.8) {
+        return complexMatch;
+      }
     }
 
     let bestMatch: EARSPatternMatch | null = null;
@@ -318,34 +332,98 @@ export class EARSValidator {
       }
     }
 
-    // Check for complex patterns
-    if (!bestMatch && this.options.allowComplex) {
-      bestMatch = this.matchComplexPattern(text);
-    }
-
     return bestMatch;
   }
 
   /**
    * Match complex (combined) patterns
+   * Supports both English and Japanese multiline/combined EARS patterns
    */
   private matchComplexPattern(text: string): EARSPatternMatch | null {
-    // Complex: When + While combination
-    const complexRegex = /^when\s+(.+?)\s+(?:and\s+)?while\s+(.+?),?\s+(?:the\s+)?(.+?)\s+shall\s+(.+)$/i;
-    const match = text.match(complexRegex);
+    // Normalize text: remove extra whitespace and line breaks for multiline patterns
+    const normalizedText = text.replace(/\s+/g, ' ').trim();
     
-    if (match) {
-      return {
-        type: 'complex',
-        confidence: 0.85,
-        components: {
-          trigger: match[1]?.trim(),
-          state: match[2]?.trim(),
-          system: match[3]?.trim(),
-          action: match[4]?.trim(),
-        },
-        original: text,
-      };
+    // Complex component type
+    type ComplexComponents = {
+      trigger?: string;
+      state?: string;
+      condition?: string;
+      system?: string;
+      action?: string;
+    };
+    
+    // Complex patterns to match:
+    // 1. English: WHEN [trigger] AND WHILE [state], THE [system] SHALL [action]
+    // 2. English: WHEN [trigger], AND THE [system] SHALL [action]
+    // 3. Japanese: [trigger]のとき、かつ[state]の間、[system]は[action]すること
+    
+    const complexPatterns: Array<{
+      regex: RegExp;
+      extractor: (m: RegExpMatchArray) => ComplexComponents;
+    }> = [
+      // English: WHEN [trigger] AND WHILE [state], THE [system] SHALL [action]
+      // Complex pattern combining event-driven and state-driven
+      {
+        regex: /^when\s+(.+?)\s+and\s+while\s+(.+?),\s*the\s+(\S+)\s+shall\s+(.+)$/i,
+        extractor: (m) => ({ trigger: m[1], state: m[2], system: m[3], action: m[4] }),
+      },
+      // English: WHILE [state], WHEN [trigger], THE [system] SHALL [action]
+      // Complex pattern combining state-driven and event-driven (reverse order)
+      {
+        regex: /^while\s+(.+?),\s*when\s+(.+?),\s*the\s+(\S+)\s+shall\s+(.+)$/i,
+        extractor: (m) => ({ state: m[1], trigger: m[2], system: m[3], action: m[4] }),
+      },
+      // English: IF [condition], THEN WHEN [trigger], THE [system] SHALL [action]
+      // Complex pattern combining optional and event-driven
+      {
+        regex: /^if\s+(.+?),\s*(?:then\s+)?when\s+(.+?),\s*the\s+(\S+)\s+shall\s+(.+)$/i,
+        extractor: (m) => ({ condition: m[1], trigger: m[2], system: m[3], action: m[4] }),
+      },
+      // English: IF [condition], WHILE [state], THE [system] SHALL [action]
+      // Complex pattern combining optional and state-driven
+      {
+        regex: /^if\s+(.+?),\s*(?:then\s+)?while\s+(.+?),\s*the\s+(\S+)\s+shall\s+(.+)$/i,
+        extractor: (m) => ({ condition: m[1], state: m[2], system: m[3], action: m[4] }),
+      },
+      // Japanese: ～したとき、かつ～間、～は～すること (event+state)
+      {
+        regex: /(.+?)(?:した|の)(?:とき|時)[、,]\s*かつ\s*(.+?)間[、,]\s*(.+?)(?:は|が)\s*(.+?)(?:すること|する|しなければならない)$/,
+        extractor: (m) => ({ trigger: m[1], state: m[2], system: m[3], action: m[4] }),
+      },
+      // Japanese: ～の間、かつ～のとき、～は～すること (state+event)
+      {
+        regex: /(.+?)間[、,]\s*かつ\s*(.+?)(?:した|の)(?:とき|時)[、,]\s*(.+?)(?:は|が)\s*(.+?)(?:すること|する|しなければならない)$/,
+        extractor: (m) => ({ state: m[1], trigger: m[2], system: m[3], action: m[4] }),
+      },
+      // Japanese: もし～ならば、～のとき、～は～すること (condition+event)
+      {
+        regex: /(?:もし|if)\s*(.+?)(?:ならば|なら|の場合)[、,]\s*(.+?)(?:した|の)(?:とき|時)[、,]\s*(.+?)(?:は|が)\s*(.+?)(?:すること|する)$/i,
+        extractor: (m) => ({ condition: m[1], trigger: m[2], system: m[3], action: m[4] }),
+      },
+      // Japanese: もし～ならば、～の間、～は～すること (condition+state)
+      {
+        regex: /(?:もし|if)\s*(.+?)(?:ならば|なら|の場合)[、,]\s*(.+?)間[、,]\s*(.+?)(?:は|が)\s*(.+?)(?:すること|する)$/i,
+        extractor: (m) => ({ condition: m[1], state: m[2], system: m[3], action: m[4] }),
+      },
+    ];
+
+    for (const pattern of complexPatterns) {
+      const match = normalizedText.match(pattern.regex);
+      if (match) {
+        const components = pattern.extractor(match);
+        return {
+          type: 'complex',
+          confidence: 0.85,
+          components: {
+            trigger: components.trigger?.trim(),
+            state: components.state?.trim(),
+            condition: components.condition?.trim(),
+            system: components.system?.trim(),
+            action: components.action?.trim(),
+          },
+          original: text,
+        };
+      }
     }
 
     return null;
