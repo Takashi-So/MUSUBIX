@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-core",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "MUSUBIX Core Library - Neuro-Symbolic Integration Engine",
   "type": "module",
   "main": "./dist/index.js",

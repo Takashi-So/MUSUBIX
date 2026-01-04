@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "description": "Neuro-Symbolic AI Coding System - MUSUBI × YATA Integration",
   "type": "module",
   "workspaces": [
@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.25.1",
-    "@nahisaho/musubix-core": "^1.0.8",
+    "@nahisaho/musubix-core": "^1.0.20",
     "@nahisaho/musubix-mcp-server": "^1.0.2",
     "@nahisaho/musubix-yata-client": "^1.0.2",
     "musubix": "^1.0.15"

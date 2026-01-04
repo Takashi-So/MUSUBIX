@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.21] - 2026-01-04
+
+### Added
+- **TimeSlotService ユーティリティ**: 時間帯ベースの予約管理
+  - 設定可能なスロット長（デフォルト15分）、バッファ時間（デフォルト5分）
+  - `validateDuration()`: 予約時間の検証（最小/最大/単位）
+  - `hasConflict()`: 重複チェック（バッファ含む）
+  - `checkConflict()`: 詳細な重複分析（conflictType: overlap/buffer_violation）
+  - `generateSlots()`: 時間スロット生成
+  - `getAvailableSlots()`: 利用可能スロット取得
+  - `roundToSlot()`: 時間丸め
+
+- **BillingCalculator ユーティリティ**: 料金計算・返金ポリシー
+  - `calculateFee()` / `calculateFeeDetailed()`: 時間ベース料金計算
+  - `calculateRefund()`: キャンセル返金額計算（全額/50%/0%）
+  - `calculateExtensionFee()`: 延長料金計算
+  - `calculateProRata()`: 日割り料金計算
+  - 設定可能: slotMinutes, fullRefundHours, partialRefundPercentage
+
+- **TimeWindowValidator ユーティリティ**: 時間枠検証
+  - `isWithinWindow()` / `validateWindow()`: 時間枠内かどうか確認
+  - `isBeforeDeadline()` / `validateDeadline()`: 期限前かどうか確認
+  - `hoursUntil()`, `minutesUntil()`, `minutesSince()`: 時間計算
+  - `isWithinBusinessHours()`: 営業時間内チェック
+  - `isSameDay()`, `isPast()`, `isFuture()`: 日付判定
+
+### Virtual Projects (Self-Learning)
+- **Project 11**: ペット健康管理システム（PetCare）- 10 EARS要件, 22テスト
+- **Project 12**: コワーキングスペース予約システム（SpaceHub）- 12 EARS要件, 24テスト
+
+### Improved
+- 自己学習から3つの新ユーティリティを抽出・コア統合
+  - TimeSlotService: 予約システムの時間管理
+  - BillingCalculator: SaaS課金・返金計算
+  - TimeWindowValidator: 期限・ウィンドウ検証
+
+### Tests
+- **381テスト合格**（+58テスト追加）
+  - TimeSlotService: 19テスト
+  - BillingCalculator: 16テスト
+  - TimeWindowValidator: 23テスト
+  - Project 11 (Pet Health): 22テスト
+  - Project 12 (Coworking): 24テスト
+
+---
+
 ## [1.0.20] - 2026-01-05
 
 ### Added
