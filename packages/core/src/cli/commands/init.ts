@@ -373,6 +373,11 @@ async function copyAgentFiles(
     await writeFile(agentsDest, agentsContent);
     filesCreated.push('AGENTS.md');
 
+    // Copy AGENTS.md as CLAUDE.md for Claude Code
+    const claudeMdDest = join(projectPath, 'CLAUDE.md');
+    await writeFile(claudeMdDest, agentsContent);
+    filesCreated.push('CLAUDE.md');
+
     // Copy .github/ directory
     const githubSource = join(musubixPath, '.github');
     const githubDest = join(projectPath, '.github');
@@ -479,6 +484,10 @@ npx musubix codegen generate <file>
 
   await writeFile(join(projectPath, 'AGENTS.md'), agentsContent);
   filesCreated.push('AGENTS.md');
+
+  // Also create CLAUDE.md for Claude Code
+  await writeFile(join(projectPath, 'CLAUDE.md'), agentsContent);
+  filesCreated.push('CLAUDE.md');
 }
 
 /**

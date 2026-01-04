@@ -8,7 +8,7 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.1.11 |
+| **バージョン** | 1.1.15 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
@@ -425,5 +425,5 @@ npx musubix learn best-practices --format markdown
 
 **Agent**: GitHub Copilot / Claude
 **Last Updated**: 2026-01-04
-**Version**: 1.1.10
+**Version**: 1.1.15
 **Repository**: https://github.com/nahisaho/MUSUBIX

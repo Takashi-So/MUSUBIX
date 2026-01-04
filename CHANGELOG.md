@@ -5,6 +5,87 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.15] - 2026-01-04
+
+### Added - Version Display in Postinstall Banner
+
+Postinstall スクリプトのバナーにバージョン番号を表示するようになりました。
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║  🎉 MUSUBIX v1.1.15                                          ║
+║     AI Agent Configuration Installed!                        ║
+╠══════════════════════════════════════════════════════════════╣
+║  ...                                                         ║
+╚══════════════════════════════════════════════════════════════╝
+```
+
+### Changed
+
+- `scripts/postinstall.js`: package.json からバージョンを読み取り、バナーに表示
+- スキップメッセージにもバージョンを表示: `musubix v1.1.15: Configuration files already exist, skipping.`
+
+### Note
+
+- npm v11以降ではpostinstallの出力がデフォルトで抑制されます
+- バナーを表示するには `npm install musubix --foreground-scripts` を使用
+
+---
+
+## [1.1.14] - 2026-01-04
+
+### Added - CLAUDE.md Generation
+
+Claude Code 向けに `CLAUDE.md` ファイルを自動生成するようになりました。
+
+- **Postinstall**: `npm install musubix` 実行時に `AGENTS.md` を `CLAUDE.md` としてコピー
+- **Init コマンド**: `npx musubix init` 実行時にも `CLAUDE.md` を生成
+- Claude Code はプロジェクトルートの `CLAUDE.md` を読み込む仕様
+
+### Changed
+
+- `packages/core/scripts/postinstall.js`: CLAUDE.md コピー処理追加
+- `packages/core/src/cli/commands/init.ts`: CLAUDE.md 生成処理追加
+
+### Files Generated
+
+```
+project/
+├── AGENTS.md           ← GitHub Copilot
+├── CLAUDE.md           ← Claude Code (AGENTS.md のコピー)
+├── .github/
+│   ├── skills/         ← 9 Agent Skills
+│   └── prompts/        ← 9 SDD prompts
+└── .claude/
+    ├── skills/         ← 9 Agent Skills (copy)
+    └── prompts/        ← 9 SDD prompts (copy)
+```
+
+---
+
+## [1.1.13] - 2026-01-04
+
+### Added - Dual Directory Support (.github/ + .claude/)
+
+GitHub Copilot と Claude Code の両方をサポートするため、スキルとプロンプトを2つのディレクトリにコピーするようになりました。
+
+- **`.github/skills/`**: GitHub Copilot Agent Skills 用
+- **`.github/prompts/`**: GitHub Copilot プロンプト用
+- **`.claude/skills/`**: Claude Code Agent Skills 用
+- **`.claude/prompts/`**: Claude Code プロンプト用
+
+### Changed
+
+- `packages/core/scripts/postinstall.js`: .claude/ ディレクトリコピー処理追加
+- `packages/musubi/package.json`: dependency を `^1.1.13` に更新
+
+### Design Decision
+
+- シンボリックリンクではなく物理コピーを採用（npmがsymlinkをサポートしないため）
+- 既存ファイルは上書きしない安全設計を維持
+
+---
+
 ## [1.1.12] - 2026-01-04
 
 ### Added - Enhanced `musubix init` for AI Agents

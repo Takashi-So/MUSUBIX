@@ -1,8 +1,8 @@
 # MUSUBIX インストールガイド
 
 **文書ID**: INSTALL-GUIDE  
-**バージョン**: 1.0.0  
-**最終更新**: 2026-01-02
+**バージョン**: 1.1.15  
+**最終更新**: 2026-01-04
 
 ---
 
@@ -105,11 +105,27 @@ npx musubix-mcp --transport stdio
 # 統合パッケージ（推奨）
 npm install musubix
 
+# インストールバナーを表示（npm v11+）
+npm install musubix --foreground-scripts
+
 # または個別パッケージのインストール
 npm install @nahisaho/musubix-core
 npm install @nahisaho/musubix-mcp-server
 npm install @nahisaho/musubix-yata-client  # YATA連携用
 ```
+
+#### 自動生成されるファイル
+
+`npm install musubix` 実行時に以下のファイルが自動生成されます：
+
+| ファイル/ディレクトリ | 用途 | 対象エージェント |
+|----------------------|------|----------------|
+| `AGENTS.md` | AIエージェントガイドライン | GitHub Copilot |
+| `CLAUDE.md` | AIエージェントガイドライン(コピー) | Claude Code |
+| `.github/skills/` | 9つのAgent Skills | GitHub Copilot |
+| `.github/prompts/` | 9つのSDDプロンプト | GitHub Copilot |
+| `.claude/skills/` | 9つのAgent Skills(コピー) | Claude Code |
+| `.claude/prompts/` | 9つのSDDプロンプト(コピー) | Claude Code |
 
 #### パッケージ比較
 

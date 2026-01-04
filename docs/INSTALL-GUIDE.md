@@ -1,8 +1,8 @@
 # MUSUBIX Installation Guide
 
 **Document ID**: INSTALL-GUIDE  
-**Version**: 1.0.0  
-**Last Updated**: 2026-01-02
+**Version**: 1.1.15  
+**Last Updated**: 2026-01-04
 
 ---
 
@@ -105,11 +105,27 @@ npx musubix-mcp --transport stdio
 # All-in-one package (recommended)
 npm install musubix
 
+# Show installation banner (npm v11+)
+npm install musubix --foreground-scripts
+
 # Or install individual packages
 npm install @nahisaho/musubix-core
 npm install @nahisaho/musubix-mcp-server
 npm install @nahisaho/musubix-yata-client  # For YATA integration
 ```
+
+#### Auto-Generated Files
+
+When you run `npm install musubix`, the following files are automatically created:
+
+| File/Directory | Purpose | Target Agent |
+|----------------|---------|-------------|
+| `AGENTS.md` | AI Agent guidelines | GitHub Copilot |
+| `CLAUDE.md` | AI Agent guidelines (copy) | Claude Code |
+| `.github/skills/` | 9 Agent Skills | GitHub Copilot |
+| `.github/prompts/` | 9 SDD prompts | GitHub Copilot |
+| `.claude/skills/` | 9 Agent Skills (copy) | Claude Code |
+| `.claude/prompts/` | 9 SDD prompts (copy) | Claude Code |
 
 #### Package Comparison
 

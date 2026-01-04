@@ -11,7 +11,7 @@
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.1.10** - New Best Practices from Project-13/14, Enhanced Code Generator
+> **v1.1.15** - Dual Agent Support (GitHub Copilot + Claude Code), CLAUDE.md Generation
 
 **[日本語版 README](README.ja.md)**
 

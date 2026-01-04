@@ -17,7 +17,7 @@
  * - musubix-domain-inference: 62 domain detection
  */
 
-import { existsSync, cpSync, copyFileSync, mkdirSync, readdirSync } from 'fs';
+import { existsSync, cpSync, copyFileSync, mkdirSync, readdirSync, readFileSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -26,6 +26,15 @@ const __dirname = dirname(__filename);
 
 // Source: where musubix-core is installed (node_modules/@nahisaho/musubix-core)
 const packageRoot = resolve(__dirname, '..');
+
+// Get version from package.json
+let version = 'unknown';
+try {
+  const packageJson = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf-8'));
+  version = packageJson.version || 'unknown';
+} catch {
+  // Ignore errors
+}
 
 // Target: project root (where npm install was run)
 // When installed as dependency: process.env.INIT_CWD points to project root
@@ -44,6 +53,7 @@ if (isSameDir || (!isInNodeModules && isInMusubixRepo)) {
 const sourceGithub = join(packageRoot, '.github');
 const sourceAgents = join(packageRoot, 'AGENTS.md');
 const targetGithub = join(projectRoot, '.github');
+const targetClaude = join(projectRoot, '.claude');
 const targetAgents = join(projectRoot, 'AGENTS.md');
 
 let copiedItems = [];
@@ -107,6 +117,40 @@ if (existsSync(sourceGithub)) {
       }
     }
   }
+
+  // === Copy to .claude/ directory for Claude Code compatibility ===
+  // Create .claude if not exists
+  if (!existsSync(targetClaude)) {
+    mkdirSync(targetClaude, { recursive: true });
+  }
+
+  // Copy skills to .claude/skills/ (Claude Code reads from here)
+  if (existsSync(musubixSkills)) {
+    const targetClaudeSkills = join(targetClaude, 'skills');
+    if (!existsSync(targetClaudeSkills)) {
+      mkdirSync(targetClaudeSkills, { recursive: true });
+    }
+    try {
+      cpSync(musubixSkills, targetClaudeSkills, { recursive: true, force: false });
+      copiedItems.push('.claude/skills');
+    } catch (e) {
+      // Files may already exist
+    }
+  }
+
+  // Copy prompts to .claude/prompts/ (for consistency)
+  if (existsSync(musubixPrompts)) {
+    const targetClaudePrompts = join(targetClaude, 'prompts');
+    if (!existsSync(targetClaudePrompts)) {
+      mkdirSync(targetClaudePrompts, { recursive: true });
+    }
+    try {
+      cpSync(musubixPrompts, targetClaudePrompts, { recursive: true, force: false });
+      copiedItems.push('.claude/prompts');
+    } catch (e) {
+      // Files may already exist
+    }
+  }
 }
 
 // Copy AGENTS.md to project root
@@ -119,19 +163,32 @@ if (existsSync(sourceAgents) && !existsSync(targetAgents)) {
   }
 }
 
+// Copy AGENTS.md as CLAUDE.md for Claude Code
+const targetClaudeMd = join(projectRoot, 'CLAUDE.md');
+if (existsSync(sourceAgents) && !existsSync(targetClaudeMd)) {
+  try {
+    copyFileSync(sourceAgents, targetClaudeMd);
+    copiedItems.push('CLAUDE.md');
+  } catch (e) {
+    // File may already exist
+  }
+}
+
 // Output results
 if (copiedItems.length > 0) {
+  const versionStr = `v${version}`;
   console.log('');
   console.log('╔══════════════════════════════════════════════════════════════╗');
-  console.log('║  🎉 MUSUBIX - AI Agent Configuration Installed!              ║');
+  console.log('║  🎉 MUSUBIX ' + versionStr.padEnd(49) + '║');
+  console.log('║     AI Agent Configuration Installed!                        ║');
   console.log('╠══════════════════════════════════════════════════════════════╣');
   console.log('║                                                              ║');
   console.log('║  Installed: ' + copiedItems.join(', ').padEnd(47) + '║');
   console.log('║                                                              ║');
-  console.log('║  ✅ GitHub Copilot: Use SDD prompts in chat                  ║');
-  console.log('║  ✅ Claude Code: 9 Agent Skills available                    ║');
+  console.log('║  ✅ GitHub Copilot: .github/skills/ + .github/prompts/       ║');
+  console.log('║  ✅ Claude Code:    .claude/skills/ + .claude/prompts/       ║');
   console.log('║                                                              ║');
-  console.log('║  Skills installed:                                           ║');
+  console.log('║  9 Agent Skills installed:                                   ║');
   console.log('║    • musubix-sdd-workflow      • musubix-traceability        ║');
   console.log('║    • musubix-ears-validation   • musubix-test-generation     ║');
   console.log('║    • musubix-code-generation   • musubix-adr-generation      ║');
@@ -142,5 +199,5 @@ if (copiedItems.length > 0) {
   console.log('╚══════════════════════════════════════════════════════════════╝');
   console.log('');
 } else {
-  console.log('musubix: Configuration files already exist, skipping.');
+  console.log(`musubix v${version}: Configuration files already exist, skipping.`);
 }
