@@ -21,13 +21,13 @@ AIコーディング支援ツールは急速に進化しています。本記事
 
 # TL;DR
 
-> **最新バージョン**: v1.1.10 | **62ドメイン対応** | **~430コンポーネント** | **459テスト** | **17ベストプラクティス**
+> **最新バージョン**: v1.1.10 | **62ドメイン対応** | **224コンポーネント** | **459テスト** | **17ベストプラクティス**
 
 | 項目 | MUSUBI | MUSUBIX |
-|------|--------|---------||
+|------|--------|---------|
 | **コンセプト** | 仕様駆動開発（SDD） | ニューロシンボリックAI |
 | **推論方式** | ニューラル（LLM）のみ | ニューラル + シンボリック |
-| **知識基盤** | プロジェクトメモリ | 知識グラフ（YATA） |
+| **知識基盤** | プロジェクトメモリ | プロジェクトメモリ + 知識グラフ（YATA） |
 | **信頼性** | LLMの確率的出力 | 形式的検証による確実性 |
 | **統合対象** | 7つのAIエージェント | MUSUBI + YATA + 7エージェント |
 | **ドメイン** | 汎用 | 62専門ドメイン対応 |
@@ -37,10 +37,65 @@ AIコーディング支援ツールは急速に進化しています。本記事
 
 ## 1.1 概要
 
-**MUSUBI**（結び）は、AIコーディングエージェントのための仕様駆動開発（SDD）フレームワークです。
+**MUSUBI**（結び）は、AIコーディングエージェントのための**仕様駆動開発（SDD: Specification-Driven Development）フレームワーク**です。
+
+従来のAIコーディング支援は「コードを書く」ことに焦点を当てていましたが、MUSUBIは**要件定義から設計、実装、テストまでの開発ライフサイクル全体**をAIと協調して進めることを目指しています。
 
 ```
 🤖 7つのAIエージェント × 📋 31の専門スキル × ⚖️ 憲法ガバナンス
+```
+
+### MUSUBIの核心思想
+
+1. **Specification First（仕様優先）**: コードを書く前に、まず要件と設計を明確にする
+2. **Constitutional AI Governance（憲法ガバナンス）**: 9つの不変条項でAIの振る舞いを統治
+3. **Project Memory（プロジェクトメモリ）**: steering/フォルダに決定事項を永続化し、AIが常に参照
+4. **Full Traceability（完全追跡可能性）**: 要件→設計→コード→テストの双方向トレース
+
+### 対応AIエージェント
+
+MUSUBIは以下の7つの主要AIコーディングエージェントで動作します：
+
+| エージェント | 特徴 |
+|-------------|------|
+| **Claude Code** | Anthropic製、高い推論能力、Agent Skills対応 |
+| **GitHub Copilot** | VS Code統合、広範な言語サポート |
+| **Cursor IDE** | AI-first IDE、インライン編集 |
+| **Gemini CLI** | Google製、マルチモーダル対応 |
+| **Codex CLI** | OpenAI製、GPT-4ベース |
+| **Qwen Code** | Alibaba製、オープンソース |
+| **Windsurf** | Codeium製、高速補完 |
+
+### Claude Code Agent Skills
+
+MUSUBIXは**Claude Code Agent Skills**に対応しています。`.github/skills/`フォルダにSKILL.mdファイルを配置することで、Claude Codeが専門的なワークフローを自動的に認識・実行できます。
+
+現在、**9つのスキル**が利用可能です：
+
+| スキル名 | 説明 |
+|---------|------|
+| `musubix-sdd-workflow` | SDD開発ワークフロー全体のガイド |
+| `musubix-ears-validation` | EARS形式の要件検証 |
+| `musubix-code-generation` | 設計からのコード生成 |
+| `musubix-c4-design` | C4モデル（Context/Container/Component/Code）設計 |
+| `musubix-traceability` | 要件↔設計↔タスク↔コード↔テストの追跡 |
+| `musubix-test-generation` | TDDパターンに基づくテスト生成 |
+| `musubix-adr-generation` | Architecture Decision Records作成 |
+| `musubix-best-practices` | 17種のベストプラクティス適用 |
+| `musubix-domain-inference` | 62ドメイン検出・コンポーネント推論 |
+
+スキルファイルの配置:
+```
+.github/skills/
+├── musubix-sdd-workflow/SKILL.md      # コアワークフロー
+├── musubix-ears-validation/SKILL.md   # 要件検証
+├── musubix-code-generation/SKILL.md   # コード生成
+├── musubix-c4-design/SKILL.md         # C4設計
+├── musubix-traceability/SKILL.md      # トレーサビリティ
+├── musubix-test-generation/SKILL.md   # テスト生成
+├── musubix-adr-generation/SKILL.md    # ADR生成
+├── musubix-best-practices/SKILL.md    # ベストプラクティス
+└── musubix-domain-inference/SKILL.md  # ドメイン推論
 ```
 
 ## 1.2 主な特徴
@@ -74,6 +129,7 @@ flowchart LR
 | **ADR生成** | アーキテクチャ決定記録の自動作成 |
 | **憲法ガバナンス** | 9つの不変条項による品質保証 |
 | **トレーサビリティ** | 要件→設計→コード→テストの完全追跡 |
+| **プロジェクトメモリ** | steering/フォルダによる決定・方針の永続化 |
 
 ## 1.3 MUSUBIの課題
 
@@ -279,8 +335,8 @@ flowchart TB
 flowchart TB
     subgraph MUSUBIX["MUSUBIX System v1.0.20"]
         subgraph Packages["パッケージ構成"]
-            Core["@nahisaho/musubix-core<br/>56モジュール | 60ドメイン | ~390コンポーネント"]
-            MCP["@nahisaho/musubix-mcp-server<br/>9ツール, 3プロンプト"]
+            Core["@nahisaho/musubix-core<br/>77モジュール | 62ドメイン | 224コンポーネント"]
+            MCP["@nahisaho/musubix-mcp-server<br/>9ツール, 6プロンプト"]
             YATA_Client["@nahisaho/musubix-yata-client"]
         end
         
@@ -441,13 +497,13 @@ flowchart LR
 | **技術オントロジー** | 設計パターン、フレームワーク | 設計の自動提案 |
 | **SDDオントロジー** | EARS、C4、ADRの形式知識 | 成果物の検証 |
 
-### 4.2.4 60ドメイン対応（v1.0.19）
+### 4.2.4 62ドメイン対応（v1.1.10）
 
-MUSUBIXは**60の専門ドメイン**に対応し、各ドメインに最適化されたコンポーネント推論を提供します。
+MUSUBIXは**62の専門ドメイン**に対応し、各ドメインに最適化されたコンポーネント推論を提供します。
 
 ```mermaid
 flowchart TB
-    subgraph Domains["60ドメイン対応"]
+    subgraph Domains["62ドメイン対応"]
         subgraph Business["ビジネス系"]
             B1[ecommerce]
             B2[finance]
@@ -481,7 +537,7 @@ flowchart TB
         end
     end
     
-    Domains --> Components["~390コンポーネント定義"]
+    Domains --> Components["224コンポーネント定義"]
 ```
 
 | カテゴリ | ドメイン例 | コンポーネント例 |
@@ -492,7 +548,7 @@ flowchart TB
 | **サービス** | restaurant, hotel, travel | ReservationService, MenuManager, BookingEngine |
 | **技術** | iot, security, ai | DeviceManager, ThreatDetector, ModelInference |
 
-**対応ドメイン一覧**（60ドメイン）:
+**対応ドメイン一覧**（62ドメイン）:
 
 <details>
 <summary>クリックして全ドメインを表示</summary>
@@ -559,6 +615,8 @@ flowchart TB
 | 58 | aviation | 航空 |
 | 59 | shipping | 海運 |
 | 60 | telecom | 通信 |
+| 61 | security | セキュリティ |
+| 62 | ai | AI |
 
 </details>
 
@@ -660,7 +718,7 @@ approvalWorkflow.transition('pending', 'approve'); // 'approved'
 reservationWorkflow.transition('tentative', 'confirm'); // 'confirmed'
 ```
 
-## 4.4 MCPサーバー（9ツール、3プロンプト）
+## 4.4 MCPサーバー（9ツール、6プロンプト）
 
 ```mermaid
 flowchart TB
@@ -673,10 +731,13 @@ flowchart TB
             T5[説明系ツール]
         end
         
-        subgraph Prompts["3 Prompts"]
+        subgraph Prompts["6 Prompts"]
             P1[sdd_requirements_analysis]
             P2[sdd_requirements_review]
             P3[sdd_design_generation]
+            P4[sdd_design_review]
+            P5[sdd_task_decomposition]
+            P6[sdd_project_steering]
         end
     end
     
@@ -916,7 +977,94 @@ npx musubix-mcp
 | @nahisaho/musubix-mcp-server | `npm install @nahisaho/musubix-mcp-server` | MCPサーバー |
 | @nahisaho/musubix-yata-client | `npm install @nahisaho/musubix-yata-client` | YATAクライアント |
 
-## 8.3 AI Platform連携
+## 8.3 利用方法の選択
+
+MUSUBIXには**2つの利用方法**があります。用途に応じて選択してください。
+
+```mermaid
+flowchart TB
+    subgraph Install["インストール"]
+        I1[npm install musubix]
+    end
+    
+    Install --> Choice{利用方法の選択}
+    
+    Choice -->|方法1| Direct["📁 直接利用<br/>AGENTS.md + プロンプト"]
+    Choice -->|方法2| MCP["🔌 MCP経由<br/>MCPサーバー連携"]
+    
+    Direct --> D1[GitHub Copilot]
+    Direct --> D2[Claude Code]
+    Direct --> D3[Cursor IDE]
+    
+    MCP --> M1[Claude Desktop]
+    MCP --> M2[VS Code + MCP拡張]
+    MCP --> M3[その他MCPクライアント]
+```
+
+| 方法 | 特徴 | 推奨ユースケース |
+|------|------|------------------|
+| **方法1: 直接利用** | 設定不要、即座に利用可能 | 日常のコーディング、要件定義、設計 |
+| **方法2: MCP経由** | 高度なツール連携、知識グラフ統合 | 大規模プロジェクト、チーム開発 |
+
+## 8.4 方法1: 直接利用（GitHub Copilot等）
+
+musubixパッケージをインストールすると、**AGENTS.md**と**プロンプトファイル**が `node_modules/musubix/` に配置されます。GitHub Copilotなどのエディタ統合AIは、これらのファイルを自動的に認識し、MUSUBIXの機能を利用できます。
+
+### セットアップ手順
+
+```bash
+# 1. musubixをインストール
+npm install musubix
+
+# 2. AGENTS.mdをプロジェクトルートにコピー（推奨）
+cp node_modules/musubix/AGENTS.md ./AGENTS.md
+
+# 3. プロンプトファイルをコピー（オプション）
+cp -r node_modules/musubix/.github/prompts ./.github/prompts
+```
+
+### 自動認識されるファイル
+
+| ファイル | 場所 | 説明 |
+|---------|------|------|
+| **AGENTS.md** | プロジェクトルート | AIエージェント向けの包括的なガイド |
+| **プロンプトファイル** | `.github/prompts/` | SDD各フェーズ専用のプロンプト |
+
+### 提供されるプロンプトファイル
+
+```
+.github/prompts/
+├── sdd-requirements.prompt.md   # 要件定義フェーズ
+├── sdd-design.prompt.md         # 設計フェーズ
+├── sdd-implement.prompt.md      # 実装フェーズ
+├── sdd-tasks.prompt.md          # タスク分解
+├── sdd-validate.prompt.md       # 検証フェーズ
+├── sdd-steering.prompt.md       # プロジェクト方針
+├── sdd-change-init.prompt.md    # 変更開始
+├── sdd-change-apply.prompt.md   # 変更適用
+└── sdd-change-archive.prompt.md # 変更アーカイブ
+```
+
+### 使い方（GitHub Copilot / Cursor / Claude Code）
+
+```markdown
+# プロンプトファイルを使用
+@workspace /sdd-requirements 予約管理システムの要件を定義してください
+
+# または AGENTS.md のガイドに従って質問
+MUSUBIXのEARS形式で要件を書いてください
+```
+
+### メリット
+
+- ✅ **設定不要**: インストール後すぐに利用可能
+- ✅ **軽量**: MCPサーバーの起動不要
+- ✅ **汎用性**: 主要なAIエディタで動作
+- ✅ **オフライン対応**: ネットワーク不要
+
+## 8.5 方法2: MCP経由（MCPサーバー連携）
+
+MCP（Model Context Protocol）を使用すると、**9つの専用ツール**と**3つのプロンプト**を利用でき、より高度な機能（知識グラフクエリ、トレーサビリティ検証等）が使えます。
 
 ### Claude Code（CLI）
 
@@ -955,6 +1103,52 @@ claude mcp list
   }
 }
 ```
+
+### 利用可能なMCPツール（9ツール）
+
+| ツール名 | 説明 |
+|---------|------|
+| `sdd_create_requirements` | EARS形式の要件ドキュメント作成 |
+| `sdd_validate_requirements` | 要件のEARS検証・憲法準拠チェック |
+| `sdd_create_design` | C4モデル設計ドキュメント作成 |
+| `sdd_validate_design` | 設計の要件トレーサビリティ検証 |
+| `sdd_create_tasks` | 設計から実装タスク生成 |
+| `sdd_query_knowledge` | YATA知識グラフへのクエリ |
+| `sdd_update_knowledge` | 知識グラフの更新 |
+| `sdd_validate_constitution` | 9憲法条項への準拠検証 |
+| `sdd_validate_traceability` | 要件↔設計↔タスクのトレーサビリティ検証 |
+
+### メリット
+
+- ✅ **高度な機能**: 知識グラフ連携、矛盾検出
+- ✅ **ツール統合**: AIが直接ツールを呼び出し可能
+- ✅ **リアルタイム検証**: 作成中のドキュメントを即座に検証
+- ✅ **トレーサビリティ**: 要件から実装までの完全追跡
+
+## 8.6 どちらを選ぶべきか？
+
+```mermaid
+flowchart TD
+    Start[MUSUBIXを使いたい] --> Q1{MCPを使う<br/>環境がある？}
+    
+    Q1 -->|はい| Q2{高度な機能が<br/>必要？}
+    Q1 -->|いいえ| Direct[方法1: 直接利用]
+    
+    Q2 -->|はい| MCP[方法2: MCP経由]
+    Q2 -->|いいえ| Both[両方併用]
+    
+    Direct --> Use1[AGENTS.md + プロンプト<br/>で日常開発]
+    MCP --> Use2[MCPツールで<br/>高度な検証・分析]
+    Both --> Use3[普段は直接利用<br/>必要時にMCP]
+```
+
+| シナリオ | 推奨方法 |
+|---------|---------|
+| 個人開発、小規模プロジェクト | 方法1（直接利用） |
+| チーム開発、大規模プロジェクト | 方法2（MCP経由） |
+| 要件定義・設計のみ利用 | 方法1（直接利用） |
+| 知識グラフ連携が必要 | 方法2（MCP経由） |
+| 両方の利点を活かしたい | 両方併用 |
 
 詳細は [インストールガイド](https://github.com/nahisaho/MUSUBIX/blob/main/docs/INSTALL-GUIDE.ja.md) を参照してください。
 
