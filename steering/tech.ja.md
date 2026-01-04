@@ -28,9 +28,10 @@ MUSUBIXはニューロシンボリックAIコーディングシステムであ�
 
 ```
 packages/
-├── core/           # @nahisaho/musubix-core (v1.1.9)
-├── mcp-server/     # @nahisaho/musubix-mcp-server (v1.1.9)
-└── yata-client/    # @nahisaho/musubix-yata-client (v1.1.9)
+├── core/           # @nahisaho/musubix-core (v1.1.15)
+├── mcp-server/     # @nahisaho/musubix-mcp-server (v1.1.15)
+├── yata-client/    # @nahisaho/musubix-yata-client (v1.1.15)
+└── musubi/         # @nahisaho/musubi (v1.1.15) - Alias wrapper
 ```
 
 ### Core Package モジュール
@@ -52,7 +53,7 @@ packages/
 
 | カテゴリ | ドメイン数 | コンポーネント数 |
 |---------|-----------|-----------------|
-| 合計 | 60 | ~390 |
+| 合計 | 62 | ~430 |
 
 ### 対応ドメイン一覧
 
@@ -204,4 +205,4 @@ npx musubix learn best-practices --category code
 
 ---
 
-*Last Updated: 2026-01-04 by MUSUBIX v1.1.10*
+*Last Updated: 2026-01-04 by MUSUBIX v1.1.15*
