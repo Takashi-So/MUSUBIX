@@ -136,3 +136,35 @@ export {
   type ReportFormat,
   type CoverageReporterConfig,
 } from './coverage-reporter.js';
+
+// Mock Generator (v1.1.4 - PAT-004 self-learning improvement)
+export {
+  MockGenerator,
+  createMockGenerator,
+  mockGenerator,
+  type GeneratedMock,
+  type MockGeneratorOptions,
+  type MockInterfaceDefinition,
+  type MockMethodDefinition,
+} from './mock-generator.js';
+
+// Base Repository (v1.1.4 - PAT-005 self-learning improvement)
+export {
+  InMemoryRepository,
+  SearchableInMemoryRepository,
+  type IRepository,
+  type ISearchableRepository,
+  type IPaginatedRepository,
+  type PaginationOptions,
+  type PaginatedResult,
+} from './base-repository.js';
+
+// Adapter Naming Helper (v1.1.4 - PAT-006 self-learning improvement)
+export {
+  AdapterNamingHelper,
+  createAdapterNamingHelper,
+  adapterNamingHelper,
+  ADAPTER_TEMPLATES,
+  type AdapterType,
+  type AdapterNamingRule,
+} from './adapter-naming.js';

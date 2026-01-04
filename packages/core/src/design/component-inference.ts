@@ -190,6 +190,76 @@ const COMPONENT_DEFINITIONS: Record<string, ComponentDefinition[]> = {
     { name: 'EventBus', type: 'handler', layer: 'infrastructure', description: 'ドメインイベントバス', dependencies: [], patterns: ['Observer', 'Pub/Sub'], domain: 'delivery' },
   ],
   
+  // フィットネスジム（gym）ドメイン - 仮想プロジェクト05から学習
+  gym: [
+    { name: 'MemberService', type: 'service', layer: 'application', description: '会員管理', dependencies: ['MemberRepository', 'MembershipRepository', 'BillingServiceAdapter'], patterns: ['Service'], domain: 'gym',
+      methods: [
+        { name: 'register', description: '会員登録', parameters: [{ name: 'data', type: 'RegisterMemberInput' }], returnType: 'Promise<Member>', async: true },
+        { name: 'getMember', description: '会員取得', parameters: [{ name: 'memberId', type: 'string' }], returnType: 'Promise<Member | null>', async: true },
+        { name: 'updateProfile', description: 'プロファイル更新', parameters: [{ name: 'memberId', type: 'string' }, { name: 'data', type: 'UpdateProfileInput' }], returnType: 'Promise<Member>', async: true },
+        { name: 'assignMembership', description: 'メンバーシップ割当', parameters: [{ name: 'memberId', type: 'string' }, { name: 'planId', type: 'string' }], returnType: 'Promise<Membership>', async: true },
+        { name: 'cancelMembership', description: 'メンバーシップキャンセル', parameters: [{ name: 'memberId', type: 'string' }, { name: 'reason', type: 'string' }], returnType: 'Promise<void>', async: true },
+        { name: 'searchMembers', description: '会員検索', parameters: [{ name: 'criteria', type: 'MemberSearchCriteria' }], returnType: 'Promise<Member[]>', async: true },
+      ]
+    },
+    { name: 'MemberRepository', type: 'repository', layer: 'infrastructure', description: '会員データの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'MembershipRepository', type: 'repository', layer: 'infrastructure', description: 'メンバーシップデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'CheckInService', type: 'service', layer: 'application', description: 'チェックイン管理', dependencies: ['CheckInRepository', 'MemberServiceAdapter'], patterns: ['Service'], domain: 'gym',
+      methods: [
+        { name: 'checkIn', description: 'チェックイン', parameters: [{ name: 'memberId', type: 'string' }, { name: 'facilityId', type: 'string' }], returnType: 'Promise<CheckInRecord>', async: true },
+        { name: 'checkOut', description: 'チェックアウト', parameters: [{ name: 'checkInId', type: 'string' }], returnType: 'Promise<CheckInRecord>', async: true },
+        { name: 'getActiveCheckIns', description: 'アクティブなチェックイン取得', parameters: [{ name: 'facilityId', type: 'string' }], returnType: 'Promise<CheckInRecord[]>', async: true },
+        { name: 'getMemberHistory', description: '会員の来館履歴', parameters: [{ name: 'memberId', type: 'string' }, { name: 'range', type: 'DateRange' }], returnType: 'Promise<CheckInRecord[]>', async: true },
+        { name: 'getTodayStats', description: '本日の統計', parameters: [{ name: 'facilityId', type: 'string' }], returnType: 'Promise<DailyStats>', async: true },
+      ]
+    },
+    { name: 'CheckInRepository', type: 'repository', layer: 'infrastructure', description: 'チェックインデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'MemberServiceAdapter', type: 'gateway', layer: 'infrastructure', description: '会員サービス連携アダプター', dependencies: [], patterns: ['Adapter'], domain: 'gym' },
+    { name: 'ClassService', type: 'service', layer: 'application', description: 'クラススケジュール管理', dependencies: ['ClassRepository', 'ClassBookingRepository', 'InstructorRepository'], patterns: ['Service'], domain: 'gym',
+      methods: [
+        { name: 'createClass', description: 'クラス作成', parameters: [{ name: 'data', type: 'CreateClassInput' }], returnType: 'Promise<FitnessClass>', async: true },
+        { name: 'getSchedule', description: 'スケジュール取得', parameters: [{ name: 'facilityId', type: 'string' }, { name: 'dateRange', type: 'DateRange' }], returnType: 'Promise<FitnessClass[]>', async: true },
+        { name: 'bookClass', description: 'クラス予約', parameters: [{ name: 'memberId', type: 'string' }, { name: 'classId', type: 'string' }], returnType: 'Promise<ClassBooking>', async: true },
+        { name: 'cancelBooking', description: '予約キャンセル', parameters: [{ name: 'bookingId', type: 'string' }], returnType: 'Promise<void>', async: true },
+        { name: 'getAvailableSpots', description: '空き枠確認', parameters: [{ name: 'classId', type: 'string' }], returnType: 'Promise<number>', async: true },
+        { name: 'assignInstructor', description: 'インストラクター割当', parameters: [{ name: 'classId', type: 'string' }, { name: 'instructorId', type: 'string' }], returnType: 'Promise<FitnessClass>', async: true },
+      ]
+    },
+    { name: 'ClassRepository', type: 'repository', layer: 'infrastructure', description: 'クラスデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'ClassBookingRepository', type: 'repository', layer: 'infrastructure', description: 'クラス予約データの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'InstructorRepository', type: 'repository', layer: 'infrastructure', description: 'インストラクターデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'BillingService', type: 'service', layer: 'application', description: '請求管理', dependencies: ['BillingRepository', 'InvoiceRepository', 'PaymentGateway'], patterns: ['Service'], domain: 'gym',
+      methods: [
+        { name: 'createInvoice', description: '請求書作成', parameters: [{ name: 'memberId', type: 'string' }, { name: 'items', type: 'BillingItem[]' }], returnType: 'Promise<Invoice>', async: true },
+        { name: 'processPayment', description: '支払い処理', parameters: [{ name: 'invoiceId', type: 'string' }, { name: 'paymentMethod', type: 'PaymentMethod' }], returnType: 'Promise<PaymentResult>', async: true },
+        { name: 'getUnpaidInvoices', description: '未払い請求取得', parameters: [{ name: 'memberId', type: 'string' }], returnType: 'Promise<Invoice[]>', async: true },
+        { name: 'refund', description: '返金処理', parameters: [{ name: 'paymentId', type: 'string' }, { name: 'amount', type: 'Money' }], returnType: 'Promise<RefundResult>', async: true },
+        { name: 'generateStatement', description: '明細書生成', parameters: [{ name: 'memberId', type: 'string' }, { name: 'period', type: 'DateRange' }], returnType: 'Promise<Statement>', async: true },
+      ]
+    },
+    { name: 'BillingRepository', type: 'repository', layer: 'infrastructure', description: '請求データの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'InvoiceRepository', type: 'repository', layer: 'infrastructure', description: '請求書データの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'BillingServiceAdapter', type: 'gateway', layer: 'infrastructure', description: '請求サービス連携アダプター', dependencies: [], patterns: ['Adapter'], domain: 'gym' },
+    { name: 'PaymentGateway', type: 'gateway', layer: 'infrastructure', description: '外部決済連携', dependencies: [], patterns: ['Gateway'], domain: 'gym' },
+    { name: 'FacilityService', type: 'service', layer: 'application', description: '施設管理', dependencies: ['FacilityRepository', 'EquipmentRepository'], patterns: ['Service'], domain: 'gym',
+      methods: [
+        { name: 'getFacilities', description: '施設一覧取得', parameters: [], returnType: 'Promise<Facility[]>', async: true },
+        { name: 'getCapacity', description: '収容状況取得', parameters: [{ name: 'facilityId', type: 'string' }], returnType: 'Promise<CapacityStatus>', async: true },
+        { name: 'updateOperatingHours', description: '営業時間更新', parameters: [{ name: 'facilityId', type: 'string' }, { name: 'hours', type: 'OperatingHours' }], returnType: 'Promise<Facility>', async: true },
+      ]
+    },
+    { name: 'FacilityRepository', type: 'repository', layer: 'infrastructure', description: '施設データの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'EquipmentRepository', type: 'repository', layer: 'infrastructure', description: '設備データの永続化', dependencies: [], patterns: ['Repository'], domain: 'gym' },
+    { name: 'NotificationService', type: 'service', layer: 'application', description: '通知管理', dependencies: ['NotificationGateway'], patterns: ['Service'], domain: 'gym',
+      methods: [
+        { name: 'sendWelcome', description: 'ウェルカムメール送信', parameters: [{ name: 'memberId', type: 'string' }], returnType: 'Promise<void>', async: true },
+        { name: 'sendReminder', description: 'リマインダー送信', parameters: [{ name: 'memberId', type: 'string' }, { name: 'type', type: 'ReminderType' }], returnType: 'Promise<void>', async: true },
+        { name: 'sendPaymentReceipt', description: '領収書送信', parameters: [{ name: 'paymentId', type: 'string' }], returnType: 'Promise<void>', async: true },
+      ]
+    },
+    { name: 'NotificationGateway', type: 'gateway', layer: 'infrastructure', description: '外部通知連携', dependencies: [], patterns: ['Gateway'], domain: 'gym' },
+  ],
+  
   // EC（ecommerce）ドメイン
   ecommerce: [
     { name: 'CartService', type: 'service', layer: 'application', description: 'カート管理', dependencies: ['CartRepository', 'ProductService'], patterns: ['Service'], domain: 'ecommerce',
@@ -233,14 +303,68 @@ const COMPONENT_DEFINITIONS: Record<string, ComponentDefinition[]> = {
     { name: 'InventoryChecker', type: 'validator', layer: 'domain', description: '在庫確認', dependencies: ['InventoryRepository'], patterns: ['Validator'], domain: 'ecommerce' },
   ],
   
-  // 予約（booking）ドメイン
+  // 予約（booking）ドメイン - 仮想プロジェクト06から学習
   booking: [
-    { name: 'ReservationService', type: 'service', layer: 'application', description: '予約管理', dependencies: ['ReservationRepository', 'AvailabilityChecker'], patterns: ['Service'], domain: 'booking' },
+    { name: 'EventService', type: 'service', layer: 'application', description: 'イベント管理', dependencies: ['EventRepository'], patterns: ['Service'], domain: 'booking',
+      methods: [
+        { name: 'createEvent', description: 'イベント作成', parameters: [{ name: 'data', type: 'CreateEventInput' }], returnType: 'Promise<Event>', async: true },
+        { name: 'getEvent', description: 'イベント取得', parameters: [{ name: 'eventId', type: 'string' }], returnType: 'Promise<Event | null>', async: true },
+        { name: 'searchEvents', description: 'イベント検索', parameters: [{ name: 'criteria', type: 'EventSearchCriteria' }], returnType: 'Promise<Event[]>', async: true },
+        { name: 'publishEvent', description: 'イベント公開', parameters: [{ name: 'eventId', type: 'string' }], returnType: 'Promise<Event>', async: true },
+        { name: 'cancelEvent', description: 'イベントキャンセル', parameters: [{ name: 'eventId', type: 'string' }, { name: 'reason', type: 'string' }], returnType: 'Promise<Event>', async: true },
+      ]
+    },
+    { name: 'EventRepository', type: 'repository', layer: 'infrastructure', description: 'イベントデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
+    { name: 'TicketService', type: 'service', layer: 'application', description: 'チケット管理', dependencies: ['TicketRepository', 'OrderRepository'], patterns: ['Service'], domain: 'booking',
+      methods: [
+        { name: 'purchaseTickets', description: 'チケット購入', parameters: [{ name: 'eventId', type: 'string' }, { name: 'tickets', type: 'TicketPurchaseInput[]' }, { name: 'buyerId', type: 'string' }], returnType: 'Promise<Order>', async: true },
+        { name: 'getTicket', description: 'チケット取得', parameters: [{ name: 'ticketId', type: 'string' }], returnType: 'Promise<Ticket | null>', async: true },
+        { name: 'validateTicket', description: 'チケット検証', parameters: [{ name: 'qrCode', type: 'string' }], returnType: 'Promise<ValidationResult>', async: true },
+        { name: 'transferTicket', description: 'チケット譲渡', parameters: [{ name: 'ticketId', type: 'string' }, { name: 'newHolderId', type: 'string' }], returnType: 'Promise<Ticket>', async: true },
+        { name: 'cancelTicket', description: 'チケットキャンセル', parameters: [{ name: 'ticketId', type: 'string' }, { name: 'reason', type: 'string' }], returnType: 'Promise<RefundResult>', async: true },
+      ]
+    },
+    { name: 'TicketRepository', type: 'repository', layer: 'infrastructure', description: 'チケットデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
+    { name: 'OrderRepository', type: 'repository', layer: 'infrastructure', description: '注文データの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
+    { name: 'SeatService', type: 'service', layer: 'application', description: '座席管理', dependencies: ['SeatRepository', 'LayoutRepository', 'ReservationRepository'], patterns: ['Service'], domain: 'booking',
+      methods: [
+        { name: 'createLayout', description: '座席レイアウト作成', parameters: [{ name: 'input', type: 'CreateLayoutInput' }], returnType: 'Promise<VenueLayout>', async: true },
+        { name: 'getAvailableSeats', description: '空き座席取得', parameters: [{ name: 'eventId', type: 'string' }, { name: 'section', type: 'string' }], returnType: 'Promise<Seat[]>', async: true },
+        { name: 'reserveSeats', description: '座席予約（タイムアウト付き）', parameters: [{ name: 'input', type: 'ReserveSeatInput' }], returnType: 'Promise<SeatReservation>', async: true },
+        { name: 'confirmReservation', description: '予約確定', parameters: [{ name: 'reservationId', type: 'string' }, { name: 'userId', type: 'string' }], returnType: 'Promise<Seat[]>', async: true },
+        { name: 'releaseReservation', description: '予約解放', parameters: [{ name: 'reservationId', type: 'string' }], returnType: 'Promise<boolean>', async: true },
+      ]
+    },
+    { name: 'SeatRepository', type: 'repository', layer: 'infrastructure', description: '座席データの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
+    { name: 'LayoutRepository', type: 'repository', layer: 'infrastructure', description: 'レイアウトデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
     { name: 'ReservationRepository', type: 'repository', layer: 'infrastructure', description: '予約データの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
-    { name: 'AvailabilityChecker', type: 'validator', layer: 'domain', description: '空き状況確認', dependencies: ['SlotRepository'], patterns: ['Validator'], domain: 'booking' },
-    { name: 'SlotRepository', type: 'repository', layer: 'infrastructure', description: 'スロットデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
-    { name: 'SlotManager', type: 'manager', layer: 'domain', description: 'スロット管理', dependencies: ['SlotRepository'], patterns: ['Manager'], domain: 'booking' },
-    { name: 'ReminderService', type: 'service', layer: 'application', description: 'リマインダー送信', dependencies: ['NotificationGateway'], patterns: ['Service'], domain: 'booking' },
+    { name: 'CheckInService', type: 'service', layer: 'application', description: 'チェックイン管理', dependencies: ['CheckInRepository', 'TicketServiceAdapter'], patterns: ['Service'], domain: 'booking',
+      methods: [
+        { name: 'checkIn', description: 'QRコードチェックイン', parameters: [{ name: 'eventId', type: 'string' }, { name: 'qrCode', type: 'string' }, { name: 'staffId', type: 'string' }, { name: 'gate', type: 'string' }], returnType: 'Promise<CheckInResult>', async: true },
+        { name: 'getCheckInStats', description: 'チェックイン統計', parameters: [{ name: 'eventId', type: 'string' }], returnType: 'Promise<CheckInStats>', async: true },
+        { name: 'isTicketCheckedIn', description: 'チェックイン済み確認', parameters: [{ name: 'ticketId', type: 'string' }], returnType: 'Promise<boolean>', async: true },
+        { name: 'cacheTicketsForOffline', description: 'オフライン用キャッシュ', parameters: [{ name: 'eventId', type: 'string' }], returnType: 'Promise<number>', async: true },
+        { name: 'processOfflineCheckIns', description: 'オフラインデータ同期', parameters: [{ name: 'eventId', type: 'string' }, { name: 'checkIns', type: 'OfflineCheckInData[]' }], returnType: 'Promise<SyncResult>', async: true },
+      ]
+    },
+    { name: 'CheckInRepository', type: 'repository', layer: 'infrastructure', description: 'チェックインデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
+    { name: 'TicketServiceAdapter', type: 'gateway', layer: 'infrastructure', description: 'チケットサービス連携アダプター', dependencies: [], patterns: ['Adapter'], domain: 'booking' },
+    { name: 'WaitlistService', type: 'service', layer: 'application', description: 'キャンセル待ち管理', dependencies: ['WaitlistRepository'], patterns: ['Service'], domain: 'booking',
+      methods: [
+        { name: 'addToWaitlist', description: 'キャンセル待ち登録', parameters: [{ name: 'eventId', type: 'string' }, { name: 'userId', type: 'string' }, { name: 'ticketType', type: 'string' }], returnType: 'Promise<WaitlistEntry>', async: true },
+        { name: 'processAvailableTickets', description: '空きチケット処理', parameters: [{ name: 'eventId', type: 'string' }], returnType: 'Promise<void>', async: true },
+        { name: 'removeFromWaitlist', description: 'キャンセル待ち削除', parameters: [{ name: 'entryId', type: 'string' }], returnType: 'Promise<boolean>', async: true },
+      ]
+    },
+    { name: 'WaitlistRepository', type: 'repository', layer: 'infrastructure', description: 'キャンセル待ちデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
+    { name: 'PromoCodeService', type: 'service', layer: 'application', description: 'プロモーションコード管理', dependencies: ['PromoCodeRepository'], patterns: ['Service'], domain: 'booking',
+      methods: [
+        { name: 'createPromoCode', description: 'プロモコード作成', parameters: [{ name: 'data', type: 'CreatePromoCodeInput' }], returnType: 'Promise<PromoCode>', async: true },
+        { name: 'validatePromoCode', description: 'プロモコード検証', parameters: [{ name: 'code', type: 'string' }, { name: 'eventId', type: 'string' }], returnType: 'Promise<PromoCodeValidation>', async: true },
+        { name: 'applyPromoCode', description: 'プロモコード適用', parameters: [{ name: 'orderId', type: 'string' }, { name: 'code', type: 'string' }], returnType: 'Promise<DiscountResult>', async: true },
+      ]
+    },
+    { name: 'PromoCodeRepository', type: 'repository', layer: 'infrastructure', description: 'プロモコードデータの永続化', dependencies: [], patterns: ['Repository'], domain: 'booking' },
     { name: 'StatusWorkflow', type: 'manager', layer: 'domain', description: '予約ステータス遷移', dependencies: [], patterns: ['State'], domain: 'booking' },
   ],
   

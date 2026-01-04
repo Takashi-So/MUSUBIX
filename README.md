@@ -11,7 +11,7 @@
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.1.1** - DomainDetector (62 domains) & ComponentInference modules added
+> **v1.1.4** - Self-Learning improvements: MockGenerator, BaseRepository, AdapterNaming + gym/booking domains
 
 **[日本語版 README](README.ja.md)**
 

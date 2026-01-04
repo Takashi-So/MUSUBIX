@@ -87,14 +87,14 @@ describe('ComponentInference', () => {
     });
 
     it('should include dependencies in components', () => {
-      const text = 'Booking reservation system';
+      const text = 'Event booking system';
       
       const result = componentInference.infer(text);
       
-      const reservationService = result.components.find(c => c.name === 'ReservationService');
+      const eventService = result.components.find(c => c.name === 'EventService');
       
-      expect(reservationService).toBeDefined();
-      expect(reservationService!.dependencies.length).toBeGreaterThan(0);
+      expect(eventService).toBeDefined();
+      expect(eventService!.dependencies.length).toBeGreaterThan(0);
     });
   });
 

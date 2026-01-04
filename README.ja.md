@@ -10,7 +10,7 @@
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.1.1** - DomainDetector（62ドメイン）& ComponentInferenceモジュール追加
+> **v1.1.4** - 自己学習改善: MockGenerator, BaseRepository, AdapterNaming + gym/bookingドメイン
 
 ## 概要
 

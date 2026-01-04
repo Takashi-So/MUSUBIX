@@ -8,13 +8,14 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.1.0 |
+| **バージョン** | 1.1.4 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
 | **テスト数** | 439 (全合格) |
+| **コンポーネント数** | ~430 (62ドメイン対応) |
 
 ---
 
@@ -314,5 +315,5 @@ npx musubix codegen generate <design.md> --output src/
 
 **Agent**: GitHub Copilot / Claude
 **Last Updated**: 2026-01-04
-**Version**: 1.1.0
+**Version**: 1.1.4
 **Repository**: https://github.com/nahisaho/MUSUBIX

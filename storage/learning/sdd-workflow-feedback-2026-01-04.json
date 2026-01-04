@@ -1,0 +1,132 @@
+{
+  "version": "1.1.0",
+  "generatedAt": "2026-01-04T13:35:00Z",
+  "sessionId": "sdd-workflow-virtual-projects",
+  "summary": {
+    "projectsCompleted": 2,
+    "totalRequirements": 44,
+    "totalTests": 89,
+    "domainsUsed": ["gym", "booking"]
+  },
+  "projects": [
+    {
+      "id": "project-05-fitness-gym",
+      "name": "FitGym Pro",
+      "domain": "gym",
+      "requirements": 20,
+      "services": ["member-service", "checkin-service", "class-service", "billing-service"],
+      "tests": 31,
+      "testPassRate": 1.0,
+      "feedback": "accept"
+    },
+    {
+      "id": "project-06-event-booking",
+      "name": "EventHub Pro",
+      "domain": "booking",
+      "requirements": 24,
+      "services": ["event-service", "ticket-service", "seat-service", "checkin-service"],
+      "tests": 58,
+      "initialFailures": 63,
+      "testPassRate": 1.0,
+      "feedback": "modify",
+      "modifications": [
+        {
+          "type": "interface-mismatch",
+          "description": "ITicketAdapter vs ITicketServiceAdapter naming",
+          "resolution": "Updated test imports to use correct interface name"
+        },
+        {
+          "type": "signature-mismatch",
+          "description": "updateMany(ids[], data) vs updateMany({id, data}[])",
+          "resolution": "Aligned mock implementation with actual service signature"
+        },
+        {
+          "type": "validation-logic",
+          "description": "Duplicate check-in detection flow",
+          "resolution": "Test now performs actual duplicate check via repository"
+        }
+      ]
+    }
+  ],
+  "patterns": {
+    "successful": [
+      {
+        "id": "PAT-001",
+        "name": "EARS-to-Service-Mapping",
+        "description": "EARS requirements directly map to service methods",
+        "confidence": 0.95,
+        "usageCount": 44
+      },
+      {
+        "id": "PAT-002",
+        "name": "C4-Component-Generation",
+        "description": "C4 component design generates TypeScript service skeleton",
+        "confidence": 0.90,
+        "usageCount": 8
+      },
+      {
+        "id": "PAT-003",
+        "name": "Domain-Specific-Interfaces",
+        "description": "Domain ontology provides appropriate interface patterns",
+        "confidence": 0.85,
+        "usageCount": 8
+      }
+    ],
+    "needsImprovement": [
+      {
+        "id": "PAT-004",
+        "name": "Test-Mock-Generation",
+        "description": "Mock implementations often mismatch actual interfaces",
+        "confidence": 0.60,
+        "issue": "Manual mock creation leads to signature mismatches",
+        "recommendation": "Auto-generate mocks from interface definitions"
+      },
+      {
+        "id": "PAT-005",
+        "name": "Repository-Pattern-Variance",
+        "description": "Repository method signatures vary across services",
+        "confidence": 0.70,
+        "issue": "updateMany has multiple valid signatures",
+        "recommendation": "Standardize on IRepository<T> base interface"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "priority": "P0",
+      "category": "codegen",
+      "title": "Auto-generate test mocks from interfaces",
+      "description": "Extract interface definitions and generate corresponding mock implementations",
+      "expectedImpact": "Reduce test failures by 80%"
+    },
+    {
+      "priority": "P1",
+      "category": "design",
+      "title": "Standard Repository base interface",
+      "description": "Define IRepository<T> with consistent method signatures",
+      "expectedImpact": "Improve code consistency across projects"
+    },
+    {
+      "priority": "P1",
+      "category": "ontology",
+      "title": "Expand domain component definitions",
+      "description": "Add WaitlistService, PromoCodeService to booking domain",
+      "expectedImpact": "Better coverage for common domain patterns"
+    },
+    {
+      "priority": "P2",
+      "category": "naming",
+      "title": "Standardize Adapter naming convention",
+      "description": "Use consistent I{Domain}Adapter or I{Domain}ServiceAdapter",
+      "expectedImpact": "Reduce naming confusion in large projects"
+    }
+  ],
+  "metrics": {
+    "earsValidationRate": 1.0,
+    "designReviewPassRate": 1.0,
+    "codeGenerationSuccess": 1.0,
+    "initialTestPassRate": 0.34,
+    "finalTestPassRate": 1.0,
+    "averageFixIterations": 2
+  }
+}

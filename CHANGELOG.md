@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2026-01-04
+
+### Added - Self-Learning Improvements
+
+自己学習フィードバック（PAT-004〜PAT-006）に基づく改善を実施。
+
+- **MockGenerator** (`codegen/mock-generator.ts`) - PAT-004
+  - インターフェース定義からテストモック実装を自動生成
+  - Repository/Service/Adapterパターン対応
+  - vitest/jest両対応
+  - テスト失敗の削減を目標
+
+- **BaseRepository** (`codegen/base-repository.ts`) - PAT-005
+  - `IRepository<T, ID>` 標準インターフェース
+  - `updateMany(ids[], data)` 形式を標準採用
+  - `ISearchableRepository<T>`, `IPaginatedRepository<T>` 拡張
+  - `InMemoryRepository<T>` 実装クラス
+
+- **AdapterNamingHelper** (`codegen/adapter-naming.ts`) - PAT-006
+  - `I{Domain}ServiceAdapter` 標準命名パターン
+  - `generateInterfaceName()`, `generateImplementationName()` API
+  - `validateAdapterNames()` 検証機能
+  - コード一貫性の向上
+
+### Enhanced - Domain Components
+
+- **gymドメイン追加**（18コンポーネント）- 仮想プロジェクト05から学習
+  - MemberService, CheckInService, ClassService, BillingService
+  - MemberRepository, CheckInRepository, ClassRepository等
+  - BillingServiceAdapter, MemberServiceAdapter, PaymentGateway
+
+- **bookingドメイン拡充**（7→19コンポーネント）- 仮想プロジェクト06から学習
+  - EventService, TicketService, SeatService, CheckInService
+  - WaitlistService, PromoCodeService
+  - 各サービスに詳細なメソッド定義追加
+
+### Statistics
+
+- **コンポーネント総数**: 390+ → **427+**（約10%増加）
+- **新規モジュール**: 3ファイル追加
+- **テスト**: 439テスト全パス
+
+---
+
 ## [1.1.2] - 2026-01-04
 
 ### Fixed
