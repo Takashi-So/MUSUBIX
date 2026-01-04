@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-01-04
+
+### Added
+- **ThresholdAlert ユーティリティ**: 閾値ベースのアラート・監視システム
+  - `ThresholdAlert`: 単一閾値の監視（CPU使用率、在庫数、レスポンスタイムなど）
+  - `MultiThresholdAlert`: 複数閾値の一括監視
+  - `check()`: アラートレベル判定（normal/warning/critical）
+  - `evaluate()`: 詳細評価（マージン、パーセンテージ、メッセージ生成）
+  - `isExceeded()`, `isWarningOrAbove()`, `isCritical()`: 簡易チェック
+  - ヒステリシス（チャタリング防止）対応
+  - 6つのプリセット閾値設定:
+    - `resourceUsageThreshold`: CPU/メモリ使用率（80%/95%）
+    - `inventoryThreshold`: 在庫数（10/5）
+    - `responseTimeThreshold`: レスポンスタイム（1000ms/3000ms）
+    - `errorRateThreshold`: エラー率（1%/5%）
+    - `capacityThreshold`: 容量使用率（80%/95%）
+    - `batteryThreshold`: バッテリー残量（20%/5%）
+
+### Tests
+- **411テスト合格**（+30テスト追加）
+  - ThresholdAlert: 30テスト
+
+---
+
 ## [1.0.21] - 2026-01-04
 
 ### Added
