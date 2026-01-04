@@ -1,8 +1,8 @@
 # Technology Stack
 
 **Project**: MUSUBIX
-**Last Updated**: 2026-01-04
-**Version**: 1.0.18
+**Last Updated**: 2026-01-05
+**Version**: 1.0.20
 **Status**: Production Ready
 
 ---
@@ -28,9 +28,9 @@ MUSUBIXはニューロシンボリックAIコーディングシステムであ�
 
 ```
 packages/
-├── core/           # @nahisaho/musubix-core (v1.0.18)
-├── mcp-server/     # @nahisaho/musubix-mcp-server (v1.0.18)
-└── yata-client/    # @nahisaho/musubix-yata-client (v1.0.18)
+├── core/           # @nahisaho/musubix-core (v1.0.20)
+├── mcp-server/     # @nahisaho/musubix-mcp-server (v1.0.20)
+└── yata-client/    # @nahisaho/musubix-yata-client (v1.0.20)
 ```
 
 ### Core Package モジュール

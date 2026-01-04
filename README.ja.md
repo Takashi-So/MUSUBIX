@@ -6,11 +6,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-285%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-323%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.0.18** - 60ドメイン対応、約390個のドメイン固有コンポーネント、設計生成強化
+> **v1.0.20** - IdGenerator・StatusWorkflowユーティリティ追加、10プロジェクト検証からの自己学習適用
 
 ## 概要
 
@@ -204,5 +204,5 @@ nahisaho
 ---
 
 **文書ID**: README  
-**バージョン**: 1.0.12  
-**最終更新**: 2026-01-03
+**バージョン**: 1.0.20  
+**最終更新**: 2026-01-05

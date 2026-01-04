@@ -21,7 +21,7 @@ AIコーディング支援ツールは急速に進化しています。本記事
 
 # TL;DR
 
-> **最新バージョン**: v1.0.19 | **60ドメイン対応** | **~390コンポーネント**
+> **最新バージョン**: v1.0.20 | **60ドメイン対応** | **~390コンポーネント** | **323テスト**
 
 | 項目 | MUSUBI | MUSUBIX |
 |------|--------|---------||
@@ -277,7 +277,7 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    subgraph MUSUBIX["MUSUBIX System v1.0.19"]
+    subgraph MUSUBIX["MUSUBIX System v1.0.20"]
         subgraph Packages["パッケージ構成"]
             Core["@nahisaho/musubix-core<br/>56モジュール | 60ドメイン | ~390コンポーネント"]
             MCP["@nahisaho/musubix-mcp-server<br/>9ツール, 3プロンプト"]
@@ -616,6 +616,49 @@ MUSUBIXは以下の新規モジュールを追加：
 | | PatternExtractor | パターン抽出 |
 | | AdaptiveReasoner | 適応的推論 |
 | | PrivacyFilter | プライバシー保護フィルター |
+| **ユーティリティ** | IdGenerator | ユニークID生成（カウンター方式） |
+| | StatusWorkflow | ステータス遷移管理 |
+
+### 4.3.1 新規ユーティリティ（v1.0.20）
+
+v1.0.20では、10プロジェクト検証から学んだパターンを基に2つの新しいユーティリティを追加：
+
+#### IdGenerator - ユニークID生成
+
+```typescript
+import { IdGenerator, idGenerators } from '@nahisaho/musubix-core';
+
+// インスタンス利用（同一ミリ秒内でも重複なし）
+const petIdGen = new IdGenerator('PET');
+const id1 = petIdGen.generate(); // 'PET-1704326400000-1'
+const id2 = petIdGen.generate(); // 'PET-1704326400000-2'
+
+// 事前設定ジェネレーター
+idGenerators.requirement.generate(); // 'REQ-...'
+idGenerators.design.generate();      // 'DES-...'
+idGenerators.task.generate();        // 'TSK-...'
+
+// UUID v4生成
+IdGenerator.uuid(); // 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+```
+
+#### StatusWorkflow - ステータス遷移管理
+
+```typescript
+import { taskWorkflow, approvalWorkflow, reservationWorkflow } from '@nahisaho/musubix-core';
+
+// タスクワークフロー: pending → confirmed → in_progress → completed
+let status = taskWorkflow.transition('pending', 'confirm');  // 'confirmed'
+status = taskWorkflow.transition(status, 'start');           // 'in_progress'
+status = taskWorkflow.transition(status, 'complete');        // 'completed'
+
+// 承認ワークフロー: draft → pending → approved/rejected
+approvalWorkflow.transition('draft', 'submit');   // 'pending'
+approvalWorkflow.transition('pending', 'approve'); // 'approved'
+
+// 予約ワークフロー: tentative → confirmed → active → completed
+reservationWorkflow.transition('tentative', 'confirm'); // 'confirmed'
+```
 
 ## 4.4 MCPサーバー（9ツール、3プロンプト）
 
@@ -926,5 +969,5 @@ claude mcp list
 
 **著者**: nahisaho  
 **公開日**: 2026-01-02  
-**更新日**: 2026-01-04  
-**バージョン**: v1.0.19
+**更新日**: 2026-01-05  
+**バージョン**: v1.0.20

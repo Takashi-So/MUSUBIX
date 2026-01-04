@@ -666,5 +666,27 @@
       "tags": []
     },
     "reason": "季節料金・予約ワークフロー・稼働率計算パターン合格"
+  },
+  {
+    "id": "FB-A7981A04",
+    "timestamp": "2026-01-04T00:34:14.263Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "id-generator",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
+  },
+  {
+    "id": "FB-289C7ED9",
+    "timestamp": "2026-01-04T00:34:21.334Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "status-workflow",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
   }
 ]

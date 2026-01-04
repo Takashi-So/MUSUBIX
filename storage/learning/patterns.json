@@ -12,8 +12,8 @@
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
     "confidence": 0.95,
-    "occurrences": 187,
-    "lastUsed": "2026-01-04T00:26:43.109Z",
+    "occurrences": 195,
+    "lastUsed": "2026-01-04T00:34:21.336Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
     "source": "auto"
   },
@@ -30,8 +30,8 @@
       "content": "C4 design code generation successful - 25 TypeScript files generated"
     },
     "confidence": 0.95,
-    "occurrences": 454,
-    "lastUsed": "2026-01-04T00:26:43.109Z",
+    "occurrences": 493,
+    "lastUsed": "2026-01-04T00:34:21.336Z",
     "createdAt": "2026-01-03T13:41:53.216Z",
     "source": "auto"
   },
@@ -50,8 +50,8 @@
       "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
     },
     "confidence": 0.95,
-    "occurrences": 108,
-    "lastUsed": "2026-01-04T00:26:43.109Z",
+    "occurrences": 114,
+    "lastUsed": "2026-01-04T00:34:21.336Z",
     "createdAt": "2026-01-03T14:16:40.627Z",
     "source": "auto"
   },
@@ -70,8 +70,8 @@
       "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
     },
     "confidence": 0.95,
-    "occurrences": 167,
-    "lastUsed": "2026-01-04T00:26:43.109Z",
+    "occurrences": 177,
+    "lastUsed": "2026-01-04T00:34:21.336Z",
     "createdAt": "2026-01-03T14:27:44.066Z",
     "source": "auto"
   },
@@ -88,8 +88,8 @@
       "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
     },
     "confidence": 0.95,
-    "occurrences": 133,
-    "lastUsed": "2026-01-04T00:26:43.109Z",
+    "occurrences": 149,
+    "lastUsed": "2026-01-04T00:34:21.336Z",
     "createdAt": "2026-01-03T14:37:30.109Z",
     "source": "auto"
   },
@@ -106,8 +106,8 @@
       "content": "Design elements correctly reference requirement IDs in JSDoc comments"
     },
     "confidence": 0.95,
-    "occurrences": 48,
-    "lastUsed": "2026-01-04T00:26:43.109Z",
+    "occurrences": 64,
+    "lastUsed": "2026-01-04T00:34:21.336Z",
     "createdAt": "2026-01-03T14:48:18.010Z",
     "source": "auto"
   },
