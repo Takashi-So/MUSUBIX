@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.11] - 2026-01-04
+
+### Added - Claude Code Agent Skills & Auto-Install
+
+`npm install @nahisaho/musubix-core` で Claude Code Agent Skills が自動的にプロジェクトにインストールされるようになりました。
+
+- **9 Agent Skills for Claude Code** (`.github/skills/`)
+  - `musubix-sdd-workflow`: SDD開発ワークフロー全体のガイド
+  - `musubix-ears-validation`: EARS形式の要件検証
+  - `musubix-code-generation`: 設計からのコード生成
+  - `musubix-c4-design`: C4モデル（Context/Container/Component/Code）設計
+  - `musubix-traceability`: 要件↔設計↔タスク↔コード↔テストの追跡
+  - `musubix-test-generation`: TDDパターンに基づくテスト生成
+  - `musubix-adr-generation`: Architecture Decision Records作成
+  - `musubix-best-practices`: 17種のベストプラクティス適用
+  - `musubix-domain-inference`: 62ドメイン検出・コンポーネント推論
+
+- **Postinstall Auto-Copy** (`scripts/postinstall.js`)
+  - インストール時に `.github/skills/`, `.github/prompts/`, `AGENTS.md` を自動コピー
+  - GitHub Copilot プロンプト（9個）も同時にインストール
+  - 既存ファイルは上書きしない安全設計
+
+### Changed
+
+- `packages/core/package.json`: postinstall スクリプト追加
+- `docs/evolution-from-musubi-to-musubix.md`: Agent Skills セクション更新（3→9スキル）
+
+---
+
 ## [1.1.10] - 2026-01-04
 
 ### Added - New Best Practices from Project-13/14 & Enhanced Code Generator

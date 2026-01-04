@@ -1,0 +1,28 @@
+{
+  "name": "project-12-employee-management",
+  "version": "1.0.0",
+  "description": "Employee Management System - MUSUBIX SDD Virtual Project",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "employee-management",
+    "hr",
+    "payroll",
+    "attendance",
+    "musubix",
+    "sdd"
+  ],
+  "author": "MUSUBIX SDD System",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}
