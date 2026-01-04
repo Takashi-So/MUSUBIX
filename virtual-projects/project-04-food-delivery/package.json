@@ -1,0 +1,21 @@
+{
+  "name": "project-04-food-delivery",
+  "version": "1.0.0",
+  "description": "フードデリバリーシステム - MUSUBIX SDD方法論で構築",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "start": "node dist/api/server.js"
+  },
+  "dependencies": {
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

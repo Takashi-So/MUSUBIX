@@ -712,5 +712,32 @@
       "tags": []
     },
     "reason": "Added DomainDetector (62 domains) and ComponentInference (59 components) modules. Tests 411->439"
+  },
+  {
+    "id": "FB-72894D66",
+    "timestamp": "2026-01-04T03:19:34.797Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "project-04",
+    "context": {
+      "project": "food-delivery",
+      "language": "typescript",
+      "framework": "ddd",
+      "tags": []
+    },
+    "reason": "6スプリント完了:ドメインモデル、サービス、リポジトリ、アプリケーションサービス、イベント、REST_API(118テスト)"
+  },
+  {
+    "id": "FB-1750B0C8",
+    "timestamp": "2026-01-04T03:57:40.790Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "MUSUBIX-IMPROVE-002",
+    "context": {
+      "project": "MUSUBIX",
+      "language": "typescript",
+      "tags": []
+    },
+    "reason": "Fixed test generate 0 cases (FB-5016B120, FB-6FDF95D3), added domain-specific methods to Service templates (FB-325C2D59), improved C4 component parsing"
   }
 ]

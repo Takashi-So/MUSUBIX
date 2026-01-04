@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-01-04
+
+### Fixed
+- **テスト生成 0件問題** (FB-5016B120, FB-6FDF95D3)
+  - `extractEarsRequirements` が MUSUBIX v1.1.0 の `**[Pattern]**` 形式を認識するよう改善
+  - 結果: 0件 → 22件のテストケースが生成されるように修正
+
+- **C4設計パーサー改善**
+  - `parseC4DesignComponents` が `DES-001` 形式のID（ハイフン付き）を認識するよう正規表現を修正
+
+### Added
+- **ドメイン固有メソッド生成** (FB-325C2D59)
+  - `MethodSignature` インターフェースを追加
+  - `getMethodsForComponent()` APIを追加
+  - 4ドメイン（veterinary, parking, delivery, ecommerce）に固有メソッドを定義
+  - Service テンプレートにドメイン固有メソッドを自動追加
+
+- **ComponentInference.detectDomain()** メソッド追加
+  - テキストからドメインIDを検出するユーティリティ
+
+### Enhanced
+- **Service コード生成**
+  - Core CRUD メソッド + ドメイン固有メソッドを生成
+  - 例: OrderService → `accept`, `cancel`, `getByCustomer`, `getByRestaurant`
+  - 例: DeliveryService → `assignDriver`, `updateLocation`, `complete`, `calculateETA`
+
+### Tests
+- **439テスト合格**（全テストパス維持）
+
+---
+
 ## [1.1.1] - 2026-01-04
 
 ### Added

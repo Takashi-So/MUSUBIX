@@ -1,0 +1,19 @@
+{
+  "projectName": "Online Library Management System",
+  "version": "1.0.0",
+  "domain": "library",
+  "language": "TypeScript",
+  "framework": "Node.js",
+  "sdd": {
+    "requirementsFormat": "EARS",
+    "designFormat": "C4",
+    "traceability": true
+  },
+  "paths": {
+    "specs": "./storage/specs",
+    "design": "./storage/design",
+    "tasks": "./storage/tasks",
+    "src": "./src",
+    "tests": "./__tests__"
+  }
+}

@@ -17,6 +17,7 @@ import type { Command } from 'commander';
 import { readFile, writeFile, mkdir, readdir, stat } from 'fs/promises';
 import { resolve, dirname, extname, join } from 'path';
 import { ExitCode, getGlobalOptions, outputResult } from '../base.js';
+import { ComponentInference, type MethodSignature } from '../../design/component-inference.js';
 
 /**
  * Codegen command options
@@ -593,10 +594,16 @@ function inferComponentsFromRequirements(
 
 /**
  * Generate code from design
+ * Enhanced in v1.1.2: Domain-aware code generation using ComponentInference
  */
 function generateCodeFromDesign(content: string, options: CodegenOptions): GeneratedCode[] {
   const files: GeneratedCode[] = [];
   const language = options.language ?? 'typescript';
+  
+  // Detect domain from content for domain-specific method generation
+  const componentInference = new ComponentInference();
+  const domainKeywords = content.toLowerCase();
+  const detectedDomain = componentInference.detectDomain(domainKeywords);
   const ext = language === 'typescript' ? '.ts' : language === 'javascript' ? '.js' : '.py';
 
   // Check if this is an EARS requirements document
@@ -618,7 +625,7 @@ function generateCodeFromDesign(content: string, options: CodegenOptions): Gener
     for (const component of c4Components) {
       if (component.type === 'person') continue; // Skip user/person elements
       
-      const code = generateC4ComponentCode(component, language, reqMatches, patterns);
+      const code = generateC4ComponentCode(component, language, reqMatches, patterns, detectedDomain);
       // Normalize name: BLOG_PLATFORM → BlogPlatform → blog-platform
       const normalizedName = toKebabCase(toPascalCase(component.name));
       files.push({
@@ -1315,14 +1322,17 @@ function parseC4DesignComponents(content: string): C4Component[] {
   
   // Match table rows: | ID | Name | Type | Description | or | ID | Name | Type | Description | Pattern |
   // Support both 4 and 5 column formats
+  // ID can be alphanumeric with hyphens (e.g., DES-001, COMP-01)
   // Use [^|\n] to avoid matching across lines, and [ \t]* instead of \s* to avoid newlines
-  const tableRowRegex = /\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*([^|\n]+?)\s*\|(?:[ \t]*([^|\n]*?)[ \t]*\|)?/g;
+  const tableRowRegex = /\|\s*([\w-]+)\s*\|\s*(\w+)\s*\|\s*(\w+)\s*\|\s*([^|\n]+?)\s*\|(?:[ \t]*([^|\n]*?)[ \t]*\|)?/g;
   let match;
   
   while ((match = tableRowRegex.exec(content)) !== null) {
     const [, id, name, type, description, pattern] = match;
     // Skip header row and separator row
     if (id === 'ID' || id === '----' || id.startsWith('-') || name === '----' || name === 'Name') continue;
+    // Skip separator row like |----|----|----| 
+    if (id.match(/^-+$/)) continue;
     
     components.push({
       id,
@@ -1374,12 +1384,14 @@ function extractDesignPatterns(content: string): DesignPattern[] {
 
 /**
  * Generate TypeScript code for C4 component
+ * Enhanced in v1.1.2: Accepts domainId for domain-specific method generation
  */
 function generateC4ComponentCode(
   component: C4Component,
   language: string,
   requirements: string[],
-  patterns: DesignPattern[]
+  patterns: DesignPattern[],
+  domainId?: string
 ): string {
   const { id, name, type, description, pattern } = component;
   // Normalize name to PascalCase (handles UPPER_CASE, snake_case, kebab-case, etc.)
@@ -1401,9 +1413,9 @@ function generateC4ComponentCode(
       return generateRepositoryTemplate(className, interfaceName, id, description, patternComments, reqComments);
     }
     
-    // Service-specific template with proper types
+    // Service-specific template with proper types and domain-specific methods
     if (lowerType === 'service' && (pattern?.toLowerCase() === 'service' || description.includes('ビジネスロジック') || description.includes('CRUD'))) {
-      return generateServiceTemplate(className, interfaceName, id, description, patternComments, reqComments);
+      return generateServiceTemplate(className, interfaceName, id, description, patternComments, reqComments, domainId);
     }
     
     // Default: Use method stubs
@@ -2204,7 +2216,38 @@ export function create${className}<T extends BaseEntity = BaseEntity>(): ${inter
 }
 
 /**
- * Generate Service template with proper types
+ * Generate domain-specific method implementation
+ */
+function generateMethodImplementation(method: MethodSignature, _baseName: string): string {
+  const params = method.parameters.map(p => `${p.name}: ${p.type}`).join(', ');
+  const asyncKeyword = method.async !== false ? 'async ' : '';
+  // returnType already includes Promise<T> from MethodSignature, don't wrap again
+  const returnType = method.returnType;
+  
+  return `
+  /**
+   * ${method.description}
+   */
+  ${asyncKeyword}${method.name}(${params}): ${returnType} {
+    // TODO: Implement ${method.name}
+    throw new Error('${method.name} not implemented');
+  }`;
+}
+
+/**
+ * Generate domain-specific interface methods
+ */
+function generateInterfaceMethods(methods: MethodSignature[]): string {
+  return methods.map(method => {
+    const params = method.parameters.map(p => `${p.name}: ${p.type}`).join(', ');
+    // returnType already includes Promise<T> from MethodSignature
+    return `  ${method.name}(${params}): ${method.returnType};`;
+  }).join('\n');
+}
+
+/**
+ * Generate Service template with proper types and domain-specific methods
+ * Enhanced in v1.1.2: Uses ComponentInference for domain-aware method generation
  */
 function generateServiceTemplate(
   className: string,
@@ -2212,9 +2255,23 @@ function generateServiceTemplate(
   id: string,
   description: string,
   patternComments: string,
-  reqComments: string
+  reqComments: string,
+  domainId?: string
 ): string {
   const baseName = className.replace(/Service$/, '');
+  
+  // Get domain-specific methods from ComponentInference
+  const componentInference = new ComponentInference();
+  const domainMethods = componentInference.getMethodsForComponent(className, domainId);
+  
+  // Generate interface methods and implementations
+  const hasExtraMethods = domainMethods.length > 0;
+  const extraInterfaceMethods = hasExtraMethods 
+    ? '\n  // Domain-specific methods\n' + generateInterfaceMethods(domainMethods)
+    : '';
+  const extraImplementations = hasExtraMethods
+    ? '\n\n  // Domain-specific methods' + domainMethods.map(m => generateMethodImplementation(m, baseName)).join('')
+    : '';
   
   return `/**
  * ${className}
@@ -2272,11 +2329,13 @@ export interface ${baseName}Entity {
  * ${className} interface
  */
 export interface ${interfaceName} {
+  // Core CRUD methods
   create(data: Create${baseName}Input): Promise<${baseName}Entity>;
   getById(id: string): Promise<${baseName}Entity | null>;
   getAll(filter?: ${baseName}FilterOptions): Promise<${baseName}Entity[]>;
   update(id: string, data: Update${baseName}Input): Promise<${baseName}Entity | null>;
   delete(id: string): Promise<boolean>;
+${extraInterfaceMethods}
 }
 
 /**
@@ -2361,7 +2420,7 @@ export class ${className} implements ${interfaceName} {
    */
   async delete(id: string): Promise<boolean> {
     return this.entities.delete(id);
-  }
+  }${extraImplementations}
 }
 
 /**

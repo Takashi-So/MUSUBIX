@@ -492,7 +492,8 @@ function generateTestsForFile(
  * Supports multiple formats:
  * 1. Table format: | REQ-XX-001 | pattern | P0 | description |
  * 2. Section format: #### REQ-XX-001: Title + **Pattern**: + **Statement**: + **Priority**:
- * 3. Legacy format: ### REQ-XX-001 (Pattern - P0)
+ * 3. Bracket format: #### REQ-XX-001: Title + **[Pattern]** + STATEMENT (MUSUBIX v1.1.0+)
+ * 4. Legacy format: ### REQ-XX-001 (Pattern - P0)
  */
 function extractEarsRequirements(content: string): Array<{
   id: string;
@@ -518,44 +519,99 @@ function extractEarsRequirements(content: string): Array<{
     }
   }
   
-  // Format 2: Section format (new MUSUBIX format)
-  // ## REQ-XX-001: タイトル
-  // - **Pattern**: Event-driven
-  // - **Statement**: WHEN... THE system SHALL...
-  // - **Priority**: P0
-  // Split content into sections by requirement headers
+  // Format 2 & 3: Section formats (split by requirement headers)
+  // #### REQ-XX-001: タイトル
+  // **[Pattern]**  OR  - **Pattern**: xxx
+  // WHEN/WHILE/IF/THE statement...
   const sections = content.split(/(?=#{2,4}\s*REQ-)/);
   
   for (const section of sections) {
     // Match requirement ID from section header
-    const headerMatch = section.match(/^#{2,4}\s*(REQ-[\w-]+):\s*([^\n]+)/);
+    const headerMatch = section.match(/^#{2,4}\s*(REQ-[\w-]+)(?::\s*([^\n]+))?/);
     if (!headerMatch) continue;
     
     const id = headerMatch[1];
     if (seenIds.has(id)) continue;
     
-    // Extract pattern from "- **Pattern**: xxx" format
-    const patternMatch = section.match(/-\s*\*\*Pattern\*\*:\s*([\w-]+)/i);
-    const pattern = patternMatch ? patternMatch[1].toLowerCase().replace('-', '_') : 'ubiquitous';
+    // Extract pattern - try multiple formats
+    let pattern = 'ubiquitous';
     
-    // Extract statement from "- **Statement**: xxx" format
-    const statementMatch = section.match(/-\s*\*\*Statement\*\*:\s*([^\n]+)/i);
-    const statement = statementMatch ? statementMatch[1].trim() : '';
+    // Format 3: **[Pattern]** (MUSUBIX v1.1.0 bracket format)
+    const bracketPatternMatch = section.match(/\*\*\[([\w-]+)\]\*\*/i);
+    if (bracketPatternMatch) {
+      pattern = bracketPatternMatch[1].toLowerCase().replace(/-/g, '_');
+    } else {
+      // Format 2: - **Pattern**: xxx
+      const dashPatternMatch = section.match(/-\s*\*\*Pattern\*\*:\s*([\w-]+)/i);
+      if (dashPatternMatch) {
+        pattern = dashPatternMatch[1].toLowerCase().replace(/-/g, '_');
+      }
+    }
     
-    // Extract priority from "- **Priority**: Px" format
-    const priorityMatch = section.match(/-\s*\*\*Priority\*\*:\s*(P\d)/i);
+    // Extract statement - try multiple formats
+    let statement = '';
+    
+    // Format 3: Direct EARS statement after **[Pattern]**
+    // Look for lines starting with WHEN, WHILE, IF, THE, or containing SHALL
+    const earsPrefixes = ['WHEN', 'WHILE', 'IF', 'THE'];
+    const lines = section.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      const upperLine = line.toUpperCase();
+      
+      // Skip header and pattern lines
+      if (line.startsWith('#') || line.includes('**[') || line.startsWith('-')) continue;
+      
+      // Find EARS statement
+      if (earsPrefixes.some(prefix => upperLine.startsWith(prefix)) || 
+          (upperLine.includes('SHALL') && !line.includes('|'))) {
+        // Collect multi-line statement (lines until empty line or next section)
+        const statementLines = [line];
+        for (let j = i + 1; j < lines.length; j++) {
+          const nextLine = lines[j].trim();
+          if (!nextLine || nextLine.startsWith('#') || nextLine.startsWith('---')) break;
+          if (earsPrefixes.some(p => nextLine.toUpperCase().startsWith(p)) && statementLines.length > 0) {
+            // Next requirement statement, add to current
+            statementLines.push(nextLine);
+          } else if (nextLine.toUpperCase().includes('SHALL') || 
+                     nextLine.toUpperCase().startsWith('AND ') ||
+                     nextLine.toUpperCase().startsWith('THE ')) {
+            statementLines.push(nextLine);
+          } else {
+            break;
+          }
+        }
+        statement = statementLines.join(' ').trim();
+        break;
+      }
+    }
+    
+    // Fallback: Format 2 - **Statement**: xxx
+    if (!statement) {
+      const statementMatch = section.match(/-\s*\*\*Statement\*\*:\s*([^\n]+)/i);
+      if (statementMatch) {
+        statement = statementMatch[1].trim();
+      }
+    }
+    
+    // Extract priority from "- **Priority**: Px" format or default
+    const priorityMatch = section.match(/-\s*\*\*Priority\*\*:\s*(P\d)/i) ||
+                         section.match(/\*\*Priority\*\*:\s*(P\d)/i);
     const priority = priorityMatch ? priorityMatch[1] : 'P1';
     
-    seenIds.add(id);
-    requirements.push({
-      id,
-      pattern,
-      priority,
-      description: statement,
-    });
+    // Only add if we found a statement
+    if (statement || headerMatch[2]) {
+      seenIds.add(id);
+      requirements.push({
+        id,
+        pattern,
+        priority,
+        description: statement || headerMatch[2] || id,
+      });
+    }
   }
   
-  // Format 3: Legacy format
+  // Format 4: Legacy format
   // ### REQ-XX-001 (Pattern - P0)
   // > The system SHALL...
   const legacyMatches = content.matchAll(/###\s*(REQ-[\w-]+)(?:\s*\((\w+)(?:\s*-\s*(P\d))?\))?[\s\S]*?>\s*(.+?)(?=\n\n|\n###|$)/g);
