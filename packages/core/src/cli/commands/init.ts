@@ -76,6 +76,7 @@ const DIRECTORY_STRUCTURE = [
   '.github',
   '.github/prompts',
   '.github/skills',
+  '.claude',
 ];
 
 /**
@@ -312,23 +313,36 @@ function getProjectNameFromPath(projectPath: string): string {
 }
 
 /**
- * Find musubix package directory in node_modules
+ * Find musubix package directory in node_modules or global install
  */
 async function findMusubixPackage(): Promise<string | null> {
-  // Try to find musubix package in node_modules
+  // Try to find musubix package in multiple locations
   const searchPaths = [
-    // From current working directory
+    // From current working directory (local install)
+    join(process.cwd(), 'node_modules', '@nahisaho', 'musubix-core'),
     join(process.cwd(), 'node_modules', 'musubix'),
-    // From this package's location (for development)
-    join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', '..'),
+    // From this file's location (global install or development)
+    join(dirname(fileURLToPath(import.meta.url)), '..', '..'),  // packages/core/
+    join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', '..'),  // monorepo root
+    // Global npm install locations
+    ...(process.env.npm_config_prefix 
+      ? [join(process.env.npm_config_prefix, 'lib', 'node_modules', '@nahisaho', 'musubix-core')]
+      : []),
   ];
 
   for (const searchPath of searchPaths) {
     try {
-      await access(join(searchPath, 'AGENTS.md'));
+      // Check if .github/skills exists (indicates musubix package with skills)
+      await access(join(searchPath, '.github', 'skills'));
       return searchPath;
     } catch {
-      // Not found, try next
+      // Try checking for AGENTS.md as fallback
+      try {
+        await access(join(searchPath, 'AGENTS.md'));
+        return searchPath;
+      } catch {
+        // Not found, try next
+      }
     }
   }
 
@@ -336,7 +350,7 @@ async function findMusubixPackage(): Promise<string | null> {
 }
 
 /**
- * Copy AGENTS.md and .github/ to project root for GitHub Copilot
+ * Copy AGENTS.md, .github/, and .claude/ to project root for AI agents
  */
 async function copyAgentFiles(
   projectPath: string,
@@ -345,8 +359,9 @@ async function copyAgentFiles(
   const musubixPath = await findMusubixPackage();
   
   if (!musubixPath) {
-    // If musubix package not found, create default AGENTS.md
+    // If musubix package not found, create default files
     await createDefaultAgentsFile(projectPath, filesCreated);
+    await createDefaultClaudeSettings(projectPath, filesCreated);
     return;
   }
 
@@ -391,10 +406,24 @@ async function copyAgentFiles(
       // .github copy failed, create minimal structure
       await createDefaultGithubFiles(projectPath, filesCreated);
     }
+
+    // Copy .claude/ directory or create default
+    const claudeSource = join(musubixPath, '.claude');
+    const claudeDest = join(projectPath, '.claude');
+    
+    try {
+      await access(claudeSource);
+      await cp(claudeSource, claudeDest, { recursive: true });
+      filesCreated.push('.claude/');
+    } catch {
+      // .claude doesn't exist in source, create default
+      await createDefaultClaudeSettings(projectPath, filesCreated);
+    }
   } catch {
     // Fallback to default files
     await createDefaultAgentsFile(projectPath, filesCreated);
     await createDefaultGithubFiles(projectPath, filesCreated);
+    await createDefaultClaudeSettings(projectPath, filesCreated);
   }
 }
 
@@ -493,4 +522,106 @@ npx musubix test generate <file>
     copilotInstructions
   );
   filesCreated.push('.github/copilot-instructions.md');
+}
+
+/**
+ * Create default .claude settings for Claude Code
+ */
+async function createDefaultClaudeSettings(
+  projectPath: string,
+  filesCreated: string[]
+): Promise<void> {
+  // Create .claude/settings.json
+  const claudeSettings = {
+    projectContext: {
+      name: getProjectNameFromPath(projectPath),
+      framework: 'MUSUBIX',
+      methodology: 'SDD (Specification-Driven Development)',
+    },
+    skills: {
+      enabled: true,
+      autoDetect: true,
+      skillsPath: '.github/skills',
+    },
+    prompts: {
+      enabled: true,
+      promptsPath: '.github/prompts',
+    },
+    rules: {
+      constitution: 'steering/rules/constitution.md',
+      alwaysReadFirst: [
+        'AGENTS.md',
+        'steering/product.md',
+        'steering/tech.md',
+      ],
+    },
+    codeGeneration: {
+      testFirst: true,
+      traceabilityComments: true,
+      earsFormat: true,
+    },
+  };
+
+  await mkdir(join(projectPath, '.claude'), { recursive: true });
+  await writeFile(
+    join(projectPath, '.claude', 'settings.json'),
+    JSON.stringify(claudeSettings, null, 2) + '\n'
+  );
+  filesCreated.push('.claude/settings.json');
+
+  // Create .claude/CLAUDE.md (Claude Code instructions)
+  const claudeInstructions = `# Claude Code Instructions
+
+このプロジェクトは **MUSUBIX** (Neuro-Symbolic AI Coding System) を使用しています。
+
+## 🎯 基本ルール
+
+1. **プロジェクトメモリを参照**: 決定前に \`steering/\` を確認
+2. **EARS形式**: 要件は必ず EARS 形式で記述
+3. **トレーサビリティ**: コードコメントに要件ID (REQ-*) を記載
+4. **テスト先行**: Red-Green-Blue サイクルを遵守
+
+## 📁 重要なファイル
+
+| ファイル | 用途 |
+|---------|------|
+| \`AGENTS.md\` | AI エージェント向けガイド |
+| \`steering/rules/constitution.md\` | 9つの憲法条項 |
+| \`steering/product.md\` | プロダクトコンテキスト |
+| \`steering/tech.md\` | 技術スタック |
+
+## 🛠️ Agent Skills
+
+\`.github/skills/\` に9つのMUSUBIX Agent Skillsが配置されています:
+
+- \`musubix-sdd-workflow\` - SDD開発ワークフロー
+- \`musubix-ears-validation\` - EARS形式検証
+- \`musubix-code-generation\` - コード生成
+- \`musubix-c4-design\` - C4モデル設計
+- \`musubix-traceability\` - トレーサビリティ
+- \`musubix-test-generation\` - テスト生成
+- \`musubix-adr-generation\` - ADR生成
+- \`musubix-best-practices\` - ベストプラクティス
+- \`musubix-domain-inference\` - ドメイン推論
+
+## 📝 CLIコマンド
+
+\`\`\`bash
+npx musubix requirements analyze <file>
+npx musubix design generate <file>
+npx musubix codegen generate <file>
+npx musubix test generate <file>
+npx musubix trace matrix
+\`\`\`
+
+---
+
+**Generated by**: MUSUBIX v${VERSION}
+`;
+
+  await writeFile(
+    join(projectPath, '.claude', 'CLAUDE.md'),
+    claudeInstructions
+  );
+  filesCreated.push('.claude/CLAUDE.md');
 }

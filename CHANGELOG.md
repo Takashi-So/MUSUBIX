@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.12] - 2026-01-04
+
+### Added - Enhanced `musubix init` for AI Agents
+
+`musubix init` コマンドが `.claude/` ディレクトリと Claude Code 用の設定ファイルを自動生成するようになりました。
+
+- **`.claude/` ディレクトリ自動生成**
+  - `settings.json`: Claude Code 用の設定ファイル
+  - `CLAUDE.md`: Claude Code 向けの開発ガイドライン
+
+- **グローバルインストール対応の改善**
+  - `npm install -g @nahisaho/musubix-core` 後も `npx musubix init` が正しく動作
+  - パッケージパス検出の改善（ローカル/グローバル/開発環境対応）
+
+### Changed
+
+- `packages/core/src/cli/commands/init.ts`: `.claude/` 生成ロジック追加
+- `findMusubixPackage()`: 複数のインストールパスを検索するよう改善
+
+### Generated Files by `musubix init`
+
+| ファイル | 用途 |
+|---------|------|
+| `.github/skills/` | 9つの Agent Skills |
+| `.github/prompts/` | 9つの SDD プロンプト |
+| `.claude/settings.json` | Claude Code 設定 |
+| `.claude/CLAUDE.md` | Claude Code ガイド |
+| `AGENTS.md` | AI エージェント向けガイド |
+
+---
+
 ## [1.1.11] - 2026-01-04
 
 ### Added - Claude Code Agent Skills & Auto-Install
