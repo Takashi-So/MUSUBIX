@@ -5,4 +5,4 @@
  * @module @musubix/core/version
  */
 
-export const VERSION = '1.1.3';
+export const VERSION = '1.1.6';
