@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.20] - 2026-01-05
+
+### Added
+- **IdGenerator ユーティリティ**: 10プロジェクト検証から学んだID生成パターンを実装
+  - `IdGenerator` クラス: プレフィックス付きユニークID生成
+  - カウンター方式による同一ミリ秒内の重複防止
+  - `generateShort()`: タイムスタンプなしの短いID
+  - `IdGenerator.unique()`: 静的メソッドでワンオフID生成
+  - `IdGenerator.uuid()`: UUID v4生成
+  - `idGenerators`: 事前設定済みジェネレーター（requirement, design, task等）
+  - `isValidId()`, `extractTimestamp()`: ID検証・解析ユーティリティ
+
+- **StatusWorkflow ユーティリティ**: 10プロジェクト検証から学んだステータス遷移パターンを実装
+  - `StatusWorkflow` クラス: 汎用ステータスワークフロー管理
+  - ガード条件付き遷移サポート
+  - 利用可能アクション・次ステータスの取得
+  - 事前定義ワークフロー:
+    - `approvalWorkflow`: draft → pending → approved/rejected
+    - `taskWorkflow`: pending → confirmed → in_progress → completed
+    - `reservationWorkflow`: tentative → confirmed → active → completed
+
+### Improved
+- **自己学習システムからの知見適用**: 10プロジェクト検証で発見したパターンをコアに統合
+  - unique-id-counter パターン
+  - status-workflow パターン
+  - map-storage パターン
+
+### Tests
+- 323テスト合格（+38テスト追加）
+- ID生成: 18テスト
+- ステータスワークフロー: 20テスト
+
+---
+
 ## [1.0.19] - 2026-01-04
 
 ### Added

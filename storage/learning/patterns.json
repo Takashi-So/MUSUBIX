@@ -12,8 +12,8 @@
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
     "confidence": 0.95,
-    "occurrences": 147,
-    "lastUsed": "2026-01-03T14:48:18.011Z",
+    "occurrences": 187,
+    "lastUsed": "2026-01-04T00:26:43.109Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
     "source": "auto"
   },
@@ -30,8 +30,8 @@
       "content": "C4 design code generation successful - 25 TypeScript files generated"
     },
     "confidence": 0.95,
-    "occurrences": 274,
-    "lastUsed": "2026-01-03T14:48:18.011Z",
+    "occurrences": 454,
+    "lastUsed": "2026-01-04T00:26:43.109Z",
     "createdAt": "2026-01-03T13:41:53.216Z",
     "source": "auto"
   },
@@ -50,8 +50,8 @@
       "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
     },
     "confidence": 0.95,
-    "occurrences": 78,
-    "lastUsed": "2026-01-03T14:48:18.011Z",
+    "occurrences": 108,
+    "lastUsed": "2026-01-04T00:26:43.109Z",
     "createdAt": "2026-01-03T14:16:40.627Z",
     "source": "auto"
   },
@@ -70,8 +70,8 @@
       "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
     },
     "confidence": 0.95,
-    "occurrences": 117,
-    "lastUsed": "2026-01-03T14:48:18.011Z",
+    "occurrences": 167,
+    "lastUsed": "2026-01-04T00:26:43.109Z",
     "createdAt": "2026-01-03T14:27:44.066Z",
     "source": "auto"
   },
@@ -88,8 +88,8 @@
       "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
     },
     "confidence": 0.95,
-    "occurrences": 63,
-    "lastUsed": "2026-01-03T14:48:18.011Z",
+    "occurrences": 133,
+    "lastUsed": "2026-01-04T00:26:43.109Z",
     "createdAt": "2026-01-03T14:37:30.109Z",
     "source": "auto"
   },
@@ -105,10 +105,154 @@
       "type": "prefer",
       "content": "Design elements correctly reference requirement IDs in JSDoc comments"
     },
-    "confidence": 0.3,
-    "occurrences": 3,
-    "lastUsed": "2026-01-03T14:48:18.010Z",
+    "confidence": 0.95,
+    "occurrences": 48,
+    "lastUsed": "2026-01-04T00:26:43.109Z",
     "createdAt": "2026-01-03T14:48:18.010Z",
     "source": "auto"
+  },
+  {
+    "id": "PAT-DC9778EE",
+    "name": "unique-id-counter",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Date.now()だけでなくカウンターを追加してID重複を防ぐ: `id = \\`PREFIX-${Date.now()}-${++counter}\\``"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T00:27:12.126Z",
+    "createdAt": "2026-01-04T00:27:12.126Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-EC48A36C",
+    "name": "status-workflow",
+    "category": "design",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "ステータスワークフロー: pending→confirmed→in_progress→completed"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T00:27:13.267Z",
+    "createdAt": "2026-01-04T00:27:13.267Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-4ABBA9EC",
+    "name": "map-storage",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "インメモリデータストアにはMap<string, T>を使用"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T00:27:14.354Z",
+    "createdAt": "2026-01-04T00:27:14.354Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-3A870C31",
+    "name": "unique-id-counter",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Date.now()とcounterでID重複防止"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T00:27:16.005Z",
+    "createdAt": "2026-01-04T00:27:16.005Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-9FF476D0",
+    "name": "status-workflow",
+    "category": "design",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "pending-confirmed-in_progress-completed workflow"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T00:27:22.580Z",
+    "createdAt": "2026-01-04T00:27:22.580Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-035B847E",
+    "name": "map-storage",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Use Map<string,T> for in-memory data store"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T00:27:23.721Z",
+    "createdAt": "2026-01-04T00:27:23.721Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-57C4813B",
+    "name": "threshold-alerts",
+    "category": "design",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Generate alerts when value exceeds threshold"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T00:27:24.842Z",
+    "createdAt": "2026-01-04T00:27:24.842Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-57F2B4E9",
+    "name": "availability-check",
+    "category": "design",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Check time overlap for reservation systems"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T00:27:31.668Z",
+    "createdAt": "2026-01-04T00:27:31.668Z",
+    "source": "manual"
   }
 ]

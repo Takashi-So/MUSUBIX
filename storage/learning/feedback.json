@@ -546,5 +546,125 @@
       "tags": []
     },
     "reason": "Design elements correctly reference requirement IDs in JSDoc comments"
+  },
+  {
+    "id": "FB-8F51CFA7",
+    "timestamp": "2026-01-04T00:10:31.071Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-PET-001",
+    "context": {
+      "project": "project-01-pet-adoption",
+      "tags": []
+    },
+    "reason": "EARS要件10個すべてMUSUBIX検証で合格"
+  },
+  {
+    "id": "FB-F8AC3AAE",
+    "timestamp": "2026-01-04T00:26:26.514Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-BOARD-001",
+    "context": {
+      "project": "project-02-community-board",
+      "tags": []
+    },
+    "reason": "既読管理・アンケート機能を含む10要件すべてEARS形式で合格"
+  },
+  {
+    "id": "FB-7035109B",
+    "timestamp": "2026-01-04T00:26:27.861Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-INV-001",
+    "context": {
+      "project": "project-03-freelance-invoice",
+      "tags": []
+    },
+    "reason": "源泉徴収・消費税計算を含む請求書要件10個合格"
+  },
+  {
+    "id": "FB-6CD59EDD",
+    "timestamp": "2026-01-04T00:26:28.629Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-GARDEN-001",
+    "context": {
+      "project": "project-04-garden-iot",
+      "tags": []
+    },
+    "reason": "センサー閾値アラート・水やりスケジュール要件合格"
+  },
+  {
+    "id": "FB-102D11BB",
+    "timestamp": "2026-01-04T00:26:29.372Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-BOOK-001",
+    "context": {
+      "project": "project-05-book-club",
+      "tags": []
+    },
+    "reason": "ジャンル・曜日・場所マッチング要件合格"
+  },
+  {
+    "id": "FB-D989BE90",
+    "timestamp": "2026-01-04T00:26:31.795Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "REQ-FACTORY-001",
+    "context": {
+      "project": "project-06-factory-production",
+      "tags": []
+    },
+    "reason": "生産管理ワークフロー（作業指示→開始→記録→完了）の設計パターン合格"
+  },
+  {
+    "id": "FB-D817C4C2",
+    "timestamp": "2026-01-04T00:26:40.520Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "REQ-KITCHEN-001",
+    "context": {
+      "project": "project-07-shared-kitchen",
+      "tags": []
+    },
+    "reason": "時間枠予約・認証ユーザー制限パターン合格"
+  },
+  {
+    "id": "FB-23BAED25",
+    "timestamp": "2026-01-04T00:26:41.172Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "REQ-DISASTER-001",
+    "context": {
+      "project": "project-08-disaster-supplies",
+      "tags": []
+    },
+    "reason": "在庫閾値アラート・期限管理パターン合格"
+  },
+  {
+    "id": "FB-57207DF5",
+    "timestamp": "2026-01-04T00:26:42.357Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "REQ-TRANSPORT-001",
+    "context": {
+      "project": "project-09-kids-transport",
+      "tags": []
+    },
+    "reason": "ドライバー認証・マッチングワークフロー合格"
+  },
+  {
+    "id": "FB-FA357227",
+    "timestamp": "2026-01-04T00:26:43.106Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "REQ-INN-001",
+    "context": {
+      "project": "project-10-traditional-inn",
+      "tags": []
+    },
+    "reason": "季節料金・予約ワークフロー・稼働率計算パターン合格"
   }
 ]
