@@ -16,7 +16,7 @@
 | **テストフレームワーク** | Vitest |
 | **テスト数** | 459 (全合格) |
 | **コンポーネント数** | 224 (62ドメイン対応) |
-| **Agent Skills** | 9 (Claude Code対応) |
+| **Agent Skills** | 12 (Claude Code対応) |
 
 ---
 
