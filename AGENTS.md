@@ -276,7 +276,92 @@ npx musubix codegen generate <design.md> --output src/
 
 ---
 
-## 📚 ドキュメント
+## � 学習済みベストプラクティス（v1.1.7 NEW!）
+
+Project-07 Medical Clinic、Project-08 Property Rentalの実装から学習したパターンです。
+
+### コードパターン
+
+| ID | 名称 | 概要 | 信頼度 |
+|----|------|------|--------|
+| BP-CODE-001 | Entity Input DTO | エンティティ作成にInput DTOオブジェクトを使用 | 95% |
+| BP-CODE-002 | Date-based ID Format | PREFIX-YYYYMMDD-NNN形式でIDを生成 | 90% |
+| BP-CODE-003 | Value Objects | ドメイン概念にValue Objectを使用 | 90% |
+
+**Entity Input DTO例**:
+```typescript
+// ✅ 推奨: Input DTOを使用
+interface CreatePatientInput {
+  name: PersonName;
+  dateOfBirth: Date;
+  contact: ContactInfo;
+}
+function createPatient(input: CreatePatientInput): Patient { ... }
+
+// ❌ 非推奨: 複数パラメータ
+function createPatient(name: PersonName, dob: Date, contact: ContactInfo): Patient
+```
+
+### 設計パターン
+
+| ID | 名称 | 概要 | 信頼度 |
+|----|------|------|--------|
+| BP-DESIGN-001 | Status Transition Map | 有効なステータス遷移をMapで定義 | 95% |
+| BP-DESIGN-002 | Repository Async Pattern | 将来のDB移行に備えてasync化 | 85% |
+| BP-DESIGN-003 | Service Layer with DI | リポジトリをDIしたService層 | 90% |
+
+**Status Transition Map例**:
+```typescript
+const validStatusTransitions: Record<Status, Status[]> = {
+  draft: ['active'],
+  active: ['renewed', 'terminated', 'expired'],
+  renewed: [],
+  terminated: [],
+  expired: ['renewed'],
+};
+```
+
+### テストパターン
+
+| ID | 名称 | 概要 | 信頼度 |
+|----|------|------|--------|
+| BP-TEST-001 | Test Counter Reset | beforeEachでIDカウンターをリセット | 95% |
+| BP-TEST-002 | Verify API Before Test | テスト前にAPIシグネチャを確認 | 80% |
+| BP-TEST-003 | Vitest ESM Configuration | Vitest + TypeScript ESM構成 | 85% |
+
+**Test Counter Reset例**:
+```typescript
+// Entity側でresetXxxCounter()を提供
+export function resetPatientCounter(): void { patientCounter = 0; }
+
+// テスト側でbeforeEachでリセット
+beforeEach(() => {
+  resetPatientCounter();
+  resetAppointmentCounter();
+});
+```
+
+### CLIでベストプラクティスを表示
+
+```bash
+# 全ベストプラクティス表示
+npx musubix learn best-practices
+
+# カテゴリ別フィルタ
+npx musubix learn best-practices --category code
+npx musubix learn best-practices --category design
+npx musubix learn best-practices --category test
+
+# 高信頼度パターンのみ
+npx musubix learn best-practices --high-confidence
+
+# Markdown出力
+npx musubix learn best-practices --format markdown
+```
+
+---
+
+## �📚 ドキュメント
 
 | ドキュメント | 説明 |
 |-------------|------|
@@ -314,6 +399,6 @@ npx musubix codegen generate <design.md> --output src/
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-04
-**Version**: 1.1.4
+**Last Updated**: 2026-01-05
+**Version**: 1.1.7
 **Repository**: https://github.com/nahisaho/MUSUBIX

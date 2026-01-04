@@ -12,8 +12,8 @@
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
     "confidence": 0.95,
-    "occurrences": 211,
-    "lastUsed": "2026-01-04T03:57:40.793Z",
+    "occurrences": 247,
+    "lastUsed": "2026-01-04T07:17:47.221Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
     "source": "auto"
   },
@@ -30,8 +30,8 @@
       "content": "C4 design code generation successful - 25 TypeScript files generated"
     },
     "confidence": 0.95,
-    "occurrences": 577,
-    "lastUsed": "2026-01-04T03:57:40.793Z",
+    "occurrences": 785,
+    "lastUsed": "2026-01-04T07:17:47.221Z",
     "createdAt": "2026-01-03T13:41:53.216Z",
     "source": "auto"
   },
@@ -50,8 +50,8 @@
       "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
     },
     "confidence": 0.95,
-    "occurrences": 126,
-    "lastUsed": "2026-01-04T03:57:40.793Z",
+    "occurrences": 153,
+    "lastUsed": "2026-01-04T07:17:47.221Z",
     "createdAt": "2026-01-03T14:16:40.627Z",
     "source": "auto"
   },
@@ -70,8 +70,8 @@
       "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
     },
     "confidence": 0.95,
-    "occurrences": 198,
-    "lastUsed": "2026-01-04T03:57:40.793Z",
+    "occurrences": 252,
+    "lastUsed": "2026-01-04T07:17:47.221Z",
     "createdAt": "2026-01-03T14:27:44.066Z",
     "source": "auto"
   },
@@ -88,8 +88,8 @@
       "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
     },
     "confidence": 0.95,
-    "occurrences": 181,
-    "lastUsed": "2026-01-04T03:57:40.793Z",
+    "occurrences": 253,
+    "lastUsed": "2026-01-04T07:17:47.221Z",
     "createdAt": "2026-01-03T14:37:30.109Z",
     "source": "auto"
   },
@@ -106,8 +106,8 @@
       "content": "Design elements correctly reference requirement IDs in JSDoc comments"
     },
     "confidence": 0.95,
-    "occurrences": 96,
-    "lastUsed": "2026-01-04T03:57:40.793Z",
+    "occurrences": 182,
+    "lastUsed": "2026-01-04T07:17:47.221Z",
     "createdAt": "2026-01-03T14:48:18.010Z",
     "source": "auto"
   },
@@ -289,6 +289,132 @@
     "occurrences": 1,
     "lastUsed": "2026-01-04T02:02:26.826Z",
     "createdAt": "2026-01-04T02:02:26.826Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-3AEDF2D0",
+    "name": "Auto: test avoid",
+    "category": "test",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "avoid",
+      "content": "テスト作成時にEntity APIシグネチャを確認せず、誤った引数パターンでテストを書いた"
+    },
+    "confidence": 0.75,
+    "occurrences": 9,
+    "lastUsed": "2026-01-04T07:17:47.221Z",
+    "createdAt": "2026-01-04T07:17:33.387Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-04A4B5BC",
+    "name": "Auto: test prefer",
+    "category": "test",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Vitest + TypeScript ESMモジュール構成でモダンなテスト環境を実現"
+    },
+    "confidence": 0.6000000000000001,
+    "occurrences": 6,
+    "lastUsed": "2026-01-04T07:17:47.221Z",
+    "createdAt": "2026-01-04T07:17:40.031Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-6F33631F",
+    "name": "Entity Input DTO",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "エンティティ作成関数にはInput DTOを使用する（例: createPatient(input: CreatePatientInput)）"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T07:18:00.448Z",
+    "createdAt": "2026-01-04T07:18:00.448Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-3B6098EE",
+    "name": "Date-based ID Format",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "ID形式は PREFIX-YYYYMMDD-NNN を使用（例: PAT-20260104-001）でソート可能かつ一意性保証"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T07:18:06.774Z",
+    "createdAt": "2026-01-04T07:18:06.774Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-28397193",
+    "name": "Status Transition Map",
+    "category": "design",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "ステータス遷移はvalidStatusTransitions Mapで定義し、不正な遷移を防止する"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T07:18:13.015Z",
+    "createdAt": "2026-01-04T07:18:13.015Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-4D1693E8",
+    "name": "Test Counter Reset",
+    "category": "test",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "テスト用にresetXxxCounter()関数を提供し、beforeEachでリセットしてテスト独立性を確保"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T07:18:19.110Z",
+    "createdAt": "2026-01-04T07:18:19.110Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-3CD72E0B",
+    "name": "Verify API Before Test",
+    "category": "test",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "suggest",
+      "content": "テスト作成前にエンティティのAPIシグネチャを確認し、正しい引数パターンでテストを書く"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T07:18:25.522Z",
+    "createdAt": "2026-01-04T07:18:25.522Z",
     "source": "manual"
   }
 ]

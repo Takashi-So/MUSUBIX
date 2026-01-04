@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-core",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "MUSUBIX Core Library - Neuro-Symbolic Integration Engine",
   "type": "module",
   "main": "./dist/index.js",
@@ -49,9 +49,13 @@
   },
   "files": [
     "dist",
-    "bin"
+    "bin",
+    ".github",
+    "AGENTS.md"
   ],
   "scripts": {
+    "prepack": "cp -r ../../.github . && cp ../../AGENTS.md .",
+    "postpack": "rm -rf .github AGENTS.md",
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist *.tsbuildinfo",
     "test": "vitest run",

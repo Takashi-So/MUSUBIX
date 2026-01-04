@@ -10,6 +10,12 @@
 
 import type { Command } from 'commander';
 import { LearningEngine } from '../../learning/index.js';
+import {
+  LEARNED_BEST_PRACTICES,
+  getBestPracticesByCategory,
+  generateBestPracticesReport,
+  type BestPractice,
+} from '../../learning/best-practices.js';
 import type { PatternCategory, FeedbackType } from '../../learning/types.js';
 
 /**
@@ -323,6 +329,74 @@ export function registerLearnCommand(program: Command): void {
       if (total === 0) {
         console.log('No recommendations available for this context.');
         console.log('Tip: Record more feedback to build patterns.');
+      }
+    });
+
+  // Best practices command
+  learn
+    .command('best-practices')
+    .description('Display codified best practices from learning')
+    .alias('bp')
+    .option('-c, --category <cat>', 'Filter by category: code, design, test, requirement')
+    .option('--high-confidence', 'Show only high confidence patterns (≥90%)')
+    .option('--format <fmt>', 'Output format: table, markdown, json', 'table')
+    .action(async (options) => {
+      let patterns: BestPractice[] = LEARNED_BEST_PRACTICES;
+
+      // Filter by category
+      if (options.category) {
+        const validCategories = ['code', 'design', 'test', 'requirement'];
+        if (!validCategories.includes(options.category)) {
+          console.error(`Error: Invalid category. Must be one of: ${validCategories.join(', ')}`);
+          process.exit(1);
+        }
+        patterns = getBestPracticesByCategory(options.category);
+      }
+
+      // Filter by confidence
+      if (options.highConfidence) {
+        patterns = patterns.filter((p) => p.confidence >= 0.9);
+      }
+
+      if (patterns.length === 0) {
+        console.log('No best practices found matching criteria.');
+        return;
+      }
+
+      // Output formatting
+      switch (options.format) {
+        case 'json':
+          console.log(JSON.stringify(patterns, null, 2));
+          break;
+
+        case 'markdown':
+          console.log(generateBestPracticesReport());
+          break;
+
+        case 'table':
+        default: {
+          console.log('\n📚 MUSUBIX Best Practices\n');
+          console.log(`Total: ${patterns.length} patterns\n`);
+
+          // Group by category
+          const categories = [...new Set(patterns.map((p) => p.category))];
+          for (const cat of categories) {
+            const catPatterns = patterns.filter((p) => p.category === cat);
+            console.log(`\n## ${cat.toUpperCase()} (${catPatterns.length})\n`);
+
+            for (const bp of catPatterns) {
+              const icon = bp.action === 'prefer' ? '✅' : bp.action === 'avoid' ? '❌' : '💡';
+              const conf = `${Math.round(bp.confidence * 100)}%`;
+              console.log(`${icon} ${bp.id}: ${bp.name} [${conf}]`);
+              console.log(`   ${bp.description}`);
+              if (bp.antiPattern) {
+                console.log(`   ⚠ Anti-pattern: ${bp.antiPattern}`);
+              }
+              console.log('');
+            }
+          }
+          break;
+        }
       }
     });
 }

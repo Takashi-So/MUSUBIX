@@ -739,5 +739,113 @@
       "tags": []
     },
     "reason": "Fixed test generate 0 cases (FB-5016B120, FB-6FDF95D3), added domain-specific methods to Service templates (FB-325C2D59), improved C4 component parsing"
+  },
+  {
+    "id": "FB-1EA23326",
+    "timestamp": "2026-01-04T07:16:52.214Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "PAT-INPUT-DTO-001",
+    "context": {
+      "project": "project-07-medical-clinic",
+      "tags": []
+    },
+    "reason": "Entity Input DTOパターンで型安全性向上"
+  },
+  {
+    "id": "FB-2FF1F3A8",
+    "timestamp": "2026-01-04T07:16:58.890Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "PAT-REPO-ASYNC-001",
+    "context": {
+      "project": "project-08-property-rental",
+      "tags": []
+    },
+    "reason": "Repository層の非同期メソッド（async/await）パターンで将来のDB移行に対応"
+  },
+  {
+    "id": "FB-DEFAECE8",
+    "timestamp": "2026-01-04T07:17:06.326Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "PAT-COUNTER-RESET-001",
+    "context": {
+      "project": "project-07-medical-clinic",
+      "tags": []
+    },
+    "reason": "resetXxxCounter()関数でテスト間のID生成を独立化、テストの再現性向上"
+  },
+  {
+    "id": "FB-DA793895",
+    "timestamp": "2026-01-04T07:17:13.976Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "PAT-VALUE-OBJECT-001",
+    "context": {
+      "project": "project-08-property-rental",
+      "tags": []
+    },
+    "reason": "PersonName, ContactInfo, Money等のValue Objectでドメイン概念を明確化"
+  },
+  {
+    "id": "FB-86DD4882",
+    "timestamp": "2026-01-04T07:17:20.772Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "PAT-STATUS-TRANSITION-001",
+    "context": {
+      "project": "project-08-property-rental",
+      "tags": []
+    },
+    "reason": "validStatusTransitions Mapによるステータス遷移の厳密な制御"
+  },
+  {
+    "id": "FB-DC1EEFDD",
+    "timestamp": "2026-01-04T07:17:27.565Z",
+    "type": "accept",
+    "artifactType": "code",
+    "artifactId": "PAT-ID-FORMAT-001",
+    "context": {
+      "project": "project-07-medical-clinic",
+      "tags": []
+    },
+    "reason": "ID形式 PREFIX-YYYYMMDD-NNN でソート可能かつ一意性を保証"
+  },
+  {
+    "id": "FB-FFFF0045",
+    "timestamp": "2026-01-04T07:17:33.384Z",
+    "type": "reject",
+    "artifactType": "test",
+    "artifactId": "PAT-TEST-SIGNATURE-MISMATCH",
+    "context": {
+      "project": "project-08-property-rental",
+      "tags": []
+    },
+    "reason": "テスト作成時にEntity APIシグネチャを確認せず、誤った引数パターンでテストを書いた"
+  },
+  {
+    "id": "FB-697AAA01",
+    "timestamp": "2026-01-04T07:17:40.028Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "PAT-VITEST-ESM-001",
+    "context": {
+      "project": "project-07-medical-clinic",
+      "tags": []
+    },
+    "reason": "Vitest + TypeScript ESMモジュール構成でモダンなテスト環境を実現"
+  },
+  {
+    "id": "FB-61FAA7AB",
+    "timestamp": "2026-01-04T07:17:47.219Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "PAT-SERVICE-LAYER-001",
+    "context": {
+      "project": "project-08-property-rental",
+      "tags": []
+    },
+    "reason": "Service層でビジネスロジックを集約、Repository依存注入でテスタビリティ向上"
   }
 ]

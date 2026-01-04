@@ -39,3 +39,16 @@ export { PatternExtractor } from './pattern-extractor.js';
 
 // Export learning engine
 export { LearningEngine, type InferenceContext } from './learning-engine.js';
+
+// Export best practices
+export {
+  type BestPractice,
+  LEARNED_BEST_PRACTICES,
+  getBestPracticesByCategory,
+  getBestPracticesByAction,
+  getPreferredPatterns,
+  getAntiPatterns,
+  getHighConfidencePatterns,
+  formatBestPractice,
+  generateBestPracticesReport,
+} from './best-practices.js';

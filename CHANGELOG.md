@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.7] - 2026-01-05
+
+### Added - Codified Best Practices from Self-Learning
+
+Project-07 Medical ClinicとProject-08 Property Rentalの実装から学習したベストプラクティスを体系化。
+
+- **Best Practices Module** (`learning/best-practices.ts`) - NEW!
+  - 9つのベストプラクティスを体系化（CODE: 3, DESIGN: 3, TEST: 3）
+  - `BestPractice` 型定義（id, name, category, action, description, example等）
+  - `LEARNED_BEST_PRACTICES` 定数で全パターンをエクスポート
+  - `getBestPracticesByCategory()`, `getHighConfidencePatterns()` API
+
+- **Best Practices CLI** (`musubix learn best-practices`)
+  - `--category <cat>`: code, design, test, requirementでフィルタ
+  - `--high-confidence`: 信頼度90%以上のパターンのみ表示
+  - `--format <fmt>`: table, markdown, json出力形式
+  - エイリアス: `musubix learn bp`
+
+- **Code Patterns (95%+ confidence)**
+  - BP-CODE-001: Entity Input DTO - エンティティ作成にInput DTOオブジェクト使用
+  - BP-CODE-002: Date-based ID Format - PREFIX-YYYYMMDD-NNN形式
+  - BP-CODE-003: Value Objects - ドメイン概念にValue Object使用
+
+- **Design Patterns (90%+ confidence)**
+  - BP-DESIGN-001: Status Transition Map - 状態遷移をMapで定義
+  - BP-DESIGN-002: Repository Async Pattern - 将来のDB移行に備えてasync化
+  - BP-DESIGN-003: Service Layer with DI - リポジトリをDIしたService層
+
+- **Test Patterns (85%+ confidence)**
+  - BP-TEST-001: Test Counter Reset - beforeEachでIDカウンターリセット
+  - BP-TEST-002: Verify API Before Test - テスト作成前にAPI確認
+  - BP-TEST-003: Vitest ESM Configuration - Vitest + TypeScript ESM構成
+
+### Changed
+
+- **AGENTS.md**: 学習済みベストプラクティスセクションを追加
+- **learning/index.ts**: best-practices.tsからのエクスポートを追加
+
+---
+
 ## [1.1.6] - 2026-01-04
 
 ### Fixed
