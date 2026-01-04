@@ -30,3 +30,5 @@ export {
 
 export * from './solid-validator.js';
 export * from './framework-optimizer.js';
+export * from './domain-detector.js';
+export * from './component-inference.js';

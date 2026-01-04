@@ -12,8 +12,8 @@
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
     "confidence": 0.95,
-    "occurrences": 195,
-    "lastUsed": "2026-01-04T00:34:21.336Z",
+    "occurrences": 203,
+    "lastUsed": "2026-01-04T02:14:20.349Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
     "source": "auto"
   },
@@ -30,8 +30,8 @@
       "content": "C4 design code generation successful - 25 TypeScript files generated"
     },
     "confidence": 0.95,
-    "occurrences": 493,
-    "lastUsed": "2026-01-04T00:34:21.336Z",
+    "occurrences": 535,
+    "lastUsed": "2026-01-04T02:14:20.349Z",
     "createdAt": "2026-01-03T13:41:53.216Z",
     "source": "auto"
   },
@@ -50,8 +50,8 @@
       "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
     },
     "confidence": 0.95,
-    "occurrences": 114,
-    "lastUsed": "2026-01-04T00:34:21.336Z",
+    "occurrences": 120,
+    "lastUsed": "2026-01-04T02:14:20.349Z",
     "createdAt": "2026-01-03T14:16:40.627Z",
     "source": "auto"
   },
@@ -70,8 +70,8 @@
       "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
     },
     "confidence": 0.95,
-    "occurrences": 177,
-    "lastUsed": "2026-01-04T00:34:21.336Z",
+    "occurrences": 187,
+    "lastUsed": "2026-01-04T02:14:20.349Z",
     "createdAt": "2026-01-03T14:27:44.066Z",
     "source": "auto"
   },
@@ -88,8 +88,8 @@
       "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
     },
     "confidence": 0.95,
-    "occurrences": 149,
-    "lastUsed": "2026-01-04T00:34:21.336Z",
+    "occurrences": 165,
+    "lastUsed": "2026-01-04T02:14:20.349Z",
     "createdAt": "2026-01-03T14:37:30.109Z",
     "source": "auto"
   },
@@ -106,8 +106,8 @@
       "content": "Design elements correctly reference requirement IDs in JSDoc comments"
     },
     "confidence": 0.95,
-    "occurrences": 64,
-    "lastUsed": "2026-01-04T00:34:21.336Z",
+    "occurrences": 80,
+    "lastUsed": "2026-01-04T02:14:20.349Z",
     "createdAt": "2026-01-03T14:48:18.010Z",
     "source": "auto"
   },
@@ -253,6 +253,42 @@
     "occurrences": 1,
     "lastUsed": "2026-01-04T00:27:31.668Z",
     "createdAt": "2026-01-04T00:27:31.668Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-3D1B75F7",
+    "name": "repository-service-pattern",
+    "category": "design",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Use Repository pattern for data access and Service pattern for business logic in domain-driven projects"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T02:02:21.270Z",
+    "createdAt": "2026-01-04T02:02:21.270Z",
+    "source": "manual"
+  },
+  {
+    "id": "PAT-6D2A8AF4",
+    "name": "type-safety-first",
+    "category": "code",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Define TypeScript types and interfaces before implementation to ensure type safety and IDE support"
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-04T02:02:26.826Z",
+    "createdAt": "2026-01-04T02:02:26.826Z",
     "source": "manual"
   }
 ]

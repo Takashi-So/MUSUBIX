@@ -5,9 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-01-04
+
+### Added
+- **DomainDetector モジュール**: 要件・設計テキストからドメインを自動検出
+  - 62ドメイン定義（veterinary, parking, ecommerce, healthcare, booking等）
+  - キーワードマッチングによる信頼度スコアリング
+  - カテゴリ別フィルタリング（business, industry, healthcare, service, technology）
+  - 関連ドメイン推薦
+
+- **ComponentInference モジュール**: ドメインに最適なコンポーネント構成を推薦
+  - 59コンポーネント定義
+  - Repository/Service/Factoryパターンの自動推薦
+  - レイヤードアーキテクチャ推薦
+  - 依存関係の自動推論
+
+### Tests
+- **439テスト合格**（+28テスト追加）
+  - DomainDetector: 14テスト
+  - ComponentInference: 12テスト
+
+---
+
 ## [1.1.0] - 2026-01-04
 
 ### Added
+- **DomainDetector モジュール**: 要件・設計テキストからドメインを自動検出
+  - 62ドメイン定義（veterinary, parking, ecommerce, healthcare, booking等）
+  - キーワードマッチングによる信頼度スコアリング
+  - カテゴリ別フィルタリング（business, industry, healthcare, service, technology）
+  - 関連ドメイン推薦
+
+- **ComponentInference モジュール**: ドメインに最適なコンポーネント構成を推薦
+  - 59コンポーネント定義
+  - Repository/Service/Factoryパターンの自動推薦
+  - レイヤードアーキテクチャ推薦
+  - 依存関係の自動推論
+
 - **ThresholdAlert ユーティリティ**: 閾値ベースのアラート・監視システム
   - `ThresholdAlert`: 単一閾値の監視（CPU使用率、在庫数、レスポンスタイムなど）
   - `MultiThresholdAlert`: 複数閾値の一括監視
@@ -24,8 +58,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `batteryThreshold`: バッテリー残量（20%/5%）
 
 ### Tests
-- **411テスト合格**（+30テスト追加）
-  - ThresholdAlert: 30テスト
+- **439テスト合格**（+28テスト追加）
+  - DomainDetector: 14テスト
+  - ComponentInference: 12テスト
+  - ThresholdAlert: 30テスト（既存）
 
 ---
 
