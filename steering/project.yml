@@ -2,7 +2,7 @@
 name: MUSUBIX
 description: Neuro-Symbolic AI Integration System - Neural (LLM) + Symbolic (YATA Knowledge Graph)
 locale: ja
-version: "1.0.18"
+version: "1.1.10"
 created: 2026-01-01
 updated: 2026-01-04
 
@@ -30,8 +30,8 @@ packages:
 
 # Domain Support
 domains:
-  count: 60
-  components: ~390
+  count: 62
+  components: ~430
   categories:
     - general (13 components)
     - manufacturing, logistics, education (8 each)

@@ -113,6 +113,7 @@ export interface SearchResult {
 /**
  * Parse EARS requirements from text
  * Supports both English and Japanese EARS format
+ * Also supports Markdown blockquote format (> **WHEN**...) and bold formatting
  */
 function parseEARSRequirements(content: string): string[] {
   const lines = content.split('\n');
@@ -130,15 +131,17 @@ function parseEARSRequirements(content: string): string[] {
   // Japanese EARS pattern detection
   const jaEarsStart = /^(WHEN|WHILE|IF)\s+.+[,、]$/i;
   const jaEarsSystem = /^THE\s+(システム|system)/i;
+  
+  // Markdown blockquote EARS patterns (> **WHEN**..., > **THE**...)
+  const blockquoteStartKeywords = /^>\s*\*{0,2}(THE|WHEN|WHILE|IF|WHERE)\*{0,2}\s/i;
 
   for (let i = 0; i < lines.length; i++) {
-    const trimmed = lines[i].trim();
+    let trimmed = lines[i].trim();
     
     // Skip empty lines, comments, and markdown headers
     if (!trimmed || 
         trimmed.startsWith('#') || 
         trimmed.startsWith('//') ||
-        trimmed.startsWith('**') ||
         trimmed.startsWith('|') ||
         trimmed.startsWith('---')) {
       if (currentReq && containsEarsKeyword(currentReq)) {
@@ -147,9 +150,28 @@ function parseEARSRequirements(content: string): string[] {
       }
       continue;
     }
+    
+    // Skip standalone bold lines (like **Category**:)
+    if (/^\*\*[^*]+\*\*:/.test(trimmed)) {
+      continue;
+    }
 
     // Detect EARS section markers
     if (trimmed.match(/種別|pattern|パターン/i)) {
+      inRequirementSection = true;
+      continue;
+    }
+    
+    // Handle Markdown blockquote format (> **WHEN**..., > **THE**...)
+    if (trimmed.match(blockquoteStartKeywords)) {
+      // Save previous requirement if exists
+      if (currentReq && containsEarsKeyword(currentReq)) {
+        requirements.push(normalizeEarsRequirement(currentReq));
+      }
+      // Remove blockquote prefix and markdown bold formatting
+      currentReq = trimmed
+        .replace(/^>\s*/, '')           // Remove blockquote >
+        .replace(/\*\*([^*]+)\*\*/g, '$1'); // Remove bold **...**
       inRequirementSection = true;
       continue;
     }

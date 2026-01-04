@@ -35,7 +35,9 @@ export type TemplateType =
   | 'model'
   | 'repository'
   | 'service'
-  | 'controller';
+  | 'controller'
+  | 'value-object'
+  | 'entity';
 
 /**
  * Code structure definition
@@ -361,6 +363,12 @@ export class CodeGenerator {
         break;
       case 'api-endpoint':
         code += this.generateApiEndpoint(definition);
+        break;
+      case 'value-object':
+        code += this.generateValueObject(definition);
+        break;
+      case 'entity':
+        code += this.generateEntity(definition);
         break;
       default:
         warnings.push(`Unknown template type: ${definition.type}`);
@@ -1029,6 +1037,163 @@ export class CodeGenerator {
       .replace(/([a-z])([A-Z])/g, '$1_$2')
       .replace(/[\s-]+/g, '_')
       .toLowerCase();
+  }
+
+  /**
+   * Generate Value Object with function-based pattern (BP-CODE-004)
+   * 
+   * Uses interface + factory function pattern instead of classes
+   * for better TypeScript structural typing compatibility.
+   */
+  private generateValueObject(definition: CodeStructureDefinition): string {
+    const { indent, lineEnding } = this.options;
+    const lines: string[] = [];
+
+    // Interface definition
+    lines.push(`export interface ${definition.name} {`);
+    for (const prop of definition.properties ?? []) {
+      const readonly = prop.readonly !== false ? 'readonly ' : '';
+      lines.push(`${indent}${readonly}${prop.name}: ${prop.type};`);
+    }
+    lines.push('}');
+    lines.push('');
+
+    // Factory function with Result type (BP-CODE-005)
+    const inputParams = (definition.properties ?? [])
+      .map((p) => `${p.name}: ${p.type}`)
+      .join(', ');
+    
+    lines.push(`/**`);
+    lines.push(` * Create a ${definition.name} with validation`);
+    lines.push(` * @returns Result<${definition.name}, ValidationError>`);
+    lines.push(` */`);
+    lines.push(`export function create${definition.name}(${inputParams}): Result<${definition.name}, ValidationError> {`);
+    lines.push(`${indent}// TODO: Add validation logic`);
+    lines.push(`${indent}return ok({`);
+    for (const prop of definition.properties ?? []) {
+      lines.push(`${indent}${indent}${prop.name},`);
+    }
+    lines.push(`${indent}});`);
+    lines.push('}');
+    lines.push('');
+
+    // Equality function
+    lines.push(`/**`);
+    lines.push(` * Check if two ${definition.name} values are equal`);
+    lines.push(` */`);
+    lines.push(`export function ${this.toCamelCase(definition.name)}Equals(a: ${definition.name}, b: ${definition.name}): boolean {`);
+    const propComparisons = (definition.properties ?? [])
+      .map((p) => `a.${p.name} === b.${p.name}`)
+      .join(' && ');
+    lines.push(`${indent}return ${propComparisons || 'true'};`);
+    lines.push('}');
+
+    return lines.join(lineEnding);
+  }
+
+  /**
+   * Generate Entity with status transitions and counter reset (BP-DESIGN-001, BP-DESIGN-006)
+   */
+  private generateEntity(definition: CodeStructureDefinition): string {
+    const { indent, lineEnding } = this.options;
+    const lines: string[] = [];
+    const entityName = definition.name;
+    const lowerName = this.toCamelCase(entityName);
+
+    // Counter for ID generation (BP-CODE-002)
+    lines.push(`let ${lowerName}Counter = 0;`);
+    lines.push('');
+
+    // ID type
+    lines.push(`export type ${entityName}Id = string & { readonly brand: unique symbol };`);
+    lines.push('');
+
+    // Status type (if has status property)
+    const statusProp = (definition.properties ?? []).find((p) => p.name === 'status');
+    if (statusProp) {
+      lines.push(`export type ${entityName}Status = 'draft' | 'active' | 'completed' | 'cancelled';`);
+      lines.push('');
+      // Status Transition Map (BP-DESIGN-001)
+      lines.push(`const valid${entityName}StatusTransitions: Record<${entityName}Status, ${entityName}Status[]> = {`);
+      lines.push(`${indent}draft: ['active', 'cancelled'],`);
+      lines.push(`${indent}active: ['completed', 'cancelled'],`);
+      lines.push(`${indent}completed: [],`);
+      lines.push(`${indent}cancelled: [],`);
+      lines.push('};');
+      lines.push('');
+    }
+
+    // Interface
+    lines.push(`export interface ${entityName} {`);
+    lines.push(`${indent}readonly id: ${entityName}Id;`);
+    for (const prop of definition.properties ?? []) {
+      if (prop.name === 'id') continue;
+      const readonly = prop.readonly !== false ? 'readonly ' : '';
+      lines.push(`${indent}${readonly}${prop.name}: ${prop.type};`);
+    }
+    lines.push(`${indent}readonly version: number;`);
+    lines.push(`${indent}readonly createdAt: Date;`);
+    lines.push(`${indent}readonly updatedAt: Date;`);
+    lines.push('}');
+    lines.push('');
+
+    // Input DTO (BP-CODE-001)
+    lines.push(`export interface Create${entityName}Input {`);
+    for (const prop of definition.properties ?? []) {
+      if (['id', 'status', 'version', 'createdAt', 'updatedAt'].includes(prop.name)) continue;
+      lines.push(`${indent}${prop.name}: ${prop.type};`);
+    }
+    lines.push('}');
+    lines.push('');
+
+    // ID generator (BP-CODE-002)
+    lines.push(`function generate${entityName}Id(): ${entityName}Id {`);
+    lines.push(`${indent}const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');`);
+    lines.push(`${indent}const seq = String(++${lowerName}Counter).padStart(3, '0');`);
+    lines.push(`${indent}return \`${entityName.substring(0, 3).toUpperCase()}-\${dateStr}-\${seq}\` as ${entityName}Id;`);
+    lines.push('}');
+    lines.push('');
+
+    // Counter reset function (BP-DESIGN-006)
+    lines.push(`/**`);
+    lines.push(` * Reset counter for testing (BP-DESIGN-006)`);
+    lines.push(` */`);
+    lines.push(`export function reset${entityName}Counter(): void {`);
+    lines.push(`${indent}${lowerName}Counter = 0;`);
+    lines.push('}');
+    lines.push('');
+
+    // Factory function
+    lines.push(`/**`);
+    lines.push(` * Create a new ${entityName}`);
+    lines.push(` */`);
+    lines.push(`export function create${entityName}(input: Create${entityName}Input): Result<${entityName}, ValidationError> {`);
+    lines.push(`${indent}const now = new Date();`);
+    lines.push(`${indent}// TODO: Add validation logic`);
+    lines.push(`${indent}return ok({`);
+    lines.push(`${indent}${indent}id: generate${entityName}Id(),`);
+    for (const prop of definition.properties ?? []) {
+      if (['id', 'version', 'createdAt', 'updatedAt'].includes(prop.name)) continue;
+      if (prop.name === 'status') {
+        lines.push(`${indent}${indent}status: 'draft' as ${entityName}Status,`);
+      } else {
+        lines.push(`${indent}${indent}${prop.name}: input.${prop.name},`);
+      }
+    }
+    lines.push(`${indent}${indent}version: 1,`);
+    lines.push(`${indent}${indent}createdAt: now,`);
+    lines.push(`${indent}${indent}updatedAt: now,`);
+    lines.push(`${indent}});`);
+    lines.push('}');
+
+    return lines.join(lineEnding);
+  }
+
+  /**
+   * Convert to camelCase
+   */
+  private toCamelCase(str: string): string {
+    return str.charAt(0).toLowerCase() + str.slice(1);
   }
 }
 

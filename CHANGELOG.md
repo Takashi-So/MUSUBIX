@@ -5,6 +5,91 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.10] - 2026-01-04
+
+### Added - New Best Practices from Project-13/14 & Enhanced Code Generator
+
+仮想プロジェクトProject-13 (Budget Tracker)、Project-14 (Ticket Reservation)の実装から新しいベストプラクティスを学習し、MUSUBIXを改善。
+
+- **New Code Patterns** (`learning/best-practices.ts`)
+  - BP-CODE-004: Function-based Value Objects (95%) - interface + factory function パターン
+  - BP-CODE-005: Result Type for Fallible Operations (95%) - Rust風Result<T, E>でエラーハンドリング
+
+- **New Design Patterns** (`learning/best-practices.ts`)
+  - BP-DESIGN-006: Entity Counter Reset for Testing (95%) - resetXxxCounter()関数提供
+  - BP-DESIGN-007: Expiry Time Business Logic (90%) - expiresAtフィールドで有効期限管理
+
+- **New Test Patterns** (`learning/best-practices.ts`)
+  - BP-TEST-004: Result Type Test Pattern (95%) - isOk()/isErr()で両方のケースをテスト
+  - BP-TEST-005: Status Transition Testing (90%) - 有効・無効な遷移を網羅的にテスト
+
+- **Enhanced Code Generator** (`codegen/generator.ts`)
+  - `value-object` テンプレートタイプ追加 - Function-based Value Object自動生成
+  - `entity` テンプレートタイプ追加 - Status Transition Map、Counter Reset、Input DTO含む
+
+- **New Test Suite** (`__tests__/best-practices.test.ts`)
+  - 20件のベストプラクティステストを追加
+  - 新パターンの構造・内容を検証
+
+### Changed
+
+- **AGENTS.md**: ベストプラクティス一覧を更新（17パターン）
+- **steering/tech.ja.md**: v1.1.10に更新
+- **steering/project.yml**: v1.1.10に更新
+
+### Metrics
+
+| 項目 | 変更前 | 変更後 |
+|------|--------|--------|
+| テスト数 | 439 | 459 (+20) |
+| ベストプラクティス | 11 | 17 (+6) |
+| テンプレートタイプ | 10 | 12 (+2) |
+
+### Virtual Projects Completed
+
+- **Project-13 Budget Tracker**: 75テスト合格、3エンティティ、2 Value Objects
+- **Project-14 Ticket Reservation**: 88テスト合格、3エンティティ、3 Value Objects
+
+### Learning Data Generated
+
+- `storage/learning-data-p13-p14.json`: 両プロジェクトの学習データを保存
+
+---
+
+## [1.1.9] - 2026-01-05
+
+### Added - EARS Parser & Best Practices CLI Enhancement
+
+仮想プロジェクトProject-11, Project-12の実装中に発見された問題を修正。
+
+- **EARS Parser Markdown Support** (`cli/commands/requirements.ts`)
+  - Markdownブロッククォート形式に対応（`> **WHEN**...`）
+  - Boldマークアップ（`**...**`）の自動除去
+  - 要件検証: 0件 → 15件の正しい検出を実現
+
+- **Pattern Name Description Enhancement** (`learning/pattern-extractor.ts`)
+  - `generateDescriptiveName()`: 言語・フレームワーク・カテゴリを含む名前生成
+  - `extractContentSummary()`: パターン内容から意味のある要約を抽出
+  - 例: `Auto: code prefer` → `TypeScript Code: Prefer using input dto pattern`
+
+- **Best Practices CLI Commands** (`cli/commands/learn.ts`)
+  - `musubix learn bp-list` (alias: `bpl`): 全ベストプラクティスID一覧
+  - `musubix learn bp-show <ID>` (alias: `show`): 詳細表示（コード例付き）
+  - 11個のベストプラクティスをCLIから簡単に参照可能
+
+### Changed
+
+- **steering/tech.ja.md**: v1.1.9、Self-Learning CLIセクション追加
+- **steering/project.yml**: v1.1.9、ドメイン62、コンポーネント~430
+- **AGENTS.md**: v1.1.9に更新
+
+### Virtual Projects Completed
+
+- **Project-11 E-Learning Platform**: 8エンティティ, 31テスト合格
+- **Project-12 Employee Management**: 4エンティティ, 39テスト合格
+
+---
+
 ## [1.1.7] - 2026-01-05
 
 ### Added - Codified Best Practices from Self-Learning

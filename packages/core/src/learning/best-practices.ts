@@ -1,7 +1,8 @@
 /**
  * Best Practices from Self-Learning
  *
- * Codified patterns from Project-07 (Medical Clinic) and Project-08 (Property Rental)
+ * Codified patterns from Project-07 (Medical Clinic), Project-08 (Property Rental),
+ * Project-13 (Budget Tracker), and Project-14 (Ticket Reservation)
  *
  * @see REQ-LEARN-003 - Adaptive Reasoning
  * @module @musubix/core/learning
@@ -112,7 +113,81 @@ interface Patient {
 }`,
     antiPattern: 'Using primitive types for domain concepts',
     confidence: 0.90,
-    source: 'Project-08 Property Rental',
+    source: 'Project-07 Medical Clinic, Project-08 Property Rental',
+  },
+  {
+    id: 'BP-CODE-004',
+    name: 'Function-based Value Objects',
+    category: 'code',
+    action: 'prefer',
+    description:
+      'Use interface + factory function pattern instead of classes for Value Objects to improve TypeScript compatibility',
+    example: `
+// ✅ Prefer: Interface + Factory Function
+interface Price {
+  readonly amount: number;
+  readonly currency: 'JPY';
+}
+
+function createPrice(amount: number): Result<Price, ValidationError> {
+  if (amount < 100 || amount > 1_000_000) {
+    return err(new ValidationError('Price must be between 100 and 1,000,000 JPY'));
+  }
+  return ok({ amount, currency: 'JPY' });
+}
+
+// Helper functions
+function addPrices(a: Price, b: Price): Price { ... }
+function formatPrice(price: Price): string { ... }
+
+// ❌ Avoid: Class-based Value Objects
+class Price {
+  private constructor(readonly amount: number) {}
+  static create(amount: number): Price { ... }
+}`,
+    antiPattern: 'Using classes for Value Objects which causes import/structural typing issues',
+    confidence: 0.95,
+    source: 'Project-13 Budget Tracker, Project-14 Ticket Reservation',
+  },
+  {
+    id: 'BP-CODE-005',
+    name: 'Result Type for Fallible Operations',
+    category: 'code',
+    action: 'prefer',
+    description:
+      'Use Rust-inspired Result<T, E> type with ok/err for explicit error handling instead of exceptions',
+    example: `
+// ✅ Prefer: Result type
+type Result<T, E> = { isOk(): this is Ok<T>; isErr(): this is Err<E> };
+
+function createReservation(input: CreateReservationInput): Result<Reservation, ValidationError> {
+  if (input.seatIds.length > 10) {
+    return err(new ValidationError('Maximum 10 seats per reservation'));
+  }
+  if (input.seatIds.length === 0) {
+    return err(new ValidationError('At least 1 seat required'));
+  }
+  return ok({ ... });
+}
+
+// Usage with type guards
+const result = createReservation(input);
+if (result.isOk()) {
+  console.log('Created:', result.value.id);
+} else {
+  console.error('Error:', result.error.message);
+}
+
+// ❌ Avoid: Throwing exceptions for expected errors
+function createReservation(input: CreateReservationInput): Reservation {
+  if (input.seatIds.length > 10) {
+    throw new Error('Maximum 10 seats');  // Caller may forget to catch
+  }
+  return { ... };
+}`,
+    antiPattern: 'Using thrown exceptions for business rule validation failures',
+    confidence: 0.95,
+    source: 'Project-13 Budget Tracker, Project-14 Ticket Reservation',
   },
 
   // Design Patterns
@@ -197,6 +272,178 @@ class PatientService {
     antiPattern: 'Mixing business logic with repository implementation',
     confidence: 0.90,
     source: 'Project-07 Medical Clinic, Project-08 Property Rental',
+  },
+  {
+    id: 'BP-DESIGN-004',
+    name: 'Optimistic Locking for Concurrent Updates',
+    category: 'design',
+    action: 'prefer',
+    description:
+      'Use version field for optimistic locking to detect concurrent modifications',
+    example: `
+// ✅ Prefer: Optimistic locking with version field
+interface Task {
+  id: TaskId;
+  title: string;
+  status: TaskStatus;
+  version: number;  // Incremented on each update
+  updatedAt: Date;
+}
+
+async function updateTaskStatus(
+  taskId: TaskId,
+  newStatus: TaskStatus,
+  expectedVersion: number
+): Promise<Task> {
+  const task = await taskRepository.findById(taskId);
+  if (task.version !== expectedVersion) {
+    throw new ConcurrentUpdateError(
+      \`Task \${taskId} was modified by another user. Please refresh and try again.\`
+    );
+  }
+  return taskRepository.save({
+    ...task,
+    status: newStatus,
+    version: task.version + 1,
+    updatedAt: new Date()
+  });
+}
+
+// ❌ Avoid: Last-write-wins without version check
+async function updateTaskStatus(taskId: TaskId, newStatus: TaskStatus): Promise<Task> {
+  const task = await taskRepository.findById(taskId);
+  return taskRepository.save({ ...task, status: newStatus });  // Overwrites others' changes
+}`,
+    antiPattern: 'Last-write-wins without detecting concurrent modifications',
+    confidence: 0.90,
+    source: 'Project-10 Project Management (Kanban concurrent updates)',
+  },
+  {
+    id: 'BP-DESIGN-005',
+    name: 'AuditService for Data Changes',
+    category: 'design',
+    action: 'suggest',
+    description:
+      'Include AuditService in design to log all data modifications for compliance and debugging',
+    example: `
+// ✅ Prefer: Centralized audit logging
+interface AuditLog {
+  id: string;
+  timestamp: Date;
+  userId: string;
+  action: 'create' | 'update' | 'delete';
+  entityType: string;
+  entityId: string;
+  changes: Record<string, { old: unknown; new: unknown }>;
+}
+
+class AuditService {
+  async log(entry: Omit<AuditLog, 'id' | 'timestamp'>): Promise<void> {
+    await this.auditRepository.append({
+      id: generateAuditId(),
+      timestamp: new Date(),
+      ...entry
+    });
+  }
+}
+
+// Usage in services
+class InventoryService {
+  constructor(
+    private inventoryRepo: IInventoryRepository,
+    private auditService: AuditService
+  ) {}
+
+  async adjustStock(productId: string, delta: number, userId: string): Promise<void> {
+    const product = await this.inventoryRepo.findById(productId);
+    const oldQuantity = product.quantity;
+    product.quantity += delta;
+    await this.inventoryRepo.save(product);
+    await this.auditService.log({
+      userId,
+      action: 'update',
+      entityType: 'Product',
+      entityId: productId,
+      changes: { quantity: { old: oldQuantity, new: product.quantity } }
+    });
+  }
+}`,
+    antiPattern: 'No audit trail for data modifications',
+    confidence: 0.85,
+    source: 'Project-09 Inventory Management, Project-10 Project Management',
+  },
+  {
+    id: 'BP-DESIGN-006',
+    name: 'Entity Counter Reset for Testing',
+    category: 'design',
+    action: 'prefer',
+    description:
+      'Include resetXxxCounter() functions in entity modules to enable deterministic test ordering',
+    example: `
+// Entity module (event.ts)
+let eventCounter = 0;
+
+export function createEvent(input: CreateEventInput): Result<Event, ValidationError> {
+  const id = generateEventId();
+  // ...
+}
+
+function generateEventId(): EventId {
+  const dateStr = formatDate(new Date());
+  return \`EVT-\${dateStr}-\${String(++eventCounter).padStart(3, '0')}\` as EventId;
+}
+
+// ✅ Export reset function for tests
+export function resetEventCounter(): void {
+  eventCounter = 0;
+}
+
+// Test file
+import { createEvent, resetEventCounter } from './event.js';
+
+beforeEach(() => {
+  resetEventCounter();  // Ensure predictable IDs
+});
+
+it('should create event with ID EVT-...-001', () => {
+  const result = createEvent(input);
+  expect(result.value.id).toContain('-001');  // Always 001 in this test
+});`,
+    antiPattern: 'Tests depending on counter state from previous tests causing flaky results',
+    confidence: 0.95,
+    source: 'Project-13 Budget Tracker, Project-14 Ticket Reservation',
+  },
+  {
+    id: 'BP-DESIGN-007',
+    name: 'Expiry Time Business Logic',
+    category: 'design',
+    action: 'prefer',
+    description:
+      'Implement expiry logic with configurable duration and explicit validation functions',
+    example: `
+// ✅ Prefer: Explicit expiry logic
+const RESERVATION_EXPIRY_MINUTES = 15;
+
+interface Reservation {
+  id: ReservationId;
+  status: ReservationStatus;
+  createdAt: Date;
+  expiresAt: Date;  // Explicit expiry timestamp
+}
+
+export function isReservationExpired(reservation: Reservation): boolean {
+  return reservation.status === 'pending' && new Date() > reservation.expiresAt;
+}
+
+export function expireReservation(reservation: Reservation): Result<Reservation, Error> {
+  if (!isReservationExpired(reservation)) {
+    return err(new Error('Reservation has not expired yet'));
+  }
+  return ok({ ...reservation, status: 'expired' });
+}`,
+    antiPattern: 'Calculating expiry on-the-fly without storing explicit expiresAt timestamp',
+    confidence: 0.90,
+    source: 'Project-14 Ticket Reservation',
   },
 
   // Test Patterns
@@ -291,6 +538,84 @@ export default defineConfig({
     antiPattern: 'Using CommonJS or outdated Jest configuration',
     confidence: 0.85,
     source: 'Project-07 Medical Clinic',
+  },
+  {
+    id: 'BP-TEST-004',
+    name: 'Result Type Test Pattern',
+    category: 'test',
+    action: 'prefer',
+    description:
+      'Test both success (isOk) and failure (isErr) cases with type guards for Result types',
+    example: `
+// ✅ Prefer: Explicit Result type testing
+describe('createPrice', () => {
+  it('should create valid price', () => {
+    const result = createPrice(1000);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.amount).toBe(1000);
+      expect(result.value.currency).toBe('JPY');
+    }
+  });
+
+  it('should reject price below minimum', () => {
+    const result = createPrice(50);
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.message).toContain('100');
+    }
+  });
+});
+
+// ❌ Avoid: Not checking Result state properly
+it('should create price', () => {
+  const result = createPrice(1000);
+  expect(result.value.amount).toBe(1000);  // May fail if isErr!
+});`,
+    antiPattern: 'Accessing Result.value without checking isOk() first',
+    confidence: 0.95,
+    source: 'Project-13 Budget Tracker, Project-14 Ticket Reservation',
+  },
+  {
+    id: 'BP-TEST-005',
+    name: 'Status Transition Testing',
+    category: 'test',
+    action: 'prefer',
+    description:
+      'Test all valid and invalid status transitions systematically',
+    example: `
+// ✅ Prefer: Comprehensive transition testing
+describe('status transitions', () => {
+  // Valid transitions
+  it('should transition from draft to active', () => {
+    const event = createEvent(input).value;
+    const result = activateEvent(event);
+    expect(result.isOk()).toBe(true);
+  });
+
+  // Invalid transitions
+  it('should reject transition from completed to active', () => {
+    const event = { ...createEvent(input).value, status: 'completed' };
+    const result = activateEvent(event);
+    expect(result.isErr()).toBe(true);
+    expect(result.error.message).toContain('Invalid status transition');
+  });
+
+  // All valid paths
+  const validTransitions = [
+    ['draft', 'active'],
+    ['draft', 'cancelled'],
+    ['active', 'completed'],
+    ['active', 'cancelled'],
+  ];
+
+  validTransitions.forEach(([from, to]) => {
+    it(\`should allow \${from} -> \${to}\`, () => { ... });
+  });
+});`,
+    antiPattern: 'Testing only happy path transitions',
+    confidence: 0.90,
+    source: 'Project-14 Ticket Reservation',
   },
 ];
 

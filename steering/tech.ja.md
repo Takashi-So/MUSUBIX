@@ -1,8 +1,8 @@
 # Technology Stack
 
 **Project**: MUSUBIX
-**Last Updated**: 2026-01-05
-**Version**: 1.0.20
+**Last Updated**: 2026-01-04
+**Version**: 1.1.10
 **Status**: Production Ready
 
 ---
@@ -28,9 +28,9 @@ MUSUBIXはニューロシンボリックAIコーディングシステムであ�
 
 ```
 packages/
-├── core/           # @nahisaho/musubix-core (v1.0.20)
-├── mcp-server/     # @nahisaho/musubix-mcp-server (v1.0.20)
-└── yata-client/    # @nahisaho/musubix-yata-client (v1.0.20)
+├── core/           # @nahisaho/musubix-core (v1.1.9)
+├── mcp-server/     # @nahisaho/musubix-mcp-server (v1.1.9)
+└── yata-client/    # @nahisaho/musubix-yata-client (v1.1.9)
 ```
 
 ### Core Package モジュール
@@ -71,7 +71,7 @@ packages/
 
 ### 1. EARS検証器（Symbolic Reasoning）
 
-5つのEARSパターンをサポート：
+5つのEARSパターンをサポート（**Markdownブロッククォート形式対応** v1.1.9+）：
 
 | パターン | 構文 | 信頼度ボーナス |
 |---------|------|---------------|
@@ -146,8 +146,62 @@ npm run clean
 | パターンマッチング | <5ms | 信頼度計算含む |
 | トレーサビリティリンク検索 | O(1) | インデックス利用 |
 | C4モデル生成 | <10ms | 11要素、6関係 |
-| 全テスト（262件） | ~750ms | Vitest実行 |
+| 全テスト（459件） | ~1.0s | Vitest実行 |
+
+## Self-Learning System (v1.1.10)
+
+### ベストプラクティスCLI
+
+```bash
+# 一覧表示
+npx musubix learn bp-list
+
+# 詳細表示（コード例付き）
+npx musubix learn bp-show BP-CODE-001
+
+# カテゴリ別フィルタ
+npx musubix learn best-practices --category code
+```
+
+### 学習済みパターン（17件）
+
+| ID | 名称 | 信頼度 | ソース |
+|----|------|--------|--------|
+| BP-CODE-001 | Entity Input DTO | 95% | P07-08 |
+| BP-CODE-002 | Date-based ID Format | 90% | P07-08 |
+| BP-CODE-003 | Value Objects | 90% | P08 |
+| BP-CODE-004 | Function-based Value Objects | 95% | P13-14 |
+| BP-CODE-005 | Result Type | 95% | P13-14 |
+| BP-DESIGN-001 | Status Transition Map | 95% | P08, P13-14 |
+| BP-DESIGN-002 | Repository Async Pattern | 85% | P08 |
+| BP-DESIGN-003 | Service Layer with DI | 90% | P07-08 |
+| BP-DESIGN-004 | Optimistic Locking | 90% | P10 |
+| BP-DESIGN-005 | AuditService | 85% | P09-10 |
+| BP-DESIGN-006 | Entity Counter Reset | 95% | P13-14 |
+| BP-DESIGN-007 | Expiry Time Logic | 90% | P14 |
+| BP-TEST-001 | Test Counter Reset | 95% | P07 |
+| BP-TEST-002 | Verify API Before Test | 80% | P08 |
+| BP-TEST-003 | Vitest ESM Configuration | 85% | P07 |
+| BP-TEST-004 | Result Type Test Pattern | 95% | P13-14 |
+| BP-TEST-005 | Status Transition Testing | 90% | P14 |
+
+### コード生成テンプレート（12タイプ）
+
+| タイプ | 説明 | 追加バージョン |
+|--------|------|----------------|
+| class | クラス定義 | v1.0.0 |
+| interface | インターフェース | v1.0.0 |
+| function | 関数 | v1.0.0 |
+| module | モジュール | v1.0.0 |
+| test | テストファイル | v1.0.0 |
+| api-endpoint | APIエンドポイント | v1.0.0 |
+| model | データモデル | v1.0.0 |
+| repository | リポジトリ | v1.0.0 |
+| service | サービス層 | v1.0.0 |
+| controller | コントローラ | v1.0.0 |
+| value-object | Value Object (function-based) | v1.1.10 |
+| entity | エンティティ (status transition, counter reset) | v1.1.10 |
 
 ---
 
-*Last Updated: 2026-01-03 by MUSUBIX v1.0.10*
+*Last Updated: 2026-01-04 by MUSUBIX v1.1.10*

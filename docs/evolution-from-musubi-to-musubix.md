@@ -7,7 +7,7 @@ tags:
   - LLM
   - ニューロシンボリック
 private: false
-updated_at: '2026-01-04'
+updated_at: '2026-01-05'
 id: null
 organization_url_name: null
 slide: false
@@ -21,7 +21,7 @@ AIコーディング支援ツールは急速に進化しています。本記事
 
 # TL;DR
 
-> **最新バージョン**: v1.1.4 | **62ドメイン対応** | **~430コンポーネント** | **439テスト**
+> **最新バージョン**: v1.1.10 | **62ドメイン対応** | **~430コンポーネント** | **459テスト** | **17ベストプラクティス**
 
 | 項目 | MUSUBI | MUSUBIX |
 |------|--------|---------||
@@ -604,8 +604,8 @@ MUSUBIXは以下の新規モジュールを追加：
 | | SOLIDValidator | SOLID検証 |
 | | C4ModelGenerator | C4モデル生成 |
 | | ADRGenerator | ADR生成 |
-| | DomainDetector | ドメイン自動検出（60ドメイン） |
-| | ComponentInference | コンポーネント推論（~390定義） |
+| | DomainDetector | ドメイン自動検出（62ドメイン） |
+| | ComponentInference | コンポーネント推論（~430定義） |
 | **コード** | StaticAnalyzer | 静的解析 |
 | | SecurityScanner | セキュリティスキャン |
 | | QualityMetricsCalculator | 品質メトリクス |
@@ -969,5 +969,5 @@ claude mcp list
 
 **著者**: nahisaho  
 **公開日**: 2026-01-02  
-**更新日**: 2026-01-04  
-**バージョン**: v1.1.4
+**更新日**: 2026-01-05  
+**バージョン**: v1.1.10

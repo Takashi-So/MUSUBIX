@@ -399,4 +399,62 @@ export function registerLearnCommand(program: Command): void {
         }
       }
     });
+
+  // Best practice detail command - show specific BP with example
+  learn
+    .command('bp-show <id>')
+    .description('Show detailed best practice with code example')
+    .alias('show')
+    .action(async (id) => {
+      const bp = LEARNED_BEST_PRACTICES.find(
+        (p) => p.id.toLowerCase() === id.toLowerCase()
+      );
+
+      if (!bp) {
+        console.error(`Error: Best practice not found: ${id}`);
+        console.log('\nAvailable IDs:');
+        for (const p of LEARNED_BEST_PRACTICES) {
+          console.log(`  ${p.id} - ${p.name}`);
+        }
+        process.exit(1);
+      }
+
+      const icon = bp.action === 'prefer' ? '✅' : bp.action === 'avoid' ? '❌' : '💡';
+      const conf = `${Math.round(bp.confidence * 100)}%`;
+
+      console.log(`\n${icon} ${bp.id}: ${bp.name}`);
+      console.log(`${'─'.repeat(60)}`);
+      console.log(`Category: ${bp.category} | Action: ${bp.action} | Confidence: ${conf}`);
+      console.log(`Source: ${bp.source}`);
+      console.log(`\n📝 Description:\n${bp.description}`);
+
+      if (bp.example) {
+        console.log(`\n💻 Example:\n${bp.example}`);
+      }
+
+      if (bp.antiPattern) {
+        console.log(`\n⚠️  Anti-pattern:\n${bp.antiPattern}`);
+      }
+      console.log('');
+    });
+
+  // List all best practice IDs
+  learn
+    .command('bp-list')
+    .description('List all best practice IDs')
+    .alias('bpl')
+    .action(async () => {
+      console.log('\n📚 MUSUBIX Best Practice IDs\n');
+      
+      const categories = [...new Set(LEARNED_BEST_PRACTICES.map((p) => p.category))];
+      for (const cat of categories) {
+        const catPatterns = LEARNED_BEST_PRACTICES.filter((p) => p.category === cat);
+        console.log(`\n${cat.toUpperCase()}:`);
+        for (const bp of catPatterns) {
+          const icon = bp.action === 'prefer' ? '✅' : bp.action === 'avoid' ? '❌' : '💡';
+          console.log(`  ${icon} ${bp.id} - ${bp.name} (${Math.round(bp.confidence * 100)}%)`);
+        }
+      }
+      console.log(`\nUse 'musubix learn bp-show <ID>' to see details and examples.`);
+    });
 }

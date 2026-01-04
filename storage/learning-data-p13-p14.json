@@ -1,0 +1,169 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2025-01-05T21:00:00Z",
+  "projects": [
+    {
+      "id": "project-13-budget-tracker",
+      "name": "Budget Tracker",
+      "domain": "Personal Finance",
+      "phases": {
+        "requirements": "completed",
+        "design": "completed",
+        "implementation": "completed",
+        "testing": "completed",
+        "release": "completed"
+      },
+      "metrics": {
+        "totalTests": 75,
+        "passingTests": 75,
+        "valueObjects": 2,
+        "entities": 3,
+        "repositories": 3
+      }
+    },
+    {
+      "id": "project-14-ticket-reservation",
+      "name": "Ticket Reservation",
+      "domain": "Event Management",
+      "phases": {
+        "requirements": "completed",
+        "design": "completed",
+        "implementation": "completed",
+        "testing": "completed",
+        "release": "completed"
+      },
+      "metrics": {
+        "totalTests": 88,
+        "passingTests": 88,
+        "valueObjects": 3,
+        "entities": 3,
+        "repositories": 3
+      }
+    }
+  ],
+  "patterns": {
+    "codePatterns": [
+      {
+        "id": "BP-CODE-001",
+        "name": "Entity Input DTO",
+        "description": "Use Input DTO objects for entity creation instead of multiple parameters",
+        "confidence": 95,
+        "usageCount": 6,
+        "examples": ["CreateBudgetInput", "CreateExpenseInput", "CreateEventInput", "CreateSeatInput", "CreateReservationInput"]
+      },
+      {
+        "id": "BP-CODE-002",
+        "name": "Date-based ID Format",
+        "description": "Generate IDs with PREFIX-YYYYMMDD-NNN format",
+        "confidence": 95,
+        "usageCount": 6,
+        "examples": ["BUD-20250105-001", "EXP-20250105-001", "EVT-20250105-001", "SEAT-20250105-001", "RSV-20250105-001"]
+      },
+      {
+        "id": "BP-CODE-003",
+        "name": "Function-based Value Objects",
+        "description": "Use interface + factory function pattern instead of classes for Value Objects",
+        "confidence": 95,
+        "usageCount": 5,
+        "examples": ["createMoney()", "createDateRange()", "createPrice()", "createSeatCode()", "createSeatConfig()"]
+      }
+    ],
+    "designPatterns": [
+      {
+        "id": "BP-DESIGN-001",
+        "name": "Status Transition Map",
+        "description": "Define valid status transitions as a Record<Status, Status[]> map",
+        "confidence": 95,
+        "usageCount": 6,
+        "examples": ["Budget status", "Expense status", "Event status", "Seat status", "Reservation status"]
+      },
+      {
+        "id": "BP-DESIGN-002",
+        "name": "Repository Async Pattern",
+        "description": "Make repository interfaces async for future database integration",
+        "confidence": 90,
+        "usageCount": 6,
+        "examples": ["BudgetRepository", "ExpenseRepository", "EventRepository", "SeatRepository", "ReservationRepository"]
+      },
+      {
+        "id": "BP-DESIGN-003",
+        "name": "Result Type Error Handling",
+        "description": "Use Rust-inspired Result<T, E> type with ok/err for explicit error handling",
+        "confidence": 95,
+        "usageCount": 10,
+        "examples": ["createMoney()", "createBudget()", "createPrice()", "createSeatCode()", "createReservation()"]
+      },
+      {
+        "id": "BP-DESIGN-004",
+        "name": "Optimistic Locking",
+        "description": "Add version field to entities for concurrent modification detection",
+        "confidence": 90,
+        "usageCount": 2,
+        "examples": ["Seat entity version field", "Reservation entity (future)"]
+      }
+    ],
+    "testPatterns": [
+      {
+        "id": "BP-TEST-001",
+        "name": "Test Counter Reset",
+        "description": "Provide resetXxxCounter() function and call in beforeEach for predictable IDs",
+        "confidence": 95,
+        "usageCount": 6,
+        "examples": ["resetBudgetCounter()", "resetExpenseCounter()", "resetEventCounter()", "resetSeatCounter()"]
+      },
+      {
+        "id": "BP-TEST-002",
+        "name": "Grouped Test Structure",
+        "description": "Organize tests with describe blocks by feature area (creation, validation, transitions)",
+        "confidence": 90,
+        "usageCount": 12,
+        "examples": ["describe('createXxx')", "describe('status transitions')", "describe('validation')"]
+      },
+      {
+        "id": "BP-TEST-003",
+        "name": "Result Type Test Pattern",
+        "description": "Test both success (isOk) and failure (isErr) cases with type guards",
+        "confidence": 95,
+        "usageCount": 20,
+        "examples": ["expect(result.isOk()).toBe(true)", "if (result.isErr()) { expect(result.error.message)... }"]
+      }
+    ]
+  },
+  "learnings": [
+    {
+      "category": "Implementation",
+      "lesson": "Function-based Value Objects are more compatible with TypeScript's structural typing than class-based",
+      "context": "Initial class-based implementation caused test import issues"
+    },
+    {
+      "category": "Design",
+      "lesson": "Status Transition Map prevents invalid state changes at compile time when properly typed",
+      "context": "Used consistently across both projects for 6 entities"
+    },
+    {
+      "category": "Testing",
+      "lesson": "Counter reset functions are essential for deterministic test ordering",
+      "context": "Tests failed randomly without resetCounter() in beforeEach"
+    },
+    {
+      "category": "Architecture",
+      "lesson": "Hexagonal Architecture with Repository pattern enables easy database swapping",
+      "context": "In-memory implementations can be replaced with database implementations"
+    },
+    {
+      "category": "Validation",
+      "lesson": "Business rule validation should be in entity factory functions, not constructors",
+      "context": "createXxx() functions return Result type for explicit error handling"
+    }
+  ],
+  "summary": {
+    "totalProjects": 2,
+    "totalTests": 163,
+    "totalValueObjects": 5,
+    "totalEntities": 6,
+    "totalRepositories": 6,
+    "sddPhasesCompleted": 10,
+    "patternsIdentified": 10,
+    "lessonsLearned": 5
+  }
+}

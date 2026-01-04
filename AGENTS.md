@@ -8,7 +8,7 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.1.4 |
+| **バージョン** | 1.1.9 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
@@ -276,9 +276,9 @@ npx musubix codegen generate <design.md> --output src/
 
 ---
 
-## � 学習済みベストプラクティス（v1.1.7 NEW!）
+## � 学習済みベストプラクティス（v1.1.10 Updated!）
 
-Project-07 Medical Clinic、Project-08 Property Rentalの実装から学習したパターンです。
+Project-07〜14の実装から学習したパターンです。
 
 ### コードパターン
 
@@ -287,19 +287,29 @@ Project-07 Medical Clinic、Project-08 Property Rentalの実装から学習し�
 | BP-CODE-001 | Entity Input DTO | エンティティ作成にInput DTOオブジェクトを使用 | 95% |
 | BP-CODE-002 | Date-based ID Format | PREFIX-YYYYMMDD-NNN形式でIDを生成 | 90% |
 | BP-CODE-003 | Value Objects | ドメイン概念にValue Objectを使用 | 90% |
+| BP-CODE-004 | Function-based Value Objects | クラスではなくinterface+factory関数でVO実装 | 95% |
+| BP-CODE-005 | Result Type | 失敗可能な操作にResult<T, E>を使用 | 95% |
 
-**Entity Input DTO例**:
+**Function-based Value Object例**:
 ```typescript
-// ✅ 推奨: Input DTOを使用
-interface CreatePatientInput {
-  name: PersonName;
-  dateOfBirth: Date;
-  contact: ContactInfo;
+// ✅ 推奨: Interface + Factory Function
+interface Price {
+  readonly amount: number;
+  readonly currency: 'JPY';
 }
-function createPatient(input: CreatePatientInput): Patient { ... }
 
-// ❌ 非推奨: 複数パラメータ
-function createPatient(name: PersonName, dob: Date, contact: ContactInfo): Patient
+function createPrice(amount: number): Result<Price, ValidationError> {
+  if (amount < 100 || amount > 1_000_000) {
+    return err(new ValidationError('Price must be between 100 and 1,000,000 JPY'));
+  }
+  return ok({ amount, currency: 'JPY' });
+}
+
+// ❌ 非推奨: クラスベース（構造的型付けと相性が悪い）
+class Price {
+  private constructor(readonly amount: number) {}
+  static create(amount: number): Price { ... }
+}
 ```
 
 ### 設計パターン
@@ -309,15 +319,18 @@ function createPatient(name: PersonName, dob: Date, contact: ContactInfo): Patie
 | BP-DESIGN-001 | Status Transition Map | 有効なステータス遷移をMapで定義 | 95% |
 | BP-DESIGN-002 | Repository Async Pattern | 将来のDB移行に備えてasync化 | 85% |
 | BP-DESIGN-003 | Service Layer with DI | リポジトリをDIしたService層 | 90% |
+| BP-DESIGN-004 | Optimistic Locking | 同時編集検出のためのversion管理 | 90% |
+| BP-DESIGN-005 | AuditService | データ変更の監査ログ記録 | 85% |
+| BP-DESIGN-006 | Entity Counter Reset | テスト用のresetXxxCounter()関数を提供 | 95% |
+| BP-DESIGN-007 | Expiry Time Logic | 有効期限をexpiresAtフィールドで明示管理 | 90% |
 
 **Status Transition Map例**:
 ```typescript
 const validStatusTransitions: Record<Status, Status[]> = {
-  draft: ['active'],
-  active: ['renewed', 'terminated', 'expired'],
-  renewed: [],
-  terminated: [],
-  expired: ['renewed'],
+  draft: ['active', 'cancelled'],
+  active: ['completed', 'cancelled'],
+  completed: [],
+  cancelled: [],
 };
 ```
 
@@ -328,16 +341,27 @@ const validStatusTransitions: Record<Status, Status[]> = {
 | BP-TEST-001 | Test Counter Reset | beforeEachでIDカウンターをリセット | 95% |
 | BP-TEST-002 | Verify API Before Test | テスト前にAPIシグネチャを確認 | 80% |
 | BP-TEST-003 | Vitest ESM Configuration | Vitest + TypeScript ESM構成 | 85% |
+| BP-TEST-004 | Result Type Test Pattern | isOk()/isErr()で両方のケースをテスト | 95% |
+| BP-TEST-005 | Status Transition Testing | 有効・無効な遷移を網羅的にテスト | 90% |
 
-**Test Counter Reset例**:
+**Result Type Test例**:
 ```typescript
-// Entity側でresetXxxCounter()を提供
-export function resetPatientCounter(): void { patientCounter = 0; }
+describe('createPrice', () => {
+  it('should create valid price', () => {
+    const result = createPrice(1000);
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value.amount).toBe(1000);
+    }
+  });
 
-// テスト側でbeforeEachでリセット
-beforeEach(() => {
-  resetPatientCounter();
-  resetAppointmentCounter();
+  it('should reject price below minimum', () => {
+    const result = createPrice(50);
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.message).toContain('100');
+    }
+  });
 });
 ```
 
@@ -399,6 +423,6 @@ npx musubix learn best-practices --format markdown
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-05
-**Version**: 1.1.7
+**Last Updated**: 2026-01-04
+**Version**: 1.1.10
 **Repository**: https://github.com/nahisaho/MUSUBIX

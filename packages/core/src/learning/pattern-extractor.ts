@@ -389,7 +389,7 @@ export class PatternExtractor {
   private createPattern(candidate: PatternCandidate): LearnedPattern {
     return {
       id: `PAT-${randomUUID().slice(0, 8).toUpperCase()}`,
-      name: `Auto: ${candidate.category} ${candidate.actionType}`,
+      name: this.generateDescriptiveName(candidate),
       category: candidate.category,
       trigger: {
         context: candidate.context,
@@ -405,6 +405,65 @@ export class PatternExtractor {
       createdAt: new Date(),
       source: 'auto',
     };
+  }
+
+  /**
+   * Generate a descriptive name for auto-extracted pattern
+   * 
+   * Example outputs:
+   * - "TypeScript Code: Prefer async repository methods"
+   * - "TypeScript Design: Avoid direct database access"
+   * - "Code: Suggest using Input DTO pattern"
+   */
+  private generateDescriptiveName(candidate: PatternCandidate): string {
+    const parts: string[] = [];
+    
+    // Add language if available
+    if (candidate.context.language) {
+      parts.push(candidate.context.language);
+    }
+    
+    // Add framework if available
+    if (candidate.context.framework) {
+      parts.push(candidate.context.framework);
+    }
+    
+    // Add category (capitalize first letter)
+    const categoryStr = candidate.category.charAt(0).toUpperCase() + candidate.category.slice(1);
+    parts.push(categoryStr);
+    
+    // Create context prefix
+    const prefix = parts.join(' ');
+    
+    // Create action description
+    const actionVerb = candidate.actionType === 'prefer' ? 'Prefer' :
+                       candidate.actionType === 'avoid' ? 'Avoid' : 'Suggest';
+    
+    // Extract meaningful content summary (first 40 chars)
+    const contentSummary = this.extractContentSummary(candidate.content);
+    
+    return `${prefix}: ${actionVerb} ${contentSummary}`;
+  }
+  
+  /**
+   * Extract a meaningful summary from pattern content
+   */
+  private extractContentSummary(content: string): string {
+    // Remove code blocks
+    let summary = content.replace(/```[\s\S]*?```/g, '');
+    // Remove markdown formatting
+    summary = summary.replace(/[*_#`]/g, '');
+    // Remove multiple whitespace
+    summary = summary.replace(/\s+/g, ' ').trim();
+    // Take first meaningful part (up to 50 chars)
+    if (summary.length > 50) {
+      summary = summary.slice(0, 47) + '...';
+    }
+    // Fallback if empty
+    if (!summary) {
+      summary = 'pattern from feedback';
+    }
+    return summary.toLowerCase();
   }
 
   /**

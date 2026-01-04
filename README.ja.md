@@ -10,7 +10,7 @@
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.1.4** - 自己学習改善: MockGenerator, BaseRepository, AdapterNaming + gym/bookingドメイン
+> **v1.1.9** - EARSパーサーMarkdown対応、ベストプラクティスCLI強化
 
 ## 概要
 

@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-439%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-459%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.1.4** - Self-Learning improvements: MockGenerator, BaseRepository, AdapterNaming + gym/booking domains
+> **v1.1.10** - New Best Practices from Project-13/14, Enhanced Code Generator
 
 **[日本語版 README](README.ja.md)**
 
@@ -207,5 +207,5 @@ See [CHANGELOG.md](CHANGELOG.md)
 ---
 
 **Document ID**: README  
-**Version**: 1.0.20  
-**Last Updated**: 2026-01-05
+**Version**: 1.0.21  
+**Last Updated**: 2026-01-04
