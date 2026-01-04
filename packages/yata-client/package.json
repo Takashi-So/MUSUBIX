@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-yata-client",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "MUSUBIX YATA Client - Knowledge Graph Client Library",
   "type": "module",
   "main": "./dist/index.js",
@@ -23,12 +23,8 @@
       "types": "./dist/mcp/index.d.ts"
     }
   },
-  "bin": {
-    "musubix-yata": "./bin/musubix-yata.js"
-  },
   "files": [
-    "dist",
-    "bin"
+    "dist"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
