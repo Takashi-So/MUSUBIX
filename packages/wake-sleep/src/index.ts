@@ -19,3 +19,6 @@ export * from './cycle/index.js';
 
 // Resource Limiter (TSK-WAKE-007)
 export * from './resource/index.js';
+
+// Validation (REQ-WAKE-001-F003)
+export * from './validation/index.js';
