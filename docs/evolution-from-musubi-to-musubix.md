@@ -1253,6 +1253,99 @@ if (!consistency.consistent) {
   └──────────────┘
 ```
 
+## 4.10 高度推論（v1.4.5）
+
+v1.4.5では、**OWL 2 RLプロファイル推論エンジン**と**Datalog評価エンジン**を追加しました。これにより、知識グラフ上での自動推論と、人間可読な説明生成が可能になりました。
+
+### なぜ高度推論が必要か？
+
+従来の課題:
+- 明示的に登録された事実しか利用できない
+- 暗黙的な関係性を導出できない
+- 推論結果の根拠が不明確
+
+v1.4.5での解決:
+- **OWL2RLReasoner**: 20以上のビルトインルールによる自動推論
+- **DatalogEngine**: ストラティファイド評価による柔軟なルール適用
+- **InferenceExplainer**: 推論チェーンの自然言語説明
+
+### OWL 2 RL推論
+
+OWL 2 RLプロファイルは、OWL 2のサブセットであり、ルールベースの推論に適しています。
+
+| カテゴリ | ルール | 説明 |
+|----------|-------|------|
+| Class Axioms | `cax-sco`, `cax-eqc` | サブクラス、同値クラス推論 |
+| Property | `prp-dom`, `prp-rng` | ドメイン、レンジ推論 |
+| Property Characteristics | `prp-symp`, `prp-trp`, `prp-inv` | 対称、推移、逆プロパティ |
+| Equality | `eq-ref`, `eq-sym`, `eq-trans` | sameAs推論 |
+
+### 使用例
+
+```typescript
+import { OWL2RLReasoner, DatalogEngine, InferenceExplainer } from '@nahisaho/musubix-ontology-mcp';
+
+// OWL 2 RL推論
+const reasoner = new OWL2RLReasoner({
+  maxIterations: 100,
+  enablePropertyChains: true
+});
+
+const result = await reasoner.reason(store, {
+  onProgress: (p) => console.log(`反復 ${p.iteration}: ${p.newTriples} 新規`)
+});
+
+console.log(`${result.inferredCount} 個の事実を推論`);
+
+// Datalog評価
+const engine = new DatalogEngine();
+const rules = [
+  {
+    head: { predicate: 'ancestor', args: ['?x', '?y'] },
+    body: [{ predicate: 'parent', args: ['?x', '?y'] }]
+  },
+  {
+    head: { predicate: 'ancestor', args: ['?x', '?z'] },
+    body: [
+      { predicate: 'parent', args: ['?x', '?y'] },
+      { predicate: 'ancestor', args: ['?y', '?z'] }
+    ]
+  }
+];
+const derived = await engine.evaluate(rules, facts);
+
+// 推論説明
+const explainer = new InferenceExplainer(reasoner.getProvenanceLog());
+const explanation = explainer.explain(subject, predicate, object, 'text');
+console.log(explanation);
+// → "Animal は owl:Class として宣言されているため Class です（ルール cax-sco）"
+```
+
+### 推論フロー
+
+```
+知識グラフ
+    │
+    ▼
+┌─────────────────┐
+│ OWL2RLReasoner  │  ← 20+ ビルトインルール
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ 固定点到達まで   │  ← 反復推論
+│ 新規推論を生成   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ InferenceExplainer │ ← 説明生成
+└────────┬────────┘
+         │
+         ▼
+人間可読な推論根拠
+```
+
 # 5. 9つの憲法条項
 
 MUSUBIXは、MUSUBIから継承した **9つの憲法条項（Constitutional Articles）** を遵守します。これらは開発プロセス全体を統治する不変の原則であり、AIコーディングエージェントが従うべきガバナンスフレームワークです。
@@ -1575,7 +1668,7 @@ claude mcp list
 }
 ```
 
-### 利用可能なMCPツール（16ツール）
+### 利用可能なMCPツール（19ツール）
 
 #### SDD基本ツール（9ツール）
 
@@ -1602,6 +1695,14 @@ claude mcp list
 | `pattern_consolidate` | 類似パターンの統合 |
 | `ontology_query` | オントロジーグラフへのクエリ |
 | `ontology_infer` | オントロジーによる推論実行 |
+
+#### オントロジー検証ツール（3ツール）- v1.4.1 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `consistency_validate` | 知識グラフの整合性検証 |
+| `validate_triple` | 単一トリプルの事前検証 |
+| `check_circular` | 循環依存の検出 |
 
 ### メリット
 
@@ -1649,4 +1750,4 @@ flowchart TD
 **著者**: nahisaho  
 **公開日**: 2026-01-02  
 **更新日**: 2026-01-05  
-**バージョン**: v1.3.0
+**バージョン**: v1.4.5
