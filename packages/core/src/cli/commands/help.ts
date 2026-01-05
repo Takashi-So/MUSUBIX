@@ -136,6 +136,47 @@ const COMMAND_HELP: Record<string, CommandHelp> = {
       'graph <id>        Generate reasoning graph',
     ],
   },
+  learn: {
+    name: 'learn',
+    description: 'Manage self-learning system for pattern recognition',
+    usage: 'musubix learn <subcommand> [options]',
+    examples: [
+      'musubix learn status                # Show learning dashboard',
+      'musubix learn patterns              # List learned patterns',
+      'musubix learn best-practices        # Show best practices',
+      'musubix learn export --output p.json --privacy-filter',
+      'musubix learn import data.json --merge-strategy merge',
+    ],
+    options: [
+      'status              Show learning status dashboard',
+      'patterns            List learned patterns',
+      'best-practices      Show best practices',
+      'feedback <id>       Record feedback',
+      'add-pattern <name>  Add pattern manually',
+      'remove-pattern <id> Remove pattern',
+      'recommend           Get recommendations',
+      'decay               Decay unused patterns',
+      'export              Export learning data',
+      'import <file>       Import learning data',
+    ],
+  },
+  ontology: {
+    name: 'ontology',
+    description: 'Knowledge graph operations and validation',
+    usage: 'musubix ontology <subcommand> [options]',
+    examples: [
+      'musubix ontology validate -f triples.json',
+      'musubix ontology check-circular -f deps.json',
+      'musubix ontology stats -f graph.json --json',
+    ],
+    options: [
+      'validate          Validate knowledge graph consistency',
+      'check-circular    Check for circular dependencies',
+      'stats             Show knowledge graph statistics',
+      '-f, --file <path> JSON file with triples',
+      '--json            Output as JSON',
+    ],
+  },
 };
 
 /**
@@ -209,6 +250,8 @@ ${bold('Commands:')}
   test           Generate tests and measure coverage
   trace          Manage traceability between artifacts
   explain        Generate explanations for decisions
+  learn          Manage self-learning system
+  ontology       Knowledge graph operations
   help           Display help for a specific command
 
 ${bold('Global Options:')}
