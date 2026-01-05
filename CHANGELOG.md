@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.5] - 2026-01-06
+
+### Added - Advanced Inference (v1.5.0 Phase 3)
+
+v1.5.0のPhase 3として、Advanced Inference（高度推論）を実装。969テスト全合格。
+
+#### 新機能: OWL 2 RL推論エンジン
+
+| コンポーネント | 説明 | 要件 |
+|---------------|------|------|
+| **OWL2RLReasoner** | OWL 2 RLプロファイル準拠の推論エンジン | REQ-ONTO-010 |
+| **DatalogEngine** | ストラティファイドDatalog評価 | REQ-ONTO-014 |
+| **InferenceExplainer** | 人間可読な推論説明生成 | REQ-ONTO-013 |
+| **ProgressReporter** | 推論進捗フィードバック（500ms間隔） | REQ-ONTO-012 |
+
+#### OWL 2 RLビルトインルール（20+）
+
+| カテゴリ | ルール例 | 説明 |
+|---------|---------|------|
+| **Class Axioms** | cax-sco, cax-eqc | サブクラス・同値クラス推論 |
+| **Property Axioms** | prp-dom, prp-rng | ドメイン・レンジ推論 |
+| **Property Characteristics** | prp-symp, prp-trp, prp-inv | 対称・推移・逆プロパティ |
+| **Equality** | eq-ref, eq-sym, eq-trans | sameAs推論 |
+| **Schema** | scm-cls, scm-sco | スキーマ推論 |
+
+#### Datalogエンジン機能
+
+- ストラティファイド評価（否定サポート）
+- 固定点計算（効率的な反復）
+- ルールパース（文字列からDatalogRule）
+- クエリサポート（パターンマッチング）
+
+#### 推論説明機能
+
+| フォーマット | 説明 |
+|-------------|------|
+| `text` | プレーンテキスト説明 |
+| `markdown` | Markdown形式 |
+| `html` | HTML形式（エスケープ対応） |
+
+#### 進捗レポート機能
+
+- 自動進捗レポート（500ms間隔）
+- フェーズ表示（initializing, loading, reasoning, explaining, completed, error）
+- 残り時間推定
+- プログレスバー表示
+
+#### 新規ファイル
+
+```
+packages/core/src/learning/inference/
+├── types.ts                  # Phase 3型定義
+├── owl2rl-reasoner.ts        # OWL 2 RL推論エンジン
+├── datalog-engine.ts         # Datalogエンジン
+├── inference-explainer.ts    # 推論説明生成
+├── progress-reporter.ts      # 進捗レポーター
+├── index.ts                  # モジュールエクスポート
+└── __tests__/
+    ├── owl2rl-reasoner.test.ts
+    ├── datalog-engine.test.ts
+    ├── inference-explainer.test.ts
+    └── progress-reporter.test.ts
+```
+
+### Changed
+
+- `InferenceProgress`型を更新（totalTriples追加、percentage等削除）
+- `IProgressReporter`インターフェースを更新（ProgressReporter実装と整合）
+
+---
+
 ## [1.4.4] - 2026-01-05
 
 ### Added - Pattern Sharing Foundation (v1.5.0 Phase 2)

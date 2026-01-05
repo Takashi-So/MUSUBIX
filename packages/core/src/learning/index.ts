@@ -132,3 +132,37 @@ export {
   type AuthRequest,
   type AuthResult,
 } from './sharing/index.js';
+
+// Export advanced inference module (v1.5.0 Phase 3)
+export {
+  // Types
+  type OWL2RLRuleType,
+  type Triple,
+  type OWL2RLRule,
+  type DatalogAtom,
+  type DatalogRule,
+  type DatalogTerm,
+  type AppliedRule,
+  type InferenceResult,
+  type InferenceExplanation,
+  type InferenceProgress,
+  type InferenceStats,
+  type IReasoner,
+  type IExplainer,
+  type IProgressReporter,
+  type ProgressCallback,
+  NAMESPACES,
+  // OWL 2 RL Reasoner
+  OWL2RLReasoner,
+  OWL2RL_RULES,
+  // Datalog Engine
+  DatalogEngine,
+  // Inference Explainer
+  InferenceExplainer,
+  // Progress Reporter
+  ProgressReporter,
+  ConsoleProgressReporter,
+  SilentProgressReporter,
+  type ProgressPhase,
+  type ProgressReporterOptions,
+} from './inference/index.js';
