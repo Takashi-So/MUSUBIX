@@ -51,10 +51,40 @@ if (!result.success) {
 const consistency = store.checkConsistency();
 ```
 
+### Added - MCP & CLI Enhancements
+
+#### MCP Serverツール追加（3ツール）
+
+| ツール | 説明 |
+|--------|------|
+| `consistency_validate` | 知識グラフの整合性検証 |
+| `validate_triple` | 単一トリプルの事前検証 |
+| `check_circular` | 循環依存の検出 |
+
+#### CLI ontologyコマンド追加
+
+```bash
+# 知識グラフの整合性検証
+npx musubix ontology validate -f triples.json
+npx musubix ontology validate -s "Subject" -p "predicate" -o "Object"
+
+# 循環依存チェック
+npx musubix ontology check-circular -f relationships.json
+
+# 統計表示
+npx musubix ontology stats -f triples.json
+```
+
+#### Wake-Sleep PatternValidator追加
+
+パターン検証機能（duplicate, circular, disjoint, low-confidence, name-collision検出）
+
 ### Changed
 
-- テスト数: 756 → 775 (+19)
+- テスト数: 756 → 800 (+44)
 - `@nahisaho/musubix-ontology-mcp`: 1.0.0 → 1.0.1
+- `@nahisaho/musubix-mcp-server`: 1.3.0 → 1.3.1
+- `@nahisaho/musubix-wake-sleep`: 1.0.0 → 1.0.1
 
 ---
 

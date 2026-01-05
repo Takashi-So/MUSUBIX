@@ -14,7 +14,7 @@
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 775 (全合格) |
+| **テスト数** | 800 (全合格) |
 | **コンポーネント数** | 243 (62ドメイン対応) |
 | **Agent Skills** | 12 (Claude Code対応) |
 
@@ -38,7 +38,7 @@ packages/
 | パッケージ | npm | 役割 |
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
-| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 16ツール、3プロンプト |
+| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 19ツール、3プロンプト |
 | `packages/yata-client/` | `@nahisaho/musubix-yata-client` | YATAクライアント - 知識グラフ連携 |
 | `packages/pattern-mcp/` | `@nahisaho/musubix-pattern-mcp` | パターン学習 - 抽出・圧縮・ライブラリ |
 | `packages/ontology-mcp/` | `@nahisaho/musubix-ontology-mcp` | オントロジー - N3Store・推論エンジン |
@@ -116,6 +116,11 @@ npx musubix learn export                   # 学習データエクスポート
 npx musubix learn import <file>            # 学習データインポート
   # オプション: --merge-strategy <skip|overwrite|merge>, --dry-run, --patterns-only, --feedback-only
 
+# オントロジー操作 (v1.4.1 NEW!)
+npx musubix ontology validate -f <file>    # 知識グラフ整合性検証
+npx musubix ontology check-circular -f <file>  # 循環依存チェック
+npx musubix ontology stats -f <file>       # 統計表示
+
 # ヘルプ
 npx musubix --help
 npx musubix help <command>
@@ -132,7 +137,7 @@ npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
-### ツール一覧（16ツール）
+### ツール一覧（19ツール）
 
 #### SDD基本ツール（9ツール）
 
@@ -159,6 +164,14 @@ npx musubix-mcp --transport stdio
 | `pattern_consolidate` | 類似パターンの統合 |
 | `ontology_query` | オントロジーグラフへのクエリ |
 | `ontology_infer` | オントロジーによる推論実行 |
+
+#### オントロジー検証ツール（3ツール）- v1.4.1 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `consistency_validate` | 知識グラフの整合性検証 |
+| `validate_triple` | 単一トリプルの事前検証 |
+| `check_circular` | 循環依存の検出 |
 
 ### プロンプト一覧（3プロンプト）
 
