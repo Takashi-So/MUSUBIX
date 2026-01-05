@@ -45,7 +45,7 @@
     }
   },
   "bin": {
-    "musubix": "./bin/musubix.js"
+    "musubix": "bin/musubix.js"
   },
   "files": [
     "dist",
@@ -98,7 +98,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/nahisaho/MUSUBIX.git",
+    "url": "git+https://github.com/nahisaho/MUSUBIX.git",
     "directory": "packages/core"
   },
   "homepage": "https://github.com/nahisaho/MUSUBIX/tree/main/packages/core",
