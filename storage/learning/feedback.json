@@ -859,5 +859,209 @@
       "tags": []
     },
     "reason": "EARSテストジェネレータ追加完了。BP-TEST-004, BP-TEST-005パターンを統合"
+  },
+  {
+    "id": "FB-FEF2ED10",
+    "timestamp": "2026-01-05T13:20:05.608Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "REQ-PETCLINIC-001",
+    "context": {
+      "project": "project-01-pet-clinic",
+      "tags": []
+    },
+    "reason": "EARS test generation successful - 22 test cases from requirements, all passed"
+  },
+  {
+    "id": "FB-A304482E",
+    "timestamp": "2026-01-05T13:27:19.234Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-PARKING-001",
+    "context": {
+      "project": "project-02-smart-parking",
+      "tags": []
+    },
+    "reason": "EARS requirements validated - 21 requirements, all valid"
+  },
+  {
+    "id": "FB-9ED03555",
+    "timestamp": "2026-01-05T13:27:20.292Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "DES-PARKING-001",
+    "context": {
+      "project": "project-02-smart-parking",
+      "tags": []
+    },
+    "reason": "C4 model design complete with Space, Entry, Fee, Payment services"
+  },
+  {
+    "id": "FB-7AF0B763",
+    "timestamp": "2026-01-05T13:27:21.693Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "TST-PARKING-001",
+    "context": {
+      "project": "project-02-smart-parking",
+      "tags": []
+    },
+    "reason": "55 tests passed including 21 EARS-generated tests"
+  },
+  {
+    "id": "FB-CF1C3B43",
+    "timestamp": "2026-01-05T13:28:06.466Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-LIBRARY-001",
+    "context": {
+      "project": "project-03-online-library",
+      "tags": []
+    },
+    "reason": "31 EARS requirements validated"
+  },
+  {
+    "id": "FB-E828D90A",
+    "timestamp": "2026-01-05T13:28:07.596Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "DES-LIBRARY-001",
+    "context": {
+      "project": "project-03-online-library",
+      "tags": []
+    },
+    "reason": "Library system design with Book, Member, Loan services"
+  },
+  {
+    "id": "FB-86EF7B11",
+    "timestamp": "2026-01-05T13:28:09.044Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "TST-LIBRARY-001",
+    "context": {
+      "project": "project-03-online-library",
+      "tags": []
+    },
+    "reason": "156 tests passed including 31 EARS-generated"
+  },
+  {
+    "id": "FB-7699931A",
+    "timestamp": "2026-01-05T13:28:56.906Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-DELIVERY-001",
+    "context": {
+      "project": "project-04-food-delivery",
+      "tags": []
+    },
+    "reason": "53 EARS requirements for restaurant, menu, order, customer, driver, payment"
+  },
+  {
+    "id": "FB-E3D1F97E",
+    "timestamp": "2026-01-05T13:28:58.492Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "DES-DELIVERY-001",
+    "context": {
+      "project": "project-04-food-delivery",
+      "tags": []
+    },
+    "reason": "DDD design with Restaurant, Order, Driver aggregates"
+  },
+  {
+    "id": "FB-DB85C895",
+    "timestamp": "2026-01-05T13:28:59.895Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "TST-DELIVERY-001",
+    "context": {
+      "project": "project-04-food-delivery",
+      "tags": []
+    },
+    "reason": "171 tests passed including 53 EARS-generated"
+  },
+  {
+    "id": "FB-156E16A5",
+    "timestamp": "2026-01-05T13:29:59.617Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-GYM-001",
+    "context": {
+      "project": "project-05-fitness-gym",
+      "tags": []
+    },
+    "reason": "25 EARS requirements for member, booking, trainer, facility"
+  },
+  {
+    "id": "FB-A97F88BC",
+    "timestamp": "2026-01-05T13:30:01.103Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "DES-GYM-001",
+    "context": {
+      "project": "project-05-fitness-gym",
+      "tags": []
+    },
+    "reason": "Gym system with Member, Booking, Trainer services"
+  },
+  {
+    "id": "FB-AB975B4B",
+    "timestamp": "2026-01-05T13:30:02.588Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "TST-GYM-001",
+    "context": {
+      "project": "project-05-fitness-gym",
+      "tags": []
+    },
+    "reason": "56 tests passed including 25 EARS-generated"
+  },
+  {
+    "id": "FB-3A55EB38",
+    "timestamp": "2026-01-05T13:30:47.211Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "REQ-EVENT-001",
+    "context": {
+      "project": "project-06-event-booking",
+      "tags": []
+    },
+    "reason": "39 EARS requirements for event, ticket, seat, checkin"
+  },
+  {
+    "id": "FB-B6A69642",
+    "timestamp": "2026-01-05T13:30:48.279Z",
+    "type": "accept",
+    "artifactType": "design",
+    "artifactId": "DES-EVENT-001",
+    "context": {
+      "project": "project-06-event-booking",
+      "tags": []
+    },
+    "reason": "Event booking system with Event, Ticket, Seat, Checkin services"
+  },
+  {
+    "id": "FB-CC4EA421",
+    "timestamp": "2026-01-05T13:30:49.345Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "TST-EVENT-001",
+    "context": {
+      "project": "project-06-event-booking",
+      "tags": []
+    },
+    "reason": "97 tests passed including 39 EARS-generated"
+  },
+  {
+    "id": "FB-F2A4ABA3",
+    "timestamp": "2026-01-05T13:41:18.181Z",
+    "type": "accept",
+    "artifactType": "requirement",
+    "artifactId": "SDD-CYCLE-P07-P13",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "Projects 07-08, 11-13 EARS validation and test generation successful: 167 test cases"
   }
 ]
