@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2025-01-05
+
+### Added - Quality & UX Improvements
+
+品質向上とユーザー体験改善のためのアップデート。815テスト全合格。
+
+#### テスト・品質
+
+| 改善 | 詳細 |
+|------|------|
+| **E2Eテスト追加** | CLI E2Eテスト15件追加（cli-e2e.test.ts） |
+| **カバレッジ測定** | @vitest/coverage-v8導入 |
+| **閾値調整** | 現実的なカバレッジ閾値に調整（lines: 25%, branches: 21%） |
+
+#### CLI UX改善
+
+| 改善 | 詳細 |
+|------|------|
+| **ヘルプ拡充** | `learn`, `ontology`コマンドをヘルプに追加 |
+| **多言語対応** | 日本語/英語メッセージ辞書（messages.ts） |
+| **ロケール自動検出** | `LANG`環境変数によるロケール自動切替 |
+
+#### ドキュメント
+
+| ドキュメント | 内容 |
+|-------------|------|
+| **ROADMAP-v1.5.md** | v1.5.0機能計画（Real-time Learning, Pattern Sharing等） |
+| **CHANGELOG.md** | v1.4.1にMCPツール・CLI・PatternValidator追記 |
+| **AGENTS.md** | テスト数815、MCPツール19に更新 |
+
+#### 新規ファイル
+
+- `packages/core/__tests__/e2e/cli-e2e.test.ts` - CLI E2Eテスト
+- `packages/core/src/cli/messages.ts` - 多言語メッセージ辞書
+- `docs/ROADMAP-v1.5.md` - v1.5.0ロードマップ
+
+---
+
 ## [1.4.1] - 2025-01-05
 
 ### Added - Consistency Validation (正誤性検証)
