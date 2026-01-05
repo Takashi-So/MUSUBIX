@@ -11,6 +11,9 @@ export * from './types.js';
 // Ontology Store (TSK-ONTO-001)
 export * from './store/index.js';
 
+// Validation (REQ-ONTO-001-F003)
+export * from './validation/index.js';
+
 // Privacy Protection (TSK-ONTO-008)
 export * from './privacy/index.js';
 

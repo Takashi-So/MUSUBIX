@@ -21,7 +21,7 @@ AIコーディング支援ツールは急速に進化しています。本記事
 
 # TL;DR
 
-> **最新バージョン**: v1.3.0 | **62ドメイン対応** | **243コンポーネント** | **752テスト** | **17ベストプラクティス**
+> **最新バージョン**: v1.4.1 | **62ドメイン対応** | **243コンポーネント** | **775テスト** | **17ベストプラクティス**
 
 | 項目 | MUSUBI | MUSUBIX |
 |------|--------|---------|
@@ -32,6 +32,8 @@ AIコーディング支援ツールは急速に進化しています。本記事
 | **統合対象** | 7つのAIエージェント | MUSUBI + YATA + 7エージェント |
 | **ドメイン** | 汎用 | 62専門ドメイン対応 |
 | **自己学習** | なし | フィードバックベースの適応学習 |
+| **知識共有** | なし | **プロジェクト間ポータビリティ**（v1.4.0） |
+| **正誤性検証** | なし | **OWL制約チェック**（v1.4.1） |
 
 # 1. MUSUBIとは？
 
@@ -1095,6 +1097,160 @@ class UserRepository {
 // 「Repository パターンを検出しました。
 //   類似実装: ProductRepository, OrderRepository
 //   推奨メソッド: findAll(), delete(), exists()」
+```
+
+## 4.8 学習データのポータビリティ（v1.4.0）
+
+v1.4.0では、**プロジェクト間で学習データを共有・移行**するためのCLI機能を追加しました。これにより、あるプロジェクトで蓄積したパターンや知見を、新しいプロジェクトで即座に活用できます。
+
+### なぜポータビリティが必要か？
+
+従来の課題:
+- 各プロジェクトで一から学習をやり直す必要があった
+- チーム間で知見の共有が困難だった
+- 機密情報を含むデータの共有にセキュリティリスクがあった
+
+v1.4.0での解決:
+- **エクスポート/インポート**: CLI一発で学習データを移行
+- **プライバシーフィルター**: API Key、パスワード等を自動除去
+- **マージ戦略**: 既存データとの統合方法を選択可能
+
+### CLIコマンド
+
+```bash
+# エクスポート（機密情報除去、高信頼度パターンのみ）
+npx musubix learn export \
+  --output team-patterns.json \
+  --privacy-filter \
+  --patterns-only \
+  --min-confidence 0.8
+
+# インポート（マージ戦略指定、ドライラン）
+npx musubix learn import team-patterns.json \
+  --merge-strategy merge \
+  --dry-run
+```
+
+### マージ戦略
+
+| 戦略 | 動作 | ユースケース |
+|------|------|-------------|
+| **skip** | 既存を保持、重複をスキップ | 既存の学習を壊したくない場合 |
+| **overwrite** | インポートデータで上書き | 最新データで完全更新する場合 |
+| **merge** | 出現回数を合計、信頼度は最大値 | チームの知見を統合する場合 |
+
+### プライバシーフィルター
+
+以下のパターンを自動検出して`[REDACTED]`に置換:
+
+```typescript
+// 検出対象
+const PRIVACY_PATTERNS = [
+  /api[_-]?key/i,      // API_KEY, api-key
+  /secret/i,           // SECRET, secret
+  /password/i,         // PASSWORD, password
+  /token/i,            // TOKEN, token
+  /credential/i,       // CREDENTIAL
+  /private[_-]?key/i,  // PRIVATE_KEY
+  /bearer/i,           // Bearer token
+  /jwt/i,              // JWT
+];
+
+// 32文字以上の英数字文字列も除去
+// 例: "sk-proj-abc123..." → "[REDACTED]"
+```
+
+### 活用シナリオ
+
+```
+プロジェクトA（成熟）              プロジェクトB（新規）
+┌──────────────────┐            ┌──────────────────┐
+│ 学習済みパターン    │            │ 初期状態          │
+│ - Repository      │   export   │                  │
+│ - Service Layer   │ ────────→ │                  │
+│ - Value Object    │   import   │ 学習済みパターン   │
+│ 信頼度: 90%+      │            │ 即座に活用可能！   │
+└──────────────────┘            └──────────────────┘
+```
+
+## 4.9 正誤性検証（v1.4.1）
+
+v1.4.1では、**知識グラフへのデータ登録時の正誤性検証**機能を追加しました。OWL制約に基づく一貫性チェックにより、不正なデータの登録を防止します。
+
+### なぜ正誤性検証が必要か？
+
+従来の課題:
+- 不正なトリプルがそのまま登録されてしまう
+- 重複データの蓄積
+- OWL制約違反（関数型プロパティに複数値など）の検出ができない
+
+v1.4.1での解決:
+- **ConsistencyValidator**: OWL制約に基づく7種類の検証
+- **事前検証**: `addTripleValidated()`でエラーを未然に防止
+- **一括検証**: `checkConsistency()`でストア全体をチェック
+
+### 検証タイプ
+
+| タイプ | 説明 | 重大度 |
+|--------|------|--------|
+| `disjoint-class-membership` | owl:disjointWith違反 | error |
+| `functional-property-violation` | owl:FunctionalProperty違反（複数値） | error |
+| `inverse-functional-violation` | owl:InverseFunctionalProperty違反 | error |
+| `asymmetric-violation` | owl:AsymmetricProperty違反（逆方向存在） | error |
+| `irreflexive-violation` | owl:IrreflexiveProperty違反（自己参照） | error |
+| `duplicate-triple` | 完全一致の重複トリプル | warning |
+| `circular-dependency` | subClassOf等の循環依存 | error |
+
+### 使用例
+
+```typescript
+import { N3Store } from '@nahisaho/musubix-ontology-mcp';
+
+// 検証付きストア（validateOnAdd = true）
+const store = new N3Store({}, true);
+
+// 検証付き追加
+const result = store.addTripleValidated({
+  subject: 'http://example.org/Person1',
+  predicate: 'http://example.org/hasMother',
+  object: 'http://example.org/Mother1'
+});
+
+if (!result.success) {
+  console.error('Validation errors:', result.validation.errors);
+}
+
+// ストア全体の整合性チェック
+const consistency = store.checkConsistency();
+if (!consistency.consistent) {
+  for (const v of consistency.violations) {
+    console.log(`${v.type}: ${v.message}`);
+  }
+}
+```
+
+### 検証フロー
+
+```
+トリプル追加要求
+      │
+      ▼
+┌─────────────────┐
+│ validateTriple()│  ← 事前検証
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │ valid?  │
+    └────┬────┘
+    No   │   Yes
+    │    │
+    ▼    ▼
+  拒否  追加
+         │
+         ▼
+  ┌──────────────┐
+  │ 推論適用      │
+  └──────────────┘
 ```
 
 # 5. 9つの憲法条項

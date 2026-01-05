@@ -14,10 +14,11 @@
 6. [Self-Learning System](#self-learning-system)
 7. [C4 Code Generation](#c4-code-generation)
 8. [Symbolic Reasoning](#symbolic-reasoning) *(v1.2.0)*
-9. [MCP Server Integration](#mcp-server-integration)
-10. [YATA Integration](#yata-integration)
-11. [Best Practices](#best-practices)
-12. [Troubleshooting](#troubleshooting)
+9. [Consistency Validation](#consistency-validation) *(v1.4.1)*
+10. [MCP Server Integration](#mcp-server-integration)
+11. [YATA Integration](#yata-integration)
+12. [Best Practices](#best-practices)
+13. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -406,11 +407,21 @@ musubix learn recommend --artifact-type code
 # Apply decay to unused patterns
 musubix learn decay
 
-# Export learning data
+# Export learning data (v1.4.0 enhanced)
 musubix learn export --output learning-data.json
+# Options:
+#   --privacy-filter         Remove sensitive data (API keys, passwords)
+#   --patterns-only          Export patterns only (exclude feedback)
+#   --feedback-only          Export feedback only (exclude patterns)
+#   --min-confidence <n>     Minimum confidence threshold (0-1)
 
-# Import learning data
+# Import learning data with merge strategy (v1.4.0 enhanced)
 musubix learn import learning-data.json
+# Options:
+#   --merge-strategy <skip|overwrite|merge>  How to handle duplicates
+#   --dry-run                                Preview without applying
+#   --patterns-only                          Import patterns only
+#   --feedback-only                          Import feedback only
 ```
 
 ### Programmatic Usage
@@ -699,6 +710,93 @@ console.log('Gate details:', gateResult.gates);
 | No Orphans | No orphaned requirements or tasks |
 | Completeness | All required fields are present |
 | ... | And 10 more quality checks |
+
+---
+
+## Consistency Validation
+
+*(v1.4.1 New Feature)*
+
+### Overview
+
+Consistency validation ensures data integrity when adding triples to the knowledge graph. Based on OWL constraints, it detects violations before they corrupt the knowledge base.
+
+### Validation Types
+
+| Type | Description | Severity |
+|------|-------------|----------|
+| `disjoint-class-membership` | Instance belongs to disjoint classes | error |
+| `functional-property-violation` | Multiple values for functional property | error |
+| `inverse-functional-violation` | Same value maps to multiple subjects | error |
+| `asymmetric-violation` | Inverse relation exists for asymmetric property | error |
+| `irreflexive-violation` | Self-reference for irreflexive property | error |
+| `duplicate-triple` | Exact duplicate triple | warning |
+| `circular-dependency` | Circular subClassOf chain | error |
+
+### Usage
+
+#### Validated Triple Addition
+
+```typescript
+import { N3Store } from '@nahisaho/musubix-ontology-mcp';
+
+// Enable validation on add
+const store = new N3Store({}, true);
+
+// Add with validation
+const result = store.addTripleValidated({
+  subject: 'http://example.org/Person1',
+  predicate: 'http://example.org/hasMother',
+  object: 'http://example.org/Mother1'
+});
+
+if (!result.success) {
+  console.error('Validation errors:', result.validation.errors);
+}
+```
+
+#### Store-wide Consistency Check
+
+```typescript
+// Check entire store
+const consistency = store.checkConsistency();
+
+if (!consistency.consistent) {
+  for (const violation of consistency.violations) {
+    console.log(`${violation.type}: ${violation.message}`);
+    console.log('Affected triples:', violation.triples);
+  }
+  
+  // Get fix suggestions
+  for (const suggestion of consistency.suggestions) {
+    console.log(`Suggestion: ${suggestion.suggestion}`);
+    console.log(`Auto-fixable: ${suggestion.autoFixable}`);
+  }
+}
+```
+
+#### Direct Validator Usage
+
+```typescript
+import { ConsistencyValidator } from '@nahisaho/musubix-ontology-mcp';
+
+const validator = new ConsistencyValidator({
+  checkDisjointClasses: true,
+  checkFunctionalProperties: true,
+  checkDuplicates: true,
+  checkCircularDependencies: true
+});
+
+// Validate before adding
+const validation = validator.validateTriple(newTriple, existingTriples);
+if (!validation.valid) {
+  console.error(validation.errors);
+}
+
+// Find duplicates
+const duplicates = validator.findDuplicates(allTriples);
+const semanticDuplicates = validator.findSemanticDuplicates(allTriples);
+```
 
 ---
 

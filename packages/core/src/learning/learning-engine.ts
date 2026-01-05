@@ -345,6 +345,40 @@ export class LearningEngine {
   }
 
   /**
+   * Import learning data with merge strategy
+   * @param data - Learning data to import
+   * @param strategy - Merge strategy: 'skip' (default), 'overwrite', 'merge'
+   *   - skip: Keep existing, skip duplicates
+   *   - overwrite: Replace existing with imported
+   *   - merge: Merge patterns (combine occurrences, max confidence)
+   */
+  async importWithStrategy(
+    data: {
+      feedback?: Feedback[];
+      patterns?: LearnedPattern[];
+    },
+    strategy: 'skip' | 'overwrite' | 'merge' = 'skip'
+  ): Promise<{ feedbackImported: number; patternsImported: number; patternsMerged?: number }> {
+    let feedbackImported = 0;
+    let patternsImported = 0;
+    let patternsMerged = 0;
+
+    // Import feedback (feedback always uses 'skip' strategy - no merge logic)
+    if (data.feedback) {
+      feedbackImported = await this.feedbackCollector.import(data.feedback);
+    }
+
+    // Import patterns with strategy
+    if (data.patterns) {
+      const result = await this.patternExtractor.importWithStrategy(data.patterns, strategy);
+      patternsImported = result.imported;
+      patternsMerged = result.merged || 0;
+    }
+
+    return { feedbackImported, patternsImported, patternsMerged };
+  }
+
+  /**
    * Generate status report
    */
   async generateStatusReport(): Promise<string> {

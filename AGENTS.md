@@ -8,13 +8,13 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.3.0 |
+| **バージョン** | 1.4.1 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 752 (全合格) |
+| **テスト数** | 775 (全合格) |
 | **コンポーネント数** | 243 (62ドメイン対応) |
 | **Agent Skills** | 12 (Claude Code対応) |
 
@@ -112,7 +112,9 @@ npx musubix learn remove-pattern <id>      # パターン削除
 npx musubix learn recommend                # コンテキストベースの推奨
 npx musubix learn decay                    # 未使用パターンの減衰
 npx musubix learn export                   # 学習データエクスポート
+  # オプション: --output <file>, --privacy-filter, --patterns-only, --feedback-only, --min-confidence <n>
 npx musubix learn import <file>            # 学習データインポート
+  # オプション: --merge-strategy <skip|overwrite|merge>, --dry-run, --patterns-only, --feedback-only
 
 # ヘルプ
 npx musubix --help
@@ -467,6 +469,6 @@ npx musubix learn best-practices --format markdown
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2025-01-10
-**Version**: 1.3.0
+**Last Updated**: 2025-01-05
+**Version**: 1.4.1
 **Repository**: https://github.com/nahisaho/MUSUBIX

@@ -16,7 +16,70 @@ import {
   generateBestPracticesReport,
   type BestPractice,
 } from '../../learning/best-practices.js';
-import type { PatternCategory, FeedbackType } from '../../learning/types.js';
+import type { PatternCategory, FeedbackType, LearnedPattern, Feedback, LearningStats } from '../../learning/types.js';
+
+/**
+ * Privacy-sensitive patterns to filter from exports
+ */
+const PRIVACY_PATTERNS = [
+  /api[_-]?key/i,
+  /secret/i,
+  /password/i,
+  /token/i,
+  /credential/i,
+  /private[_-]?key/i,
+  /auth[_-]?key/i,
+  /access[_-]?key/i,
+  /bearer/i,
+  /jwt/i,
+];
+
+/**
+ * Apply privacy filter to learning data
+ * Removes sensitive information like API keys, passwords, etc.
+ */
+function applyPrivacyFilter(data: {
+  feedback: Feedback[];
+  patterns: LearnedPattern[];
+  stats: LearningStats;
+}): {
+  feedback: Feedback[];
+  patterns: LearnedPattern[];
+  stats: LearningStats;
+} {
+  const filterValue = (value: unknown): unknown => {
+    if (typeof value === 'string') {
+      for (const pattern of PRIVACY_PATTERNS) {
+        if (pattern.test(value)) {
+          return '[REDACTED]';
+        }
+      }
+      // Also redact values that look like secrets (long alphanumeric strings)
+      if (/^[a-zA-Z0-9]{32,}$/.test(value)) {
+        return '[REDACTED]';
+      }
+    }
+    if (Array.isArray(value)) {
+      return value.map(filterValue);
+    }
+    if (typeof value === 'object' && value !== null) {
+      const filtered: Record<string, unknown> = {};
+      for (const [key, val] of Object.entries(value)) {
+        // Redact keys that match privacy patterns
+        const isPrivateKey = PRIVACY_PATTERNS.some(p => p.test(key));
+        filtered[key] = isPrivateKey ? '[REDACTED]' : filterValue(val);
+      }
+      return filtered;
+    }
+    return value;
+  };
+
+  return {
+    feedback: data.feedback.map(f => filterValue(f) as Feedback),
+    patterns: data.patterns.map(p => filterValue(p) as LearnedPattern),
+    stats: filterValue(data.stats) as LearningStats,
+  };
+}
 
 /**
  * Register learn command with all subcommands
@@ -236,11 +299,34 @@ export function registerLearnCommand(program: Command): void {
   // Export command
   learn
     .command('export')
-    .description('Export learning data')
+    .description('Export learning data (patterns, feedback, stats)')
     .option('-o, --output <file>', 'Output file path')
+    .option('--format <fmt>', 'Output format: json, turtle', 'json')
+    .option('--privacy-filter', 'Remove sensitive data (API keys, passwords, secrets)')
+    .option('--patterns-only', 'Export patterns only (exclude feedback)')
+    .option('--feedback-only', 'Export feedback only (exclude patterns)')
+    .option('--min-confidence <n>', 'Minimum confidence for patterns (0-1)', parseFloat)
     .action(async (options) => {
       const engine = new LearningEngine();
-      const data = await engine.export();
+      let data = await engine.export();
+
+      // Filter by type
+      if (options.patternsOnly) {
+        data = { ...data, feedback: [] };
+      } else if (options.feedbackOnly) {
+        data = { ...data, patterns: [] };
+      }
+
+      // Filter by confidence
+      if (options.minConfidence !== undefined) {
+        data.patterns = data.patterns.filter(p => p.confidence >= options.minConfidence);
+      }
+
+      // Apply privacy filter
+      if (options.privacyFilter) {
+        data = applyPrivacyFilter(data);
+        console.log('🔒 Privacy filter applied');
+      }
 
       const json = JSON.stringify(data, null, 2);
 
@@ -248,6 +334,9 @@ export function registerLearnCommand(program: Command): void {
         const fs = await import('fs/promises');
         await fs.writeFile(options.output, json, 'utf-8');
         console.log(`✓ Learning data exported to: ${options.output}`);
+        console.log(`  Patterns: ${data.patterns.length}`);
+        console.log(`  Patterns: ${data.patterns.length}`);
+        console.log(`  Feedback: ${data.feedback.length}`);
       } else {
         console.log(json);
       }
@@ -256,19 +345,77 @@ export function registerLearnCommand(program: Command): void {
   // Import command
   learn
     .command('import <file>')
-    .description('Import learning data')
-    .action(async (file) => {
+    .description('Import learning data with merge strategy')
+    .option('--merge-strategy <strategy>', 'Merge strategy: skip (default), overwrite, merge', 'skip')
+    .option('--dry-run', 'Preview import without applying changes')
+    .option('--patterns-only', 'Import patterns only')
+    .option('--feedback-only', 'Import feedback only')
+    .action(async (file, options) => {
       const fs = await import('fs/promises');
       const engine = new LearningEngine();
 
+      // Validate merge strategy
+      const validStrategies = ['skip', 'overwrite', 'merge'];
+      if (!validStrategies.includes(options.mergeStrategy)) {
+        console.error(`Error: Invalid merge strategy. Must be one of: ${validStrategies.join(', ')}`);
+        console.error('  skip: Keep existing, skip duplicates');
+        console.error('  overwrite: Replace existing with imported');
+        console.error('  merge: Merge patterns (combine occurrences, max confidence)');
+        process.exit(1);
+      }
+
       try {
         const content = await fs.readFile(file, 'utf-8');
-        const data = JSON.parse(content);
-        const result = await engine.import(data);
+        let data = JSON.parse(content);
 
-        console.log(`✓ Learning data imported`);
+        // Filter by type
+        if (options.patternsOnly) {
+          data = { patterns: data.patterns || [], feedback: [] };
+        } else if (options.feedbackOnly) {
+          data = { feedback: data.feedback || [], patterns: [] };
+        }
+
+        if (options.dryRun) {
+          // Preview mode
+          const existing = await engine.export();
+          const existingPatternIds = new Set(existing.patterns.map(p => p.id));
+          const existingFeedbackIds = new Set(existing.feedback.map(f => f.id));
+
+          const newPatterns = (data.patterns || []).filter((p: { id: string }) => !existingPatternIds.has(p.id));
+          const duplicatePatterns = (data.patterns || []).filter((p: { id: string }) => existingPatternIds.has(p.id));
+          const newFeedback = (data.feedback || []).filter((f: { id: string }) => !existingFeedbackIds.has(f.id));
+          const duplicateFeedback = (data.feedback || []).filter((f: { id: string }) => existingFeedbackIds.has(f.id));
+
+          console.log('\n📋 DRY RUN - Import Preview:');
+          console.log('─'.repeat(50));
+          console.log(`\nPatterns:`);
+          console.log(`  New: ${newPatterns.length}`);
+          console.log(`  Duplicates: ${duplicatePatterns.length}`);
+          console.log(`\nFeedback:`);
+          console.log(`  New: ${newFeedback.length}`);
+          console.log(`  Duplicates: ${duplicateFeedback.length}`);
+          console.log(`\nMerge strategy: ${options.mergeStrategy}`);
+          
+          if (options.mergeStrategy === 'skip') {
+            console.log(`\nResult: ${newPatterns.length} patterns, ${newFeedback.length} feedback would be imported`);
+          } else if (options.mergeStrategy === 'overwrite') {
+            console.log(`\nResult: All ${(data.patterns || []).length} patterns, ${(data.feedback || []).length} feedback would be imported`);
+          } else if (options.mergeStrategy === 'merge') {
+            console.log(`\nResult: ${newPatterns.length} new + ${duplicatePatterns.length} merged patterns, ${(data.feedback || []).length} feedback`);
+          }
+          return;
+        }
+
+        // Apply merge strategy
+        const result = await engine.importWithStrategy(data, options.mergeStrategy as 'skip' | 'overwrite' | 'merge');
+
+        console.log(`✓ Learning data imported from: ${file}`);
+        console.log(`  Strategy: ${options.mergeStrategy}`);
         console.log(`  Feedback imported: ${result.feedbackImported}`);
         console.log(`  Patterns imported: ${result.patternsImported}`);
+        if (result.patternsMerged !== undefined && result.patternsMerged > 0) {
+          console.log(`  Patterns merged: ${result.patternsMerged}`);
+        }
       } catch (error) {
         console.error(`Error importing file: ${error}`);
         process.exit(1);

@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-752%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-775%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.3.0** - Wake-Sleep Learning Cycle Integration Complete (S1-S3 Sprint)
+> **v1.4.1** - Consistency Validation & OWL Constraint Checking
 
 **[日本語版 README](README.ja.md)**
 

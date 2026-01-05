@@ -267,6 +267,71 @@ export class PatternExtractor {
   }
 
   /**
+   * Import patterns with merge strategy
+   * @param patterns - Patterns to import
+   * @param strategy - Merge strategy: 'skip', 'overwrite', 'merge'
+   *   - skip: Keep existing, skip duplicates
+   *   - overwrite: Replace existing with imported
+   *   - merge: Combine occurrences, use max confidence
+   */
+  async importWithStrategy(
+    patterns: LearnedPattern[],
+    strategy: 'skip' | 'overwrite' | 'merge' = 'skip'
+  ): Promise<{ imported: number; merged: number }> {
+    await this.ensureLoaded();
+    let imported = 0;
+    let merged = 0;
+
+    for (const pattern of patterns) {
+      const existing = this.patternCache.get(pattern.id);
+
+      if (!existing) {
+        // New pattern - always import
+        this.patternCache.set(pattern.id, pattern);
+        imported++;
+      } else {
+        // Existing pattern - apply strategy
+        switch (strategy) {
+          case 'skip':
+            // Keep existing, do nothing
+            break;
+
+          case 'overwrite':
+            // Replace with imported
+            this.patternCache.set(pattern.id, pattern);
+            imported++;
+            break;
+
+          case 'merge':
+            // Merge: combine occurrences, use max confidence, update lastUsed
+            const mergedPattern: LearnedPattern = {
+              ...existing,
+              occurrences: existing.occurrences + pattern.occurrences,
+              confidence: Math.max(existing.confidence, pattern.confidence),
+              lastUsed: new Date(Math.max(
+                new Date(existing.lastUsed).getTime(),
+                new Date(pattern.lastUsed).getTime()
+              )),
+              // Merge action content if different
+              action: {
+                ...existing.action,
+                content: existing.action.content === pattern.action.content
+                  ? existing.action.content
+                  : `${existing.action.content}\n---\n${pattern.action.content}`,
+              },
+            };
+            this.patternCache.set(pattern.id, mergedPattern);
+            merged++;
+            break;
+        }
+      }
+    }
+
+    await this.persist();
+    return { imported, merged };
+  }
+
+  /**
    * Find pattern candidates from feedback
    */
   private findCandidates(feedbackList: Feedback[]): PatternCandidate[] {

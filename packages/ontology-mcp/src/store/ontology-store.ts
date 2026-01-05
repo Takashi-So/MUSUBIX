@@ -5,7 +5,8 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import type { Ontology, Triple, OntologyStoreConfig } from '../types.js';
+import type { Ontology, Triple, OntologyStoreConfig, TripleValidationResult, ConsistencyResult } from '../types.js';
+import { ConsistencyValidator, type TripleStore } from '../validation/consistency-validator.js';
 
 /**
  * Ontology store with local JSON persistence
@@ -13,18 +14,23 @@ import type { Ontology, Triple, OntologyStoreConfig } from '../types.js';
  * @description
  * Manages ontology storage locally (no external communication).
  * Supports CRUD operations on ontologies and triples.
+ * Includes validation and consistency checking.
  */
 export class OntologyStore {
   private ontologies: Map<string, Ontology> = new Map();
   private config: OntologyStoreConfig;
   private dirty = false;
+  private validator: ConsistencyValidator;
+  private validateOnAdd: boolean;
 
-  constructor(config: Partial<OntologyStoreConfig> = {}) {
+  constructor(config: Partial<OntologyStoreConfig> = {}, validateOnAdd = false) {
     this.config = {
       storagePath: config.storagePath ?? './storage/ontology/store.json',
       enableInference: config.enableInference ?? true,
       maxTriples: config.maxTriples ?? 100000,
     };
+    this.validator = new ConsistencyValidator();
+    this.validateOnAdd = validateOnAdd;
   }
 
   /**
@@ -102,8 +108,11 @@ export class OntologyStore {
 
   /**
    * Add triple to ontology
+   * @param ontologyId Target ontology ID
+   * @param triple Triple to add
+   * @param skipValidation Skip pre-add validation (default: use constructor setting)
    */
-  addTriple(ontologyId: string, triple: Triple): boolean {
+  addTriple(ontologyId: string, triple: Triple, skipValidation?: boolean): boolean {
     const ontology = this.ontologies.get(ontologyId);
     if (!ontology) return false;
 
@@ -114,6 +123,19 @@ export class OntologyStore {
       return false;
     }
 
+    // Pre-add validation if enabled
+    const shouldValidate = skipValidation !== undefined ? !skipValidation : this.validateOnAdd;
+    if (shouldValidate) {
+      const validation = this.validateTriple(ontologyId, triple);
+      if (!validation.valid) {
+        return false;
+      }
+      // Skip exact duplicates
+      if (validation.duplicateOf) {
+        return true; // Considered successful (already exists)
+      }
+    }
+
     ontology.triples.push(triple);
     ontology.updatedAt = new Date().toISOString();
     this.dirty = true;
@@ -121,10 +143,65 @@ export class OntologyStore {
   }
 
   /**
-   * Get all triples from ontology
+   * Add a triple with validation and return detailed result
    */
-  getTriples(ontologyId: string): Triple[] {
-    return this.ontologies.get(ontologyId)?.triples ?? [];
+  addTripleValidated(ontologyId: string, triple: Triple): { success: boolean; validation: TripleValidationResult } {
+    const validation = this.validateTriple(ontologyId, triple);
+    
+    if (!validation.valid) {
+      return { success: false, validation };
+    }
+
+    if (validation.duplicateOf) {
+      return { success: true, validation };
+    }
+
+    const success = this.addTriple(ontologyId, triple, true);
+    return { success, validation };
+  }
+
+  /**
+   * Validate a triple before adding
+   */
+  validateTriple(ontologyId: string, triple: Triple): TripleValidationResult {
+    const existingTriples = this.getTriples(ontologyId);
+    return this.validator.validateTriple(triple, existingTriples);
+  }
+
+  /**
+   * Get all triples (implements TripleStore interface)
+   */
+  getTriples(ontologyId?: string): Triple[] {
+    if (ontologyId) {
+      return this.ontologies.get(ontologyId)?.triples ?? [];
+    }
+    // Return all triples from all ontologies
+    return Array.from(this.ontologies.values()).flatMap(o => o.triples);
+  }
+
+  /**
+   * Validate entire store consistency
+   */
+  checkConsistency(ontologyId?: string): ConsistencyResult {
+    if (ontologyId) {
+      const ontology = this.ontologies.get(ontologyId);
+      if (!ontology) {
+        return { consistent: true, violations: [] };
+      }
+      const adapter: TripleStore = { getTriples: () => ontology.triples };
+      return this.validator.validate(adapter);
+    }
+    // Create adapter for all triples
+    const allTriples = this.getTriples();
+    const adapter: TripleStore = { getTriples: () => allTriples };
+    return this.validator.validate(adapter);
+  }
+
+  /**
+   * Enable or disable validation on add
+   */
+  setValidateOnAdd(enabled: boolean): void {
+    this.validateOnAdd = enabled;
   }
 
   /**

@@ -477,4 +477,142 @@ describe('LearningEngine', () => {
       expect(report).toContain('High Confidence Patterns');
     });
   });
+
+  describe('importWithStrategy', () => {
+    it('should skip existing patterns with skip strategy', async () => {
+      // Add existing pattern
+      await engine.addPattern(
+        'Existing pattern',
+        'code',
+        { context: {}, conditions: [] },
+        { type: 'prefer', content: 'original content' },
+        0.5
+      );
+
+      const existingPatterns = await engine.getPatterns();
+      expect(existingPatterns.length).toBe(1);
+      const existingId = existingPatterns[0].id;
+
+      // Try to import same pattern with different content
+      const result = await engine.importWithStrategy({
+        patterns: [{
+          id: existingId,
+          name: 'Existing pattern',
+          category: 'code',
+          trigger: { context: {}, conditions: [] },
+          action: { type: 'prefer', content: 'new content' },
+          confidence: 0.8,
+          occurrences: 10,
+          source: 'auto',
+          createdAt: new Date(),
+          lastUsed: new Date(),
+        }],
+      }, 'skip');
+
+      expect(result.patternsImported).toBe(0);
+      expect(result.patternsMerged).toBe(0);
+
+      // Original content should be preserved
+      const patterns = await engine.getPatterns();
+      expect(patterns[0].action.content).toBe('original content');
+    });
+
+    it('should overwrite existing patterns with overwrite strategy', async () => {
+      // Add existing pattern
+      await engine.addPattern(
+        'Existing pattern',
+        'code',
+        { context: {}, conditions: [] },
+        { type: 'prefer', content: 'original content' },
+        0.5
+      );
+
+      const existingPatterns = await engine.getPatterns();
+      const existingId = existingPatterns[0].id;
+
+      // Import with overwrite
+      const result = await engine.importWithStrategy({
+        patterns: [{
+          id: existingId,
+          name: 'Existing pattern',
+          category: 'code',
+          trigger: { context: {}, conditions: [] },
+          action: { type: 'prefer', content: 'new content' },
+          confidence: 0.8,
+          occurrences: 10,
+          source: 'auto',
+          createdAt: new Date(),
+          lastUsed: new Date(),
+        }],
+      }, 'overwrite');
+
+      expect(result.patternsImported).toBe(1);
+
+      // Content should be replaced
+      const patterns = await engine.getPatterns();
+      expect(patterns[0].action.content).toBe('new content');
+      expect(patterns[0].confidence).toBe(0.8);
+    });
+
+    it('should merge existing patterns with merge strategy', async () => {
+      // Add existing pattern
+      await engine.addPattern(
+        'Existing pattern',
+        'code',
+        { context: {}, conditions: [] },
+        { type: 'prefer', content: 'original content' },
+        0.5
+      );
+
+      const existingPatterns = await engine.getPatterns();
+      const existingId = existingPatterns[0].id;
+
+      // Import with merge
+      const result = await engine.importWithStrategy({
+        patterns: [{
+          id: existingId,
+          name: 'Existing pattern',
+          category: 'code',
+          trigger: { context: {}, conditions: [] },
+          action: { type: 'prefer', content: 'additional content' },
+          confidence: 0.9,
+          occurrences: 5,
+          source: 'auto',
+          createdAt: new Date(),
+          lastUsed: new Date(),
+        }],
+      }, 'merge');
+
+      expect(result.patternsMerged).toBe(1);
+
+      // Check merged values
+      const patterns = await engine.getPatterns();
+      expect(patterns[0].confidence).toBe(0.9); // Max confidence
+      expect(patterns[0].occurrences).toBe(6); // Combined occurrences (1 + 5)
+      expect(patterns[0].action.content).toContain('original content');
+      expect(patterns[0].action.content).toContain('additional content');
+    });
+
+    it('should import new patterns regardless of strategy', async () => {
+      const result = await engine.importWithStrategy({
+        patterns: [{
+          id: 'PTN-NEW-001',
+          name: 'New pattern',
+          category: 'code',
+          trigger: { context: {}, conditions: [] },
+          action: { type: 'prefer', content: 'test' },
+          confidence: 0.7,
+          occurrences: 3,
+          source: 'auto',
+          createdAt: new Date(),
+          lastUsed: new Date(),
+        }],
+      }, 'skip');
+
+      expect(result.patternsImported).toBe(1);
+      const patterns = await engine.getPatterns();
+      expect(patterns.length).toBe(1);
+      expect(patterns[0].name).toBe('New pattern');
+    });
+  });
 });

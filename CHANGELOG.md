@@ -5,7 +5,93 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2026-01-05
+## [1.4.1] - 2025-01-05
+
+### Added - Consistency Validation (正誤性検証)
+
+知識グラフへのデータ登録時の正誤性検証機能を追加。OWL制約に基づく一貫性チェック。775テスト全合格。
+
+#### 新機能
+
+| 機能 | 説明 |
+|------|------|
+| **ConsistencyValidator** | OWL制約に基づく一貫性検証クラス |
+| **トリプル事前検証** | addTripleValidated()で追加前に検証 |
+| **ストア整合性チェック** | checkConsistency()でストア全体を検証 |
+| **重複検出** | 完全一致・意味的重複の検出 |
+| **循環検出** | subClassOf等の循環依存検出 |
+
+#### 検証タイプ
+
+| タイプ | 説明 | 重大度 |
+|--------|------|--------|
+| `disjoint-class-membership` | owl:disjointWith違反 | error |
+| `functional-property-violation` | owl:FunctionalProperty違反 | error |
+| `inverse-functional-violation` | owl:InverseFunctionalProperty違反 | error |
+| `asymmetric-violation` | owl:AsymmetricProperty違反 | error |
+| `irreflexive-violation` | owl:IrreflexiveProperty違反 | error |
+| `duplicate-triple` | 重複トリプル | warning |
+| `circular-dependency` | 循環依存 | error |
+
+#### 使用例
+
+```typescript
+import { N3Store } from '@nahisaho/musubix-ontology-mcp';
+
+// 検証付きストア
+const store = new N3Store({}, true); // validateOnAdd = true
+
+// 検証付き追加
+const result = store.addTripleValidated(triple);
+if (!result.success) {
+  console.error(result.validation.errors);
+}
+
+// ストア整合性チェック
+const consistency = store.checkConsistency();
+```
+
+### Changed
+
+- テスト数: 756 → 775 (+19)
+- `@nahisaho/musubix-ontology-mcp`: 1.0.0 → 1.0.1
+
+---
+
+## [1.4.0] - 2025-01-05
+
+### Added - Learning Data Portability (知識グラフのポータビリティ)
+
+プロジェクト間で学習データを共有・移行するためのCLI機能を追加。756テスト全合格。
+
+#### 新機能
+
+| 機能 | 説明 |
+|------|------|
+| **learn export拡張** | プライバシーフィルター、パターン/フィードバック選択エクスポート |
+| **learn import拡張** | マージ戦略（skip/overwrite/merge）、ドライラン機能 |
+| **プライバシーフィルター** | API Key、Password、Token等の機密情報自動除去 |
+| **マージ戦略** | skip（既存保持）、overwrite（上書き）、merge（統合） |
+
+#### CLIオプション
+
+**export:**
+```bash
+npx musubix learn export --output patterns.json --privacy-filter --patterns-only --min-confidence 0.8
+```
+
+**import:**
+```bash
+npx musubix learn import patterns.json --merge-strategy merge --dry-run
+```
+
+### Changed
+
+- テスト数: 752 → 756 (+4)
+
+---
+
+## [1.3.0] - 2025-01-05
 
 ### Added - Pattern Library Learning Integration (S1-S3 Complete)
 

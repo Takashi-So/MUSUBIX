@@ -16,8 +16,9 @@
 10. [自己学習システム](#自己学習システム)
 11. [C4コード生成](#c4コード生成)
 12. [シンボリック推論](#シンボリック推論) *(v1.2.0)*
-13. [MCPサーバー連携](#mcpサーバー連携)
-14. [YATA知識グラフ](#yata知識グラフ)
+13. [正誤性検証](#正誤性検証) *(v1.4.1)*
+14. [MCPサーバー連携](#mcpサーバー連携)
+15. [YATA知識グラフ](#yata知識グラフ)
 15. [ベストプラクティス](#ベストプラクティス)
 16. [トラブルシューティング](#トラブルシューティング)
 
@@ -538,11 +539,21 @@ musubix learn recommend --artifact-type code
 # 未使用パターンの減衰を適用
 musubix learn decay
 
-# 学習データをエクスポート
+# 学習データをエクスポート（v1.4.0 拡張）
 musubix learn export --output learning-data.json
+# オプション:
+#   --privacy-filter         機密情報を除去（APIキー、パスワード等）
+#   --patterns-only          パターンのみエクスポート
+#   --feedback-only          フィードバックのみエクスポート
+#   --min-confidence <n>     最小信頼度（0-1）
 
-# 学習データをインポート
+# 学習データをインポート（v1.4.0 マージ戦略対応）
 musubix learn import learning-data.json
+# オプション:
+#   --merge-strategy <skip|overwrite|merge>  重複の処理方法
+#   --dry-run                                変更をプレビュー
+#   --patterns-only                          パターンのみインポート
+#   --feedback-only                          フィードバックのみインポート
 ```
 
 ### プログラムからの使用
@@ -739,6 +750,93 @@ console.log('ゲート詳細:', gateResult.gates);
 | 孤立なし | 孤立した要件やタスクがないか |
 | 完全性 | すべての必須フィールドが存在するか |
 | ... | その他10の品質チェック |
+
+---
+
+## 正誤性検証
+
+*(v1.4.1 新機能)*
+
+### 概要
+
+正誤性検証は、知識グラフへのトリプル追加時にデータの整合性を確保します。OWL制約に基づいて違反を検出し、不正なデータの登録を防止します。
+
+### 検証タイプ
+
+| タイプ | 説明 | 重大度 |
+|--------|------|--------|
+| `disjoint-class-membership` | 排他的クラスの両方に所属 | error |
+| `functional-property-violation` | 関数型プロパティに複数値 | error |
+| `inverse-functional-violation` | 同じ値が複数の主語にマップ | error |
+| `asymmetric-violation` | 非対称プロパティに逆方向が存在 | error |
+| `irreflexive-violation` | 非反射プロパティで自己参照 | error |
+| `duplicate-triple` | 完全一致の重複トリプル | warning |
+| `circular-dependency` | subClassOfの循環チェーン | error |
+
+### 使用方法
+
+#### 検証付きトリプル追加
+
+```typescript
+import { N3Store } from '@nahisaho/musubix-ontology-mcp';
+
+// 追加時検証を有効化
+const store = new N3Store({}, true);
+
+// 検証付き追加
+const result = store.addTripleValidated({
+  subject: 'http://example.org/Person1',
+  predicate: 'http://example.org/hasMother',
+  object: 'http://example.org/Mother1'
+});
+
+if (!result.success) {
+  console.error('検証エラー:', result.validation.errors);
+}
+```
+
+#### ストア全体の整合性チェック
+
+```typescript
+// ストア全体をチェック
+const consistency = store.checkConsistency();
+
+if (!consistency.consistent) {
+  for (const violation of consistency.violations) {
+    console.log(`${violation.type}: ${violation.message}`);
+    console.log('関連トリプル:', violation.triples);
+  }
+  
+  // 修正提案を取得
+  for (const suggestion of consistency.suggestions) {
+    console.log(`提案: ${suggestion.suggestion}`);
+    console.log(`自動修正可能: ${suggestion.autoFixable}`);
+  }
+}
+```
+
+#### 直接バリデータを使用
+
+```typescript
+import { ConsistencyValidator } from '@nahisaho/musubix-ontology-mcp';
+
+const validator = new ConsistencyValidator({
+  checkDisjointClasses: true,
+  checkFunctionalProperties: true,
+  checkDuplicates: true,
+  checkCircularDependencies: true
+});
+
+// 追加前に検証
+const validation = validator.validateTriple(newTriple, existingTriples);
+if (!validation.valid) {
+  console.error(validation.errors);
+}
+
+// 重複を検出
+const duplicates = validator.findDuplicates(allTriples);
+const semanticDuplicates = validator.findSemanticDuplicates(allTriples);
+```
 
 ---
 

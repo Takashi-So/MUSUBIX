@@ -67,15 +67,49 @@ export interface ProofNode {
 export interface ConsistencyResult {
   consistent: boolean;
   violations: ConsistencyViolation[];
+  suggestions?: ConsistencySuggestion[];
 }
+
+/**
+ * Violation type for OWL constraints
+ */
+export type ViolationType =
+  | 'disjoint-class-membership'
+  | 'functional-property-violation'
+  | 'inverse-functional-violation'
+  | 'asymmetric-violation'
+  | 'irreflexive-violation'
+  | 'duplicate-triple'
+  | 'invalid-reference'
+  | 'circular-dependency';
 
 /**
  * Consistency violation
  */
 export interface ConsistencyViolation {
-  type: string;
+  type: ViolationType | string;
   message: string;
   triples: Triple[];
+  severity: 'error' | 'warning';
+}
+
+/**
+ * Suggestion for fixing violation
+ */
+export interface ConsistencySuggestion {
+  violation: ConsistencyViolation;
+  suggestion: string;
+  autoFixable: boolean;
+}
+
+/**
+ * Validation result for triple before adding
+ */
+export interface TripleValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  duplicateOf?: Triple;
 }
 
 /**

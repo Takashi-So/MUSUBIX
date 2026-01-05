@@ -6,7 +6,8 @@
 import * as N3 from 'n3';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import type { Triple, OntologyStoreConfig } from '../types.js';
+import type { Triple, OntologyStoreConfig, TripleValidationResult, ConsistencyResult } from '../types.js';
+import { ConsistencyValidator, type TripleStore } from '../validation/consistency-validator.js';
 
 const { DataFactory, Store, Writer, Parser } = N3;
 const { namedNode, literal, quad } = DataFactory;
@@ -51,20 +52,25 @@ export interface InferenceRule {
  * - Pattern-based querying
  * - Basic RDFS inference
  * - Named graphs
+ * - Consistency validation
  */
-export class N3Store {
+export class N3Store implements TripleStore {
   private store: N3.Store;
   private config: OntologyStoreConfig;
   private dirty = false;
   private inferenceRules: InferenceRule[] = [];
+  private validator: ConsistencyValidator;
+  private validateOnAdd: boolean;
 
-  constructor(config: Partial<OntologyStoreConfig> = {}) {
+  constructor(config: Partial<OntologyStoreConfig> = {}, validateOnAdd = false) {
     this.store = new Store();
     this.config = {
       storagePath: config.storagePath ?? './storage/ontology/n3-store.ttl',
       enableInference: config.enableInference ?? true,
       maxTriples: config.maxTriples ?? 100000,
     };
+    this.validator = new ConsistencyValidator();
+    this.validateOnAdd = validateOnAdd;
 
     if (this.config.enableInference) {
       this.initializeInferenceRules();
@@ -199,10 +205,26 @@ export class N3Store {
 
   /**
    * Add a triple to the store
+   * @param triple Triple to add
+   * @param graph Optional named graph
+   * @param skipValidation Skip pre-add validation (default: use constructor setting)
    */
-  addTriple(triple: Triple, graph?: string): boolean {
+  addTriple(triple: Triple, graph?: string, skipValidation?: boolean): boolean {
     if (this.store.size >= this.config.maxTriples) {
       return false;
+    }
+
+    // Pre-add validation if enabled
+    const shouldValidate = skipValidation !== undefined ? !skipValidation : this.validateOnAdd;
+    if (shouldValidate) {
+      const validation = this.validateTriple(triple);
+      if (!validation.valid) {
+        return false;
+      }
+      // Skip exact duplicates
+      if (validation.duplicateOf) {
+        return true; // Considered successful (already exists)
+      }
     }
 
     const subject = namedNode(triple.subject);
@@ -221,6 +243,66 @@ export class N3Store {
     }
 
     return true;
+  }
+
+  /**
+   * Add a triple with validation and return detailed result
+   */
+  addTripleValidated(triple: Triple, graph?: string): { success: boolean; validation: TripleValidationResult } {
+    const validation = this.validateTriple(triple);
+    
+    if (!validation.valid) {
+      return { success: false, validation };
+    }
+
+    if (validation.duplicateOf) {
+      return { success: true, validation };
+    }
+
+    const success = this.addTriple(triple, graph, true);
+    return { success, validation };
+  }
+
+  /**
+   * Validate a triple before adding
+   */
+  validateTriple(triple: Triple): TripleValidationResult {
+    const existingTriples = this.getTriples();
+    return this.validator.validateTriple(triple, existingTriples);
+  }
+
+  /**
+   * Get all triples (implements TripleStore interface)
+   */
+  getTriples(pattern?: Partial<Triple>): Triple[] {
+    const subject = pattern?.subject ? namedNode(pattern.subject) : null;
+    const predicate = pattern?.predicate ? namedNode(pattern.predicate) : null;
+    const object = pattern?.object
+      ? pattern.object.startsWith('http://') || pattern.object.startsWith('https://')
+        ? namedNode(pattern.object)
+        : literal(pattern.object)
+      : null;
+
+    const quads = this.store.getQuads(subject, predicate, object, null);
+    return quads.map(q => ({
+      subject: q.subject.value,
+      predicate: q.predicate.value,
+      object: q.object.value,
+    }));
+  }
+
+  /**
+   * Validate entire store consistency
+   */
+  checkConsistency(): ConsistencyResult {
+    return this.validator.validate(this);
+  }
+
+  /**
+   * Enable or disable validation on add
+   */
+  setValidateOnAdd(enabled: boolean): void {
+    this.validateOnAdd = enabled;
   }
 
   /**
