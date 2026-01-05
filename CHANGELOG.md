@@ -5,6 +5,164 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-01-06
+
+### Added - E2E Test Enhancement
+
+v1.5.2として、E2Eテスト強化フレームワークを実装。1155テスト全合格。
+
+#### 新機能: テストヘルパーフレームワーク
+
+| コンポーネント | パターン | 説明 | 要件 |
+|---------------|---------|------|------|
+| **TestProject** | Factory | テストプロジェクト作成・管理 | REQ-E2E-001 |
+| **TestFixtures** | Repository | EARS/コード/トリプルサンプル提供 | REQ-E2E-001 |
+| **CliRunner** | Facade | CLIコマンド実行ラッパー | REQ-E2E-001 |
+| **TestContext** | Builder | 統合テストコンテキスト | REQ-E2E-001 |
+| **Assertions** | Strategy | カスタムE2Eアサーション | REQ-E2E-001 |
+
+#### TestProject Factory
+
+```typescript
+// テンプレートでプロジェクト作成
+const project = await createTestProject({ template: 'sdd' });
+// 自動クリーンアップ
+await withTestProject(async (project) => {
+  // テスト実行
+});
+```
+
+| テンプレート | 内容 |
+|-------------|------|
+| `minimal` | 最小構成（package.json, src/index.ts） |
+| `full` | フル構成（all directories） |
+| `sdd` | SDD構成（steering/, storage/） |
+
+#### TestFixtures Repository
+
+```typescript
+const fixtures = await getFixtures();
+// EARS要件サンプル
+fixtures.requirements.valid   // 5パターン（ubiquitous, event-driven, etc.）
+fixtures.requirements.invalid // 5サンプル
+// コードサンプル
+fixtures.code.typescript
+fixtures.code.javascript
+// トリプルサンプル
+fixtures.triples.valid
+fixtures.triples.invalid
+```
+
+#### CliRunner Facade
+
+```typescript
+const cli = createCliRunner(projectPath);
+// 汎用実行
+const result = await cli.run('requirements', 'analyze', 'input.md');
+// ショートカットメソッド
+await cli.requirements('validate', 'file.md');
+await cli.design('generate', 'req.md');
+await cli.learn('status');
+await cli.ontology('validate', '-f', 'graph.ttl');
+```
+
+#### TestContext Builder
+
+```typescript
+const ctx = await TestContext.builder()
+  .withProject({ template: 'sdd' })
+  .withFixtures()
+  .withCli()
+  .build();
+
+// 使用例
+const result = await ctx.cli.requirements('analyze', 'input.md');
+expect(result.exitCode).toBe(0);
+
+// 自動クリーンアップ
+await ctx.cleanup();
+```
+
+#### カスタムアサーション
+
+| 関数 | 説明 |
+|------|------|
+| `isValidEars(text)` | EARS形式検証（正規表現ベース） |
+| `getEarsPattern(text)` | EARSパターン抽出 |
+| `hasExitCode(result, code)` | 終了コード検証 |
+| `isWithinBudget(result, budget)` | パフォーマンス予算検証 |
+| `hasTraceability(output, id)` | トレーサビリティID検証 |
+| `containsPattern(output, pattern)` | パターン参照検証 |
+| `meetsCodeQuality(code, options)` | コード品質検証 |
+
+#### E2Eテストスイート
+
+| テストファイル | テスト数 | 対象 |
+|---------------|---------|------|
+| `sdd-workflow.e2e.test.ts` | 18 | SDDワークフロー全体 |
+| `performance.e2e.test.ts` | 16 | パフォーマンス基準 |
+| `error-handling.e2e.test.ts` | 17 | エラーハンドリング |
+| `testing.test.ts` | 33 | テストフレームワーク自体 |
+
+#### 使用例
+
+```typescript
+// 完全なE2Eテスト例
+describe('SDD Workflow E2E', () => {
+  let ctx: TestContext;
+
+  beforeAll(async () => {
+    ctx = await TestContext.builder()
+      .withProject({ template: 'sdd' })
+      .withFixtures()
+      .build();
+  });
+
+  afterAll(async () => {
+    await ctx.cleanup();
+  });
+
+  it('should validate EARS requirements', () => {
+    for (const req of ctx.fixtures.requirements.valid) {
+      expect(isValidEars(req.text)).toBe(true);
+      expect(getEarsPattern(req.text)).toBe(req.pattern);
+    }
+  });
+
+  it('should execute CLI within budget', async () => {
+    const result = await ctx.cli.run('--version');
+    expect(isWithinBudget(result, { maxDuration: 500 })).toBe(true);
+  });
+});
+```
+
+#### 新規ファイル
+
+```
+packages/core/src/testing/
+├── types.ts           # 型定義
+├── test-project.ts    # TestProject Factory
+├── test-fixtures.ts   # TestFixtures Repository
+├── cli-runner.ts      # CliRunner Facade
+├── test-context.ts    # TestContext Builder
+├── assertions.ts      # カスタムアサーション
+├── index.ts           # エクスポート
+└── __tests__/
+    └── testing.test.ts  # フレームワークテスト
+
+packages/core/__tests__/e2e/
+├── sdd-workflow.e2e.test.ts    # SDDワークフローE2E
+├── performance.e2e.test.ts      # パフォーマンスE2E
+└── error-handling.e2e.test.ts   # エラーハンドリングE2E
+```
+
+#### 要件ドキュメント
+
+- [REQ-E2E-v1.5.2.md](storage/specs/REQ-E2E-v1.5.2.md) - 7要件定義
+- [DES-E2E-v1.5.2.md](storage/design/DES-E2E-v1.5.2.md) - 設計書
+
+---
+
 ## [1.5.1] - 2026-01-06
 
 ### Added - Performance Optimization

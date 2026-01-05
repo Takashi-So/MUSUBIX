@@ -116,7 +116,9 @@ export type {
 // Re-export modules (will be implemented in subsequent tasks)
 // export * from './integrator/index.js';
 // export * from './requirements/index.js';
-// export * from './testing/index.js';
+
+// Export testing utilities (REQ-E2E-v1.5.2)
+export * from './testing/index.js';
 
 // Export performance utilities (REQ-PERF-v1.5.1)
 export * from './perf/index.js';
