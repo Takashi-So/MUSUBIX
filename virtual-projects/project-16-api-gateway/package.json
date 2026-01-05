@@ -1,0 +1,18 @@
+{
+  "name": "project-16-api-gateway",
+  "version": "1.0.0",
+  "description": "API Gateway - Request routing, rate limiting, authentication and caching",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": ["api-gateway", "routing", "rate-limiting", "authentication"],
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

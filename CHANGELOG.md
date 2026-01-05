@@ -5,6 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-01-06
+
+### Added - Learning-Based Improvements
+
+学習機能のフィードバック（70件）とパターン（23件）を分析し、MUSUBIXを改善。
+
+#### 新機能: EARSテストジェネレータ
+
+EARS要件から自動でテストケースを生成する`EarsTestGenerator`クラスを追加：
+
+```typescript
+import { createEarsTestGenerator, EarsRequirement } from '@nahisaho/musubix-core';
+
+const generator = createEarsTestGenerator({ framework: 'vitest' });
+const requirements: EarsRequirement[] = [
+  { id: 'REQ-001', type: 'ubiquitous', text: 'THE system SHALL validate input' },
+  { id: 'REQ-002', type: 'event-driven', text: 'WHEN user submits, THE system SHALL save' },
+];
+const testCases = generator.generateFromRequirements(requirements);
+const testFile = generator.generateTestFileContent(testCases, 'myModule');
+```
+
+| EARS形式 | 生成テスト |
+|---------|-----------|
+| Ubiquitous | 常時テスト + Result.ok検証 |
+| Event-driven | 正常/異常ケース |
+| State-driven | ステータス遷移テスト |
+| Unwanted | 禁止動作 + Result.err検証 |
+| Optional | 条件分岐テスト |
+
+#### 学習パターン統合
+
+以下の学習パターンをテスト生成に組み込み：
+
+| パターン | 内容 |
+|---------|------|
+| BP-TEST-001 | beforeEachでカウンターリセット |
+| BP-TEST-004 | Result型の両ケーステスト（isOk/isErr） |
+| BP-TEST-005 | ステータス遷移の網羅テスト |
+
+#### トレーサビリティ改善
+
+IoT・API Gatewayドメインのキーワードマッピングを追加：
+
+- **IoT**: device, telemetry, alert, sensor, firmware, protocol
+- **API Gateway**: gateway, route, ratelimit, circuit, cache, loadbalance
+
+### Changed
+
+- **unit-test-generator.ts**: EarsTestGenerator追加（+250行）
+- **index.ts**: EarsTestGenerator, EarsRequirement, EarsTestCaseエクスポート追加
+- **design.ts**: ドメインキーワードマッピング拡張
+
+### テスト統計
+
+| 項目 | 値 |
+|------|------|
+| 総テスト数 | 1217 |
+| 新規追加 | +9 |
+| 成功 | 1217 |
+| 成功率 | 100% |
+
+---
+
 ## [1.6.0] - 2026-01-06
 
 ### Added - REPL Test Implementation & CLI Enhancement

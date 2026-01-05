@@ -847,5 +847,17 @@
       "tags": []
     },
     "reason": "Service層でビジネスロジックを集約、Repository依存注入でテスタビリティ向上"
+  },
+  {
+    "id": "FB-FAF03E21",
+    "timestamp": "2026-01-05T13:10:13.591Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "EARS-TEST-GEN",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    },
+    "reason": "EARSテストジェネレータ追加完了。BP-TEST-004, BP-TEST-005パターンを統合"
   }
 ]

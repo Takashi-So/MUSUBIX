@@ -914,3 +914,358 @@ export function createUnitTestGenerator(
 ): UnitTestGenerator {
   return new UnitTestGenerator(config);
 }
+
+/**
+ * EARS Requirement structure for test generation
+ */
+export interface EarsRequirement {
+  id: string;
+  type: 'ubiquitous' | 'event-driven' | 'state-driven' | 'unwanted' | 'optional';
+  text: string;
+  system?: string;
+  event?: string;
+  state?: string;
+  condition?: string;
+  response?: string;
+}
+
+/**
+ * Test case generated from EARS requirement
+ */
+export interface EarsTestCase {
+  requirementId: string;
+  testName: string;
+  testDescription: string;
+  testType: 'positive' | 'negative' | 'boundary';
+  setup?: string;
+  action: string;
+  assertion: string;
+}
+
+/**
+ * EARS Test Generator - Generate tests from EARS requirements (BP-TEST-004, BP-TEST-005)
+ * 
+ * This class implements learning patterns:
+ * - BP-TEST-004: Result Type Test Pattern - test both isOk() and isErr() cases
+ * - BP-TEST-005: Status Transition Testing - test valid/invalid transitions
+ * - BP-TEST-001: Test Counter Reset - reset counters in beforeEach
+ */
+export class EarsTestGenerator {
+  private config: UnitTestGeneratorConfig;
+
+  constructor(config?: Partial<UnitTestGeneratorConfig>) {
+    this.config = { ...DEFAULT_TEST_GENERATOR_CONFIG, ...config };
+  }
+
+  /**
+   * Generate test cases from EARS requirements
+   */
+  generateFromRequirements(requirements: EarsRequirement[]): EarsTestCase[] {
+    const testCases: EarsTestCase[] = [];
+
+    for (const req of requirements) {
+      testCases.push(...this.generateTestsForRequirement(req));
+    }
+
+    return testCases;
+  }
+
+  /**
+   * Generate tests for a single EARS requirement
+   */
+  private generateTestsForRequirement(req: EarsRequirement): EarsTestCase[] {
+    switch (req.type) {
+      case 'ubiquitous':
+        return this.generateUbiquitousTests(req);
+      case 'event-driven':
+        return this.generateEventDrivenTests(req);
+      case 'state-driven':
+        return this.generateStateDrivenTests(req);
+      case 'unwanted':
+        return this.generateUnwantedTests(req);
+      case 'optional':
+        return this.generateOptionalTests(req);
+      default:
+        return [];
+    }
+  }
+
+  /**
+   * Generate tests for UBIQUITOUS requirements (THE system SHALL)
+   */
+  private generateUbiquitousTests(req: EarsRequirement): EarsTestCase[] {
+    const tests: EarsTestCase[] = [];
+    const actionName = this.extractActionName(req.response || req.text);
+
+    // Positive test - should always work
+    tests.push({
+      requirementId: req.id,
+      testName: `should ${actionName}`,
+      testDescription: `Verify: ${req.text}`,
+      testType: 'positive',
+      action: `// Act: ${actionName}`,
+      assertion: `// Assert: Verify the system ${actionName}`,
+    });
+
+    // Boundary test with Result type pattern (BP-TEST-004)
+    tests.push({
+      requirementId: req.id,
+      testName: `should return Result.ok when ${actionName} succeeds`,
+      testDescription: `Result type positive case for ${req.id}`,
+      testType: 'positive',
+      action: `const result = ${this.toFunctionCall(actionName)}(validInput);`,
+      assertion: `expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value).toBeDefined();
+    }`,
+    });
+
+    return tests;
+  }
+
+  /**
+   * Generate tests for EVENT-DRIVEN requirements (WHEN event, THE system SHALL)
+   */
+  private generateEventDrivenTests(req: EarsRequirement): EarsTestCase[] {
+    const tests: EarsTestCase[] = [];
+    const eventName = req.event || this.extractEventName(req.text);
+    const actionName = this.extractActionName(req.response || req.text);
+
+    // Positive test - event triggers response
+    tests.push({
+      requirementId: req.id,
+      testName: `should ${actionName} when ${eventName}`,
+      testDescription: `Event-driven test: ${req.text}`,
+      testType: 'positive',
+      setup: `// Arrange: Set up conditions for ${eventName}`,
+      action: `// Act: Trigger ${eventName}`,
+      assertion: `// Assert: Verify ${actionName}`,
+    });
+
+    // Negative test - no event, no response
+    tests.push({
+      requirementId: req.id,
+      testName: `should not ${actionName} when ${eventName} has not occurred`,
+      testDescription: `Negative case: Event not triggered`,
+      testType: 'negative',
+      action: `// Act: Do not trigger ${eventName}`,
+      assertion: `// Assert: Verify ${actionName} did not happen`,
+    });
+
+    return tests;
+  }
+
+  /**
+   * Generate tests for STATE-DRIVEN requirements (WHILE state, THE system SHALL)
+   */
+  private generateStateDrivenTests(req: EarsRequirement): EarsTestCase[] {
+    const tests: EarsTestCase[] = [];
+    const stateName = req.state || this.extractStateName(req.text);
+    const actionName = this.extractActionName(req.response || req.text);
+
+    // Positive test - in state, behavior applies
+    tests.push({
+      requirementId: req.id,
+      testName: `should ${actionName} while in ${stateName} state`,
+      testDescription: `State-driven test: ${req.text}`,
+      testType: 'positive',
+      setup: `// Arrange: Set system to ${stateName} state`,
+      action: `// Act: Perform action`,
+      assertion: `// Assert: Verify ${actionName}`,
+    });
+
+    // Negative test - not in state, behavior doesn't apply
+    tests.push({
+      requirementId: req.id,
+      testName: `should not ${actionName} when not in ${stateName} state`,
+      testDescription: `Negative case: Wrong state`,
+      testType: 'negative',
+      setup: `// Arrange: Ensure system is NOT in ${stateName} state`,
+      action: `// Act: Attempt action`,
+      assertion: `// Assert: Verify ${actionName} is not applied`,
+    });
+
+    // Status Transition Testing (BP-TEST-005)
+    tests.push({
+      requirementId: req.id,
+      testName: `should validate status transitions for ${stateName}`,
+      testDescription: `Status transition test (BP-TEST-005)`,
+      testType: 'boundary',
+      setup: `// Arrange: Get valid transitions from status map`,
+      action: `const validTransitions = validStatusTransitions['${stateName}'];`,
+      assertion: `// Assert: Each valid transition should succeed
+    for (const nextStatus of validTransitions) {
+      const result = transitionTo(entity, nextStatus);
+      expect(result.isOk()).toBe(true);
+    }`,
+    });
+
+    return tests;
+  }
+
+  /**
+   * Generate tests for UNWANTED requirements (THE system SHALL NOT)
+   */
+  private generateUnwantedTests(req: EarsRequirement): EarsTestCase[] {
+    const tests: EarsTestCase[] = [];
+    const unwantedBehavior = this.extractUnwantedBehavior(req.text);
+
+    // Test that unwanted behavior doesn't occur
+    tests.push({
+      requirementId: req.id,
+      testName: `should not ${unwantedBehavior}`,
+      testDescription: `Unwanted behavior test: ${req.text}`,
+      testType: 'negative',
+      action: `// Act: Attempt to trigger unwanted behavior`,
+      assertion: `// Assert: Verify ${unwantedBehavior} does not occur`,
+    });
+
+    // Result type error case (BP-TEST-004)
+    tests.push({
+      requirementId: req.id,
+      testName: `should return Result.err when attempting ${unwantedBehavior}`,
+      testDescription: `Result type error case for ${req.id}`,
+      testType: 'negative',
+      action: `const result = ${this.toFunctionCall(unwantedBehavior)}(invalidInput);`,
+      assertion: `expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toBeInstanceOf(ValidationError);
+    }`,
+    });
+
+    return tests;
+  }
+
+  /**
+   * Generate tests for OPTIONAL requirements (IF condition, THEN THE system SHALL)
+   */
+  private generateOptionalTests(req: EarsRequirement): EarsTestCase[] {
+    const tests: EarsTestCase[] = [];
+    const condition = req.condition || this.extractCondition(req.text);
+    const actionName = this.extractActionName(req.response || req.text);
+
+    // Positive test - condition met
+    tests.push({
+      requirementId: req.id,
+      testName: `should ${actionName} when ${condition}`,
+      testDescription: `Optional requirement positive: ${req.text}`,
+      testType: 'positive',
+      setup: `// Arrange: Set up ${condition}`,
+      action: `// Act: Trigger action`,
+      assertion: `// Assert: Verify ${actionName}`,
+    });
+
+    // Negative test - condition not met
+    tests.push({
+      requirementId: req.id,
+      testName: `should not ${actionName} when ${condition} is not met`,
+      testDescription: `Optional requirement negative: Condition not satisfied`,
+      testType: 'negative',
+      setup: `// Arrange: Ensure ${condition} is NOT met`,
+      action: `// Act: Attempt action`,
+      assertion: `// Assert: Verify ${actionName} does not happen`,
+    });
+
+    return tests;
+  }
+
+  /**
+   * Generate test file content from EARS test cases
+   */
+  generateTestFileContent(
+    testCases: EarsTestCase[],
+    moduleName: string
+  ): string {
+    const lines: string[] = [];
+    const framework = this.config.framework;
+
+    // Imports
+    if (framework === 'vitest') {
+      lines.push("import { describe, it, expect, beforeEach } from 'vitest';");
+    }
+    lines.push(`import { /* imports from ${moduleName} */ } from './${moduleName}';`);
+    lines.push('');
+
+    // Group by requirement
+    const byRequirement = new Map<string, EarsTestCase[]>();
+    for (const tc of testCases) {
+      const cases = byRequirement.get(tc.requirementId) || [];
+      cases.push(tc);
+      byRequirement.set(tc.requirementId, cases);
+    }
+
+    // Generate describe blocks
+    lines.push(`describe('${moduleName}', () => {`);
+    
+    // Counter reset (BP-TEST-001)
+    lines.push('  // BP-TEST-001: Reset counters before each test');
+    lines.push('  beforeEach(() => {');
+    lines.push('    // resetEntityCounter();');
+    lines.push('  });');
+    lines.push('');
+
+    for (const [reqId, cases] of byRequirement) {
+      lines.push(`  describe('${reqId}', () => {`);
+      for (const tc of cases) {
+        lines.push(`    it('${tc.testName}', () => {`);
+        lines.push(`      // ${tc.testDescription}`);
+        if (tc.setup) {
+          lines.push(`      ${tc.setup}`);
+        }
+        lines.push(`      ${tc.action}`);
+        lines.push(`      ${tc.assertion}`);
+        lines.push('    });');
+        lines.push('');
+      }
+      lines.push('  });');
+      lines.push('');
+    }
+
+    lines.push('});');
+
+    return lines.join('\n');
+  }
+
+  // Helper methods
+  private extractActionName(text: string): string {
+    const match = text.match(/SHALL\s+(.+?)(?:\.|$)/i);
+    return match ? match[1].trim().toLowerCase() : 'perform the action';
+  }
+
+  private extractEventName(text: string): string {
+    const match = text.match(/WHEN\s+(.+?),/i);
+    return match ? match[1].trim() : 'the event occurs';
+  }
+
+  private extractStateName(text: string): string {
+    const match = text.match(/WHILE\s+(.+?),/i);
+    return match ? match[1].trim() : 'in the state';
+  }
+
+  private extractUnwantedBehavior(text: string): string {
+    const match = text.match(/SHALL\s+NOT\s+(.+?)(?:\.|$)/i);
+    return match ? match[1].trim().toLowerCase() : 'perform unwanted action';
+  }
+
+  private extractCondition(text: string): string {
+    const match = text.match(/IF\s+(.+?),?\s+THEN/i);
+    return match ? match[1].trim() : 'the condition is met';
+  }
+
+  private toFunctionCall(action: string): string {
+    return action
+      .split(' ')
+      .map((word, i) => i === 0 ? word.toLowerCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('')
+      .replace(/[^a-zA-Z0-9]/g, '');
+  }
+}
+
+/**
+ * Create EARS test generator instance
+ */
+export function createEarsTestGenerator(
+  config?: Partial<UnitTestGeneratorConfig>
+): EarsTestGenerator {
+  return new EarsTestGenerator(config);
+}

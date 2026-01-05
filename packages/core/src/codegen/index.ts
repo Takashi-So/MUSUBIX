@@ -90,6 +90,8 @@ export {
 export {
   UnitTestGenerator,
   createUnitTestGenerator,
+  EarsTestGenerator,
+  createEarsTestGenerator,
   type TestFramework,
   type AssertionStyle,
   type TestTargetType,
@@ -101,6 +103,8 @@ export {
   type FunctionToTest,
   type GeneratedTestResult,
   type UnitTestGeneratorConfig,
+  type EarsRequirement,
+  type EarsTestCase,
 } from './unit-test-generator.js';
 
 // Integration Test Generator

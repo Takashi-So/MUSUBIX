@@ -1728,6 +1728,20 @@ function generateTraceability(content: string, model: C4Model): Array<{ requirem
     'receiving': ['receiving', '入荷', 'receipt', '受入', 'inbound'],
     'location': ['location', 'ロケーション', 'bin', '棚', 'zone', 'aisle'],
     'packing': ['packing', '梱包', 'package', 'box', 'wrap'],
+    // IoT & Device Management (v1.6.0 learning-based addition)
+    'device': ['device', 'デバイス', '機器', 'sensor', 'センサー', 'actuator'],
+    'telemetry': ['telemetry', 'テレメトリ', 'metric', 'メトリック', 'data', 'reading'],
+    'alert': ['alert', 'アラート', '警告', 'threshold', 'しきい値', 'trigger'],
+    'iot': ['iot', 'internet of things', 'connected', 'smart', 'スマート'],
+    'firmware': ['firmware', 'ファームウェア', 'version', 'update', 'ota'],
+    'protocol': ['protocol', 'プロトコル', 'mqtt', 'http', 'websocket', 'coap'],
+    // API Gateway (v1.6.0 learning-based addition)
+    'gateway': ['gateway', 'ゲートウェイ', 'proxy', 'プロキシ', 'api'],
+    'route': ['route', 'ルート', 'routing', 'ルーティング', 'path', 'endpoint'],
+    'ratelimit': ['rate', 'limit', 'throttle', 'quota', '制限', 'レートリミット'],
+    'circuit': ['circuit', 'サーキット', 'breaker', 'ブレーカー', 'fallback'],
+    'cache': ['cache', 'キャッシュ', 'ttl', 'invalidate', 'refresh'],
+    'loadbalance': ['load', 'balance', 'ロードバランス', 'distribution', 'round-robin'],
     // General
     'notification': ['notify', 'alert', 'message', 'email', 'sms', '通知'],
     'auth': ['auth', 'login', 'user', 'session', 'permission', '認証'],
