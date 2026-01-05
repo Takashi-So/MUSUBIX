@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-598%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-752%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.2.0** - Neuro-Symbolic Integration Complete (Phase 1-3)
+> **v1.3.0** - Wake-Sleep Learning Cycle Integration Complete (S1-S3 Sprint)
 
 **[日本語版 README](README.ja.md)**
 
@@ -71,13 +71,17 @@ flowchart TB
 | `packages/core/explanation/` | Explanation Generation & Visualization |
 | `packages/core/learning/` | Self-Learning & Pattern Extraction |
 | `packages/core/requirements/` | Requirements Analysis & Decomposition |
-| `packages/core/symbolic/` | **Symbolic Reasoning (NEW!)** |
+| `packages/core/symbolic/` | Symbolic Reasoning |
 | `packages/core/traceability/` | Traceability |
 | `packages/core/types/` | Type Definitions |
 | `packages/core/utils/` | Utilities |
 | `packages/core/validators/` | EARS Validation |
-| `packages/mcp-server/` | MCP Server (34 tools, 3 prompts) |
+| `packages/mcp-server/` | MCP Server (16 tools, 3 prompts) |
 | `packages/yata-client/` | YATA Client |
+| `packages/pattern-mcp/` | **Pattern Learning (NEW!)** |
+| `packages/ontology-mcp/` | **Ontology Engine (NEW!)** |
+| `packages/wake-sleep/` | **Wake-Sleep Learning (NEW!)** |
+| `packages/sdd-ontology/` | **SDD Ontology (NEW!)** |
 | `steering/` | Project Memory |
 | `storage/` | Specifications & Artifacts |
 | `templates/` | Templates |
@@ -165,7 +169,7 @@ npm run type-check
 
 ### MCP Server
 
-Provides 34 tools and 3 prompts:
+Provides 16 tools (9 SDD + 7 Pattern) and 3 prompts:
 
 ```bash
 # Start MCP Server
@@ -208,6 +212,30 @@ The new symbolic reasoning module provides:
 - **PerformanceBudget** - Step-level budgets, SLO metrics
 - **QualityGateValidator** - Automated quality gate validation
 
+## Wake-Sleep Learning Cycle (v1.3.0)
+
+Continuous learning system based on the Wake-Sleep algorithm:
+
+| Phase | Processing |
+|-------|------------|
+| **Wake** | Code observation → Pattern extraction → Knowledge graph update |
+| **Sleep** | Pattern consolidation → Similar pattern compression → Memory optimization |
+
+### Key Components
+- **WakeSleepCycle** - Learning cycle orchestration
+- **PatternLibrary** - Persistent pattern storage management
+- **PatternOntologyBridge** - Pattern ↔ Ontology bidirectional conversion
+- **N3Store** - RDF/OWL-based knowledge graph storage
+
+### New MCP Tools (7 tools)
+- `pattern_extract` - Extract patterns from code
+- `pattern_compress` - Abstraction and compression of patterns
+- `pattern_store` - Save to pattern library
+- `pattern_query` - Search and retrieve patterns
+- `pattern_consolidate` - Consolidate similar patterns
+- `ontology_query` - Query ontology graph
+- `ontology_infer` - Execute ontology-based inference
+
 ## Constitutional Articles (9 Articles)
 
 MUSUBIX adheres to the following 9 constitutional articles:
@@ -237,5 +265,5 @@ See [CHANGELOG.md](CHANGELOG.md)
 ---
 
 **Document ID**: README  
-**Version**: 1.0.21  
-**Last Updated**: 2026-01-04
+**Version**: 1.3.0  
+**Last Updated**: 2026-01-05

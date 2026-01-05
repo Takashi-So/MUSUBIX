@@ -1,0 +1,50 @@
+{
+  "name": "@nahisaho/musubix-sdd-ontology",
+  "version": "1.0.0",
+  "description": "MUSUBIX SDD Ontology - Turtle modules for EARS, C4, Traceability",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./ttl/*": "./ttl/*"
+  },
+  "files": [
+    "dist",
+    "ttl"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "validate-ttl": "node dist/cli/validate.js"
+  },
+  "keywords": [
+    "musubix",
+    "ontology",
+    "sdd",
+    "ears",
+    "c4model",
+    "traceability",
+    "turtle"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/sdd-ontology"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "peerDependencies": {
+    "@nahisaho/musubix-ontology-mcp": "^1.0.0"
+  }
+}

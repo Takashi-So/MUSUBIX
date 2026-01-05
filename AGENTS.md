@@ -8,13 +8,13 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.2.0 |
+| **バージョン** | 1.3.0 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 598 (全合格) |
+| **テスト数** | 752 (全合格) |
 | **コンポーネント数** | 243 (62ドメイン対応) |
 | **Agent Skills** | 12 (Claude Code対応) |
 
@@ -28,14 +28,22 @@
 packages/
 ├── core/           # @nahisaho/musubix-core
 ├── mcp-server/     # @nahisaho/musubix-mcp-server  
-└── yata-client/    # @nahisaho/musubix-yata-client
+├── yata-client/    # @nahisaho/musubix-yata-client
+├── pattern-mcp/    # @nahisaho/musubix-pattern-mcp (NEW!)
+├── ontology-mcp/   # @nahisaho/musubix-ontology-mcp (NEW!)
+├── wake-sleep/     # @nahisaho/musubix-wake-sleep (NEW!)
+└── sdd-ontology/   # @nahisaho/musubix-sdd-ontology (NEW!)
 ```
 
 | パッケージ | npm | 役割 |
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
-| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 9ツール、3プロンプト |
+| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 16ツール、3プロンプト |
 | `packages/yata-client/` | `@nahisaho/musubix-yata-client` | YATAクライアント - 知識グラフ連携 |
+| `packages/pattern-mcp/` | `@nahisaho/musubix-pattern-mcp` | パターン学習 - 抽出・圧縮・ライブラリ |
+| `packages/ontology-mcp/` | `@nahisaho/musubix-ontology-mcp` | オントロジー - N3Store・推論エンジン |
+| `packages/wake-sleep/` | `@nahisaho/musubix-wake-sleep` | Wake-Sleep学習サイクル |
+| `packages/sdd-ontology/` | `@nahisaho/musubix-sdd-ontology` | SDD方法論オントロジー |
 
 ### Core パッケージモジュール
 
@@ -122,7 +130,9 @@ npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
-### ツール一覧（9ツール）
+### ツール一覧（16ツール）
+
+#### SDD基本ツール（9ツール）
 
 | ツール名 | 説明 |
 |---------|------|
@@ -135,6 +145,18 @@ npx musubix-mcp --transport stdio
 | `sdd_update_knowledge` | 知識グラフの更新 |
 | `sdd_validate_constitution` | 9憲法条項への準拠検証 |
 | `sdd_validate_traceability` | 要件↔設計↔タスクのトレーサビリティ検証 |
+
+#### パターン統合ツール（7ツール）- v1.3.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `pattern_extract` | コードからパターンを抽出 |
+| `pattern_compress` | パターンの抽象化・圧縮 |
+| `pattern_store` | パターンライブラリへの保存 |
+| `pattern_query` | パターンの検索・取得 |
+| `pattern_consolidate` | 類似パターンの統合 |
+| `ontology_query` | オントロジーグラフへのクエリ |
+| `ontology_infer` | オントロジーによる推論実行 |
 
 ### プロンプト一覧（3プロンプト）
 
@@ -276,9 +298,29 @@ npx musubix codegen generate <design.md> --output src/
 フィードバック → パターン候補 → 閾値超過 → パターン登録 → 推論に適用
 ```
 
+### 6. Wake-Sleep学習サイクル（v1.3.0 NEW!）
+
+Wake-Sleepアルゴリズムに基づいた継続的学習システム：
+
+| フェーズ | 処理内容 |
+|---------|----------|
+| **Wake** | コード観察 → パターン抽出 → 知識グラフ更新 |
+| **Sleep** | パターン統合 → 類似パターン圧縮 → メモリ最適化 |
+
+```
+Wake Phase: observe() → extractPatterns() → updateKnowledge()
+Sleep Phase: consolidate() → compress() → optimize()
+```
+
+**主要コンポーネント**:
+- `WakeSleepCycle`: 学習サイクル全体の制御
+- `PatternLibrary`: 学習済みパターンの永続化管理
+- `PatternOntologyBridge`: パターン↔オントロジー相互変換
+- `N3Store`: RDF/OWLベースの知識グラフストレージ
+
 ---
 
-## � 学習済みベストプラクティス（v1.1.10 Updated!）
+## 📚 学習済みベストプラクティス（v1.1.10 Updated!）
 
 Project-07〜14の実装から学習したパターンです。
 
@@ -425,6 +467,6 @@ npx musubix learn best-practices --format markdown
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-04
-**Version**: 1.2.0
+**Last Updated**: 2025-01-10
+**Version**: 1.3.0
 **Repository**: https://github.com/nahisaho/MUSUBIX

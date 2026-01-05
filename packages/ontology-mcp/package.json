@@ -1,0 +1,50 @@
+{
+  "name": "@nahisaho/musubix-ontology-mcp",
+  "version": "1.0.0",
+  "description": "MUSUBIX Ontology Reasoning MCP - OWL 2 RL inference and SPARQL query",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "musubix",
+    "ontology",
+    "mcp",
+    "owl",
+    "sparql",
+    "reasoning"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/ontology-mcp"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "n3": "^1.26.0"
+  },
+  "devDependencies": {
+    "@types/n3": "^1.26.1",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "peerDependencies": {
+    "@nahisaho/musubix-core": "^1.2.0"
+  }
+}

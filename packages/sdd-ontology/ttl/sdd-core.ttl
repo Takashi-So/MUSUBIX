@@ -1,0 +1,493 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sdd: <https://musubix.dev/ontology/sdd#> .
+@prefix ears: <https://musubix.dev/ontology/ears#> .
+@prefix c4: <https://musubix.dev/ontology/c4#> .
+@prefix trace: <https://musubix.dev/ontology/trace#> .
+@prefix pattern: <https://musubix.dev/ontology/pattern#> .
+
+# =============================================================================
+# MUSUBIX SDD Core Ontology
+# Version: 1.0.0
+# Traceability: TSK-SDD-ONTO-001, REQ-SDD-ONTO-001
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ontology Declaration
+# -----------------------------------------------------------------------------
+
+sdd: a owl:Ontology ;
+    rdfs:label "MUSUBIX SDD Core Ontology"@en ;
+    rdfs:comment "Core ontology for Specification-Driven Development methodology"@en ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:seeAlso <https://github.com/nahisaho/MUSUBIX> .
+
+# =============================================================================
+# Core Classes
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Artifact - Base class for all SDD artifacts
+# -----------------------------------------------------------------------------
+
+sdd:Artifact a owl:Class ;
+    rdfs:label "Artifact"@en ;
+    rdfs:comment "Base class for all SDD development artifacts"@en .
+
+sdd:Requirement a owl:Class ;
+    rdfs:subClassOf sdd:Artifact ;
+    rdfs:label "Requirement"@en ;
+    rdfs:comment "A formal requirement in EARS format"@en .
+
+sdd:Design a owl:Class ;
+    rdfs:subClassOf sdd:Artifact ;
+    rdfs:label "Design"@en ;
+    rdfs:comment "A C4 model design document"@en .
+
+sdd:Task a owl:Class ;
+    rdfs:subClassOf sdd:Artifact ;
+    rdfs:label "Task"@en ;
+    rdfs:comment "An implementation task derived from design"@en .
+
+sdd:Code a owl:Class ;
+    rdfs:subClassOf sdd:Artifact ;
+    rdfs:label "Code"@en ;
+    rdfs:comment "Source code implementing a design"@en .
+
+sdd:Test a owl:Class ;
+    rdfs:subClassOf sdd:Artifact ;
+    rdfs:label "Test"@en ;
+    rdfs:comment "Test code verifying requirements"@en .
+
+# -----------------------------------------------------------------------------
+# Constitution - 9 Constitutional Articles
+# -----------------------------------------------------------------------------
+
+sdd:ConstitutionalArticle a owl:Class ;
+    rdfs:label "Constitutional Article"@en ;
+    rdfs:comment "One of the 9 constitutional articles governing MUSUBIX development"@en .
+
+sdd:article1_LibraryFirst a sdd:ConstitutionalArticle ;
+    rdfs:label "Article I: Library-First"@en ;
+    rdfs:comment "All functionality starts as independent libraries"@en ;
+    sdd:articleNumber "1"^^xsd:integer .
+
+sdd:article2_CLIInterface a sdd:ConstitutionalArticle ;
+    rdfs:label "Article II: CLI Interface"@en ;
+    rdfs:comment "All libraries must expose CLI interfaces"@en ;
+    sdd:articleNumber "2"^^xsd:integer .
+
+sdd:article3_TestFirst a sdd:ConstitutionalArticle ;
+    rdfs:label "Article III: Test-First"@en ;
+    rdfs:comment "Red-Green-Blue test cycle mandatory"@en ;
+    sdd:articleNumber "3"^^xsd:integer .
+
+sdd:article4_EARSFormat a sdd:ConstitutionalArticle ;
+    rdfs:label "Article IV: EARS Format"@en ;
+    rdfs:comment "Requirements must use EARS format"@en ;
+    sdd:articleNumber "4"^^xsd:integer .
+
+sdd:article5_Traceability a sdd:ConstitutionalArticle ;
+    rdfs:label "Article V: Traceability"@en ;
+    rdfs:comment "100% traceability from requirements to tests"@en ;
+    sdd:articleNumber "5"^^xsd:integer .
+
+sdd:article6_ProjectMemory a sdd:ConstitutionalArticle ;
+    rdfs:label "Article VI: Project Memory"@en ;
+    rdfs:comment "Consult steering/ before decisions"@en ;
+    sdd:articleNumber "6"^^xsd:integer .
+
+sdd:article7_DesignPatterns a sdd:ConstitutionalArticle ;
+    rdfs:label "Article VII: Design Patterns"@en ;
+    rdfs:comment "Document all design pattern applications"@en ;
+    sdd:articleNumber "7"^^xsd:integer .
+
+sdd:article8_DecisionRecords a sdd:ConstitutionalArticle ;
+    rdfs:label "Article VIII: Decision Records"@en ;
+    rdfs:comment "All decisions documented in ADRs"@en ;
+    sdd:articleNumber "8"^^xsd:integer .
+
+sdd:article9_QualityGates a sdd:ConstitutionalArticle ;
+    rdfs:label "Article IX: Quality Gates"@en ;
+    rdfs:comment "Quality verification before phase transitions"@en ;
+    sdd:articleNumber "9"^^xsd:integer .
+
+# =============================================================================
+# EARS Pattern Classes (ears:)
+# =============================================================================
+
+ears:EARSRequirement a owl:Class ;
+    rdfs:subClassOf sdd:Requirement ;
+    rdfs:label "EARS Requirement"@en ;
+    rdfs:comment "A requirement following EARS pattern"@en .
+
+ears:UbiquitousRequirement a owl:Class ;
+    rdfs:subClassOf ears:EARSRequirement ;
+    rdfs:label "Ubiquitous Requirement"@en ;
+    rdfs:comment "THE [system] SHALL [requirement]"@en ;
+    ears:pattern "THE [system] SHALL [requirement]" .
+
+ears:EventDrivenRequirement a owl:Class ;
+    rdfs:subClassOf ears:EARSRequirement ;
+    rdfs:label "Event-Driven Requirement"@en ;
+    rdfs:comment "WHEN [event], THE [system] SHALL [response]"@en ;
+    ears:pattern "WHEN [event], THE [system] SHALL [response]" .
+
+ears:StateDrivenRequirement a owl:Class ;
+    rdfs:subClassOf ears:EARSRequirement ;
+    rdfs:label "State-Driven Requirement"@en ;
+    rdfs:comment "WHILE [state], THE [system] SHALL [response]"@en ;
+    ears:pattern "WHILE [state], THE [system] SHALL [response]" .
+
+ears:UnwantedRequirement a owl:Class ;
+    rdfs:subClassOf ears:EARSRequirement ;
+    rdfs:label "Unwanted Requirement"@en ;
+    rdfs:comment "THE [system] SHALL NOT [behavior]"@en ;
+    ears:pattern "THE [system] SHALL NOT [behavior]" .
+
+ears:OptionalRequirement a owl:Class ;
+    rdfs:subClassOf ears:EARSRequirement ;
+    rdfs:label "Optional Requirement"@en ;
+    rdfs:comment "IF [condition], THEN THE [system] SHALL [response]"@en ;
+    ears:pattern "IF [condition], THEN THE [system] SHALL [response]" .
+
+# =============================================================================
+# C4 Model Classes (c4:)
+# =============================================================================
+
+c4:C4Element a owl:Class ;
+    rdfs:subClassOf sdd:Design ;
+    rdfs:label "C4 Element"@en ;
+    rdfs:comment "Base class for C4 model elements"@en .
+
+c4:Context a owl:Class ;
+    rdfs:subClassOf c4:C4Element ;
+    rdfs:label "Context"@en ;
+    rdfs:comment "C4 Level 1: System Context diagram element"@en ;
+    c4:level "1"^^xsd:integer .
+
+c4:Container a owl:Class ;
+    rdfs:subClassOf c4:C4Element ;
+    rdfs:label "Container"@en ;
+    rdfs:comment "C4 Level 2: Container diagram element"@en ;
+    c4:level "2"^^xsd:integer .
+
+c4:Component a owl:Class ;
+    rdfs:subClassOf c4:C4Element ;
+    rdfs:label "Component"@en ;
+    rdfs:comment "C4 Level 3: Component diagram element"@en ;
+    c4:level "3"^^xsd:integer .
+
+c4:Code a owl:Class ;
+    rdfs:subClassOf c4:C4Element ;
+    rdfs:label "Code"@en ;
+    rdfs:comment "C4 Level 4: Code diagram element"@en ;
+    c4:level "4"^^xsd:integer .
+
+c4:Person a owl:Class ;
+    rdfs:subClassOf c4:C4Element ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "A human user or actor"@en .
+
+c4:ExternalSystem a owl:Class ;
+    rdfs:subClassOf c4:C4Element ;
+    rdfs:label "External System"@en ;
+    rdfs:comment "An external system outside the boundary"@en .
+
+c4:Relationship a owl:Class ;
+    rdfs:label "Relationship"@en ;
+    rdfs:comment "A relationship between C4 elements"@en .
+
+# =============================================================================
+# Traceability Classes (trace:)
+# =============================================================================
+
+trace:TraceLink a owl:Class ;
+    rdfs:label "Trace Link"@en ;
+    rdfs:comment "A traceability link between artifacts"@en .
+
+trace:DerivedFrom a owl:Class ;
+    rdfs:subClassOf trace:TraceLink ;
+    rdfs:label "Derived From"@en ;
+    rdfs:comment "Target is derived from source"@en .
+
+trace:Implements a owl:Class ;
+    rdfs:subClassOf trace:TraceLink ;
+    rdfs:label "Implements"@en ;
+    rdfs:comment "Target implements source requirement"@en .
+
+trace:Verifies a owl:Class ;
+    rdfs:subClassOf trace:TraceLink ;
+    rdfs:label "Verifies"@en ;
+    rdfs:comment "Target test verifies source requirement"@en .
+
+trace:RefinesTo a owl:Class ;
+    rdfs:subClassOf trace:TraceLink ;
+    rdfs:label "Refines To"@en ;
+    rdfs:comment "Source is refined into target"@en .
+
+# =============================================================================
+# Pattern Classes (pattern:)
+# =============================================================================
+
+pattern:Pattern a owl:Class ;
+    rdfs:label "Pattern"@en ;
+    rdfs:comment "A learned or defined code pattern"@en .
+
+pattern:DesignPattern a owl:Class ;
+    rdfs:subClassOf pattern:Pattern ;
+    rdfs:label "Design Pattern"@en ;
+    rdfs:comment "A software design pattern"@en .
+
+pattern:CodePattern a owl:Class ;
+    rdfs:subClassOf pattern:Pattern ;
+    rdfs:label "Code Pattern"@en ;
+    rdfs:comment "A learned code pattern from AST analysis"@en .
+
+pattern:RequirementPattern a owl:Class ;
+    rdfs:subClassOf pattern:Pattern ;
+    rdfs:label "Requirement Pattern"@en ;
+    rdfs:comment "A pattern in requirement structure"@en .
+
+# Common Design Patterns
+pattern:RepositoryPattern a pattern:DesignPattern ;
+    rdfs:label "Repository Pattern"@en ;
+    rdfs:comment "Data access abstraction pattern"@en ;
+    pattern:category "Structural" .
+
+pattern:FactoryPattern a pattern:DesignPattern ;
+    rdfs:label "Factory Pattern"@en ;
+    rdfs:comment "Object creation abstraction pattern"@en ;
+    pattern:category "Creational" .
+
+pattern:ServiceLayer a pattern:DesignPattern ;
+    rdfs:label "Service Layer"@en ;
+    rdfs:comment "Business logic layer pattern"@en ;
+    pattern:category "Structural" .
+
+pattern:ValueObject a pattern:DesignPattern ;
+    rdfs:label "Value Object"@en ;
+    rdfs:comment "Immutable value pattern"@en ;
+    pattern:category "Domain" .
+
+pattern:ResultType a pattern:DesignPattern ;
+    rdfs:label "Result Type"@en ;
+    rdfs:comment "Error handling with Result<T,E>"@en ;
+    pattern:category "Functional" .
+
+# =============================================================================
+# Properties
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# SDD Properties
+# -----------------------------------------------------------------------------
+
+sdd:id a owl:DatatypeProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range xsd:string ;
+    rdfs:label "id"@en ;
+    rdfs:comment "Unique identifier for artifact"@en .
+
+sdd:name a owl:DatatypeProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range xsd:string ;
+    rdfs:label "name"@en .
+
+sdd:description a owl:DatatypeProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range xsd:string ;
+    rdfs:label "description"@en .
+
+sdd:createdAt a owl:DatatypeProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at"@en .
+
+sdd:updatedAt a owl:DatatypeProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "updated at"@en .
+
+sdd:priority a owl:DatatypeProperty ;
+    rdfs:domain sdd:Requirement ;
+    rdfs:range xsd:string ;
+    rdfs:label "priority"@en ;
+    rdfs:comment "P0 (must), P1 (important), P2 (optional)"@en .
+
+sdd:status a owl:DatatypeProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range xsd:string ;
+    rdfs:label "status"@en .
+
+sdd:articleNumber a owl:DatatypeProperty ;
+    rdfs:domain sdd:ConstitutionalArticle ;
+    rdfs:range xsd:integer ;
+    rdfs:label "article number"@en .
+
+sdd:compliesWith a owl:ObjectProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range sdd:ConstitutionalArticle ;
+    rdfs:label "complies with"@en ;
+    rdfs:comment "Artifact complies with constitutional article"@en .
+
+# -----------------------------------------------------------------------------
+# EARS Properties
+# -----------------------------------------------------------------------------
+
+ears:pattern a owl:DatatypeProperty ;
+    rdfs:domain ears:EARSRequirement ;
+    rdfs:range xsd:string ;
+    rdfs:label "pattern"@en .
+
+ears:system a owl:DatatypeProperty ;
+    rdfs:domain ears:EARSRequirement ;
+    rdfs:range xsd:string ;
+    rdfs:label "system"@en ;
+    rdfs:comment "The system subject of the requirement"@en .
+
+ears:trigger a owl:DatatypeProperty ;
+    rdfs:domain ears:EventDrivenRequirement ;
+    rdfs:range xsd:string ;
+    rdfs:label "trigger"@en ;
+    rdfs:comment "Event that triggers the requirement"@en .
+
+ears:state a owl:DatatypeProperty ;
+    rdfs:domain ears:StateDrivenRequirement ;
+    rdfs:range xsd:string ;
+    rdfs:label "state"@en ;
+    rdfs:comment "State condition for the requirement"@en .
+
+ears:condition a owl:DatatypeProperty ;
+    rdfs:domain ears:OptionalRequirement ;
+    rdfs:range xsd:string ;
+    rdfs:label "condition"@en ;
+    rdfs:comment "Optional condition"@en .
+
+ears:response a owl:DatatypeProperty ;
+    rdfs:domain ears:EARSRequirement ;
+    rdfs:range xsd:string ;
+    rdfs:label "response"@en ;
+    rdfs:comment "System response or behavior"@en .
+
+# -----------------------------------------------------------------------------
+# C4 Properties
+# -----------------------------------------------------------------------------
+
+c4:level a owl:DatatypeProperty ;
+    rdfs:domain c4:C4Element ;
+    rdfs:range xsd:integer ;
+    rdfs:label "level"@en ;
+    rdfs:comment "C4 diagram level (1-4)"@en .
+
+c4:technology a owl:DatatypeProperty ;
+    rdfs:domain c4:C4Element ;
+    rdfs:range xsd:string ;
+    rdfs:label "technology"@en .
+
+c4:contains a owl:ObjectProperty ;
+    rdfs:domain c4:C4Element ;
+    rdfs:range c4:C4Element ;
+    rdfs:label "contains"@en .
+
+c4:uses a owl:ObjectProperty ;
+    rdfs:domain c4:C4Element ;
+    rdfs:range c4:C4Element ;
+    rdfs:label "uses"@en .
+
+c4:source a owl:ObjectProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range c4:C4Element ;
+    rdfs:label "source"@en .
+
+c4:target a owl:ObjectProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range c4:C4Element ;
+    rdfs:label "target"@en .
+
+c4:description a owl:DatatypeProperty ;
+    rdfs:domain c4:Relationship ;
+    rdfs:range xsd:string ;
+    rdfs:label "description"@en .
+
+# -----------------------------------------------------------------------------
+# Trace Properties
+# -----------------------------------------------------------------------------
+
+trace:source a owl:ObjectProperty ;
+    rdfs:domain trace:TraceLink ;
+    rdfs:range sdd:Artifact ;
+    rdfs:label "source"@en .
+
+trace:target a owl:ObjectProperty ;
+    rdfs:domain trace:TraceLink ;
+    rdfs:range sdd:Artifact ;
+    rdfs:label "target"@en .
+
+trace:createdAt a owl:DatatypeProperty ;
+    rdfs:domain trace:TraceLink ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at"@en .
+
+trace:confidence a owl:DatatypeProperty ;
+    rdfs:domain trace:TraceLink ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "confidence"@en ;
+    rdfs:comment "Confidence score 0.0-1.0"@en .
+
+trace:derivedFrom a owl:ObjectProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range sdd:Artifact ;
+    rdfs:label "derived from"@en .
+
+trace:implements a owl:ObjectProperty ;
+    rdfs:domain sdd:Artifact ;
+    rdfs:range sdd:Requirement ;
+    rdfs:label "implements"@en .
+
+trace:verifies a owl:ObjectProperty ;
+    rdfs:domain sdd:Test ;
+    rdfs:range sdd:Requirement ;
+    rdfs:label "verifies"@en .
+
+# -----------------------------------------------------------------------------
+# Pattern Properties
+# -----------------------------------------------------------------------------
+
+pattern:confidence a owl:DatatypeProperty ;
+    rdfs:domain pattern:Pattern ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "confidence"@en ;
+    rdfs:comment "Pattern confidence score 0.0-1.0"@en .
+
+pattern:occurrences a owl:DatatypeProperty ;
+    rdfs:domain pattern:Pattern ;
+    rdfs:range xsd:integer ;
+    rdfs:label "occurrences"@en .
+
+pattern:category a owl:DatatypeProperty ;
+    rdfs:domain pattern:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "category"@en .
+
+pattern:structure a owl:DatatypeProperty ;
+    rdfs:domain pattern:Pattern ;
+    rdfs:range xsd:string ;
+    rdfs:label "structure"@en ;
+    rdfs:comment "JSON representation of pattern structure"@en .
+
+pattern:learnedFrom a owl:ObjectProperty ;
+    rdfs:domain pattern:CodePattern ;
+    rdfs:range sdd:Code ;
+    rdfs:label "learned from"@en .
+
+pattern:appliedIn a owl:ObjectProperty ;
+    rdfs:domain pattern:Pattern ;
+    rdfs:range sdd:Artifact ;
+    rdfs:label "applied in"@en .
+
+# =============================================================================
+# End of SDD Core Ontology
+# =============================================================================

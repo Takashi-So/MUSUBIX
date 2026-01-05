@@ -754,6 +754,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Generated:** 2026-01-05  
 **MUSUBIX Core Package**

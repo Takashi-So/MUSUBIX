@@ -29,11 +29,26 @@ export {
   getSymbolicTools,
 } from './symbolic-tools.js';
 
+export {
+  learnPatternTool,
+  consolidatePatternsTool,
+  queryPatternRelationsTool,
+  searchPatternsTool,
+  getLearningStatsTool,
+  importToKnowledgeGraphTool,
+  exportKnowledgeGraphTool,
+  patternIntegrationTools,
+  getPatternIntegrationTools,
+  handlePatternIntegrationTool,
+  resetPatternIntegration,
+} from './pattern-tools.js';
+
 /**
  * Get all available tools
  */
 export function getAllTools() {
   const { getSddTools } = require('./sdd-tools.js');
   const { getSymbolicTools } = require('./symbolic-tools.js');
-  return [...getSddTools(), ...getSymbolicTools()];
+  const { getPatternIntegrationTools } = require('./pattern-tools.js');
+  return [...getSddTools(), ...getSymbolicTools(), ...getPatternIntegrationTools()];
 }

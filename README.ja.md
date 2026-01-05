@@ -6,11 +6,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-598%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-752%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.2.0** - Neuro-Symbolic統合完了（Phase 1-3）
+> **v1.3.0** - Wake-Sleep学習サイクル統合完了（S1-S3スプリント）
 
 ## 概要
 
@@ -68,13 +68,17 @@ flowchart TB
 | `packages/core/explanation/` | 説明生成・可視化 |
 | `packages/core/learning/` | 自己学習・パターン抽出 |
 | `packages/core/requirements/` | 要件分析・分解 |
-| `packages/core/symbolic/` | **シンボリック推論（NEW!）** |
+| `packages/core/symbolic/` | シンボリック推論 |
 | `packages/core/traceability/` | トレーサビリティ |
 | `packages/core/types/` | 型定義 |
 | `packages/core/utils/` | ユーティリティ |
 | `packages/core/validators/` | EARS検証 |
-| `packages/mcp-server/` | MCPサーバー（34 tools, 3 prompts） |
+| `packages/mcp-server/` | MCPサーバー（16 tools, 3 prompts） |
 | `packages/yata-client/` | YATA クライアント |
+| `packages/pattern-mcp/` | **パターン学習（NEW!）** |
+| `packages/ontology-mcp/` | **オントロジーエンジン（NEW!）** |
+| `packages/wake-sleep/` | **Wake-Sleep学習（NEW!）** |
+| `packages/sdd-ontology/` | **SDDオントロジー（NEW!）** |
 | `steering/` | プロジェクトメモリ |
 | `storage/` | 仕様書・成果物 |
 | `templates/` | テンプレート |
@@ -162,12 +166,12 @@ npm run type-check
 
 ### MCPサーバー
 
-34個のツールと3つのプロンプトを提供:
+16個のツール（SDD 9個 + パターン 7個）と3つのプロンプトを提供:
 
-\`\`\`bash
+```bash
 # MCPサーバー起動
 npx @nahisaho/musubix-mcp-server
-\`\`\`
+```
 
 ## ドキュメント
 
@@ -205,6 +209,30 @@ npx @nahisaho/musubix-mcp-server
 - **PerformanceBudget** - 段階別予算、SLOメトリクス
 - **QualityGateValidator** - 自動品質ゲート検証
 
+## Wake-Sleep学習サイクル（v1.3.0）
+
+Wake-Sleepアルゴリズムに基づく継続的学習システム:
+
+| フェーズ | 処理内容 |
+|---------|----------|
+| **Wake** | コード観察 → パターン抽出 → 知識グラフ更新 |
+| **Sleep** | パターン統合 → 類似パターン圧縮 → メモリ最適化 |
+
+### 主要コンポーネント
+- **WakeSleepCycle** - 学習サイクルのオーケストレーション
+- **PatternLibrary** - 学習済みパターンの永続化管理
+- **PatternOntologyBridge** - パターン↔オントロジー相互変換
+- **N3Store** - RDF/OWLベースの知識グラフストレージ
+
+### 新MCPツール（7ツール）
+- `pattern_extract` - コードからパターンを抽出
+- `pattern_compress` - パターンの抽象化・圧縮
+- `pattern_store` - パターンライブラリへの保存
+- `pattern_query` - パターンの検索・取得
+- `pattern_consolidate` - 類似パターンの統合
+- `ontology_query` - オントロジーグラフへのクエリ
+- `ontology_infer` - オントロジーによる推論実行
+
 ## 憲法（9条）
 
 MUSUBIXは以下の9条の憲法に準拠しています：
@@ -234,5 +262,5 @@ nahisaho
 ---
 
 **文書ID**: README  
-**バージョン**: 1.0.20  
+**バージョン**: 1.3.0  
 **最終更新**: 2026-01-05
