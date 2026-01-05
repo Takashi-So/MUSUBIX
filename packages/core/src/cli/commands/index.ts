@@ -21,6 +21,7 @@ import { registerTraceCommand } from './trace.js';
 import { registerExplainCommand } from './explain.js';
 import { registerLearnCommand } from './learn.js';
 import { registerOntologyCommand } from './ontology.js';
+import { registerReplCommand } from './repl.js';
 
 /**
  * Register all CLI commands
@@ -46,6 +47,9 @@ export function registerCommands(program: Command): void {
   
   // Ontology commands (REQ-INT-003)
   registerOntologyCommand(program);
+  
+  // Interactive REPL (REQ-CLI-v1.5.0)
+  registerReplCommand(program);
 }
 
 // Core command exports

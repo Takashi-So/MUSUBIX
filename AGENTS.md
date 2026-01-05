@@ -8,13 +8,13 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.4.5 |
+| **バージョン** | 1.5.0 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 969 (全合格) |
+| **テスト数** | 1021 (全合格) |
 | **コンポーネント数** | 249 (62ドメイン対応) |
 | **Agent Skills** | 12 (Claude Code対応) |
 
@@ -120,6 +120,11 @@ npx musubix learn import <file>            # 学習データインポート
 npx musubix ontology validate -f <file>    # 知識グラフ整合性検証
 npx musubix ontology check-circular -f <file>  # 循環依存チェック
 npx musubix ontology stats -f <file>       # 統計表示
+
+# Interactive REPL (v1.5.0 NEW!)
+npx musubix repl                           # 対話的シェルを起動
+npx musubix repl --history <file>          # カスタム履歴ファイル
+npx musubix repl --no-color                # 色なしモード
 
 # ヘルプ
 npx musubix --help
@@ -482,6 +487,6 @@ npx musubix learn best-practices --format markdown
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-05
-**Version**: 1.4.5
+**Last Updated**: 2026-01-06
+**Version**: 1.5.0
 **Repository**: https://github.com/nahisaho/MUSUBIX

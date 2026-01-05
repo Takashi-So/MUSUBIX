@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "1.4.5",
+  "version": "1.5.0",
   "description": "Neuro-Symbolic AI Coding System - MUSUBI × YATA Integration",
   "type": "module",
   "workspaces": [

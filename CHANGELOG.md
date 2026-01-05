@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-01-06
+
+### Added - Interactive CLI Mode (REPL)
+
+v1.5.0として、Interactive CLI Mode（REPLシェル）を実装。1021テスト全合格。
+
+#### 新機能: REPLエンジン
+
+| コンポーネント | 説明 | 要件 |
+|---------------|------|------|
+| **ReplEngine** | メインREPLエンジン（Facade） | REQ-CLI-001 |
+| **CommandCompleter** | TAB補完（コマンド/サブコマンド/オプション/ファイルパス） | REQ-CLI-002 |
+| **HistoryManager** | コマンド履歴管理（永続化・検索） | REQ-CLI-003 |
+| **SessionState** | セッション変数管理（set/get/expand） | REQ-CLI-007 |
+| **OutputFormatter** | 出力フォーマット（JSON/Table/YAML） | REQ-CLI-008 |
+| **PromptRenderer** | プロンプト描画（プロジェクト名/フェーズ/色） | REQ-CLI-004 |
+
+#### REPL機能
+
+| 機能 | 説明 |
+|------|------|
+| **コマンド補完** | TABキーでコマンド/サブコマンド/オプションを補完 |
+| **履歴ナビゲーション** | ↑/↓キーで履歴をナビゲート |
+| **履歴検索** | Ctrl+R で履歴をインクリメンタル検索 |
+| **セッション変数** | `set VAR=value` で変数を設定、`$VAR` で参照 |
+| **出力フォーマット** | JSON/Table/YAML形式で出力 |
+| **ヘルプシステム** | `help <command>` で詳細ヘルプ |
+
+#### 設計パターン
+
+| パターン | コンポーネント | 説明 |
+|---------|---------------|------|
+| **Facade** | ReplEngine | 複雑なサブシステムを統一インターフェースで提供 |
+| **Strategy** | CommandCompleter, OutputFormatter | 異なる補完/フォーマット戦略を切り替え |
+| **Repository** | HistoryManager | 履歴データの永続化管理 |
+| **State** | SessionState | セッション状態の管理 |
+| **Template Method** | PromptRenderer | プロンプト描画の拡張ポイント |
+
+#### 使用方法
+
+```bash
+# REPLを起動
+npx musubix repl
+
+# カスタム履歴ファイル
+npx musubix repl --history ~/.musubix_history
+
+# 色なしモード
+npx musubix repl --no-color
+```
+
+---
+
 ## [1.4.5] - 2026-01-06
 
 ### Added - Advanced Inference (v1.5.0 Phase 3)
