@@ -89,7 +89,7 @@ MIIEpAIBAAKCAQEA0Z3VS...
     });
 
     it('should provide redacted snippets', () => {
-      const code = `const apiKey = "sk_live_verysecretkey123456789";`;
+      const code = `const apiKey = "sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXX";`;
 
       const result = scanner.scan(code);
 

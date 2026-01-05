@@ -1138,17 +1138,17 @@ claude mcp list
 
 ```mermaid
 flowchart TD
-    Start[MUSUBIXを使いたい] --> Q1{MCPを使う<br/>環境がある？}
+    Start[MUSUBIXを使いたい] --> Q1{MCPを使う環境がある？}
     
-    Q1 -->|はい| Q2{高度な機能が<br/>必要？}
+    Q1 -->|はい| Q2{高度な機能が<br>必要？}
     Q1 -->|いいえ| Direct[方法1: 直接利用]
     
     Q2 -->|はい| MCP[方法2: MCP経由]
     Q2 -->|いいえ| Both[両方併用]
     
-    Direct --> Use1[AGENTS.md + プロンプト<br/>で日常開発]
-    MCP --> Use2[MCPツールで<br/>高度な検証・分析]
-    Both --> Use3[普段は直接利用<br/>必要時にMCP]
+    Direct --> Use1[AGENTS.md + プロンプトで日常開発]
+    MCP --> Use2[MCPツールで<br>高度な検証・分析]
+    Both --> Use3[普段は直接利用<br>必要時にMCP]
 ```
 
 | シナリオ | 推奨方法 |
