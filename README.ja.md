@@ -6,11 +6,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-459%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-598%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.1.15** - GitHub Copilot + Claude Code 両対応、CLAUDE.md 自動生成
+> **v1.2.0** - Neuro-Symbolic統合完了（Phase 1-3）
 
 ## 概要
 
@@ -19,15 +19,17 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 ### 特徴
 
 - 🧠 **ニューロシンボリック統合** - LLMの創造性とYATA知識グラフの厳密性を融合
-- 📋 **EARS形式要件分析** - 自然言語から正式な要件への変換・検証
+- � **シンボリック推論** - 形式検証、幻覚検出、憲法強制
+- 📝 **EARS形式要件分析** - 自然言語から正式な要件への変換・検証
 - 🎨 **設計パターン推奨** - コンテキストに基づくC4モデル・ADR生成
 - ✅ **テスト駆動開発** - Test-First原則による品質保証
 - 🔗 **完全なトレーサビリティ** - 要件からコードまでの追跡可能性
 - 💬 **一問一答形式ヒアリング** - 対話的な要件定義サポート
 - 🌐 **多言語対応（i18n）** - 日本語・英語対応
-- 🔒 **セキュリティスキャン** - 脆弱性検出・認証管理
+- 🔒 **セキュリティスキャン** - 脆弱性検出、シークレットスキャン、OWASPパターン
 - 📚 **自己学習システム** - フィードバック収集とパターン抽出による適応的改善
 - 🏗️ **C4コード生成** - C4設計ドキュメントからTypeScriptスケルトン生成
+- ⚙️ **品質ゲート** - フェーズ移行前の自動品質検証
 
 ## アーキテクチャ
 
@@ -57,7 +59,7 @@ flowchart TB
 
 | パス | 説明 |
 |------|------|
-| `packages/core/` | コアライブラリ（56モジュール） |
+| `packages/core/` | コアライブラリ（224モジュール） |
 | `packages/core/auth/` | 認証・認可 |
 | `packages/core/cli/` | CLIインターフェース |
 | `packages/core/codegen/` | コード生成・解析 |
@@ -66,6 +68,7 @@ flowchart TB
 | `packages/core/explanation/` | 説明生成・可視化 |
 | `packages/core/learning/` | 自己学習・パターン抽出 |
 | `packages/core/requirements/` | 要件分析・分解 |
+| `packages/core/symbolic/` | **シンボリック推論（NEW!）** |
 | `packages/core/traceability/` | トレーサビリティ |
 | `packages/core/types/` | 型定義 |
 | `packages/core/utils/` | ユーティリティ |
@@ -174,6 +177,33 @@ npx @nahisaho/musubix-mcp-server
 | [設計書](storage/specs/DES-MUSUBIX-001.md) | C4モデル・ADRベースの設計 |
 | [タスク定義書](storage/specs/TSK-MUSUBIX-001.md) | 56タスクのスプリント計画 |
 | [APIリファレンス](docs/API-REFERENCE.md) | 公開API仕様 |
+| [シンボリック統合](storage/specs/REQ-SYMB-001.md) | Neuro-Symbolic要件（27要件） |
+
+## シンボリック推論モジュール（v1.2.0）
+
+新しいシンボリック推論モジュール:
+
+### Phase 1: 基盤
+- **SemanticCodeFilterPipeline** - LLM出力のセマンティック検証
+- **HallucinationDetector** - 未定義シンボル・無効インポートの検出
+- **ConstitutionRuleRegistry** - 9憲法条項の強制
+- **ConfidenceEstimator** - AST複雑度、要件カバレッジのスコアリング
+- **ConfidenceBasedRouter** - 信頼度ベースのルーティング決定
+- **ErrorHandler** - グレースフルデグラデーション
+
+### Phase 2: 形式検証
+- **EarsToFormalSpecConverter** - EARS → SMT-LIB変換
+- **VerificationConditionGenerator** - 検証条件（VC）生成
+- **Z3Adapter** - Z3 SMTソルバー統合
+- **SecurityScanner** - OWASPパターン、シークレット検出
+
+### Phase 3: 高度機能
+- **CandidateRanker** - 複数基準による候補スコアリング
+- **ResultBlender** - Neural/Symbolic結果統合（3戦略）
+- **ExtensibleRuleConfig** - YAML/JSONルール設定
+- **AuditLogger** - SHA-256ハッシュチェーン改ざん検出
+- **PerformanceBudget** - 段階別予算、SLOメトリクス
+- **QualityGateValidator** - 自動品質ゲート検証
 
 ## 憲法（9条）
 

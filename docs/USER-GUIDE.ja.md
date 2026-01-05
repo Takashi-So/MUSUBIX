@@ -15,10 +15,11 @@
 9. [検証フェーズ](#検証フェーズ)
 10. [自己学習システム](#自己学習システム)
 11. [C4コード生成](#c4コード生成)
-12. [MCPサーバー連携](#mcpサーバー連携)
-13. [YATA知識グラフ](#yata知識グラフ)
-14. [ベストプラクティス](#ベストプラクティス)
-15. [トラブルシューティング](#トラブルシューティング)
+12. [シンボリック推論](#シンボリック推論) *(v1.2.0)*
+13. [MCPサーバー連携](#mcpサーバー連携)
+14. [YATA知識グラフ](#yata知識グラフ)
+15. [ベストプラクティス](#ベストプラクティス)
+16. [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -633,6 +634,114 @@ export function createAuthService(): IAuthService {
 
 ---
 
+## シンボリック推論
+
+*(v1.2.0 新機能)*
+
+### 概要
+
+シンボリック推論は、形式検証と知識グラフベースの推論を適用して、LLM出力を強化します。このハイブリッドアプローチ（ニューロシンボリック）は、ニューラルネットワークの創造性とシンボリックロジックの精度を組み合わせます。
+
+### 主要コンポーネント
+
+| コンポーネント | 説明 |
+|--------------|------|
+| `SemanticCodeFilterPipeline` | コード品質のためのLLM出力フィルタリング |
+| `HallucinationDetector` | ハルシネーション（幻覚）出力の検出と防止 |
+| `EarsToFormalSpecConverter` | EARS要件からZ3形式仕様への変換 |
+| `Z3Adapter` | 形式検証のためのZ3ソルバーインターフェース |
+| `QualityGateValidator` | 17品質ゲートチェックに対する検証 |
+
+### 使用方法
+
+#### セマンティックコードフィルタリング
+
+```typescript
+import { SemanticCodeFilterPipeline } from '@nahisaho/musubix-core';
+
+const pipeline = new SemanticCodeFilterPipeline({
+  enableHallucinationDetection: true,
+  maxRetries: 3
+});
+
+const result = await pipeline.filter({
+  code: generatedCode,
+  context: { language: 'typescript', domain: 'authentication' }
+});
+
+if (result.isValid) {
+  console.log('コードが検証に合格:', result.filteredCode);
+} else {
+  console.log('問題が検出されました:', result.issues);
+}
+```
+
+#### ハルシネーション検出
+
+```typescript
+import { HallucinationDetector } from '@nahisaho/musubix-core';
+
+const detector = new HallucinationDetector();
+
+const analysis = await detector.analyze({
+  response: llmResponse,
+  groundTruth: knownFacts,
+  context: projectContext
+});
+
+console.log('信頼度スコア:', analysis.confidence);
+console.log('ハルシネーションリスク:', analysis.risks);
+```
+
+#### EARSから形式仕様への変換
+
+```typescript
+import { EarsToFormalSpecConverter } from '@nahisaho/musubix-core';
+
+const converter = new EarsToFormalSpecConverter();
+
+const formalSpec = await converter.convert({
+  earsRequirement: 'WHEN user clicks login, THE system SHALL authenticate within 2 seconds',
+  requirementId: 'REQ-AUTH-001'
+});
+
+// Z3互換の仕様を返す
+console.log(formalSpec.z3Expression);
+```
+
+#### 品質ゲート検証
+
+```typescript
+import { QualityGateValidator } from '@nahisaho/musubix-core';
+
+const validator = new QualityGateValidator();
+
+const gateResult = await validator.validate({
+  requirements: requirementsList,
+  designs: designDocuments,
+  tasks: taskList
+});
+
+console.log('全ゲート合格:', gateResult.allPassed);
+console.log('ゲート詳細:', gateResult.gates);
+// EARS準拠、トレーサビリティなど17の品質チェック
+```
+
+### 品質ゲートチェック
+
+| ゲート | 説明 |
+|--------|------|
+| EARS準拠 | 要件がEARSパターンに従っているか |
+| 一意のID | すべての成果物に一意の識別子があるか |
+| トレーサビリティ | 完全なトレーサビリティチェーンが存在するか |
+| 設計カバレッジ | すべての要件に設計があるか |
+| タスクカバレッジ | すべての設計にタスクがあるか |
+| 孤立なし | 孤立した要件やタスクがないか |
+| 完全性 | すべての必須フィールドが存在するか |
+| ... | その他10の品質チェック |
+
+---
+
 ## MCPサーバー連携
 
 ### MCPサーバーの起動
@@ -945,6 +1054,6 @@ const client = createYATAClient({
 
 ---
 
-**バージョン**: 1.0.12  
-**最終更新**: 2026-01-03  
+**バージョン**: 1.2.0  
+**最終更新**: 2026-01-04  
 **MUSUBIX Project**

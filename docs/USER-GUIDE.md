@@ -13,10 +13,11 @@
 5. [SDD Workflow](#sdd-workflow)
 6. [Self-Learning System](#self-learning-system)
 7. [C4 Code Generation](#c4-code-generation)
-8. [MCP Server Integration](#mcp-server-integration)
-9. [YATA Integration](#yata-integration)
-10. [Best Practices](#best-practices)
-11. [Troubleshooting](#troubleshooting)
+8. [Symbolic Reasoning](#symbolic-reasoning) *(v1.2.0)*
+9. [MCP Server Integration](#mcp-server-integration)
+10. [YATA Integration](#yata-integration)
+11. [Best Practices](#best-practices)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -593,6 +594,114 @@ Add to `.cursor/mcp.json`:
 
 ---
 
+## Symbolic Reasoning
+
+*(v1.2.0 New Feature)*
+
+### Overview
+
+Symbolic reasoning enhances LLM outputs by applying formal verification and knowledge-graph backed reasoning. This hybrid approach (Neuro-Symbolic) combines the creativity of neural networks with the precision of symbolic logic.
+
+### Key Components
+
+| Component | Description |
+|-----------|-------------|
+| `SemanticCodeFilterPipeline` | Filter LLM outputs for code quality |
+| `HallucinationDetector` | Detect and prevent hallucinated outputs |
+| `EarsToFormalSpecConverter` | Convert EARS requirements to formal Z3 specifications |
+| `Z3Adapter` | Interface with Z3 solver for formal verification |
+| `QualityGateValidator` | Validate against 17 quality gate checks |
+
+### Usage
+
+#### Semantic Code Filtering
+
+```typescript
+import { SemanticCodeFilterPipeline } from '@nahisaho/musubix-core';
+
+const pipeline = new SemanticCodeFilterPipeline({
+  enableHallucinationDetection: true,
+  maxRetries: 3
+});
+
+const result = await pipeline.filter({
+  code: generatedCode,
+  context: { language: 'typescript', domain: 'authentication' }
+});
+
+if (result.isValid) {
+  console.log('Code passed validation:', result.filteredCode);
+} else {
+  console.log('Issues found:', result.issues);
+}
+```
+
+#### Hallucination Detection
+
+```typescript
+import { HallucinationDetector } from '@nahisaho/musubix-core';
+
+const detector = new HallucinationDetector();
+
+const analysis = await detector.analyze({
+  response: llmResponse,
+  groundTruth: knownFacts,
+  context: projectContext
+});
+
+console.log('Confidence score:', analysis.confidence);
+console.log('Hallucination risks:', analysis.risks);
+```
+
+#### EARS to Formal Specification
+
+```typescript
+import { EarsToFormalSpecConverter } from '@nahisaho/musubix-core';
+
+const converter = new EarsToFormalSpecConverter();
+
+const formalSpec = await converter.convert({
+  earsRequirement: 'WHEN user clicks login, THE system SHALL authenticate within 2 seconds',
+  requirementId: 'REQ-AUTH-001'
+});
+
+// Returns Z3-compatible specification
+console.log(formalSpec.z3Expression);
+```
+
+#### Quality Gate Validation
+
+```typescript
+import { QualityGateValidator } from '@nahisaho/musubix-core';
+
+const validator = new QualityGateValidator();
+
+const gateResult = await validator.validate({
+  requirements: requirementsList,
+  designs: designDocuments,
+  tasks: taskList
+});
+
+console.log('All gates passed:', gateResult.allPassed);
+console.log('Gate details:', gateResult.gates);
+// 17 quality checks including EARS compliance, traceability, etc.
+```
+
+### Quality Gate Checks
+
+| Gate | Description |
+|------|-------------|
+| EARS Compliance | Requirements follow EARS patterns |
+| Unique IDs | All artifacts have unique identifiers |
+| Traceability | Full traceability chain exists |
+| Design Coverage | All requirements have designs |
+| Task Coverage | All designs have tasks |
+| No Orphans | No orphaned requirements or tasks |
+| Completeness | All required fields are present |
+| ... | And 10 more quality checks |
+
+---
+
 ## YATA Integration
 
 ### What is YATA?
@@ -785,6 +894,6 @@ const client = createYATAClient({
 
 ---
 
-**Version**: 1.0.12  
-**Last Updated**: 2026-01-03  
+**Version**: 1.2.0  
+**Last Updated**: 2026-01-04  
 **MUSUBIX Project**

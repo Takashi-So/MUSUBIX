@@ -11,6 +11,7 @@
   - [Requirements](#requirements)
   - [Design](#design)
   - [Codegen](#codegen)
+  - [Symbolic](#symbolic)
   - [Validation](#validation)
   - [Utils](#utils)
 - [MCP Server](#mcp-server)
@@ -331,6 +332,131 @@ const result = validator.validate(artifact);
 
 ---
 
+### Symbolic (v1.2.0)
+
+The symbolic reasoning module provides formal verification and quality assurance capabilities.
+
+#### SemanticCodeFilterPipeline
+
+Filters and validates LLM-generated code semantically.
+
+```typescript
+import { createSemanticCodeFilterPipeline } from '@nahisaho/musubix-core';
+
+const filter = createSemanticCodeFilterPipeline({
+  hallucinationDetector: new HallucinationDetector(),
+  constitutionRegistry: new ConstitutionRuleRegistry(),
+});
+
+const result = await filter.filter({
+  candidates: [{ code: 'function example() {}', language: 'typescript' }],
+  projectContext: { projectRoot: '/path/to/project' },
+});
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `filter(input)` | `input: FilterInput` | `Promise<FilterOutput>` | Filters code candidates |
+
+---
+
+#### HallucinationDetector
+
+Detects hallucinations (undefined symbols, invalid imports) in generated code.
+
+```typescript
+import { createHallucinationDetector } from '@nahisaho/musubix-core';
+
+const detector = createHallucinationDetector();
+const result = detector.detect(code, projectContext);
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `detect(code, context)` | `code: string, context: ProjectContext` | `HallucinationResult` | Detects hallucinations |
+
+---
+
+#### EarsToFormalSpecConverter
+
+Converts EARS requirements to SMT-LIB format.
+
+```typescript
+import { createEarsToFormalSpecConverter, parseEarsRequirement } from '@nahisaho/musubix-core';
+
+const converter = createEarsToFormalSpecConverter();
+const ast = parseEarsRequirement('THE system SHALL validate input');
+const smtLib = converter.convert([ast]);
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `convert(requirements)` | `requirements: EarsAstNode[]` | `SmtLibOutput` | Converts EARS to SMT-LIB |
+
+---
+
+#### Z3Adapter
+
+Integrates with Z3 SMT solver for formal verification.
+
+```typescript
+import { createZ3Adapter } from '@nahisaho/musubix-core';
+
+const z3 = createZ3Adapter({ timeoutMs: 5000 });
+const result = await z3.verify(verificationConditions, smtLib);
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `verify(vcs, smtLib)` | `vcs: VerificationCondition[], smtLib: string` | `Promise<FormalVerificationResult>` | Verifies conditions |
+| `isAvailable()` | - | `Promise<boolean>` | Checks if Z3 is installed |
+
+---
+
+#### QualityGateValidator
+
+Validates quality gates before phase transitions.
+
+```typescript
+import { QualityGateValidator, createComponentValidation } from '@nahisaho/musubix-core';
+
+const validator = new QualityGateValidator();
+const components = createComponentValidation({
+  performanceBudgetDefined: true,
+  auditLoggingDefined: true,
+  traceabilityCompliant: true,
+});
+
+const result = validator.validate(traceabilityData, components);
+const report = validator.generateApprovalReport(result);
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `validate(traceability, components)` | `traceability: TraceabilityCoverage[], components: ComponentValidation` | `QualityGateResult` | Validates quality gate |
+| `generateApprovalReport(result)` | `result: QualityGateResult` | `string` | Generates Markdown report |
+
+**Quality Gate Checks:**
+
+| Category | Checks |
+|----------|--------|
+| Traceability | Design coverage, Task decomposition, Coverage gaps |
+| Non-Functional | Performance budget, Extensibility, Explainability |
+| Security | Sensitive data masking, Audit logging |
+| Constitution | All 9 articles compliance |
+
+---
+
 ### Utils
 
 #### I18nManager
@@ -628,6 +754,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**Version:** 1.0.12  
-**Generated:** 2026-01-03  
+**Version:** 1.2.0  
+**Generated:** 2026-01-05  
 **MUSUBIX Core Package**

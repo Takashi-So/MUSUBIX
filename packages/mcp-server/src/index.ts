@@ -67,6 +67,17 @@ export {
   validateTraceabilityTool,
 } from './tools/index.js';
 
+// Symbolic Tools
+export {
+  symbolicTools,
+  getSymbolicTools,
+  filterCodeTool,
+  detectHallucinationsTool,
+  checkConstitutionTool,
+  estimateConfidenceTool,
+  getPipelineInfoTool,
+} from './tools/index.js';
+
 // SDD Prompts
 export {
   sddPrompts,
@@ -165,9 +176,17 @@ export async function startServer(options: StartServerOptions = {}): Promise<voi
     transport,
     port,
   });
-  
+
+  // Import symbolic tools
+  const { symbolicTools } = await import('./tools/index.js');
+
   // Register all SDD tools, prompts, and resources
   for (const tool of sddTools) {
+    server.registerTool(tool);
+  }
+
+  // Register symbolic tools
+  for (const tool of symbolicTools) {
     server.registerTool(tool);
   }
   

@@ -5,6 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-01-05
+
+### Added - Neuro-Symbolic Integration (Phase 1-3 Complete)
+
+Symbolic推論モジュールの完全実装。REQ-SYMB-001の全27要件をカバー。
+
+#### Phase 1: 基盤コンポーネント（TSK-SYMB-001〜008）
+
+| コンポーネント | 機能 |
+|---------------|------|
+| **SemanticCodeFilterPipeline** | LLM出力のセマンティック検証・フィルタリング |
+| **HallucinationDetector** | 幻覚検出（未定義シンボル、無効インポート） |
+| **ConstitutionRuleRegistry** | 9憲法条項の強制検証 |
+| **ConfidenceEstimator** | 信頼度推定（AST複雑度、要件カバレッジ） |
+| **ConfidenceBasedRouter** | 信頼度ベースのルーティング決定 |
+| **ErrorHandler** | グレースフルデグラデーション |
+
+#### Phase 2: 形式検証（TSK-SYMB-009〜013）
+
+| コンポーネント | 機能 |
+|---------------|------|
+| **EarsToFormalSpecConverter** | EARS要件→SMT-LIB変換 |
+| **VerificationConditionGenerator** | 検証条件（VC）生成 |
+| **Z3Adapter** | Z3 SMTソルバー統合 |
+| **PreconditionVerifier** | 事前条件検証 |
+| **PostconditionVerifier** | 事後条件検証 |
+| **InvariantVerifier** | 不変条件検証 |
+| **SecurityScanner** | セキュリティスキャン（OWASP、シークレット検出） |
+
+#### Phase 3: 高度機能（TSK-SYMB-014〜019）
+
+| コンポーネント | 機能 |
+|---------------|------|
+| **CandidateRanker** | 候補スコアリング（複雑度/保守性/要件カバレッジ） |
+| **ResultBlender** | Neural/Symbolic結果統合（3戦略ブレンド） |
+| **ExtensibleRuleConfig** | YAML/JSON設定ロード、スキーマ検証 |
+| **AuditLogger** | SHA-256ハッシュチェーン、改ざん検出 |
+| **PerformanceBudget** | 段階別予算、SLO計測、部分結果 |
+| **QualityGateValidator** | 品質ゲート検証、承認レポート生成 |
+
+### Changed
+
+- テスト数: 582 → 598 (+16)
+- 型定義: `Evidence.type`に`timing`と`artifact`を追加
+
+### Quality Gate
+
+全17チェック合格:
+- ✅ トレーサビリティ: 100%設計カバレッジ
+- ✅ 非機能要件: パフォーマンス予算、拡張性、説明可能性
+- ✅ セキュリティ: マスキング、監査ログ
+- ✅ Constitution: 全9条項準拠
+
+### Traceability
+
+```
+REQ-SYMB-001 (27要件)
+  └─ DES-SYMB-001 (設計)
+       └─ TSK-SYMB-001〜019 (19タスク)
+            └─ 598テスト (全合格)
+```
+
+---
+
 ## [1.1.15] - 2026-01-04
 
 ### Added - Version Display in Postinstall Banner

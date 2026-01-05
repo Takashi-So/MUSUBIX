@@ -8,14 +8,14 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.1.15 |
+| **バージョン** | 1.2.0 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 459 (全合格) |
-| **コンポーネント数** | 224 (62ドメイン対応) |
+| **テスト数** | 598 (全合格) |
+| **コンポーネント数** | 243 (62ドメイン対応) |
 | **Agent Skills** | 12 (Claude Code対応) |
 
 ---
@@ -47,8 +47,9 @@ packages/core/src/
 ├── design/         # 設計パターン・C4モデル
 ├── error/          # エラーハンドリング
 ├── explanation/    # 説明生成・可視化
-├── learning/       # 自己学習システム（NEW!）
+├── learning/       # 自己学習システム
 ├── requirements/   # 要件分析・分解
+├── symbolic/       # シンボリック推論（v1.2.0 NEW!）
 ├── traceability/   # トレーサビリティ
 ├── types/          # 型定義
 ├── utils/          # ユーティリティ
@@ -425,5 +426,5 @@ npx musubix learn best-practices --format markdown
 
 **Agent**: GitHub Copilot / Claude
 **Last Updated**: 2026-01-04
-**Version**: 1.1.15
+**Version**: 1.2.0
 **Repository**: https://github.com/nahisaho/MUSUBIX

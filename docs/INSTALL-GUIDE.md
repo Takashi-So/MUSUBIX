@@ -1,8 +1,8 @@
 # MUSUBIX Installation Guide
 
 **Document ID**: INSTALL-GUIDE  
-**Version**: 1.1.15  
-**Last Updated**: 2026-01-04
+**Version**: 1.2.0  
+**Last Updated**: 2026-01-05
 
 ---
 
@@ -48,7 +48,8 @@ flowchart LR
 | Pattern | Installation | Available Features |
 |---------|--------------|-------------------|
 | **Basic** | MUSUBIX only | EARS requirements, C4 design, code generation |
-| **Full** | MUSUBIX + YATA | Above + knowledge graph, formal verification, explanations |
+| **Symbolic** | MUSUBIX only | Above + symbolic reasoning, formal verification, quality gates |
+| **Full** | MUSUBIX + YATA | Above + knowledge graph, external verification, explanations |
 
 ---
 

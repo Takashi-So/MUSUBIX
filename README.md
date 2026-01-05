@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-459%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-598%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.1.15** - Dual Agent Support (GitHub Copilot + Claude Code), CLAUDE.md Generation
+> **v1.2.0** - Neuro-Symbolic Integration Complete (Phase 1-3)
 
 **[日本語版 README](README.ja.md)**
 
@@ -22,15 +22,17 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 ### Features
 
 - 🧠 **Neuro-Symbolic Integration** - Fusion of LLM creativity and YATA knowledge graph precision
-- 📋 **EARS Requirements Analysis** - Conversion and validation from natural language to formal requirements
+- � **Symbolic Reasoning** - Formal verification, hallucination detection, constitution enforcement
+- 📝 **EARS Requirements Analysis** - Conversion and validation from natural language to formal requirements
 - 🎨 **Design Pattern Recommendations** - Context-based C4 model and ADR generation
 - ✅ **Test-Driven Development** - Quality assurance through Test-First principles
 - 🔗 **Complete Traceability** - Tracking from requirements to code
 - 💬 **Interactive Q&A Hearing** - Dialogue-based requirements gathering support
 - 🌐 **Internationalization (i18n)** - Japanese and English support
-- 🔒 **Security Scanning** - Vulnerability detection and authentication management
+- 🔒 **Security Scanning** - Vulnerability detection, secret scanning, OWASP patterns
 - 📚 **Self-Learning System** - Adaptive improvement through feedback collection and pattern extraction
 - 🏗️ **C4 Code Generation** - Generate TypeScript skeleton from C4 design documents
+- ⚙️ **Quality Gates** - Automated quality validation before phase transitions
 
 ## Architecture
 
@@ -60,7 +62,7 @@ flowchart TB
 
 | Path | Description |
 |------|-------------|
-| `packages/core/` | Core library (56 modules) |
+| `packages/core/` | Core library (224 modules) |
 | `packages/core/auth/` | Authentication & Authorization |
 | `packages/core/cli/` | CLI Interface |
 | `packages/core/codegen/` | Code Generation & Analysis |
@@ -69,6 +71,7 @@ flowchart TB
 | `packages/core/explanation/` | Explanation Generation & Visualization |
 | `packages/core/learning/` | Self-Learning & Pattern Extraction |
 | `packages/core/requirements/` | Requirements Analysis & Decomposition |
+| `packages/core/symbolic/` | **Symbolic Reasoning (NEW!)** |
 | `packages/core/traceability/` | Traceability |
 | `packages/core/types/` | Type Definitions |
 | `packages/core/utils/` | Utilities |
@@ -177,6 +180,33 @@ npx @nahisaho/musubix-mcp-server
 | [Design Document](storage/specs/DES-MUSUBIX-001.md) | C4 model and ADR-based design |
 | [Task Definition](storage/specs/TSK-MUSUBIX-001.md) | 56 tasks sprint plan |
 | [API Reference](docs/API-REFERENCE.md) | Public API specification |
+| [Symbolic Integration](storage/specs/REQ-SYMB-001.md) | Neuro-Symbolic requirements (27 requirements) |
+
+## Symbolic Reasoning Module (v1.2.0)
+
+The new symbolic reasoning module provides:
+
+### Phase 1: Foundation
+- **SemanticCodeFilterPipeline** - LLM output semantic validation
+- **HallucinationDetector** - Undefined symbol/invalid import detection
+- **ConstitutionRuleRegistry** - 9 Constitution articles enforcement
+- **ConfidenceEstimator** - AST complexity, requirement coverage scoring
+- **ConfidenceBasedRouter** - Confidence-based routing decisions
+- **ErrorHandler** - Graceful degradation
+
+### Phase 2: Formal Verification
+- **EarsToFormalSpecConverter** - EARS → SMT-LIB conversion
+- **VerificationConditionGenerator** - Verification condition (VC) generation
+- **Z3Adapter** - Z3 SMT solver integration
+- **SecurityScanner** - OWASP patterns, secret detection
+
+### Phase 3: Advanced Features
+- **CandidateRanker** - Multi-criteria candidate scoring
+- **ResultBlender** - Neural/Symbolic result integration (3 strategies)
+- **ExtensibleRuleConfig** - YAML/JSON rule configuration
+- **AuditLogger** - SHA-256 hash-chain tamper detection
+- **PerformanceBudget** - Step-level budgets, SLO metrics
+- **QualityGateValidator** - Automated quality gate validation
 
 ## Constitutional Articles (9 Articles)
 
