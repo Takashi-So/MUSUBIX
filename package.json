@@ -70,6 +70,7 @@
     "@nahisaho/musubix-pattern-mcp": "^1.0.0",
     "@nahisaho/musubix-sdd-ontology": "^1.0.0",
     "@nahisaho/musubix-wake-sleep": "^1.0.0",
-    "@nahisaho/musubix-yata-client": "^1.3.0"
+    "@nahisaho/musubix-yata-client": "^1.3.0",
+    "musubix": "^1.6.0"
   }
 }

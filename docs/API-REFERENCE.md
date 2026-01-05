@@ -978,6 +978,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**Version:** 1.4.5  
-**Generated:** 2026-01-05  
+**Version:** 1.6.0  
+**Generated:** 2026-01-06  
 **MUSUBIX Core Package**

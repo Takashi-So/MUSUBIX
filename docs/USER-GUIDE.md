@@ -1225,6 +1225,6 @@ const client = createYATAClient({
 
 ---
 
-**Version**: 1.4.5  
-**Last Updated**: 2026-01-05  
+**Version**: 1.6.0  
+**Last Updated**: 2026-01-06  
 **MUSUBIX Project**
