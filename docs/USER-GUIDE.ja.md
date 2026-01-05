@@ -18,10 +18,11 @@
 12. [シンボリック推論](#シンボリック推論) *(v1.2.0)*
 13. [正誤性検証](#正誤性検証) *(v1.4.1)*
 14. [高度な推論](#高度な推論) *(v1.4.5)*
-15. [MCPサーバー連携](#mcpサーバー連携)
-16. [YATA知識グラフ](#yata知識グラフ)
-17. [ベストプラクティス](#ベストプラクティス)
-18. [トラブルシューティング](#トラブルシューティング)
+15. [対話的REPLモード](#対話的replモード) *(v1.5.0)*
+16. [MCPサーバー連携](#mcpサーバー連携)
+17. [YATA知識グラフ](#yata知識グラフ)
+18. [ベストプラクティス](#ベストプラクティス)
+19. [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -969,6 +970,106 @@ const reporter = createProgressReporter({
 
 await reasoner.reason(store, { progressReporter: reporter });
 ```
+
+---
+
+## 対話的REPLモード
+
+*(v1.5.0 新規、v1.6.0 強化)*
+
+MUSUBIXは、リアルタイムでコマンドを実行・探索できる対話的REPLシェルを提供します。
+
+### REPLの起動
+
+```bash
+# 対話的REPLを起動
+musubix repl
+
+# カスタム履歴ファイルを指定
+musubix repl --history ~/.musubix-repl-history
+
+# カラー表示なし
+musubix repl --no-color
+```
+
+### REPL機能
+
+| 機能 | 説明 |
+|------|------|
+| コマンド補完 | TABキーでコマンド・オプションを補完 |
+| 履歴ナビゲーション | 上下矢印、履歴検索 |
+| セッション変数 | `$name=value` で設定、`$name` で参照 |
+| 出力フォーマット | JSON、YAML、テーブル自動整形 |
+| CLI統合 | CLIコマンドをそのまま実行可能 |
+
+### 基本的な使い方
+
+```bash
+musubix> help                          # すべてのコマンドを表示
+musubix> help requirements             # コマンド詳細を表示
+musubix> requirements analyze input.md # CLIコマンドを実行
+musubix> $project=my-app               # セッション変数を設定
+musubix> design generate $project      # 変数をコマンドで使用
+musubix> history                       # コマンド履歴を表示
+musubix> exit                          # REPLを終了
+```
+
+### セッション変数
+
+```bash
+# 変数の設定
+musubix> $req=REQ-001
+musubix> $file=./docs/requirements.md
+
+# コマンドで使用
+musubix> requirements validate $file
+musubix> trace impact $req
+
+# 特殊変数: $_ は前回の実行結果を保持
+musubix> requirements analyze input.md
+musubix> $_                           # 前回の結果にアクセス
+```
+
+### 出力フォーマット
+
+```bash
+# 自動検出（デフォルト）
+musubix> learn status
+
+# JSON出力を強制
+musubix> set format json
+musubix> learn patterns
+
+# YAML出力を強制
+musubix> set format yaml
+
+# テーブル出力を強制
+musubix> set format table
+```
+
+### 履歴管理
+
+```bash
+# 最近のコマンドを表示
+musubix> history
+
+# 履歴を検索（Ctrl+Rスタイル）
+musubix> history search requirements
+
+# 履歴をクリア
+musubix> history clear
+```
+
+### REPLコンポーネント
+
+| コンポーネント | 役割 |
+|---------------|------|
+| `ReplEngine` | REPLメインコントローラー |
+| `CommandCompleter` | TAB補完プロバイダー |
+| `HistoryManager` | コマンド履歴の永続化 |
+| `SessionState` | 変数ストレージ |
+| `OutputFormatter` | JSON/YAML/テーブル出力 |
+| `PromptRenderer` | 動的プロンプト表示 |
 
 ---
 

@@ -16,10 +16,11 @@
 8. [Symbolic Reasoning](#symbolic-reasoning) *(v1.2.0)*
 9. [Consistency Validation](#consistency-validation) *(v1.4.1)*
 10. [Advanced Inference](#advanced-inference) *(v1.4.5)*
-11. [MCP Server Integration](#mcp-server-integration)
-12. [YATA Integration](#yata-integration)
-13. [Best Practices](#best-practices)
-14. [Troubleshooting](#troubleshooting)
+11. [Interactive REPL Mode](#interactive-repl-mode) *(v1.5.0)*
+12. [MCP Server Integration](#mcp-server-integration)
+13. [YATA Integration](#yata-integration)
+14. [Best Practices](#best-practices)
+15. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -511,6 +512,106 @@ export function createAuthService(): IAuthService {
   return new AuthService();
 }
 ```
+
+---
+
+## Interactive REPL Mode
+
+*(New in v1.5.0, Enhanced in v1.6.0)*
+
+MUSUBIX provides an interactive REPL (Read-Eval-Print-Loop) shell for real-time command execution and exploration.
+
+### Starting REPL
+
+```bash
+# Start interactive REPL
+musubix repl
+
+# With custom history file
+musubix repl --history ~/.musubix-repl-history
+
+# Without colors
+musubix repl --no-color
+```
+
+### REPL Features
+
+| Feature | Description |
+|---------|-------------|
+| Command completion | TAB completion for commands, options |
+| History navigation | UP/DOWN arrows, history search |
+| Session variables | `$name=value` to set, `$name` to reference |
+| Output formatting | JSON, YAML, Table auto-formatting |
+| CLI integration | Execute any CLI command directly |
+
+### Basic Usage
+
+```bash
+musubix> help                          # Show all commands
+musubix> help requirements             # Show command details
+musubix> requirements analyze input.md # Execute CLI command
+musubix> $project=my-app               # Set session variable
+musubix> design generate $project      # Use variable in command
+musubix> history                       # Show command history
+musubix> exit                          # Exit REPL
+```
+
+### Session Variables
+
+```bash
+# Set variables
+musubix> $req=REQ-001
+musubix> $file=./docs/requirements.md
+
+# Use in commands
+musubix> requirements validate $file
+musubix> trace impact $req
+
+# Special variable: $_ holds last result
+musubix> requirements analyze input.md
+musubix> $_                           # Access last result
+```
+
+### Output Formats
+
+```bash
+# Auto-detect best format (default)
+musubix> learn status
+
+# Force JSON output
+musubix> set format json
+musubix> learn patterns
+
+# Force YAML output
+musubix> set format yaml
+
+# Force table output
+musubix> set format table
+```
+
+### History Management
+
+```bash
+# Show recent commands
+musubix> history
+
+# Search history (Ctrl+R style)
+musubix> history search requirements
+
+# Clear history
+musubix> history clear
+```
+
+### REPL Components
+
+| Component | Purpose |
+|-----------|---------|
+| `ReplEngine` | Main REPL controller |
+| `CommandCompleter` | TAB completion provider |
+| `HistoryManager` | Command history persistence |
+| `SessionState` | Variable storage |
+| `OutputFormatter` | JSON/YAML/Table output |
+| `PromptRenderer` | Dynamic prompt display |
 
 ---
 

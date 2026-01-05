@@ -7,6 +7,7 @@
  */
 
 import * as readline from 'readline';
+import { spawn } from 'child_process';
 import type { CommandResult, ReplConfig, ReplEvent, ReplEventHandler } from './types.js';
 import { DEFAULT_REPL_CONFIG } from './types.js';
 import { HistoryManager, createHistoryManager } from './history-manager.js';
@@ -300,8 +301,6 @@ export class ReplEngine {
    * Execute external CLI command
    */
   private async executeExternal(cmd: string, args: string[]): Promise<CommandResult> {
-    // For now, delegate to the main CLI
-    // This will be integrated with existing CLI commands
     const fullCommand = [cmd, ...args].join(' ');
     
     // Check if command exists
@@ -315,13 +314,52 @@ export class ReplEngine {
       };
     }
 
-    // TODO: Integrate with actual CLI command execution
-    // For now, return a placeholder
-    return {
-      success: true,
-      output: `Executing: ${fullCommand}\n(External command execution not yet implemented)`,
-      exitCode: 0,
-    };
+    // Execute CLI command via subprocess
+    return new Promise((resolve) => {
+      const cliArgs = [cmd, ...args];
+      const child = spawn('npx', ['musubix', ...cliArgs], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: true,
+      });
+
+      let stdout = '';
+      let stderr = '';
+
+      child.stdout?.on('data', (data) => {
+        stdout += data.toString();
+      });
+
+      child.stderr?.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      child.on('close', (code) => {
+        const exitCode = code ?? 0;
+        if (exitCode === 0) {
+          resolve({
+            success: true,
+            output: stdout || `Command '${fullCommand}' executed successfully`,
+            exitCode,
+          });
+        } else {
+          resolve({
+            success: false,
+            output: stdout,
+            error: new Error(stderr || `Command failed with exit code ${exitCode}`),
+            exitCode,
+          });
+        }
+      });
+
+      child.on('error', (err) => {
+        resolve({
+          success: false,
+          output: '',
+          error: err,
+          exitCode: 1,
+        });
+      });
+    });
   }
 
   /**

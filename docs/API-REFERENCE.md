@@ -13,6 +13,7 @@
   - [Codegen](#codegen)
   - [Symbolic](#symbolic)
   - [Inference](#inference) *(v1.4.5)*
+  - [REPL](#repl) *(v1.5.0)*
   - [Validation](#validation)
   - [Utils](#utils)
 - [MCP Server](#mcp-server)
@@ -289,6 +290,99 @@ const violations = checker.check(code, 'typescript');
 | `check(code, lang)` | `code: string, lang: Language` | `Violation[]` | Checks code |
 | `fix(code, violations)` | `code: string, violations: Violation[]` | `string` | Auto-fixes violations |
 | `report(violations)` | `violations: Violation[]` | `Report` | Generates report |
+
+---
+
+### REPL
+
+*(New in v1.5.0, Enhanced in v1.6.0)*
+
+Interactive command-line interface components.
+
+#### ReplEngine
+
+Main REPL controller.
+
+```typescript
+import { createReplEngine } from '@nahisaho/musubix-core';
+
+const engine = createReplEngine({
+  history: { maxSize: 1000 },
+  prompt: { showProject: true, showPhase: true },
+  completion: { maxSuggestions: 10 },
+  output: { defaultFormat: 'auto' }
+});
+
+await engine.start();
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `start()` | - | `Promise<void>` | Starts REPL session |
+| `stop()` | - | `Promise<void>` | Stops REPL session |
+| `execute(command)` | `command: string` | `Promise<CommandResult>` | Executes command |
+| `isRunning()` | - | `boolean` | Returns running state |
+| `on(event, handler)` | `event: string, handler: Function` | `void` | Registers event handler |
+
+#### CommandCompleter
+
+TAB completion provider.
+
+```typescript
+import { createCommandCompleter } from '@nahisaho/musubix-core';
+
+const completer = createCommandCompleter({ maxSuggestions: 10 });
+completer.registerCommands(commandDefinitions);
+
+const result = completer.complete('req', 3);
+// { completions: ['requirements'], prefix: 'req' }
+```
+
+#### HistoryManager
+
+Command history persistence.
+
+```typescript
+import { createHistoryManager } from '@nahisaho/musubix-core';
+
+const history = createHistoryManager({
+  maxSize: 1000,
+  filePath: '~/.musubix_history'
+});
+
+await history.load();
+history.add('requirements analyze input.md');
+await history.save();
+```
+
+#### SessionState
+
+Session variable storage.
+
+```typescript
+import { createSessionState } from '@nahisaho/musubix-core';
+
+const session = createSessionState();
+session.set('project', 'my-app');
+const value = session.get('project'); // 'my-app'
+const expanded = session.expand('design $project'); // 'design my-app'
+```
+
+#### OutputFormatter
+
+Output formatting (JSON/YAML/Table).
+
+```typescript
+import { createOutputFormatter } from '@nahisaho/musubix-core';
+
+const formatter = createOutputFormatter({ defaultFormat: 'auto' });
+console.log(formatter.format(data));
+console.log(formatter.formatTable(arrayOfObjects));
+console.log(formatter.formatJson(object));
+console.log(formatter.formatYaml(object));
+```
 
 ---
 

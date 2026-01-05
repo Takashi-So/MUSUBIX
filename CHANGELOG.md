@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - v1.6.0
+
+### Added - REPL Test Implementation & CLI Enhancement
+
+v1.6.0として、REPLテストの完全実装とCLI統合を追加。
+
+#### 新機能: REPL Complete Test Suite (REQ-REPL-001〜009)
+
+| テストスイート | テスト数 | 要件 |
+|---------------|---------|------|
+| ReplEngine Tests | 10 | REQ-REPL-001 |
+| CommandCompleter Tests | 10 | REQ-REPL-002 |
+| HistoryManager Tests | 14 | REQ-REPL-003 |
+| SessionState Tests | 12 | REQ-REPL-004 |
+| OutputFormatter Tests | 13 | REQ-REPL-005 |
+| PromptRenderer Tests | 9 | REQ-REPL-006 |
+| Integration Tests | 7 | REQ-REPL-007 |
+| Factory Function Tests | 10 | - |
+
+#### CLI統合 (REQ-REPL-007)
+
+```typescript
+// REPLからCLIコマンドを実行可能に
+repl> requirements analyze input.md
+repl> design generate req.md
+repl> learn status
+```
+
+- `executeExternal()` メソッドがspawnでCLIを呼び出し
+- 標準出力/エラーを適切にキャプチャ
+- 終了コードに基づいた成功/失敗判定
+
+### Changed
+
+- **repl-engine.ts**: CLI統合実装（spawn使用）
+- **repl.test.ts**: 22スケルトンテスト → 105完全実装
+
+### テスト統計
+
+| 項目 | 値 |
+|------|------|
+| 総テスト数 | 1208 |
+| 成功 | 1208 |
+| 失敗 | 0 |
+| REPLテスト | 105 |
+
+---
+
 ## [1.5.2] - 2026-01-06
 
 ### Added - E2E Test Enhancement
