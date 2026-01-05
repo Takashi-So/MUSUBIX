@@ -20,6 +20,7 @@ import { registerTestCommand } from './test.js';
 import { registerTraceCommand } from './trace.js';
 import { registerExplainCommand } from './explain.js';
 import { registerLearnCommand } from './learn.js';
+import { registerOntologyCommand } from './ontology.js';
 
 /**
  * Register all CLI commands
@@ -42,6 +43,9 @@ export function registerCommands(program: Command): void {
   
   // Self-learning commands (REQ-LEARN-001〜006)
   registerLearnCommand(program);
+  
+  // Ontology commands (REQ-INT-003)
+  registerOntologyCommand(program);
 }
 
 // Core command exports
@@ -59,3 +63,6 @@ export { registerExplainCommand } from './explain.js';
 
 // Self-learning command export
 export { registerLearnCommand } from './learn.js';
+
+// Ontology command export
+export { registerOntologyCommand } from './ontology.js';
