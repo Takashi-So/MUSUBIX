@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-775%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-969%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.4.1** - Consistency Validation & OWL Constraint Checking
+> **v1.4.5** - Advanced Inference with OWL 2 RL & Datalog
 
 **[日本語版 README](README.ja.md)**
 
@@ -33,6 +33,7 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 - 📚 **Self-Learning System** - Adaptive improvement through feedback collection and pattern extraction
 - 🏗️ **C4 Code Generation** - Generate TypeScript skeleton from C4 design documents
 - ⚙️ **Quality Gates** - Automated quality validation before phase transitions
+- 🔮 **Advanced Inference** - OWL 2 RL reasoning and Datalog evaluation *(v1.4.5)*
 
 ## Architecture
 
@@ -62,7 +63,7 @@ flowchart TB
 
 | Path | Description |
 |------|-------------|
-| `packages/core/` | Core library (224 modules) |
+| `packages/core/` | Core library (249 modules) |
 | `packages/core/auth/` | Authentication & Authorization |
 | `packages/core/cli/` | CLI Interface |
 | `packages/core/codegen/` | Code Generation & Analysis |
@@ -76,7 +77,7 @@ flowchart TB
 | `packages/core/types/` | Type Definitions |
 | `packages/core/utils/` | Utilities |
 | `packages/core/validators/` | EARS Validation |
-| `packages/mcp-server/` | MCP Server (16 tools, 3 prompts) |
+| `packages/mcp-server/` | MCP Server (19 tools, 3 prompts) |
 | `packages/yata-client/` | YATA Client |
 | `packages/pattern-mcp/` | **Pattern Learning (NEW!)** |
 | `packages/ontology-mcp/` | **Ontology Engine (NEW!)** |
@@ -236,6 +237,29 @@ Continuous learning system based on the Wake-Sleep algorithm:
 - `ontology_query` - Query ontology graph
 - `ontology_infer` - Execute ontology-based inference
 
+## Advanced Inference (v1.4.5)
+
+OWL 2 RL profile reasoning and Datalog evaluation engine:
+
+### Inference Components
+- **OWL2RLReasoner** - OWL 2 RL profile compliant inference (20+ built-in rules)
+- **DatalogEngine** - Stratified Datalog evaluation with negation support
+- **InferenceExplainer** - Human-readable inference explanation generator
+- **ProgressReporter** - Real-time progress feedback (500ms interval)
+
+### OWL 2 RL Built-in Rules
+| Category | Rules | Description |
+|----------|-------|-------------|
+| Class Axioms | cax-sco, cax-eqc | Subclass, Equivalent class inference |
+| Property | prp-dom, prp-rng | Domain, Range inference |
+| Property Characteristics | prp-symp, prp-trp, prp-inv | Symmetric, Transitive, Inverse |
+| Equality | eq-ref, eq-sym, eq-trans | sameAs inference |
+
+### Explanation Formats
+- `text` - Plain text explanation
+- `markdown` - Markdown format
+- `html` - HTML format with escaping
+
 ## Constitutional Articles (9 Articles)
 
 MUSUBIX adheres to the following 9 constitutional articles:
@@ -265,5 +289,5 @@ See [CHANGELOG.md](CHANGELOG.md)
 ---
 
 **Document ID**: README  
-**Version**: 1.3.0  
+**Version**: 1.4.5  
 **Last Updated**: 2026-01-05

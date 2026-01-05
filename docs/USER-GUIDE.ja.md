@@ -17,10 +17,11 @@
 11. [C4コード生成](#c4コード生成)
 12. [シンボリック推論](#シンボリック推論) *(v1.2.0)*
 13. [正誤性検証](#正誤性検証) *(v1.4.1)*
-14. [MCPサーバー連携](#mcpサーバー連携)
-15. [YATA知識グラフ](#yata知識グラフ)
-15. [ベストプラクティス](#ベストプラクティス)
-16. [トラブルシューティング](#トラブルシューティング)
+14. [高度な推論](#高度な推論) *(v1.4.5)*
+15. [MCPサーバー連携](#mcpサーバー連携)
+16. [YATA知識グラフ](#yata知識グラフ)
+17. [ベストプラクティス](#ベストプラクティス)
+18. [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -840,6 +841,137 @@ const semanticDuplicates = validator.findSemanticDuplicates(allTriples);
 
 ---
 
+## 高度な推論
+
+*(v1.4.5 新機能)*
+
+### 概要
+
+高度な推論は、知識グラフにOWL 2 RL推論とDatalog評価機能を提供します。暗黙的な事実の実体化、ルールベースの推論、人間が理解しやすい説明の生成をサポートします。
+
+### 主要コンポーネント
+
+| コンポーネント | 説明 |
+|--------------|------|
+| `OWL2RLReasoner` | 20以上のビルトインルールを持つOWL 2 RL推論エンジン |
+| `DatalogEngine` | 階層化評価対応のDatalogエンジン |
+| `InferenceExplainer` | 自然言語での説明生成 |
+| `ProgressReporter` | リアルタイム推論進捗追跡 |
+
+### OWL 2 RL 推論
+
+```typescript
+import { OWL2RLReasoner } from '@nahisaho/musubix-ontology-mcp';
+
+const reasoner = new OWL2RLReasoner({
+  maxIterations: 100,
+  enablePropertyChains: true,
+  enableInverseProperties: true
+});
+
+// ストアに対して推論を実行
+const result = await reasoner.reason(store, {
+  onProgress: (progress) => {
+    console.log(`反復 ${progress.iteration}: ${progress.newTriples} 新規トリプル`);
+  }
+});
+
+console.log(`${result.inferredCount} 個の新しい事実を推論`);
+console.log(`適用ルール: ${result.rulesApplied.join(', ')}`);
+```
+
+### OWL 2 RL ルール
+
+| ルールID | 名称 | 説明 |
+|---------|------|------|
+| `prp-dom` | Property Domain | プロパティのドメインから型を推論 |
+| `prp-rng` | Property Range | プロパティのレンジから型を推論 |
+| `prp-inv1/2` | Inverse Properties | 逆関係を推論 |
+| `prp-trp` | Transitive Properties | 推移的プロパティを連鎖 |
+| `prp-symp` | Symmetric Properties | 対称関係を推論 |
+| `cax-sco` | SubClassOf | クラスメンバーシップを伝播 |
+| `scm-spo` | SubPropertyOf | プロパティの包摂関係 |
+| `eq-rep-s/p/o` | SameAs Replacement | 同一個体の置換 |
+
+### Datalog 評価
+
+```typescript
+import { DatalogEngine } from '@nahisaho/musubix-ontology-mcp';
+
+const engine = new DatalogEngine();
+
+// ルールを定義
+const rules = [
+  {
+    head: { predicate: 'ancestor', args: ['?x', '?y'] },
+    body: [
+      { predicate: 'parent', args: ['?x', '?y'] }
+    ]
+  },
+  {
+    head: { predicate: 'ancestor', args: ['?x', '?z'] },
+    body: [
+      { predicate: 'parent', args: ['?x', '?y'] },
+      { predicate: 'ancestor', args: ['?y', '?z'] }
+    ]
+  }
+];
+
+// ルールを評価
+const result = await engine.evaluate(rules, facts, {
+  onProgress: (progress) => {
+    console.log(`階層 ${progress.stratum}: ${progress.rule} を評価中`);
+  }
+});
+
+console.log(`${result.derivedFacts.length} 個の新しい事実を導出`);
+```
+
+### 推論説明
+
+```typescript
+import { InferenceExplainer, ExplanationFormat } from '@nahisaho/musubix-ontology-mcp';
+
+const explainer = new InferenceExplainer(reasoner.getProvenanceLog());
+
+// 特定のトリプルの説明を取得
+const explanation = explainer.explain(
+  'http://example.org/Animal',
+  'rdf:type',
+  'owl:Class',
+  ExplanationFormat.TEXT
+);
+
+console.log(explanation);
+// 出力: "Animal は owl:Class として宣言されているため Class です（ルール cax-sco）"
+
+// HTML形式の説明を生成
+const htmlExplanation = explainer.explain(
+  subject, predicate, object,
+  ExplanationFormat.HTML
+);
+```
+
+### 進捗レポート
+
+```typescript
+import { createProgressReporter } from '@nahisaho/musubix-ontology-mcp';
+
+const reporter = createProgressReporter({
+  onProgress: (info) => {
+    console.log(`フェーズ: ${info.phase}`);
+    console.log(`反復: ${info.iteration}/${info.maxIterations}`);
+    console.log(`トリプル数: ${info.totalTriples}`);
+    console.log(`新規推論: ${info.newInferences}`);
+  },
+  throttleMs: 500  // 500ms間隔でレポート
+});
+
+await reasoner.reason(store, { progressReporter: reporter });
+```
+
+---
+
 ## MCPサーバー連携
 
 ### MCPサーバーの起動
@@ -1152,6 +1284,6 @@ const client = createYATAClient({
 
 ---
 
-**バージョン**: 1.3.0  
+**バージョン**: 1.4.5  
 **最終更新**: 2026-01-05  
 **MUSUBIX Project**

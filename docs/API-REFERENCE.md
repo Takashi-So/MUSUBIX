@@ -12,6 +12,7 @@
   - [Design](#design)
   - [Codegen](#codegen)
   - [Symbolic](#symbolic)
+  - [Inference](#inference) *(v1.4.5)*
   - [Validation](#validation)
   - [Utils](#utils)
 - [MCP Server](#mcp-server)
@@ -457,6 +458,135 @@ const report = validator.generateApprovalReport(result);
 
 ---
 
+### Inference (v1.4.5)
+
+The inference module provides OWL 2 RL reasoning and Datalog evaluation capabilities.
+
+#### OWL2RLReasoner
+
+Performs OWL 2 RL profile reasoning with 20+ built-in entailment rules.
+
+```typescript
+import { OWL2RLReasoner } from '@nahisaho/musubix-ontology-mcp';
+
+const reasoner = new OWL2RLReasoner({
+  maxIterations: 100,
+  enablePropertyChains: true,
+  enableInverseProperties: true
+});
+
+const result = await reasoner.reason(store, {
+  onProgress: (progress) => console.log(`Iteration ${progress.iteration}`)
+});
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `reason(store, options)` | `store: N3Store, options?: ReasonerOptions` | `Promise<ReasoningResult>` | Execute reasoning |
+| `getProvenanceLog()` | - | `ProvenanceLog` | Get inference provenance |
+| `getRulesApplied()` | - | `string[]` | Get list of applied rules |
+
+**Built-in Rules:**
+
+| Rule | Description |
+|------|-------------|
+| `prp-dom` | Property domain inference |
+| `prp-rng` | Property range inference |
+| `prp-inv1/2` | Inverse property inference |
+| `prp-trp` | Transitive property chaining |
+| `prp-symp` | Symmetric property inference |
+| `cax-sco` | SubClassOf propagation |
+| `scm-spo` | SubPropertyOf inference |
+| `eq-rep-s/p/o` | SameAs replacement |
+
+---
+
+#### DatalogEngine
+
+Evaluates Datalog rules with stratified negation support.
+
+```typescript
+import { DatalogEngine } from '@nahisaho/musubix-ontology-mcp';
+
+const engine = new DatalogEngine();
+
+const rules = [
+  {
+    head: { predicate: 'ancestor', args: ['?x', '?y'] },
+    body: [{ predicate: 'parent', args: ['?x', '?y'] }]
+  }
+];
+
+const result = await engine.evaluate(rules, facts);
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `evaluate(rules, facts, options)` | `rules: Rule[], facts: Fact[], options?: EvalOptions` | `Promise<EvaluationResult>` | Evaluate rules |
+| `stratify(rules)` | `rules: Rule[]` | `Rule[][]` | Stratify rules by dependency |
+
+---
+
+#### InferenceExplainer
+
+Generates human-readable explanations for inferred facts.
+
+```typescript
+import { InferenceExplainer, ExplanationFormat } from '@nahisaho/musubix-ontology-mcp';
+
+const explainer = new InferenceExplainer(provenanceLog);
+
+const explanation = explainer.explain(
+  subject, predicate, object,
+  ExplanationFormat.TEXT
+);
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `explain(s, p, o, format)` | `s: string, p: string, o: string, format: ExplanationFormat` | `string` | Generate explanation |
+| `getInferenceChain(s, p, o)` | `s: string, p: string, o: string` | `InferenceStep[]` | Get inference chain |
+
+**Explanation Formats:**
+
+| Format | Description |
+|--------|-------------|
+| `TEXT` | Plain text explanation |
+| `MARKDOWN` | Markdown formatted |
+| `HTML` | HTML with styling |
+
+---
+
+#### ProgressReporter
+
+Reports real-time inference progress.
+
+```typescript
+import { createProgressReporter } from '@nahisaho/musubix-ontology-mcp';
+
+const reporter = createProgressReporter({
+  onProgress: (info) => console.log(`${info.phase}: ${info.newInferences} new`),
+  throttleMs: 500
+});
+
+await reasoner.reason(store, { progressReporter: reporter });
+```
+
+**Configuration:**
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `onProgress` | `(info: ProgressInfo) => void` | Progress callback |
+| `throttleMs` | `number` | Throttle interval (default: 500ms) |
+
+---
+
 ### Utils
 
 #### I18nManager
@@ -754,6 +884,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**Version:** 1.3.0  
+**Version:** 1.4.5  
 **Generated:** 2026-01-05  
 **MUSUBIX Core Package**

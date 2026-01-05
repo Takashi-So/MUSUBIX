@@ -482,6 +482,6 @@ npx musubix learn best-practices --format markdown
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2025-01-05
-**Version**: 1.4.1
+**Last Updated**: 2026-01-05
+**Version**: 1.4.5
 **Repository**: https://github.com/nahisaho/MUSUBIX

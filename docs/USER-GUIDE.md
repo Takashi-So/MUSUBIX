@@ -15,10 +15,11 @@
 7. [C4 Code Generation](#c4-code-generation)
 8. [Symbolic Reasoning](#symbolic-reasoning) *(v1.2.0)*
 9. [Consistency Validation](#consistency-validation) *(v1.4.1)*
-10. [MCP Server Integration](#mcp-server-integration)
-11. [YATA Integration](#yata-integration)
-12. [Best Practices](#best-practices)
-13. [Troubleshooting](#troubleshooting)
+10. [Advanced Inference](#advanced-inference) *(v1.4.5)*
+11. [MCP Server Integration](#mcp-server-integration)
+12. [YATA Integration](#yata-integration)
+13. [Best Practices](#best-practices)
+14. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -800,6 +801,137 @@ const semanticDuplicates = validator.findSemanticDuplicates(allTriples);
 
 ---
 
+## Advanced Inference
+
+*(v1.4.5 New Feature)*
+
+### Overview
+
+Advanced Inference provides OWL 2 RL reasoning and Datalog evaluation capabilities for the knowledge graph. It supports materialization of implicit facts, rule-based inference, and human-readable explanations.
+
+### Key Components
+
+| Component | Description |
+|-----------|-------------|
+| `OWL2RLReasoner` | OWL 2 RL profile reasoning with 20+ built-in rules |
+| `DatalogEngine` | Stratified Datalog evaluation engine |
+| `InferenceExplainer` | Natural language explanation generator |
+| `ProgressReporter` | Real-time inference progress tracking |
+
+### OWL 2 RL Reasoning
+
+```typescript
+import { OWL2RLReasoner } from '@nahisaho/musubix-ontology-mcp';
+
+const reasoner = new OWL2RLReasoner({
+  maxIterations: 100,
+  enablePropertyChains: true,
+  enableInverseProperties: true
+});
+
+// Run reasoning on store
+const result = await reasoner.reason(store, {
+  onProgress: (progress) => {
+    console.log(`Iteration ${progress.iteration}: ${progress.newTriples} new triples`);
+  }
+});
+
+console.log(`Inferred ${result.inferredCount} new facts`);
+console.log(`Rules applied: ${result.rulesApplied.join(', ')}`);
+```
+
+### OWL 2 RL Rules
+
+| Rule ID | Name | Description |
+|---------|------|-------------|
+| `prp-dom` | Property Domain | Infer type from property domain |
+| `prp-rng` | Property Range | Infer type from property range |
+| `prp-inv1/2` | Inverse Properties | Infer inverse relationships |
+| `prp-trp` | Transitive Properties | Chain transitive properties |
+| `prp-symp` | Symmetric Properties | Infer symmetric relationships |
+| `cax-sco` | SubClassOf | Propagate class membership |
+| `scm-spo` | SubPropertyOf | Property subsumption |
+| `eq-rep-s/p/o` | SameAs Replacement | Substitute equal individuals |
+
+### Datalog Evaluation
+
+```typescript
+import { DatalogEngine } from '@nahisaho/musubix-ontology-mcp';
+
+const engine = new DatalogEngine();
+
+// Define rules
+const rules = [
+  {
+    head: { predicate: 'ancestor', args: ['?x', '?y'] },
+    body: [
+      { predicate: 'parent', args: ['?x', '?y'] }
+    ]
+  },
+  {
+    head: { predicate: 'ancestor', args: ['?x', '?z'] },
+    body: [
+      { predicate: 'parent', args: ['?x', '?y'] },
+      { predicate: 'ancestor', args: ['?y', '?z'] }
+    ]
+  }
+];
+
+// Evaluate rules
+const result = await engine.evaluate(rules, facts, {
+  onProgress: (progress) => {
+    console.log(`Stratum ${progress.stratum}: evaluating ${progress.rule}`);
+  }
+});
+
+console.log(`Derived ${result.derivedFacts.length} new facts`);
+```
+
+### Inference Explanation
+
+```typescript
+import { InferenceExplainer, ExplanationFormat } from '@nahisaho/musubix-ontology-mcp';
+
+const explainer = new InferenceExplainer(reasoner.getProvenanceLog());
+
+// Get explanation for a specific triple
+const explanation = explainer.explain(
+  'http://example.org/Animal',
+  'rdf:type',
+  'owl:Class',
+  ExplanationFormat.TEXT
+);
+
+console.log(explanation);
+// Output: "Animal is a Class because it is declared as owl:Class via rule cax-sco"
+
+// Generate HTML explanation
+const htmlExplanation = explainer.explain(
+  subject, predicate, object,
+  ExplanationFormat.HTML
+);
+```
+
+### Progress Reporting
+
+```typescript
+import { createProgressReporter } from '@nahisaho/musubix-ontology-mcp';
+
+const reporter = createProgressReporter({
+  onProgress: (info) => {
+    console.log(`Phase: ${info.phase}`);
+    console.log(`Iteration: ${info.iteration}/${info.maxIterations}`);
+    console.log(`Triples: ${info.totalTriples}`);
+    console.log(`New inferences: ${info.newInferences}`);
+  },
+  throttleMs: 500  // Report every 500ms
+});
+
+await reasoner.reason(store, { progressReporter: reporter });
+```
+
+---
+
 ## YATA Integration
 
 ### What is YATA?
@@ -992,6 +1124,6 @@ const client = createYATAClient({
 
 ---
 
-**Version**: 1.3.0  
+**Version**: 1.4.5  
 **Last Updated**: 2026-01-05  
 **MUSUBIX Project**

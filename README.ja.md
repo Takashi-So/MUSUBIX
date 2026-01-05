@@ -6,11 +6,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-775%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-969%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.4.1** - 正誤性検証＆OWL制約チェック
+> **v1.4.5** - OWL 2 RL＆Datalogによる高度推論
 
 ## 概要
 
@@ -30,6 +30,7 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 - 📚 **自己学習システム** - フィードバック収集とパターン抽出による適応的改善
 - 🏗️ **C4コード生成** - C4設計ドキュメントからTypeScriptスケルトン生成
 - ⚙️ **品質ゲート** - フェーズ移行前の自動品質検証
+- 🔮 **高度推論** - OWL 2 RL推論とDatalog評価 *(v1.4.5)*
 
 ## アーキテクチャ
 
@@ -59,7 +60,7 @@ flowchart TB
 
 | パス | 説明 |
 |------|------|
-| `packages/core/` | コアライブラリ（224モジュール） |
+| `packages/core/` | コアライブラリ（249モジュール） |
 | `packages/core/auth/` | 認証・認可 |
 | `packages/core/cli/` | CLIインターフェース |
 | `packages/core/codegen/` | コード生成・解析 |
@@ -73,7 +74,7 @@ flowchart TB
 | `packages/core/types/` | 型定義 |
 | `packages/core/utils/` | ユーティリティ |
 | `packages/core/validators/` | EARS検証 |
-| `packages/mcp-server/` | MCPサーバー（16 tools, 3 prompts） |
+| `packages/mcp-server/` | MCPサーバー（19 tools, 3 prompts） |
 | `packages/yata-client/` | YATA クライアント |
 | `packages/pattern-mcp/` | **パターン学習（NEW!）** |
 | `packages/ontology-mcp/` | **オントロジーエンジン（NEW!）** |
@@ -233,6 +234,29 @@ Wake-Sleepアルゴリズムに基づく継続的学習システム:
 - `ontology_query` - オントロジーグラフへのクエリ
 - `ontology_infer` - オントロジーによる推論実行
 
+## 高度推論（v1.4.5）
+
+OWL 2 RLプロファイル推論とDatalog評価エンジン:
+
+### 推論コンポーネント
+- **OWL2RLReasoner** - OWL 2 RLプロファイル準拠推論（20+ビルトインルール）
+- **DatalogEngine** - ストラティファイドDatalog評価（否定サポート）
+- **InferenceExplainer** - 人間可読な推論説明生成
+- **ProgressReporter** - リアルタイム進捗フィードバック（500ms間隔）
+
+### OWL 2 RLビルトインルール
+| カテゴリ | ルール | 説明 |
+|----------|-------|------|
+| Class Axioms | cax-sco, cax-eqc | サブクラス、同値クラス推論 |
+| Property | prp-dom, prp-rng | ドメイン、レンジ推論 |
+| Property Characteristics | prp-symp, prp-trp, prp-inv | 対称、推移、逆プロパティ |
+| Equality | eq-ref, eq-sym, eq-trans | sameAs推論 |
+
+### 説明フォーマット
+- `text` - プレーンテキスト説明
+- `markdown` - Markdown形式
+- `html` - HTML形式（エスケープ対応）
+
 ## 憲法（9条）
 
 MUSUBIXは以下の9条の憲法に準拠しています：
@@ -262,5 +286,5 @@ nahisaho
 ---
 
 **文書ID**: README  
-**バージョン**: 1.3.0  
+**バージョン**: 1.4.5  
 **最終更新**: 2026-01-05
