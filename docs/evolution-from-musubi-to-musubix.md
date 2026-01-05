@@ -1287,6 +1287,10 @@ npx musubix-mcp
 | @nahisaho/musubix-core | `npm install @nahisaho/musubix-core` | コアライブラリ |
 | @nahisaho/musubix-mcp-server | `npm install @nahisaho/musubix-mcp-server` | MCPサーバー |
 | @nahisaho/musubix-yata-client | `npm install @nahisaho/musubix-yata-client` | YATAクライアント |
+| @nahisaho/musubix-pattern-mcp | `npm install @nahisaho/musubix-pattern-mcp` | パターン抽出・圧縮・ライブラリ |
+| @nahisaho/musubix-ontology-mcp | `npm install @nahisaho/musubix-ontology-mcp` | N3Store・RDF推論エンジン |
+| @nahisaho/musubix-wake-sleep | `npm install @nahisaho/musubix-wake-sleep` | Wake-Sleep学習サイクル |
+| @nahisaho/musubix-sdd-ontology | `npm install @nahisaho/musubix-sdd-ontology` | SDD方法論オントロジー |
 
 ## 8.3 利用方法の選択
 
@@ -1375,7 +1379,7 @@ MUSUBIXのEARS形式で要件を書いてください
 
 ## 8.5 方法2: MCP経由（MCPサーバー連携）
 
-MCP（Model Context Protocol）を使用すると、**9つの専用ツール**と**3つのプロンプト**を利用でき、より高度な機能（知識グラフクエリ、トレーサビリティ検証等）が使えます。
+MCP（Model Context Protocol）を使用すると、**16の専用ツール**（SDD基本9 + パターン統合7）と**3つのプロンプト**を利用でき、より高度な機能（知識グラフクエリ、トレーサビリティ検証、パターン学習等）が使えます。
 
 ### Claude Code（CLI）
 
@@ -1415,7 +1419,9 @@ claude mcp list
 }
 ```
 
-### 利用可能なMCPツール（9ツール）
+### 利用可能なMCPツール（16ツール）
+
+#### SDD基本ツール（9ツール）
 
 | ツール名 | 説明 |
 |---------|------|
@@ -1428,6 +1434,18 @@ claude mcp list
 | `sdd_update_knowledge` | 知識グラフの更新 |
 | `sdd_validate_constitution` | 9憲法条項への準拠検証 |
 | `sdd_validate_traceability` | 要件↔設計↔タスクのトレーサビリティ検証 |
+
+#### パターン統合ツール（7ツール）- v1.3.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `pattern_extract` | コードからパターンを抽出 |
+| `pattern_compress` | パターンの抽象化・圧縮 |
+| `pattern_store` | パターンライブラリへの保存 |
+| `pattern_query` | パターンの検索・取得 |
+| `pattern_consolidate` | 類似パターンの統合 |
+| `ontology_query` | オントロジーグラフへのクエリ |
+| `ontology_infer` | オントロジーによる推論実行 |
 
 ### メリット
 
