@@ -6,11 +6,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-969%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1208%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.4.5** - OWL 2 RL＆Datalogによる高度推論
+> **v1.6.0** - REPLテスト実装＆CLI統合
 
 ## 概要
 
@@ -31,6 +31,7 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 - 🏗️ **C4コード生成** - C4設計ドキュメントからTypeScriptスケルトン生成
 - ⚙️ **品質ゲート** - フェーズ移行前の自動品質検証
 - 🔮 **高度推論** - OWL 2 RL推論とDatalog評価 *(v1.4.5)*
+- 🖥️ **対話的REPL** - コマンド補完、履歴管理、セッション変数 *(v1.6.0)*
 
 ## アーキテクチャ
 

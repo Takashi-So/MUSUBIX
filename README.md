@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-969%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1208%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.4.5** - Advanced Inference with OWL 2 RL & Datalog
+> **v1.6.0** - REPL Test Implementation & CLI Enhancement
 
 **[日本語版 README](README.ja.md)**
 
@@ -34,6 +34,7 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 - 🏗️ **C4 Code Generation** - Generate TypeScript skeleton from C4 design documents
 - ⚙️ **Quality Gates** - Automated quality validation before phase transitions
 - 🔮 **Advanced Inference** - OWL 2 RL reasoning and Datalog evaluation *(v1.4.5)*
+- 🖥️ **Interactive REPL** - Command completion, history, session variables *(v1.6.0)*
 
 ## Architecture
 
