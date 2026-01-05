@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2025-01-05
+
+### Added - Real-time Pattern Learning Foundation (v1.5.0 Phase 1)
+
+v1.5.0のPhase 1として、Real-time Learning基盤を実装。853テスト全合格。
+
+#### 新機能: Real-time Learning
+
+| コンポーネント | 説明 | 要件 |
+|---------------|------|------|
+| **FileWatcher** | fs.watchベースのファイル変更監視 | REQ-LEARN-010 |
+| **StreamProcessor** | 500ms SLA対応のイベント処理 | REQ-LEARN-011 |
+| **FeedbackQueue** | 100ms SLA対応の非同期フィードバック | REQ-LEARN-013 |
+| **EventStream** | 1000 events/sec対応のイベント配信 | REQ-LEARN-014 |
+| **IncrementalUpdater** | 差分パターン更新（Delta Update） | REQ-LEARN-012 |
+| **RealtimeLearningEngine** | 全体オーケストレーション | REQ-LEARN-010 |
+
+#### アーキテクチャ決定（ADR）
+
+| ADR | 決定 |
+|-----|------|
+| ADR-0001 | fs.watch + EventEmitter（外部依存なし） |
+| ADR-0002 | File-based JSON export/import |
+| ADR-0003 | N3.js + カスタムOWL 2 RLルール |
+
+#### v1.5.0計画ドキュメント
+
+| ドキュメント | 内容 |
+|-------------|------|
+| REQ-v1.5.0.md | EARS形式要件定義（24要件） |
+| DES-v1.5.0.md | C4モデル設計書（23コンポーネント） |
+| TST-v1.5.0.md | テスト計画（64テストケース） |
+
+#### 新規ファイル
+
+```
+packages/core/src/learning/realtime/
+├── types.ts           # 型定義
+├── file-watcher.ts    # FileWatcher
+├── stream-processor.ts # StreamProcessor
+├── feedback-queue.ts  # FeedbackQueue
+├── event-stream.ts    # EventStream
+├── incremental-updater.ts # IncrementalUpdater
+└── index.ts           # RealtimeLearningEngine
+
+storage/specs/
+├── REQ-v1.5.0.md      # 要件定義
+├── TST-v1.5.0.md      # テスト計画
+└── __tests__/REQ-v1.5.0.test.ts # テストスケルトン
+
+storage/design/
+└── DES-v1.5.0.md      # 設計ドキュメント
+
+docs/adr/
+├── 0001-real-time-pattern-learning-architecture-for-v1-5-0.md
+├── 0002-pattern-sharing-protocol-for-cross-team-collaborat.md
+└── 0003-owl-2-rl-implementation-strategy-for-advanced-infe.md
+```
+
+#### テスト追加
+
+| テストスイート | テスト数 |
+|---------------|---------|
+| FileWatcher | 4 |
+| StreamProcessor | 6 |
+| FeedbackQueue | 6 |
+| EventStream | 6 |
+| IncrementalUpdater | 8 |
+| RealtimeLearningEngine | 6 |
+| Integration | 2 |
+| **合計追加** | **38** |
+
+---
+
 ## [1.4.2] - 2025-01-05
 
 ### Added - Quality & UX Improvements
