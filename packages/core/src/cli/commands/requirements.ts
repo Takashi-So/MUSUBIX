@@ -407,8 +407,11 @@ export function registerRequirementsCommand(program: Command): void {
     .command('validate <file>')
     .description('Validate EARS syntax')
     .option('--strict', 'Enable strict mode', false)
-    .action(async (file: string, options: { strict?: boolean }) => {
+    .option('--auto-learn', 'Auto-register to YATA Local knowledge graph', false)
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .action(async (file: string, options: { strict?: boolean; autoLearn?: boolean; db?: string }) => {
       const globalOpts = getGlobalOptions(program);
+      const autoLearn = options.autoLearn || process.env.MUSUBIX_AUTO_LEARN === 'true';
 
       try {
         const filePath = resolve(process.cwd(), file);
@@ -443,13 +446,78 @@ export function registerRequirementsCommand(program: Command): void {
         const warnings = issues.filter(i => i.severity === 'warning').length;
         const info = issues.filter(i => i.severity === 'info').length;
 
+        // Auto-register to YATA Local if enabled
+        let yataLocalRegistered = 0;
+        if (autoLearn && errors === 0) {
+          try {
+            const yataLocalModule = await import('@nahisaho/yata-local');
+            const { createYataLocal } = yataLocalModule;
+            const yataLocal = createYataLocal({ path: options.db ?? './.yata-local.db' });
+            await yataLocal.open();
+
+            // Extract requirement IDs and register
+            const reqIdPattern = /REQ-[A-Z]+-[A-Z]+-\d{3}|REQ-[A-Z]+-\d{3}/g;
+            const docIdMatch = content.match(/\*\*Document ID\*\*:\s*([\w-]+)/);
+            const docId = docIdMatch ? docIdMatch[1] : 'REQ-UNKNOWN';
+
+            // Register document as entity (use 'module' type for document)
+            const docEntityId = await yataLocal.addEntity({
+              name: docId,
+              type: 'module',
+              namespace: 'project-management',
+              metadata: { 
+                entityKind: 'RequirementsDocument',
+                filePath, 
+                validatedAt: new Date().toISOString() 
+              },
+            });
+
+            // Register each requirement
+            for (const reqText of rawRequirements) {
+              const reqIdMatches = reqText.match(reqIdPattern);
+              const patternResult = validator.validateRequirement(reqText);
+              
+              if (patternResult.patternMatch) {
+                const reqId = reqIdMatches?.[0] || `REQ-AUTO-${yataLocalRegistered + 1}`;
+                const reqEntityId = await yataLocal.addEntity({
+                  name: reqId,
+                  type: 'type', // Use 'type' for requirements
+                  namespace: 'project-management',
+                  metadata: {
+                    entityKind: 'Requirement',
+                    earsPattern: patternResult.patternMatch.type,
+                    text: reqText.substring(0, 200),
+                    components: patternResult.patternMatch.components,
+                    parentDocument: docId,
+                  },
+                });
+
+                // Add relationship to document
+                await yataLocal.addRelationship(
+                  reqEntityId,
+                  docEntityId,
+                  'contains',
+                  { relationKind: 'BELONGS_TO', createdAt: new Date().toISOString() }
+                );
+
+                yataLocalRegistered++;
+              }
+            }
+
+            await yataLocal.close();
+          } catch {
+            // YATA Local not available, skip silently
+          }
+        }
+
         const result: ValidationResult = {
           success: true,
           valid: errors === 0,
           issues,
           summary: { errors, warnings, info },
           message: errors === 0 
-            ? `✅ All ${rawRequirements.length} requirements are valid`
+            ? `✅ All ${rawRequirements.length} requirements are valid` + 
+              (yataLocalRegistered > 0 ? ` (${yataLocalRegistered} registered to YATA Local)` : '')
             : `❌ Found ${errors} errors, ${warnings} warnings`,
         };
 

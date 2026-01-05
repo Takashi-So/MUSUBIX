@@ -6,11 +6,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1208%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1292%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.6.0** - REPLテスト実装＆CLI統合
+> **v1.6.4** - KGPR（Knowledge Graph Pull Request）
 
 ## 概要
 
@@ -32,6 +32,9 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 - ⚙️ **品質ゲート** - フェーズ移行前の自動品質検証
 - 🔮 **高度推論** - OWL 2 RL推論とDatalog評価 *(v1.4.5)*
 - 🖥️ **対話的REPL** - コマンド補完、履歴管理、セッション変数 *(v1.6.0)*
+- 🗄️ **YATA Local** - SQLiteベースローカル知識グラフ (BFS/DFS、推論) *(v1.6.3)*
+- 🌐 **YATA Global** - オフライン同期対応分散型知識プラットフォーム *(v1.6.3)*
+- 📤 **KGPR** - 安全な知識共有のためのKnowledge Graph Pull Request *(v1.6.4)*
 
 ## アーキテクチャ
 
@@ -75,7 +78,7 @@ flowchart TB
 | `packages/core/types/` | 型定義 |
 | `packages/core/utils/` | ユーティリティ |
 | `packages/core/validators/` | EARS検証 |
-| `packages/mcp-server/` | MCPサーバー（19 tools, 3 prompts） |
+| `packages/mcp-server/` | MCPサーバー（24 tools, 3 prompts） |
 | `packages/yata-client/` | YATA クライアント |
 | `packages/pattern-mcp/` | **パターン学習（NEW!）** |
 | `packages/ontology-mcp/` | **オントロジーエンジン（NEW!）** |

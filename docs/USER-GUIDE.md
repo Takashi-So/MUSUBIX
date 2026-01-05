@@ -17,10 +17,13 @@
 9. [Consistency Validation](#consistency-validation) *(v1.4.1)*
 10. [Advanced Inference](#advanced-inference) *(v1.4.5)*
 11. [Interactive REPL Mode](#interactive-repl-mode) *(v1.5.0)*
-12. [MCP Server Integration](#mcp-server-integration)
-13. [YATA Integration](#yata-integration)
-14. [Best Practices](#best-practices)
-15. [Troubleshooting](#troubleshooting)
+12. [YATA Local](#yata-local) *(v1.6.3)*
+13. [YATA Global](#yata-global) *(v1.6.3)*
+14. [KGPR - Knowledge Graph Pull Request](#kgpr---knowledge-graph-pull-request) *(v1.6.4)*
+15. [MCP Server Integration](#mcp-server-integration)
+16. [YATA Integration](#yata-integration)
+17. [Best Practices](#best-practices)
+18. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -612,6 +615,318 @@ musubix> history clear
 | `SessionState` | Variable storage |
 | `OutputFormatter` | JSON/YAML/Table output |
 | `PromptRenderer` | Dynamic prompt display |
+
+---
+
+## YATA Local
+
+*(New in v1.6.3)*
+
+YATA Local provides a high-performance, SQLite-based local knowledge graph with built-in inference capabilities. Designed for single-user, offline scenarios where data sovereignty and speed are critical.
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| **SQLite Storage** | WAL mode for concurrent reads, single-writer |
+| **Full-Text Search** | FTS5-based triple search |
+| **Graph Traversal** | BFS/DFS with depth control |
+| **Inference Engine** | 4 OWL-lite rules (transitivity, symmetry, inverse, domain/range) |
+| **Constraints** | 4 validation rules (cardinality, disjoint, unique, required) |
+| **ACID Transactions** | Full transaction support |
+
+### Installation
+
+```bash
+npm install @nahisaho/yata-local
+```
+
+### Quick Start
+
+```typescript
+import { YataLocal } from '@nahisaho/yata-local';
+
+// Initialize with default config
+const yata = new YataLocal('./knowledge.db');
+await yata.initialize();
+
+// Add triples
+await yata.addTriple({
+  subject: 'Person:john',
+  predicate: 'hasParent',
+  object: 'Person:mary'
+});
+
+// Query triples
+const results = await yata.query({
+  subject: 'Person:john',
+  predicate: 'hasParent'
+});
+
+// Full-text search
+const searchResults = await yata.search('john parent');
+
+// Graph traversal (BFS)
+const ancestors = await yata.traverse('Person:john', 'hasParent', {
+  direction: 'outgoing',
+  maxDepth: 5,
+  algorithm: 'bfs'
+});
+
+// Clean up
+await yata.close();
+```
+
+### Inference Engine
+
+YATA Local supports four OWL-lite inference rules:
+
+| Rule | Description | Example |
+|------|-------------|---------|
+| **Transitivity** | If A→B and B→C then A→C | hasAncestor is transitive |
+| **Symmetry** | If A→B then B→A | friendOf is symmetric |
+| **Inverse** | If A→B via P then B→A via P⁻¹ | hasChild ↔ hasParent |
+| **Domain/Range** | Type inference from predicate | hasAge implies Person |
+
+```typescript
+// Run inference
+const inferred = await yata.infer();
+console.log(`Inferred ${inferred.length} new triples`);
+```
+
+### Constraints
+
+```typescript
+// Define constraints
+await yata.addConstraint({
+  type: 'cardinality',
+  predicate: 'hasSpouse',
+  max: 1
+});
+
+// Validate
+const violations = await yata.validate();
+if (violations.length > 0) {
+  console.error('Constraint violations:', violations);
+}
+```
+
+### Configuration Options
+
+```typescript
+const yata = new YataLocal('./knowledge.db', {
+  // WAL mode for better concurrency (default: true)
+  walMode: true,
+  
+  // Enable FTS5 search (default: true)
+  enableSearch: true,
+  
+  // Auto-run inference on writes (default: false)
+  autoInfer: false,
+  
+  // Journal mode (default: 'wal')
+  journalMode: 'wal'
+});
+```
+
+---
+
+## YATA Global
+
+*(New in v1.6.3)*
+
+YATA Global is a distributed knowledge graph platform for team collaboration. It provides REST API access to shared knowledge graphs with offline support and intelligent synchronization.
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| **REST API** | Full CRUD operations via HTTP |
+| **Offline Cache** | SQLite-based local cache |
+| **Sync Engine** | Push/Pull with conflict resolution |
+| **Conflict Resolution** | Last-write-wins or custom strategies |
+| **Authentication** | API key-based auth |
+| **Batch Operations** | Bulk triple operations |
+
+### Installation
+
+```bash
+npm install @nahisaho/yata-global
+```
+
+### Quick Start
+
+```typescript
+import { YataGlobal } from '@nahisaho/yata-global';
+
+// Initialize client
+const yata = new YataGlobal({
+  endpoint: 'https://yata.example.com/api',
+  apiKey: 'your-api-key',
+  graphId: 'project-knowledge'
+});
+
+await yata.initialize();
+
+// Add triples (batched)
+await yata.addTriples([
+  { subject: 'Task:001', predicate: 'assignedTo', object: 'User:alice' },
+  { subject: 'Task:001', predicate: 'status', object: 'in-progress' }
+]);
+
+// Query with filters
+const tasks = await yata.query({
+  predicate: 'assignedTo',
+  object: 'User:alice'
+});
+
+// Clean up
+await yata.close();
+```
+
+### Offline Support
+
+YATA Global supports offline-first operation with automatic synchronization:
+
+```typescript
+const yata = new YataGlobal({
+  endpoint: 'https://yata.example.com/api',
+  apiKey: 'your-api-key',
+  graphId: 'project-knowledge',
+  
+  // Offline configuration
+  offlineMode: true,
+  cachePath: './yata-cache.db',
+  syncInterval: 60000  // Auto-sync every 60 seconds
+});
+
+// Works offline - cached locally
+await yata.addTriple({
+  subject: 'Note:001',
+  predicate: 'content',
+  object: 'Important meeting notes'
+});
+
+// Manual sync when online
+await yata.sync();
+```
+
+### Conflict Resolution
+
+```typescript
+const yata = new YataGlobal({
+  // ... other options
+  
+  conflictStrategy: 'last-write-wins',  // Default
+  // or: 'server-wins', 'client-wins', 'manual'
+  
+  onConflict: async (local, remote) => {
+    // Custom resolution logic
+    console.log('Conflict detected:', local, remote);
+    return remote;  // Prefer remote version
+  }
+});
+```
+
+### Sync Status
+
+```typescript
+// Check sync status
+const status = await yata.getSyncStatus();
+console.log(`Pending changes: ${status.pendingPush}`);
+console.log(`Last sync: ${status.lastSyncAt}`);
+
+// Force full sync
+await yata.sync({ force: true });
+```
+
+### When to Use YATA Local vs YATA Global
+
+| Use Case | Recommended |
+|----------|-------------|
+| Personal knowledge base | YATA Local |
+| Single-user application | YATA Local |
+| Privacy-sensitive data | YATA Local |
+| Team collaboration | YATA Global |
+| Cross-device access | YATA Global |
+| Shared project knowledge | YATA Global |
+| Offline-first with sync | YATA Global |
+
+---
+
+## KGPR - Knowledge Graph Pull Request
+
+*(v1.6.4)*
+
+KGPR (Knowledge Graph Pull Request) enables safe sharing of knowledge graphs from YATA Local to YATA Global using a GitHub PR-like workflow.
+
+### Workflow
+
+```
+┌─────────────┐     ┌──────────────┐     ┌───────────────┐
+│ YATA Local  │ ──► │ KGPR (Draft) │ ──► │ YATA Global   │
+│ (Local KG)  │     │ (Extract)    │     │ (Review/Merge)│
+└─────────────┘     └──────────────┘     └───────────────┘
+
+Status Flow:
+draft → open → reviewing → approved/changes_requested → merged/closed
+```
+
+### Privacy Levels
+
+| Level | Filtered Content |
+|-------|------------------|
+| `strict` | File paths, URLs, credentials, all metadata |
+| `moderate` | File paths, URLs, credentials |
+| `none` | No filtering |
+
+### CLI Commands
+
+```bash
+# Create a KGPR
+musubix kgpr create -t "Add authentication patterns"
+
+# Preview diff before creating
+musubix kgpr diff --namespace myproject --privacy moderate
+
+# List KGPRs
+musubix kgpr list
+
+# Submit KGPR for review
+musubix kgpr submit <id>
+
+# Show KGPR details
+musubix kgpr show <id>
+
+# Close without merging
+musubix kgpr close <id>
+```
+
+### MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| `kgpr_create` | Create KGPR from local knowledge graph |
+| `kgpr_diff` | Preview diff before creating KGPR |
+| `kgpr_list` | List all KGPRs |
+| `kgpr_submit` | Submit KGPR for review |
+| `kgpr_review` | Review KGPR (approve/changes_requested/commented) |
+
+### Example Usage
+
+```bash
+# 1. Preview what will be shared
+musubix kgpr diff --privacy strict
+
+# 2. Create KGPR with description
+musubix kgpr create -t "Share React patterns" -d "Learned patterns from project-x"
+
+# 3. Review the KGPR
+musubix kgpr show KGPR-001
+
+# 4. Submit for review
+musubix kgpr submit KGPR-001
+```
 
 ---
 

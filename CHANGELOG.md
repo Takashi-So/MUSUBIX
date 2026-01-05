@@ -5,6 +5,231 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.5] - 2026-01-07
+
+### Added - YATA Local改善とCLI強化
+
+YATA Localテストで発見された課題に基づく改善。
+
+#### 高レベルAPI追加 (P0)
+
+`@nahisaho/yata-local` に使いやすいAPIを追加:
+
+| メソッド | 説明 |
+|---------|------|
+| `getEntitiesByType(type)` | EntityTypeで検索 |
+| `getEntitiesByNamespace(namespace)` | Namespaceで検索 |
+| `getEntitiesByKind(kind)` | metadata.entityKindで検索 |
+| `getEntityByName(name, namespace?)` | 名前で単一エンティティ取得 |
+| `upsertEntity(entity, matchBy)` | 存在確認付き追加/更新 |
+| `upsertEntities(entities, matchBy)` | バッチupsert |
+| `rawQuery<T>(sql, params)` | SQLクエリ直接実行 |
+
+#### EntityType/RelationType使用ガイドライン (P1)
+
+`packages/yata-local/docs/BEST-PRACTICES.md` を新規作成:
+
+- 16種類のEntityType定義とSDDマッピング
+- 8種類のRelationType定義
+- metadata.entityKindパターン
+- コード例とベストプラクティス
+
+#### CLI共通auto-learnミドルウェア (P1)
+
+`packages/core/src/cli/middleware/auto-learn.ts`:
+
+```typescript
+// 使用例
+const middleware = new AutoLearnMiddleware({ autoLearn: true });
+await middleware.init();
+await middleware.registerEntity({ name: 'REQ-001', type: 'module', ... });
+await middleware.registerBatch(entities, relationships);
+```
+
+#### tasksコマンド追加 (P1)
+
+```bash
+# タスク検証（YATA Local登録オプション付き）
+npx musubix tasks validate <file> --auto-learn
+
+# YATA Localからタスク一覧
+npx musubix tasks list --priority P0
+
+# タスク統計
+npx musubix tasks stats
+```
+
+#### learn dashboardコマンド (P2)
+
+```bash
+# 学習ダッシュボード表示
+npx musubix learn dashboard
+
+# JSON出力
+npx musubix learn dashboard --json
+```
+
+#### YATA Localエクスポート (P2)
+
+```bash
+# JSON形式でエクスポート
+npx musubix learn yata-export -o export.json
+
+# RDF形式でエクスポート
+npx musubix learn yata-export -f rdf -o export.ttl
+```
+
+#### Mermaidグラフ生成 (P2)
+
+```bash
+# フローチャート生成
+npx musubix learn yata-graph -o diagram.md
+
+# ER図形式
+npx musubix learn yata-graph -t er -o er.md
+
+# クラス図形式
+npx musubix learn yata-graph -t class -o class.md
+
+# フィルタオプション
+npx musubix learn yata-graph -n requirements -k Requirement --max-nodes 100
+```
+
+### テスト
+
+- 1292テスト全合格維持
+
+## [1.6.4] - 2026-01-06
+
+### Added - KGPR (Knowledge Graph Pull Request)
+
+GitHub PRモデルに基づく知識グラフ共有機能。YATA Local → YATA Global間で知識グラフを安全に共有。
+
+#### KGPR概要
+
+| コンポーネント | ファイル | 機能 |
+|--------------|---------|------|
+| **Types** | `packages/yata-global/src/kgpr/types.ts` | KGPR型定義, ステータス管理 |
+| **Privacy Filter** | `packages/yata-global/src/kgpr/privacy-filter.ts` | 機密情報フィルタリング |
+| **KGPR Manager** | `packages/yata-global/src/kgpr/kgpr-manager.ts` | KGPR操作の中心クラス |
+| **MCP Tools** | `packages/mcp-server/src/tools/kgpr-tools.ts` | 5つの新MCPツール |
+| **CLI Commands** | `packages/core/src/cli/commands/kgpr.ts` | CLIコマンド |
+
+#### KGPRワークフロー
+
+```
+┌─────────────┐     ┌──────────────┐     ┌───────────────┐
+│ YATA Local  │ ──► │ KGPR (Draft) │ ──► │ YATA Global   │
+│ (ローカルKG) │     │ (差分抽出)    │     │ (レビュー・マージ) │
+└─────────────┘     └──────────────┘     └───────────────┘
+
+ステータス遷移:
+draft → open → reviewing → approved/changes_requested → merged/closed
+```
+
+#### プライバシーフィルター
+
+| レベル | フィルタ対象 |
+|-------|------------|
+| `strict` | ファイルパス, URL, 認証情報, 全メタデータ |
+| `moderate` | ファイルパス, URL, 認証情報 |
+| `none` | フィルタなし |
+
+#### 新MCPツール（5ツール）
+
+| ツール名 | 説明 |
+|---------|------|
+| `kgpr_create` | KGPR作成（ローカルKGからドラフト作成） |
+| `kgpr_diff` | 差分プレビュー |
+| `kgpr_list` | KGPR一覧表示 |
+| `kgpr_submit` | KGPR送信（レビュー用） |
+| `kgpr_review` | KGPRレビュー（approve/changes_requested/commented） |
+
+#### 新CLIコマンド
+
+```bash
+# KGPR作成
+npx musubix kgpr create -t "Add authentication patterns"
+
+# 差分プレビュー
+npx musubix kgpr diff --namespace myproject --privacy moderate
+
+# KGPR一覧
+npx musubix kgpr list
+
+# KGPR送信
+npx musubix kgpr submit <id>
+
+# KGPR詳細表示
+npx musubix kgpr show <id>
+
+# KGPRクローズ
+npx musubix kgpr close <id>
+```
+
+#### テスト結果
+
+```
+全体: 1292 tests passed (62 files)
+```
+
+---
+
+## [1.6.3] - 2026-01-06
+
+### Added - YATA Local & YATA Global Implementation
+
+ローカル/グローバル知識グラフストレージの完全実装。
+
+#### YATA Local (`@nahisaho/yata-local`)
+
+SQLiteベースのローカル知識グラフストレージ。
+
+| コンポーネント | ファイル | 機能 |
+|--------------|---------|------|
+| **Database Layer** | `database.ts` | SQLite (WAL, FTS5), CRUD, トランザクション |
+| **Query Engine** | `query-engine.ts` | BFS/DFSパス探索, サブグラフ抽出, パターンマッチ |
+| **Reasoning Engine** | `reasoning.ts` | 4組み込みルール, 4制約, 推論・検証 |
+| **I/O Module** | `io.ts` | JSON/RDF export, Delta同期 |
+| **Main Class** | `index.ts` | YataLocal統合クラス |
+
+**組み込み推論ルール**:
+- `transitive-extends` - 推移的継承
+- `implements-type` - 型実装
+- `transitive-dependency` - 推移的依存
+- `method-override` - メソッドオーバーライド
+
+**組み込み制約**:
+- `no-circular-inheritance` - 循環継承禁止
+- `imports-resolve` - インポート解決
+- `entity-has-name` - エンティティ名必須
+- `function-return-type` - 関数戻り値型
+
+#### YATA Global (`@nahisaho/yata-global`)
+
+分散型知識グラフプラットフォーム。
+
+| コンポーネント | ファイル | 機能 |
+|--------------|---------|------|
+| **API Client** | `api-client.ts` | REST API, 認証, レート制限 |
+| **Cache Manager** | `cache-manager.ts` | SQLiteオフラインキャッシュ |
+| **Sync Engine** | `sync-engine.ts` | Push/Pull同期, 自動同期 |
+| **Main Client** | `index.ts` | YataGlobal統合クライアント |
+
+**主な型定義**:
+- `FrameworkKnowledge` - フレームワーク知識 (19カテゴリ, 20言語)
+- `SharedPattern` - コミュニティ共有パターン (15カテゴリ)
+- `SyncConfig` - 同期設定 (オフラインモード対応)
+- `SearchOptions` - 検索オプション (ソート, フィルタ, ページネーション)
+
+#### テスト結果
+
+```
+YATA Local:  22 tests passed
+YATA Global: 28 tests passed
+全体:        1267 tests passed (60 files)
+```
+
 ## [1.6.2] - 2026-01-06
 
 ### Improved - SDD Cycle Validation

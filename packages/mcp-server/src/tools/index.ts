@@ -51,6 +51,24 @@ export {
   getOntologyTools,
 } from './ontology-tools.js';
 
+export {
+  analyzeCodeTool,
+  updateKnowledgeFromCodeTool,
+  bulkUpdateKnowledgeTool,
+  queryKnowledgeGraphTool,
+  yataTools,
+  getYataTools,
+} from './yata-tools.js';
+
+export {
+  kgprCreateTool,
+  kgprDiffTool,
+  kgprListTool,
+  kgprSubmitTool,
+  kgprReviewTool,
+  kgprTools,
+} from './kgpr-tools.js';
+
 /**
  * Get all available tools
  */
@@ -59,5 +77,7 @@ export function getAllTools() {
   const { getSymbolicTools } = require('./symbolic-tools.js');
   const { getPatternIntegrationTools } = require('./pattern-tools.js');
   const { getOntologyTools } = require('./ontology-tools.js');
-  return [...getSddTools(), ...getSymbolicTools(), ...getPatternIntegrationTools(), ...getOntologyTools()];
+  const { getYataTools } = require('./yata-tools.js');
+  const { kgprTools } = require('./kgpr-tools.js');
+  return [...getSddTools(), ...getSymbolicTools(), ...getPatternIntegrationTools(), ...getOntologyTools(), ...getYataTools(), ...kgprTools];
 }

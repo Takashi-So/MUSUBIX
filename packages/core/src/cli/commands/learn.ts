@@ -604,4 +604,612 @@ export function registerLearnCommand(program: Command): void {
       }
       console.log(`\nUse 'musubix learn bp-show <ID>' to see details and examples.`);
     });
+
+  // Dashboard command - Interactive learning dashboard
+  learn
+    .command('dashboard')
+    .description('Display interactive learning dashboard with YATA Local stats')
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('--json', 'Output as JSON')
+    .action(async (options: { db?: string; json?: boolean }) => {
+      try {
+        // Learning Engine stats
+        const engine = new LearningEngine();
+        const learningStats = await engine.getStats();
+        const patterns = await engine.getPatterns();
+        
+        // YATA Local stats
+        let yataStats: {
+          entities: number;
+          relationships: number;
+          byType: Record<string, number>;
+          byKind: Record<string, number>;
+          namespaces: string[];
+        } | null = null;
+        
+        try {
+          const yataLocalModule = await import('@nahisaho/yata-local');
+          const { createYataLocal } = yataLocalModule;
+          const yata = createYataLocal({ path: options.db ?? './.yata-local.db' });
+          await yata.open();
+          
+          const stats = await yata.getStats();
+          // Use exportJson to get all entities
+          const exported = await yata.exportJson();
+          const entities = exported.entities;
+          
+          // Group by type
+          const byType: Record<string, number> = {};
+          const byKind: Record<string, number> = {};
+          const namespaces = new Set<string>();
+          
+          for (const entity of entities) {
+            byType[entity.type] = (byType[entity.type] ?? 0) + 1;
+            const kind = (entity.metadata as Record<string, unknown>)?.entityKind as string | undefined;
+            if (kind) {
+              byKind[kind] = (byKind[kind] ?? 0) + 1;
+            }
+            namespaces.add(entity.namespace);
+          }
+          
+          yataStats = {
+            entities: stats.entityCount,
+            relationships: stats.relationshipCount,
+            byType,
+            byKind,
+            namespaces: Array.from(namespaces),
+          };
+          
+          await yata.close();
+        } catch {
+          // YATA Local not available, continue without it
+        }
+        
+        if (options.json) {
+          console.log(JSON.stringify({
+            learning: learningStats,
+            patterns: patterns.length,
+            yataLocal: yataStats,
+          }, null, 2));
+          return;
+        }
+        
+        // Display dashboard
+        console.log('\n╔════════════════════════════════════════════════════════════════╗');
+        console.log('║           🧠 MUSUBIX Learning Dashboard                        ║');
+        console.log('╠════════════════════════════════════════════════════════════════╣');
+        
+        // Learning Engine section
+        console.log('║ 📚 Learning Engine                                             ║');
+        console.log('╟────────────────────────────────────────────────────────────────╢');
+        console.log(`║   Total Feedback: ${String(learningStats.totalFeedback).padEnd(44)}║`);
+        console.log(`║   Patterns Learned: ${String(patterns.length).padEnd(42)}║`);
+        // Calculate acceptance rate from feedbackByType
+        const acceptRate = learningStats.totalFeedback > 0 
+          ? (learningStats.feedbackByType.accept ?? 0) / learningStats.totalFeedback 
+          : 0;
+        console.log(`║   Acceptance Rate: ${String((acceptRate * 100).toFixed(1) + '%').padEnd(43)}║`);
+        
+        // YATA Local section
+        if (yataStats) {
+          console.log('╟────────────────────────────────────────────────────────────────╢');
+          console.log('║ 🗄️  YATA Local Knowledge Graph                                 ║');
+          console.log('╟────────────────────────────────────────────────────────────────╢');
+          console.log(`║   Entities: ${String(yataStats.entities).padEnd(50)}║`);
+          console.log(`║   Relationships: ${String(yataStats.relationships).padEnd(45)}║`);
+          console.log(`║   Namespaces: ${String(yataStats.namespaces.length).padEnd(48)}║`);
+          
+          // Top entity kinds
+          const sortedKinds = Object.entries(yataStats.byKind)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 5);
+          if (sortedKinds.length > 0) {
+            console.log('║   Top Entity Kinds:                                            ║');
+            for (const [kind, count] of sortedKinds) {
+              console.log(`║     - ${kind}: ${String(count).padEnd(47)}║`);
+            }
+          }
+        } else {
+          console.log('╟────────────────────────────────────────────────────────────────╢');
+          console.log('║ 🗄️  YATA Local: Not available                                   ║');
+          console.log('║     Run commands with --auto-learn to populate                 ║');
+        }
+        
+        console.log('╚════════════════════════════════════════════════════════════════╝\n');
+      } catch (error) {
+        console.error(`❌ Dashboard error: ${(error as Error).message}`);
+        process.exit(1);
+      }
+    });
+
+  // YATA Local export command
+  learn
+    .command('yata-export')
+    .description('Export YATA Local knowledge graph')
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('-o, --output <file>', 'Output file path')
+    .option('-f, --format <format>', 'Export format: json, rdf', 'json')
+    .action(async (options: { db?: string; output?: string; format?: string }) => {
+      try {
+        const yataLocalModule = await import('@nahisaho/yata-local');
+        const { createYataLocal } = yataLocalModule;
+        const yata = createYataLocal({ path: options.db ?? './.yata-local.db' });
+        await yata.open();
+        
+        if (options.format === 'rdf') {
+          const rdfContent = await yata.exportRdf(options.output);
+          if (!options.output) {
+            console.log(rdfContent);
+          } else {
+            console.log(`✅ Exported to ${options.output}`);
+          }
+        } else {
+          const jsonExport = await yata.exportJson(options.output);
+          if (!options.output) {
+            console.log(JSON.stringify(jsonExport, null, 2));
+          } else {
+            console.log(`✅ Exported ${jsonExport.entities.length} entities, ${jsonExport.relationships.length} relationships to ${options.output}`);
+          }
+        }
+        
+        await yata.close();
+      } catch (error) {
+        console.error(`❌ Export failed: ${(error as Error).message}`);
+        process.exit(1);
+      }
+    });
+
+  // YATA Local Mermaid graph command
+  learn
+    .command('yata-graph')
+    .description('Generate Mermaid diagram from YATA Local')
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('-o, --output <file>', 'Output file path')
+    .option('-n, --namespace <ns>', 'Filter by namespace')
+    .option('-k, --kind <kind>', 'Filter by entity kind')
+    .option('-t, --type <type>', 'Graph type: flowchart, er, class', 'flowchart')
+    .option('--max-nodes <n>', 'Maximum nodes to display', '50')
+    .action(async (options: { db?: string; output?: string; namespace?: string; kind?: string; type?: string; maxNodes?: string }) => {
+      try {
+        const yataLocalModule = await import('@nahisaho/yata-local');
+        const { createYataLocal } = yataLocalModule;
+        const yata = createYataLocal({ path: options.db ?? './.yata-local.db' });
+        await yata.open();
+        
+        // Get entities and relationships using exportJson
+        const exported = await yata.exportJson();
+        let entities: EntityForGraph[] = exported.entities;
+        const relationships: RelationshipForGraph[] = exported.relationships;
+        
+        // Apply filters
+        if (options.namespace) {
+          entities = entities.filter((e: EntityForGraph) => e.namespace === options.namespace);
+        }
+        if (options.kind) {
+          entities = entities.filter((e: EntityForGraph) => 
+            (e.metadata as Record<string, unknown>)?.entityKind === options.kind
+          );
+        }
+        
+        // Limit nodes
+        const maxNodes = parseInt(options.maxNodes ?? '50', 10);
+        if (entities.length > maxNodes) {
+          console.error(`⚠️ Limiting to ${maxNodes} nodes (use --max-nodes to increase)`);
+          entities = entities.slice(0, maxNodes);
+        }
+        
+        const entityIds = new Set(entities.map((e: EntityForGraph) => e.id));
+        const filteredRels = relationships.filter(
+          (r: RelationshipForGraph) => entityIds.has(r.sourceId) && entityIds.has(r.targetId)
+        );
+        
+        // Generate Mermaid
+        let mermaid = '';
+        
+        if (options.type === 'er') {
+          mermaid = generateERDiagram(entities, filteredRels);
+        } else if (options.type === 'class') {
+          mermaid = generateClassDiagram(entities, filteredRels);
+        } else {
+          mermaid = generateFlowchart(entities, filteredRels);
+        }
+        
+        if (options.output) {
+          const { writeFile } = await import('fs/promises');
+          await writeFile(options.output, mermaid, 'utf-8');
+          console.log(`✅ Generated Mermaid diagram: ${options.output}`);
+        } else {
+          console.log(mermaid);
+        }
+        
+        await yata.close();
+      } catch (error) {
+        console.error(`❌ Graph generation failed: ${(error as Error).message}`);
+        process.exit(1);
+      }
+    });
+
+  // ==========================================================================
+  // Wake-Sleep Learning Commands (TSK-CLI-002)
+  // ==========================================================================
+
+  // Wake command - Extract patterns from code
+  learn
+    .command('wake')
+    .description('Run wake phase: extract patterns from code')
+    .requiredOption('-t, --target <path>', 'Target directory or file to analyze')
+    .option('--task-name <name>', 'Task name for tracking')
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('--json', 'Output as JSON')
+    .action(async (options: { target: string; taskName?: string; db?: string; json?: boolean }) => {
+      try {
+        let wakeSleepModule: typeof import('@nahisaho/musubix-wake-sleep') | null = null;
+        
+        try {
+          wakeSleepModule = await import('@nahisaho/musubix-wake-sleep');
+        } catch {
+          console.error('Wake-Sleep module not installed. Run: npm install @nahisaho/musubix-wake-sleep');
+          process.exit(1);
+        }
+        
+        const { CycleManager } = wakeSleepModule;
+        const cycleManager = new CycleManager();
+        
+        // Read target directory/file
+        const { readdir, readFile, stat } = await import('fs/promises');
+        const { join, extname, relative } = await import('path');
+        
+        const targetStat = await stat(options.target);
+        const files: string[] = [];
+        
+        if (targetStat.isDirectory()) {
+          const collectFiles = async (dir: string): Promise<void> => {
+            const entries = await readdir(dir, { withFileTypes: true });
+            for (const entry of entries) {
+              const fullPath = join(dir, entry.name);
+              if (entry.isDirectory()) {
+                // Skip node_modules, .git, etc.
+                if (!['node_modules', '.git', 'dist', 'build'].includes(entry.name)) {
+                  await collectFiles(fullPath);
+                }
+              } else if (['.ts', '.js', '.tsx', '.jsx'].includes(extname(entry.name))) {
+                files.push(fullPath);
+              }
+            }
+          };
+          await collectFiles(options.target);
+        } else {
+          files.push(options.target);
+        }
+        
+        console.log(`📂 Found ${files.length} files to analyze`);
+        
+        let totalPatterns = 0;
+        for (const file of files) {
+          const content = await readFile(file, 'utf-8');
+          const relativePath = relative(process.cwd(), file);
+          
+          await cycleManager.submitTask({
+            id: `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            type: 'code',
+            content: content,
+            context: {
+              filePath: relativePath,
+              language: extname(file).slice(1),
+            },
+            metadata: {
+              taskName: options.taskName ?? relativePath,
+            },
+          });
+          
+          totalPatterns++;
+        }
+        
+        const status = cycleManager.getStatus();
+        
+        if (options.json) {
+          console.log(JSON.stringify({
+            filesProcessed: files.length,
+            tasksQueued: status.taskCount,
+            currentPhase: status.currentPhase,
+          }, null, 2));
+        } else {
+          console.log(`\n✅ Wake phase completed`);
+          console.log(`   Files analyzed: ${files.length}`);
+          console.log(`   Tasks queued: ${status.taskCount}`);
+          console.log(`\nUse 'musubix learn sleep' to consolidate patterns.`);
+        }
+      } catch (error) {
+        console.error(`❌ Wake phase failed: ${(error as Error).message}`);
+        process.exit(1);
+      }
+    });
+
+  // Sleep command - Consolidate patterns
+  learn
+    .command('sleep')
+    .description('Run sleep phase: consolidate and abstract patterns')
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('--json', 'Output as JSON')
+    .action(async (options: { db?: string; json?: boolean }) => {
+      try {
+        let wakeSleepModule: typeof import('@nahisaho/musubix-wake-sleep') | null = null;
+        
+        try {
+          wakeSleepModule = await import('@nahisaho/musubix-wake-sleep');
+        } catch {
+          console.error('Wake-Sleep module not installed. Run: npm install @nahisaho/musubix-wake-sleep');
+          process.exit(1);
+        }
+        
+        const { CycleManager } = wakeSleepModule;
+        const cycleManager = new CycleManager();
+        
+        const statusBefore = cycleManager.getStatus();
+        await cycleManager.runSleepPhase();
+        const statusAfter = cycleManager.getStatus();
+        
+        if (options.json) {
+          console.log(JSON.stringify({
+            cycleNumber: statusAfter.cycleNumber,
+            patternCount: statusAfter.patternCount,
+            lastCycleTime: statusAfter.lastCycleTime,
+          }, null, 2));
+        } else {
+          console.log(`\n✅ Sleep phase completed`);
+          console.log(`   Cycle: #${statusAfter.cycleNumber}`);
+          console.log(`   Patterns consolidated: ${statusAfter.patternCount - statusBefore.patternCount}`);
+          console.log(`   Last run: ${statusAfter.lastCycleTime ?? 'now'}`);
+        }
+      } catch (error) {
+        console.error(`❌ Sleep phase failed: ${(error as Error).message}`);
+        process.exit(1);
+      }
+    });
+
+  // Cycle command - Run complete wake-sleep cycle
+  learn
+    .command('cycle')
+    .description('Run complete wake-sleep learning cycle')
+    .requiredOption('-t, --target <path>', 'Target directory or file to analyze')
+    .option('--task-name <name>', 'Task name for tracking')
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('--json', 'Output as JSON')
+    .action(async (options: { target: string; taskName?: string; db?: string; json?: boolean }) => {
+      try {
+        let wakeSleepModule: typeof import('@nahisaho/musubix-wake-sleep') | null = null;
+        
+        try {
+          wakeSleepModule = await import('@nahisaho/musubix-wake-sleep');
+        } catch {
+          console.error('Wake-Sleep module not installed. Run: npm install @nahisaho/musubix-wake-sleep');
+          process.exit(1);
+        }
+        
+        const { LearningScheduler } = wakeSleepModule;
+        const scheduler = new LearningScheduler();
+        const cycleManager = scheduler.getCycleManager();
+        
+        // Read target directory/file
+        const { readdir, readFile, stat } = await import('fs/promises');
+        const { join, extname, relative } = await import('path');
+        
+        const targetStat = await stat(options.target);
+        const files: string[] = [];
+        
+        if (targetStat.isDirectory()) {
+          const collectFiles = async (dir: string): Promise<void> => {
+            const entries = await readdir(dir, { withFileTypes: true });
+            for (const entry of entries) {
+              const fullPath = join(dir, entry.name);
+              if (entry.isDirectory()) {
+                if (!['node_modules', '.git', 'dist', 'build'].includes(entry.name)) {
+                  await collectFiles(fullPath);
+                }
+              } else if (['.ts', '.js', '.tsx', '.jsx'].includes(extname(entry.name))) {
+                files.push(fullPath);
+              }
+            }
+          };
+          await collectFiles(options.target);
+        } else {
+          files.push(options.target);
+        }
+        
+        console.log(`📂 Found ${files.length} files to analyze`);
+        console.log(`\n🔄 Running wake-sleep cycle...`);
+        
+        // Wake phase - submit tasks
+        for (const file of files) {
+          const content = await readFile(file, 'utf-8');
+          const relativePath = relative(process.cwd(), file);
+          
+          await cycleManager.submitTask({
+            id: `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            type: 'code',
+            content: content,
+            context: {
+              filePath: relativePath,
+              language: extname(file).slice(1),
+            },
+            metadata: {
+              taskName: options.taskName ?? relativePath,
+            },
+          });
+        }
+        
+        // Run the cycle manually
+        const result = await scheduler.runCycle();
+        
+        if (options.json) {
+          console.log(JSON.stringify({
+            cycleNumber: result.cycleNumber,
+            wakeResult: result.wakeResult,
+            sleepResult: result.sleepResult,
+            durationMs: result.durationMs,
+          }, null, 2));
+        } else {
+          console.log(`\n✅ Wake-Sleep cycle completed`);
+          console.log(`   Cycle: #${result.cycleNumber}`);
+          console.log(`   Extracted: ${result.wakeResult.extractedPatterns} patterns`);
+          console.log(`   Clustered: ${result.sleepResult.clusteredPatterns} patterns`);
+          console.log(`   Duration: ${result.durationMs}ms`);
+        }
+      } catch (error) {
+        console.error(`❌ Cycle failed: ${(error as Error).message}`);
+        process.exit(1);
+      }
+    });
+
+  // Compress command - Compress patterns
+  learn
+    .command('compress')
+    .description('Compress and optimize pattern library (runs sleep phase)')
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('--min-frequency <n>', 'Minimum pattern frequency for consolidation', '2')
+    .option('--mdl-threshold <n>', 'MDL threshold for abstraction (0-1)', '0.5')
+    .option('--json', 'Output as JSON')
+    .action(async (options: { db?: string; minFrequency?: string; mdlThreshold?: string; json?: boolean }) => {
+      try {
+        let wakeSleepModule: typeof import('@nahisaho/musubix-wake-sleep') | null = null;
+        
+        try {
+          wakeSleepModule = await import('@nahisaho/musubix-wake-sleep');
+        } catch {
+          console.error('Wake-Sleep module not installed. Run: npm install @nahisaho/musubix-wake-sleep');
+          process.exit(1);
+        }
+        
+        const { CycleManager } = wakeSleepModule;
+        const cycleManager = new CycleManager({
+          minPatternFrequency: parseInt(options.minFrequency ?? '2', 10),
+          mdlThreshold: parseFloat(options.mdlThreshold ?? '0.5'),
+        });
+        
+        console.log('🔄 Running pattern compression (sleep phase)...\n');
+        
+        const statusBefore = cycleManager.getStatus();
+        await cycleManager.runSleepPhase();
+        const statusAfter = cycleManager.getStatus();
+        
+        if (options.json) {
+          console.log(JSON.stringify({
+            cycleNumberBefore: statusBefore.cycleNumber,
+            cycleNumberAfter: statusAfter.cycleNumber,
+            minPatternFrequency: parseInt(options.minFrequency ?? '2', 10),
+            mdlThreshold: parseFloat(options.mdlThreshold ?? '0.5'),
+            currentPhase: statusAfter.currentPhase,
+          }, null, 2));
+        } else {
+          console.log(`✅ Pattern compression completed`);
+          console.log(`   Min frequency: ${options.minFrequency ?? '2'}`);
+          console.log(`   MDL threshold: ${options.mdlThreshold ?? '0.5'}`);
+          console.log(`   Cycles completed: ${statusAfter.cycleNumber}`);
+          console.log(`\nNote: Compression consolidates similar patterns in the library.`);
+        }
+      } catch (error) {
+        console.error(`❌ Compression failed: ${(error as Error).message}`);
+        process.exit(1);
+      }
+    });
+}
+
+// Helper functions for Mermaid generation
+
+interface EntityForGraph {
+  id: string;
+  name: string;
+  type: string;
+  namespace: string;
+  metadata?: Record<string, unknown>;
+}
+
+interface RelationshipForGraph {
+  sourceId: string;
+  targetId: string;
+  type: string;
+  metadata?: Record<string, unknown>;
+}
+
+function sanitizeId(id: string): string {
+  return id.replace(/[^a-zA-Z0-9]/g, '_');
+}
+
+function generateFlowchart(entities: EntityForGraph[], relationships: RelationshipForGraph[]): string {
+  const lines: string[] = ['flowchart TD'];
+  
+  // Group by namespace
+  const byNamespace = new Map<string, EntityForGraph[]>();
+  for (const entity of entities) {
+    const ns = entity.namespace;
+    if (!byNamespace.has(ns)) {
+      byNamespace.set(ns, []);
+    }
+    byNamespace.get(ns)!.push(entity);
+  }
+  
+  // Add subgraphs for each namespace
+  for (const [ns, nsEntities] of byNamespace) {
+    lines.push(`  subgraph ${sanitizeId(ns)}["${ns}"]`);
+    for (const entity of nsEntities) {
+      const kind = (entity.metadata as Record<string, unknown>)?.entityKind as string | undefined;
+      const label = kind ? `${entity.name}<br/><small>${kind}</small>` : entity.name;
+      lines.push(`    ${sanitizeId(entity.id)}["${label}"]`);
+    }
+    lines.push('  end');
+  }
+  
+  // Add relationships
+  for (const rel of relationships) {
+    const relLabel = (rel.metadata as Record<string, unknown>)?.relationKind as string ?? rel.type;
+    lines.push(`  ${sanitizeId(rel.sourceId)} -->|${relLabel}| ${sanitizeId(rel.targetId)}`);
+  }
+  
+  return lines.join('\n');
+}
+
+function generateERDiagram(entities: EntityForGraph[], relationships: RelationshipForGraph[]): string {
+  const lines: string[] = ['erDiagram'];
+  
+  // Add entities
+  for (const entity of entities) {
+    const kind = (entity.metadata as Record<string, unknown>)?.entityKind as string ?? entity.type;
+    lines.push(`  ${sanitizeId(entity.id)} {`);
+    lines.push(`    string name "${entity.name}"`);
+    lines.push(`    string kind "${kind}"`);
+    lines.push(`    string namespace "${entity.namespace}"`);
+    lines.push('  }');
+  }
+  
+  // Add relationships
+  for (const rel of relationships) {
+    const relLabel = (rel.metadata as Record<string, unknown>)?.relationKind as string ?? rel.type;
+    lines.push(`  ${sanitizeId(rel.sourceId)} ||--o| ${sanitizeId(rel.targetId)} : "${relLabel}"`);
+  }
+  
+  return lines.join('\n');
+}
+
+function generateClassDiagram(entities: EntityForGraph[], relationships: RelationshipForGraph[]): string {
+  const lines: string[] = ['classDiagram'];
+  
+  // Add classes
+  for (const entity of entities) {
+    const kind = (entity.metadata as Record<string, unknown>)?.entityKind as string ?? entity.type;
+    lines.push(`  class ${sanitizeId(entity.id)} {`);
+    lines.push(`    <<${kind}>>`);
+    lines.push(`    +name: ${entity.name}`);
+    lines.push(`    +namespace: ${entity.namespace}`);
+    lines.push('  }');
+  }
+  
+  // Add relationships
+  for (const rel of relationships) {
+    const arrow = rel.type === 'inherits' ? '<|--' : 
+                  rel.type === 'implements' ? '<|..' :
+                  rel.type === 'contains' ? '*--' : '-->';
+    lines.push(`  ${sanitizeId(rel.sourceId)} ${arrow} ${sanitizeId(rel.targetId)}`);
+  }
+  
+  return lines.join('\n');
 }

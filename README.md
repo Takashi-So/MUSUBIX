@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1208%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1292%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.6.0** - REPL Test Implementation & CLI Enhancement
+> **v1.6.4** - KGPR (Knowledge Graph Pull Request)
 
 **[日本語版 README](README.ja.md)**
 
@@ -35,6 +35,9 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 - ⚙️ **Quality Gates** - Automated quality validation before phase transitions
 - 🔮 **Advanced Inference** - OWL 2 RL reasoning and Datalog evaluation *(v1.4.5)*
 - 🖥️ **Interactive REPL** - Command completion, history, session variables *(v1.6.0)*
+- 🗄️ **YATA Local** - SQLite-based local knowledge graph (BFS/DFS, reasoning) *(v1.6.3)*
+- 🌐 **YATA Global** - Distributed knowledge platform with offline sync *(v1.6.3)*
+- 📤 **KGPR** - Knowledge Graph Pull Request for safe knowledge sharing *(v1.6.4)*
 
 ## Architecture
 
@@ -78,12 +81,14 @@ flowchart TB
 | `packages/core/types/` | Type Definitions |
 | `packages/core/utils/` | Utilities |
 | `packages/core/validators/` | EARS Validation |
-| `packages/mcp-server/` | MCP Server (19 tools, 3 prompts) |
+| `packages/mcp-server/` | MCP Server (24 tools, 3 prompts) |
 | `packages/yata-client/` | YATA Client |
 | `packages/pattern-mcp/` | **Pattern Learning (NEW!)** |
 | `packages/ontology-mcp/` | **Ontology Engine (NEW!)** |
 | `packages/wake-sleep/` | **Wake-Sleep Learning (NEW!)** |
 | `packages/sdd-ontology/` | **SDD Ontology (NEW!)** |
+| `packages/yata-local/` | **YATA Local - SQLite Knowledge Graph (NEW!)** |
+| `packages/yata-global/` | **YATA Global - Distributed Knowledge Platform (NEW!)** |
 | `steering/` | Project Memory |
 | `storage/` | Specifications & Artifacts |
 | `templates/` | Templates |
@@ -171,7 +176,7 @@ npm run type-check
 
 ### MCP Server
 
-Provides 16 tools (9 SDD + 7 Pattern) and 3 prompts:
+Provides 24 tools (9 SDD + 7 Pattern + 3 Ontology + 5 KGPR) and 3 prompts:
 
 ```bash
 # Start MCP Server

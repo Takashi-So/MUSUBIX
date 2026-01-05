@@ -335,8 +335,11 @@ export function registerDesignCommand(program: Command): void {
     .command('validate <file>')
     .description('Validate SOLID compliance')
     .option('--strict', 'Enable strict mode', false)
-    .action(async (file: string, options: { strict?: boolean }) => {
+    .option('--auto-learn', 'Auto-register to YATA Local', false)
+    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .action(async (file: string, options: { strict?: boolean; autoLearn?: boolean; db?: string }) => {
       const globalOpts = getGlobalOptions(program);
+      const autoLearn = options.autoLearn || process.env.MUSUBIX_AUTO_LEARN === 'true';
 
       try {
         const filePath = resolve(process.cwd(), file);
@@ -344,13 +347,75 @@ export function registerDesignCommand(program: Command): void {
 
         const { violations, gaps } = validateDesign(content, options.strict ?? false);
 
+        // Auto-register to YATA Local if enabled
+        let yataLocalRegistered = 0;
+        if (autoLearn && violations.length === 0) {
+          try {
+            const yataLocalModule = await import('@nahisaho/yata-local');
+            const { createYataLocal } = yataLocalModule;
+            const yataLocal = createYataLocal({ path: options.db ?? './.yata-local.db' });
+            await yataLocal.open();
+
+            // Extract design document ID
+            const docIdMatch = content.match(/\*\*Document ID\*\*:\s*([\w-]+)/);
+            const docId = docIdMatch ? docIdMatch[1] : 'DES-UNKNOWN';
+
+            // Register document as entity
+            const docEntityId = await yataLocal.addEntity({
+              name: docId,
+              type: 'module',
+              namespace: 'project-management',
+              metadata: { 
+                entityKind: 'DesignDocument',
+                filePath, 
+                validatedAt: new Date().toISOString() 
+              },
+            });
+            yataLocalRegistered++;
+
+            // Extract and register components
+            const componentPattern = /###\s+(\d+\.\d+(?:\.\d+)?)\s+([^\n]+)\n/g;
+            let match;
+            while ((match = componentPattern.exec(content)) !== null) {
+              const componentId = `COMP-${match[1].replace(/\./g, '-')}`;
+              const componentName = match[2].trim();
+              
+              const compEntityId = await yataLocal.addEntity({
+                name: componentId,
+                type: 'class',
+                namespace: 'project-management',
+                metadata: {
+                  entityKind: 'Component',
+                  displayName: componentName,
+                  parentDocument: docId,
+                },
+              });
+
+              // Add relationship to document
+              await yataLocal.addRelationship(
+                compEntityId,
+                docEntityId,
+                'contains',
+                { relationKind: 'DEFINED_IN', createdAt: new Date().toISOString() }
+              );
+
+              yataLocalRegistered++;
+            }
+
+            await yataLocal.close();
+          } catch {
+            // YATA Local not available, skip silently
+          }
+        }
+
         const result: DesignValidationResult = {
           success: true,
           valid: violations.length === 0 && gaps.length === 0,
           solidViolations: violations,
           traceabilityGaps: gaps,
           message: violations.length === 0
-            ? '✅ Design is SOLID compliant'
+            ? '✅ Design is SOLID compliant' + 
+              (yataLocalRegistered > 0 ? ` (${yataLocalRegistered} registered to YATA Local)` : '')
             : `❌ Found ${violations.length} SOLID violations`,
         };
 

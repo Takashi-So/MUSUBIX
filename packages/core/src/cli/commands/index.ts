@@ -23,6 +23,8 @@ import { registerLearnCommand } from './learn.js';
 import { registerOntologyCommand } from './ontology.js';
 import { registerReplCommand } from './repl.js';
 import { registerPerfCommand } from './perf.js';
+import { registerKgprCommands } from './kgpr.js';
+import { registerTasksCommand } from './tasks.js';
 
 /**
  * Register all CLI commands
@@ -54,6 +56,12 @@ export function registerCommands(program: Command): void {
   
   // Performance monitoring (REQ-PERF-v1.5.1)
   registerPerfCommand(program);
+  
+  // Knowledge Graph PR (KGPR) commands
+  registerKgprCommands(program);
+  
+  // Task management commands
+  registerTasksCommand(program);
 }
 
 // Core command exports
@@ -80,3 +88,9 @@ export { registerReplCommand } from './repl.js';
 
 // Performance monitoring command export
 export { registerPerfCommand } from './perf.js';
+
+// KGPR command export
+export { registerKgprCommands } from './kgpr.js';
+
+// Tasks command export
+export { registerTasksCommand } from './tasks.js';

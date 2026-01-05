@@ -43,3 +43,36 @@ export {
   SilentProgressReporter,
 } from './progress-reporter.js';
 export type { ProgressPhase, ProgressReporterOptions } from './progress-reporter.js';
+
+// Context Analyzer (REQ-REC-001)
+export {
+  ContextAnalyzer,
+  levenshteinDistance,
+  levenshteinSimilarity,
+  DEFAULT_SCORING_WEIGHTS,
+} from './context-analyzer.js';
+export type {
+  AnalyzableEntity,
+  RelatedEntity,
+  RelevanceScoreBreakdown,
+  RelationshipType,
+  ScoringWeights,
+  ContextAnalyzerOptions,
+  EntityRepository,
+  ContextAnalyzerEvents,
+} from './context-analyzer.js';
+
+// Pattern Recommender (REQ-REC-002)
+export { PatternRecommender } from './pattern-recommender.js';
+export type {
+  RecommendablePattern,
+  PatternCategory,
+  RecommendationContext,
+  PatternRecommendation,
+  MatchFactor,
+  FeedbackType,
+  PatternFeedback,
+  PatternRecommenderOptions,
+  PatternRepository,
+  PatternRecommenderEvents,
+} from './pattern-recommender.js';

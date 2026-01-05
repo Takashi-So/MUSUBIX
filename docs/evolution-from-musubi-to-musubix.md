@@ -21,7 +21,7 @@ AIコーディング支援ツールは急速に進化しています。本記事
 
 # TL;DR
 
-> **最新バージョン**: v1.6.0 | **62ドメイン対応** | **249コンポーネント** | **1208テスト** | **17ベストプラクティス**
+> **最新バージョン**: v1.6.4 | **62ドメイン対応** | **249コンポーネント** | **1292テスト** | **17ベストプラクティス**
 
 | 項目 | MUSUBI | MUSUBIX |
 |------|--------|---------|
@@ -35,6 +35,9 @@ AIコーディング支援ツールは急速に進化しています。本記事
 | **知識共有** | なし | **プロジェクト間ポータビリティ**（v1.4.0） |
 | **正誤性検証** | なし | **OWL制約チェック**（v1.4.1） |
 | **対話的CLI** | なし | **Interactive REPL**（v1.6.0） |
+| **ローカル知識グラフ** | なし | **YATA Local**（v1.6.3） |
+| **分散型知識プラットフォーム** | なし | **YATA Global**（v1.6.3） |
+| **知識グラフ共有** | なし | **KGPR**（v1.6.4） |
 
 # 1. MUSUBIとは？
 
@@ -1705,6 +1708,188 @@ claude mcp list
 | `validate_triple` | 単一トリプルの事前検証 |
 | `check_circular` | 循環依存の検出 |
 
+# 9. YATA Local & YATA Global（v1.6.3）
+
+v1.6.3では、知識グラフの永続化と分散管理のための新パッケージを追加しました。
+
+## 9.1 YATA Local
+
+SQLiteベースのローカル知識グラフストレージです。
+
+```mermaid
+flowchart TB
+    subgraph YataLocal["YATA Local"]
+        DB["SQLite Database<br/>WAL mode, FTS5"]
+        QE["Query Engine<br/>BFS/DFS pathfinding"]
+        RE["Reasoning Engine<br/>4 built-in rules"]
+        IO["I/O Module<br/>JSON/RDF export"]
+    end
+    
+    DB --> QE
+    QE --> RE
+    RE --> IO
+```
+
+### 主な機能
+
+| コンポーネント | 機能 |
+|--------------|------|
+| **Database Layer** | Entity/Relationship CRUD, FTS5全文検索, 変更追跡 |
+| **Query Engine** | グラフクエリ, BFS/DFSパス探索, サブグラフ抽出, パターンマッチ |
+| **Reasoning Engine** | 推論ルール実行, 制約検証, 信頼度計算, 関係性推奨 |
+| **I/O Module** | JSON/RDF(N-Triples)エクスポート, Delta同期 |
+
+### 組み込み推論ルール
+
+```typescript
+// 推移的継承: A extends B, B extends C → A extends C
+'transitive-extends'
+
+// 型実装: A implements B → A is-a B
+'implements-type'
+
+// 推移的依存: A depends-on B, B depends-on C → A depends-on C
+'transitive-dependency'
+
+// メソッドオーバーライド: A extends B, B has method M → A overrides M
+'method-override'
+```
+
+### 使用例
+
+```typescript
+import { createYataLocal } from '@nahisaho/yata-local';
+
+const yata = createYataLocal('./knowledge.sqlite');
+
+// エンティティ追加
+yata.addEntity({
+  id: 'class-user',
+  type: 'class',
+  name: 'User',
+  file: 'src/models/user.ts',
+  properties: { abstract: false }
+});
+
+// 関係性追加
+yata.addRelationship({
+  source: 'class-admin',
+  target: 'class-user',
+  type: 'extends'
+});
+
+// パス探索
+const path = yata.findPath('class-admin', 'interface-entity');
+
+// 推論実行
+const inferred = yata.infer();
+
+// 制約検証
+const validation = yata.validate();
+
+yata.close();
+```
+
+## 9.2 YATA Global
+
+分散型知識グラフプラットフォームです。
+
+```mermaid
+flowchart TB
+    subgraph YataGlobal["YATA Global Platform"]
+        API["API Client<br/>REST, Auth, Rate limiting"]
+        Cache["Cache Manager<br/>SQLite offline cache"]
+        Sync["Sync Engine<br/>Push/Pull, Auto-sync"]
+        Client["Main Client<br/>Search, Share, Analytics"]
+    end
+    
+    subgraph Features["Features"]
+        FW["Framework Knowledge<br/>19 categories, 20 languages"]
+        PAT["Shared Patterns<br/>15 categories"]
+        COMM["Community<br/>Ratings, Downloads"]
+    end
+    
+    Client --> API
+    Client --> Cache
+    Client --> Sync
+    Client --> Features
+```
+
+### 主な機能
+
+| コンポーネント | 機能 |
+|--------------|------|
+| **API Client** | REST通信, Bearer認証, レート制限追跡 |
+| **Cache Manager** | SQLiteオフラインキャッシュ, TTL管理, 自動サイズ制限 |
+| **Sync Engine** | Push/Pull同期, 自動同期, オフラインキュー |
+| **Main Client** | 検索, パターン共有, 評価, アナリティクス |
+
+### 使用例
+
+```typescript
+import { createYataGlobal } from '@nahisaho/yata-global';
+
+const yata = createYataGlobal({
+  endpoint: 'https://api.yata.global/v1',
+  offlineMode: false,
+});
+
+// フレームワーク検索
+const frameworks = await yata.searchFrameworks({
+  query: 'react',
+  category: 'web-frontend',
+  sortBy: 'popularity',
+});
+
+// パターン検索
+const patterns = await yata.searchPatterns({
+  query: 'hooks',
+  language: 'typescript',
+});
+
+// パターン共有（認証必要）
+await yata.login({ username: 'user', password: 'pass' });
+const patternId = await yata.sharePattern({
+  name: 'Custom Hook Pattern',
+  description: 'Reusable stateful logic',
+  category: 'design-pattern',
+  frameworks: ['react'],
+  language: 'typescript',
+  template: 'function use${Name}() { ... }',
+  tags: ['hooks', 'state'],
+  visibility: 'public',
+  official: false,
+});
+
+// 同期
+const result = await yata.sync();
+console.log(`Pulled: ${result.frameworksPulled} frameworks`);
+
+// オフラインモード
+yata.enableOfflineMode();
+
+yata.close();
+```
+
+### オフラインサポート
+
+YATA Globalは完全なオフラインサポートを提供：
+
+| 機能 | オンライン | オフライン |
+|------|----------|-----------|
+| 検索 | API + キャッシュ | キャッシュのみ |
+| パターン共有 | 即時アップロード | キューに追加 |
+| 評価 | 即時送信 | キューに追加 |
+| 同期 | 利用可能 | 無効 |
+
+### メリット
+
+- ✅ **高速アクセス**: SQLiteキャッシュによる高速検索
+- ✅ **オフライン対応**: ネットワーク非接続時も動作
+- ✅ **自動同期**: バックグラウンドでの定期同期
+- ✅ **コミュニティ**: パターン共有と評価
+- ✅ **マルチ言語**: 20プログラミング言語対応
+
 ### メリット
 
 - ✅ **高度な機能**: 知識グラフ連携、矛盾検出
@@ -1712,7 +1897,7 @@ claude mcp list
 - ✅ **リアルタイム検証**: 作成中のドキュメントを即座に検証
 - ✅ **トレーサビリティ**: 要件から実装までの完全追跡
 
-## 8.6 どちらを選ぶべきか？
+## 9.3 どちらを選ぶべきか？
 
 ```mermaid
 flowchart TD
@@ -1739,6 +1924,98 @@ flowchart TD
 
 詳細は [インストールガイド](https://github.com/nahisaho/MUSUBIX/blob/main/docs/INSTALL-GUIDE.ja.md) を参照してください。
 
+# 10. KGPR - Knowledge Graph Pull Request（v1.6.4）
+
+v1.6.4では、**KGPR（Knowledge Graph Pull Request）**機能が追加されました。これはGitHub PRと同様のワークフローで、YATA LocalからYATA Globalへ安全に知識グラフを共有する機能です。
+
+## 10.1 KGPRワークフロー
+
+```mermaid
+flowchart LR
+    subgraph Local["YATA Local"]
+        L1[プロジェクト知識<br>自動収集]
+        L2[パターン抽出]
+    end
+    
+    subgraph KGPR["KGPR処理"]
+        K1[差分抽出]
+        K2[プライバシー<br>フィルタリング]
+        K3[レビュー<br>リクエスト]
+    end
+    
+    subgraph Global["YATA Global"]
+        G1[レビュー]
+        G2[マージ]
+        G3[コミュニティ<br>知識]
+    end
+    
+    L1 --> L2
+    L2 --> K1
+    K1 --> K2
+    K2 --> K3
+    K3 --> G1
+    G1 --> G2
+    G2 --> G3
+```
+
+## 10.2 プライバシーフィルター
+
+機密情報の漏洩を防ぐため、3段階のプライバシーレベルを提供：
+
+| レベル | フィルタ対象 | 推奨シナリオ |
+|-------|------------|------------|
+| `strict` | ファイルパス、URL、認証情報、全メタデータ | オープンソース公開 |
+| `moderate` | ファイルパス、URL、認証情報 | 組織内共有 |
+| `none` | フィルタなし | 完全な内部利用 |
+
+## 10.3 KGPRステータス遷移
+
+```
+draft → open → reviewing → approved/changes_requested → merged/closed
+```
+
+| ステータス | 説明 |
+|-----------|------|
+| `draft` | 作成中、まだ送信されていない |
+| `open` | レビュー待ち |
+| `reviewing` | レビュー中 |
+| `approved` | 承認済み、マージ可能 |
+| `changes_requested` | 変更要求あり |
+| `merged` | マージ完了 |
+| `closed` | マージせずにクローズ |
+
+## 10.4 CLIコマンド
+
+```bash
+# KGPRの作成
+musubix kgpr create -t "Reactパターンの共有"
+
+# 差分プレビュー
+musubix kgpr diff --namespace myproject --privacy moderate
+
+# KGPR一覧
+musubix kgpr list
+
+# KGPRの送信
+musubix kgpr submit KGPR-001
+
+# KGPRの詳細表示
+musubix kgpr show KGPR-001
+
+# KGPRのクローズ
+musubix kgpr close KGPR-001
+```
+
+## 10.5 MCPツール
+
+| ツール | 説明 |
+|-------|------|
+| `kgpr_create` | ローカル知識グラフからKGPRを作成 |
+| `kgpr_diff` | KGPR作成前に差分をプレビュー |
+| `kgpr_list` | 全KGPRを一覧表示 |
+| `kgpr_submit` | KGPRをレビューに送信 |
+| `kgpr_review` | KGPRをレビュー（approve/changes_requested/commented） |
+
 # 参考リンク
 
 - [MUSUBIX GitHub](https://github.com/nahisaho/MUSUBIX)
@@ -1751,4 +2028,4 @@ flowchart TD
 **著者**: nahisaho  
 **公開日**: 2026-01-02  
 **更新日**: 2026-01-06  
-**バージョン**: v1.6.0
+**バージョン**: v1.6.4

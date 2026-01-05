@@ -14,6 +14,9 @@
   - [Symbolic](#symbolic)
   - [Inference](#inference) *(v1.4.5)*
   - [REPL](#repl) *(v1.5.0)*
+  - [YATA Local](#yata-local) *(v1.6.3)*
+  - [YATA Global](#yata-global) *(v1.6.3)*
+  - [KGPR](#kgpr) *(v1.6.4)*
   - [Validation](#validation)
   - [Utils](#utils)
 - [MCP Server](#mcp-server)

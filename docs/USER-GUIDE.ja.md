@@ -19,10 +19,13 @@
 13. [正誤性検証](#正誤性検証) *(v1.4.1)*
 14. [高度な推論](#高度な推論) *(v1.4.5)*
 15. [対話的REPLモード](#対話的replモード) *(v1.5.0)*
-16. [MCPサーバー連携](#mcpサーバー連携)
-17. [YATA知識グラフ](#yata知識グラフ)
-18. [ベストプラクティス](#ベストプラクティス)
-19. [トラブルシューティング](#トラブルシューティング)
+16. [YATA Local](#yata-local) *(v1.6.3)*
+17. [YATA Global](#yata-global) *(v1.6.3)*
+18. [KGPR - Knowledge Graph Pull Request](#kgpr---knowledge-graph-pull-request) *(v1.6.4)*
+19. [MCPサーバー連携](#mcpサーバー連携)
+20. [YATA知識グラフ](#yata知識グラフ)
+21. [ベストプラクティス](#ベストプラクティス)
+22. [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -1070,6 +1073,318 @@ musubix> history clear
 | `SessionState` | 変数ストレージ |
 | `OutputFormatter` | JSON/YAML/テーブル出力 |
 | `PromptRenderer` | 動的プロンプト表示 |
+
+---
+
+## YATA Local
+
+*(v1.6.3 新規)*
+
+YATA Localは、高性能なSQLiteベースのローカル知識グラフです。推論機能を内蔵し、シングルユーザー・オフライン環境でデータ主権と速度が重要な場合に最適です。
+
+### 機能
+
+| 機能 | 説明 |
+|------|------|
+| **SQLiteストレージ** | WALモードで並行読み取り、シングルライター |
+| **全文検索** | FTS5ベースのトリプル検索 |
+| **グラフ探索** | BFS/DFSアルゴリズム、深度制御 |
+| **推論エンジン** | 4つのOWL-liteルール（推移性、対称性、逆関係、ドメイン/レンジ） |
+| **制約** | 4つの検証ルール（カーディナリティ、排他、一意性、必須） |
+| **ACIDトランザクション** | 完全なトランザクションサポート |
+
+### インストール
+
+```bash
+npm install @nahisaho/yata-local
+```
+
+### クイックスタート
+
+```typescript
+import { YataLocal } from '@nahisaho/yata-local';
+
+// デフォルト設定で初期化
+const yata = new YataLocal('./knowledge.db');
+await yata.initialize();
+
+// トリプルを追加
+await yata.addTriple({
+  subject: 'Person:john',
+  predicate: 'hasParent',
+  object: 'Person:mary'
+});
+
+// トリプルをクエリ
+const results = await yata.query({
+  subject: 'Person:john',
+  predicate: 'hasParent'
+});
+
+// 全文検索
+const searchResults = await yata.search('john parent');
+
+// グラフ探索（BFS）
+const ancestors = await yata.traverse('Person:john', 'hasParent', {
+  direction: 'outgoing',
+  maxDepth: 5,
+  algorithm: 'bfs'
+});
+
+// クリーンアップ
+await yata.close();
+```
+
+### 推論エンジン
+
+YATA Localは4つのOWL-lite推論ルールをサポートします：
+
+| ルール | 説明 | 例 |
+|--------|------|-----|
+| **推移性** | A→BかつB→CならA→C | hasAncestorは推移的 |
+| **対称性** | A→BならB→A | friendOfは対称的 |
+| **逆関係** | A→B（P経由）ならB→A（P⁻¹経由） | hasChild ↔ hasParent |
+| **ドメイン/レンジ** | 述語から型を推論 | hasAgeはPersonを示唆 |
+
+```typescript
+// 推論を実行
+const inferred = await yata.infer();
+console.log(`${inferred.length}個の新しいトリプルを推論`);
+```
+
+### 制約
+
+```typescript
+// 制約を定義
+await yata.addConstraint({
+  type: 'cardinality',
+  predicate: 'hasSpouse',
+  max: 1
+});
+
+// 検証
+const violations = await yata.validate();
+if (violations.length > 0) {
+  console.error('制約違反:', violations);
+}
+```
+
+### 設定オプション
+
+```typescript
+const yata = new YataLocal('./knowledge.db', {
+  // WALモードで並行性向上（デフォルト: true）
+  walMode: true,
+  
+  // FTS5検索を有効化（デフォルト: true）
+  enableSearch: true,
+  
+  // 書き込み時に自動推論（デフォルト: false）
+  autoInfer: false,
+  
+  // ジャーナルモード（デフォルト: 'wal'）
+  journalMode: 'wal'
+});
+```
+
+---
+
+## YATA Global
+
+*(v1.6.3 新規)*
+
+YATA Globalは、チームコラボレーション向けの分散型知識グラフプラットフォームです。共有知識グラフへのREST APIアクセスと、オフラインサポート・インテリジェントな同期機能を提供します。
+
+### 機能
+
+| 機能 | 説明 |
+|------|------|
+| **REST API** | HTTP経由の完全なCRUD操作 |
+| **オフラインキャッシュ** | SQLiteベースのローカルキャッシュ |
+| **同期エンジン** | Push/Pullと競合解決 |
+| **競合解決** | Last-write-winsまたはカスタム戦略 |
+| **認証** | APIキーベースの認証 |
+| **バッチ操作** | 一括トリプル操作 |
+
+### インストール
+
+```bash
+npm install @nahisaho/yata-global
+```
+
+### クイックスタート
+
+```typescript
+import { YataGlobal } from '@nahisaho/yata-global';
+
+// クライアントを初期化
+const yata = new YataGlobal({
+  endpoint: 'https://yata.example.com/api',
+  apiKey: 'your-api-key',
+  graphId: 'project-knowledge'
+});
+
+await yata.initialize();
+
+// トリプルを追加（バッチ）
+await yata.addTriples([
+  { subject: 'Task:001', predicate: 'assignedTo', object: 'User:alice' },
+  { subject: 'Task:001', predicate: 'status', object: 'in-progress' }
+]);
+
+// フィルタ付きクエリ
+const tasks = await yata.query({
+  predicate: 'assignedTo',
+  object: 'User:alice'
+});
+
+// クリーンアップ
+await yata.close();
+```
+
+### オフラインサポート
+
+YATA Globalは自動同期によるオフラインファースト操作をサポートします：
+
+```typescript
+const yata = new YataGlobal({
+  endpoint: 'https://yata.example.com/api',
+  apiKey: 'your-api-key',
+  graphId: 'project-knowledge',
+  
+  // オフライン設定
+  offlineMode: true,
+  cachePath: './yata-cache.db',
+  syncInterval: 60000  // 60秒ごとに自動同期
+});
+
+// オフラインでも動作 - ローカルにキャッシュ
+await yata.addTriple({
+  subject: 'Note:001',
+  predicate: 'content',
+  object: '重要な会議メモ'
+});
+
+// オンライン時に手動同期
+await yata.sync();
+```
+
+### 競合解決
+
+```typescript
+const yata = new YataGlobal({
+  // ... その他のオプション
+  
+  conflictStrategy: 'last-write-wins',  // デフォルト
+  // または: 'server-wins', 'client-wins', 'manual'
+  
+  onConflict: async (local, remote) => {
+    // カスタム解決ロジック
+    console.log('競合を検出:', local, remote);
+    return remote;  // リモート版を優先
+  }
+});
+```
+
+### 同期ステータス
+
+```typescript
+// 同期ステータスを確認
+const status = await yata.getSyncStatus();
+console.log(`保留中の変更: ${status.pendingPush}`);
+console.log(`最終同期: ${status.lastSyncAt}`);
+
+// 完全同期を強制
+await yata.sync({ force: true });
+```
+
+### YATA Local vs YATA Global の選択
+
+| ユースケース | 推奨 |
+|-------------|------|
+| 個人用ナレッジベース | YATA Local |
+| シングルユーザーアプリ | YATA Local |
+| プライバシー重視のデータ | YATA Local |
+| チームコラボレーション | YATA Global |
+| クロスデバイスアクセス | YATA Global |
+| 共有プロジェクト知識 | YATA Global |
+| 同期付きオフラインファースト | YATA Global |
+
+---
+
+## KGPR - Knowledge Graph Pull Request
+
+*(v1.6.4)*
+
+KGPR（Knowledge Graph Pull Request）は、GitHub PRと同様のワークフローで、YATA LocalからYATA Globalへ安全に知識グラフを共有する機能です。
+
+### ワークフロー
+
+```
+┌─────────────┐     ┌──────────────┐     ┌───────────────┐
+│ YATA Local  │ ──► │ KGPR (Draft) │ ──► │ YATA Global   │
+│ (ローカルKG) │     │ (差分抽出)    │     │ (レビュー・マージ) │
+└─────────────┘     └──────────────┘     └───────────────┘
+
+ステータス遷移:
+draft → open → reviewing → approved/changes_requested → merged/closed
+```
+
+### プライバシーレベル
+
+| レベル | フィルタ対象 |
+|-------|------------|
+| `strict` | ファイルパス、URL、認証情報、全メタデータ |
+| `moderate` | ファイルパス、URL、認証情報 |
+| `none` | フィルタなし |
+
+### CLIコマンド
+
+```bash
+# KGPRを作成
+musubix kgpr create -t "認証パターンの追加"
+
+# 作成前に差分をプレビュー
+musubix kgpr diff --namespace myproject --privacy moderate
+
+# KGPR一覧を表示
+musubix kgpr list
+
+# KGPRをレビューに送信
+musubix kgpr submit <id>
+
+# KGPR詳細を表示
+musubix kgpr show <id>
+
+# マージせずにクローズ
+musubix kgpr close <id>
+```
+
+### MCPツール
+
+| ツール | 説明 |
+|-------|------|
+| `kgpr_create` | ローカル知識グラフからKGPRを作成 |
+| `kgpr_diff` | KGPR作成前に差分をプレビュー |
+| `kgpr_list` | 全KGPRを一覧表示 |
+| `kgpr_submit` | KGPRをレビューに送信 |
+| `kgpr_review` | KGPRをレビュー（approve/changes_requested/commented） |
+
+### 使用例
+
+```bash
+# 1. 共有内容をプレビュー
+musubix kgpr diff --privacy strict
+
+# 2. 説明付きでKGPRを作成
+musubix kgpr create -t "Reactパターンの共有" -d "project-xから学習したパターン"
+
+# 3. KGPRを確認
+musubix kgpr show KGPR-001
+
+# 4. レビューに送信
+musubix kgpr submit KGPR-001
+```
 
 ---
 

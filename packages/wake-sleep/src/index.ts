@@ -22,3 +22,6 @@ export * from './resource/index.js';
 
 // Validation (REQ-WAKE-001-F003)
 export * from './validation/index.js';
+
+// YATA Integration (REQ-YATA-AUTO-004)
+export * from './yata/index.js';

@@ -10,8 +10,13 @@ export interface WakeTask {
   id: string;
   type: 'code' | 'requirements' | 'design';
   content: string;
+  context?: {
+    filePath?: string;
+    language?: string;
+    project?: string;
+  };
   metadata?: Record<string, unknown>;
-  timestamp: string;
+  timestamp?: string;
 }
 
 /**
