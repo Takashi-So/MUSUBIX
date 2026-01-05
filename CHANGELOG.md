@@ -5,6 +5,101 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-01-06
+
+### Added - Performance Optimization
+
+v1.5.1として、Performance Optimization（パフォーマンス最適化）を実装。1071テスト全合格。
+
+#### 新機能: パフォーマンスユーティリティ
+
+| コンポーネント | 説明 | 要件 |
+|---------------|------|------|
+| **LazyLoader** | モジュール遅延読み込み（Virtual Proxy） | REQ-PERF-001 |
+| **LRUCache** | LRUキャッシュ（TTLサポート） | REQ-PERF-002 |
+| **ParallelExecutor** | 並列実行（concurrency制御） | REQ-PERF-003 |
+| **MemoryMonitor** | メモリ監視（ヒープ使用量追跡） | REQ-PERF-004 |
+| **Benchmark** | ベンチマーク計測スイート | REQ-PERF-005 |
+
+#### Lazy Loading機能
+
+| 関数 | 説明 |
+|------|------|
+| `lazyImport<T>()` | モジュールの遅延インポート |
+| `lazyLoad<T>()` | 関数の遅延ロード |
+| `ensureLoaded()` | モジュールのロード確認 |
+| `createLazyModule()` | Proxyベースの遅延モジュール作成 |
+
+#### LRUキャッシュ機能
+
+| 関数 | 説明 |
+|------|------|
+| `LRUCache` | LRUキャッシュクラス（容量・TTL設定） |
+| `memoize()` | 同期関数のメモ化 |
+| `memoizeAsync()` | 非同期関数のメモ化 |
+| `createGlobalCache()` | グローバルキャッシュの取得 |
+
+#### 並列処理機能
+
+| 関数 | 説明 |
+|------|------|
+| `parallel()` | 並列実行（concurrency制御） |
+| `parallelMap()` | 並列マップ |
+| `parallelFilter()` | 並列フィルタ |
+| `ParallelExecutor` | 高度な並列実行クラス |
+| `throttle()` | 関数のスロットリング |
+| `debounce()` | 関数のデバウンス |
+
+#### メモリ監視機能
+
+| 関数 | 説明 |
+|------|------|
+| `MemoryMonitor` | メモリ監視クラス（イベント発行） |
+| `measureMemory()` | メモリ使用量の取得 |
+| `formatBytes()` | バイト数のフォーマット |
+| `isMemoryHigh()` | メモリ使用率のチェック |
+
+#### ベンチマーク機能
+
+| 関数 | 説明 |
+|------|------|
+| `benchmark()` | ベンチマーク実行 |
+| `benchmarkSuite()` | ベンチマークスイート実行 |
+| `measure()` | コールバック関数の計測 |
+| `time()` | 非同期関数の計測 |
+| `runStandardBenchmarks()` | 標準ベンチマーク実行 |
+
+#### CLIコマンド
+
+```bash
+# ベンチマーク実行
+npx musubix perf benchmark
+
+# 起動時間計測
+npx musubix perf startup
+
+# メモリ使用量表示
+npx musubix perf memory
+npx musubix perf memory --watch    # 監視モード
+
+# キャッシュ統計
+npx musubix perf cache-stats
+
+# キャッシュクリア
+npx musubix perf cache-clear
+```
+
+#### 設計パターン
+
+| パターン | コンポーネント | 説明 |
+|---------|---------------|------|
+| **Virtual Proxy** | LazyLoader | 遅延読み込みのプロキシ |
+| **Cache-Aside** | LRUCache | キャッシュ管理パターン |
+| **Promise Pool** | ParallelExecutor | 並列実行の制御 |
+| **Observer** | MemoryMonitor | メモリイベントの監視 |
+
+---
+
 ## [1.5.0] - 2026-01-06
 
 ### Added - Interactive CLI Mode (REPL)

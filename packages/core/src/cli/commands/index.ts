@@ -22,6 +22,7 @@ import { registerExplainCommand } from './explain.js';
 import { registerLearnCommand } from './learn.js';
 import { registerOntologyCommand } from './ontology.js';
 import { registerReplCommand } from './repl.js';
+import { registerPerfCommand } from './perf.js';
 
 /**
  * Register all CLI commands
@@ -50,6 +51,9 @@ export function registerCommands(program: Command): void {
   
   // Interactive REPL (REQ-CLI-v1.5.0)
   registerReplCommand(program);
+  
+  // Performance monitoring (REQ-PERF-v1.5.1)
+  registerPerfCommand(program);
 }
 
 // Core command exports
@@ -70,3 +74,9 @@ export { registerLearnCommand } from './learn.js';
 
 // Ontology command export
 export { registerOntologyCommand } from './ontology.js';
+
+// Interactive REPL command export
+export { registerReplCommand } from './repl.js';
+
+// Performance monitoring command export
+export { registerPerfCommand } from './perf.js';

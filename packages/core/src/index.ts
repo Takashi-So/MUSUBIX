@@ -118,6 +118,9 @@ export type {
 // export * from './requirements/index.js';
 // export * from './testing/index.js';
 
+// Export performance utilities (REQ-PERF-v1.5.1)
+export * from './perf/index.js';
+
 /**
  * Core Library Entry Point
  * 
