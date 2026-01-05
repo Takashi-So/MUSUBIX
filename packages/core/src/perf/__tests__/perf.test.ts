@@ -594,11 +594,12 @@ describe('Benchmark', () => {
   describe('measure', () => {
     it('should measure execution time', async () => {
       const { result, duration } = await measure(async () => {
-        await new Promise((r) => setTimeout(r, 10));
+        await new Promise((r) => setTimeout(r, 15));
         return 42;
       });
 
       expect(result).toBe(42);
+      // Allow some timing variance (setTimeout is not precise)
       expect(duration).toBeGreaterThanOrEqual(10);
     });
   });
