@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - 2025-01-05
+
+### Added - Pattern Sharing Foundation (v1.5.0 Phase 2)
+
+v1.5.0のPhase 2として、Pattern Sharing基盤を実装。902テスト全合格。
+
+#### 新機能: Pattern Sharing
+
+| コンポーネント | 説明 | 要件 |
+|---------------|------|------|
+| **PatternSerializer** | JSON/N3形式へのエクスポート | REQ-SHARE-001 |
+| **PatternDeserializer** | JSON/N3形式からのインポート | REQ-SHARE-002 |
+| **PatternServer** | HTTPベースの共有サーバー | REQ-SHARE-003 |
+| **ConflictResolver** | 競合検出・解決戦略 | REQ-SHARE-005 |
+| **AuthManager** | トークンベース認証・認可 | REQ-SHARE-006 |
+
+#### サポートフォーマット
+
+| フォーマット | 説明 |
+|-------------|------|
+| **JSON** | 標準パターンフォーマット（チェックサム付き） |
+| **N3** | RDF/Turtle形式（オントロジー連携） |
+
+#### 競合解決戦略
+
+| 戦略 | 説明 |
+|------|------|
+| `keep-local` | ローカルパターンを維持 |
+| `keep-remote` | リモートパターンを採用 |
+| `merge` | 両方をマージ（高信頼度優先） |
+| `skip` | 競合をスキップ |
+| `prompt` | ユーザーに確認 |
+
+#### 認証機能
+
+- ユーザー認証（SHA-256 + Salt）
+- APIキー認証
+- トークンベース認可（JWT風）
+- スコープベースアクセス制御
+
+#### 新規ファイル
+
+```
+packages/core/src/learning/sharing/
+├── types.ts              # 型定義
+├── pattern-serializer.ts # PatternSerializer
+├── pattern-deserializer.ts # PatternDeserializer
+├── pattern-server.ts     # PatternServer
+├── conflict-resolver.ts  # ConflictResolver
+├── auth-manager.ts       # AuthManager
+└── index.ts             # モジュールエクスポート
+```
+
+### Fixed
+
+- TypeScript型名衝突の解消（ValidationError → SharingValidationError）
+- パターンシリアライザーの型整合性修正
+
 ## [1.4.3] - 2025-01-05
 
 ### Added - Real-time Pattern Learning Foundation (v1.5.0 Phase 1)

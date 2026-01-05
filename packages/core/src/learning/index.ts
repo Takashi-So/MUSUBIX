@@ -90,3 +90,45 @@ export {
   DEFAULT_FEEDBACK_QUEUE_CONFIG,
   DEFAULT_EVENT_STREAM_CONFIG,
 } from './realtime/index.js';
+
+// Export pattern sharing module (v1.5.0 Phase 2)
+export {
+  // Serialization
+  PatternSerializer,
+  PatternDeserializer,
+  // Server
+  PatternServer,
+  type ServerEvents,
+  // Conflict Resolution
+  ConflictResolver,
+  type ConflictPromptCallback,
+  type ResolverOptions,
+  // Authentication
+  AuthManager,
+  type User,
+  type ApiKey,
+  type AuthManagerOptions,
+  // Types
+  type ExportOptions,
+  type ImportOptions,
+  type ExportResult,
+  type ImportResult,
+  type ValidationResult,
+  type SharingValidationError,
+  type SharingValidationWarning,
+  type SharedPattern,
+  type PatternContext,
+  type PatternMetadata,
+  type Conflict,
+  type ConflictStrategy,
+  type Resolution,
+  type SanitizeConfig,
+  type PatternRepository,
+  type ServerConfig,
+  type CorsConfig,
+  type RateLimitConfig,
+  type AuthToken,
+  type AuthScope,
+  type AuthRequest,
+  type AuthResult,
+} from './sharing/index.js';
