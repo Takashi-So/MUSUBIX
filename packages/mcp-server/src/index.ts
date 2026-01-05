@@ -78,6 +78,15 @@ export {
   getPipelineInfoTool,
 } from './tools/index.js';
 
+// Ontology Tools
+export {
+  ontologyTools,
+  getOntologyTools,
+  consistencyValidateTool,
+  validateTripleTool,
+  checkCircularTool,
+} from './tools/index.js';
+
 // SDD Prompts
 export {
   sddPrompts,
@@ -180,6 +189,9 @@ export async function startServer(options: StartServerOptions = {}): Promise<voi
   // Import symbolic tools
   const { symbolicTools } = await import('./tools/index.js');
 
+  // Import ontology tools
+  const { ontologyTools } = await import('./tools/index.js');
+
   // Register all SDD tools, prompts, and resources
   for (const tool of sddTools) {
     server.registerTool(tool);
@@ -187,6 +199,11 @@ export async function startServer(options: StartServerOptions = {}): Promise<voi
 
   // Register symbolic tools
   for (const tool of symbolicTools) {
+    server.registerTool(tool);
+  }
+
+  // Register ontology tools
+  for (const tool of ontologyTools) {
     server.registerTool(tool);
   }
   

@@ -43,6 +43,14 @@ export {
   resetPatternIntegration,
 } from './pattern-tools.js';
 
+export {
+  consistencyValidateTool,
+  validateTripleTool,
+  checkCircularTool,
+  ontologyTools,
+  getOntologyTools,
+} from './ontology-tools.js';
+
 /**
  * Get all available tools
  */
@@ -50,5 +58,6 @@ export function getAllTools() {
   const { getSddTools } = require('./sdd-tools.js');
   const { getSymbolicTools } = require('./symbolic-tools.js');
   const { getPatternIntegrationTools } = require('./pattern-tools.js');
-  return [...getSddTools(), ...getSymbolicTools(), ...getPatternIntegrationTools()];
+  const { getOntologyTools } = require('./ontology-tools.js');
+  return [...getSddTools(), ...getSymbolicTools(), ...getPatternIntegrationTools(), ...getOntologyTools()];
 }
