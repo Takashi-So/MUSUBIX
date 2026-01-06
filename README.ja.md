@@ -6,11 +6,12 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1569%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1586%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![npm security](https://img.shields.io/npm/v/@nahisaho/musubix-security.svg?label=@nahisaho/musubix-security)](https://www.npmjs.com/package/@nahisaho/musubix-security)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.7.5** - 形式検証エディション
+> **v1.8.0** - セキュリティ分析エディション
 
 ## 概要
 
@@ -37,6 +38,7 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 - 📤 **KGPR** - 安全な知識共有のためのKnowledge Graph Pull Request *(v1.6.4)*
 - 🚀 **YATAプラットフォーム拡張** - インデックス最適化、拡張エクスポート、グローバル同期、コード生成、Web UI *(v1.7.0)*
 - 🔬 **形式検証** - Z3 SMTソルバー統合、Hoareトリプル検証、EARS→SMT変換 *(v1.7.5)*
+- 🛡️ **セキュリティ分析** - 脆弱性スキャン、シークレット検出、テイント解析、依存関係監査 *(v1.8.0)*
 
 ## アーキテクチャ
 
@@ -86,6 +88,8 @@ flowchart TB
 | `packages/ontology-mcp/` | **オントロジーエンジン（NEW!）** |
 | `packages/wake-sleep/` | **Wake-Sleep学習（NEW!）** |
 | `packages/sdd-ontology/` | **SDDオントロジー（NEW!）** |
+| `packages/security/` | **セキュリティ分析（NEW!）** |
+| `packages/formal-verify/` | **形式検証** |
 | `steering/` | プロジェクトメモリ |
 | `storage/` | 仕様書・成果物 |
 | `templates/` | テンプレート |
@@ -121,6 +125,8 @@ npx musubix-mcp --transport stdio
 npm install @nahisaho/musubix-core
 npm install @nahisaho/musubix-mcp-server
 npm install @nahisaho/musubix-yata-client
+npm install @nahisaho/musubix-security
+npm install @nahisaho/musubix-formal-verify
 ```
 
 ### ソースからビルド
@@ -292,5 +298,5 @@ nahisaho
 ---
 
 **文書ID**: README  
-**バージョン**: 1.4.5  
-**最終更新**: 2026-01-05
+**バージョン**: 1.8.0  
+**最終更新**: 2026-01-06

@@ -1,0 +1,87 @@
+{
+  "name": "@nahisaho/musubix-security",
+  "version": "1.8.0",
+  "description": "Security analysis and vulnerability detection for MUSUBIX - Neuro-Symbolic AI Integration",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./cli": {
+      "import": "./dist/cli/index.js",
+      "types": "./dist/cli/index.d.ts"
+    }
+  },
+  "bin": {
+    "musubix-security": "./bin/musubix-security.js",
+    "musubix-security-mcp": "./bin/musubix-security-mcp.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "rules",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "security",
+    "vulnerability",
+    "scanner",
+    "owasp",
+    "cwe",
+    "taint-analysis",
+    "code-analysis",
+    "musubix",
+    "neuro-symbolic"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/security"
+  },
+  "bugs": {
+    "url": "https://github.com/nahisaho/MUSUBIX/issues"
+  },
+  "homepage": "https://github.com/nahisaho/MUSUBIX/tree/main/packages/security#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@nahisaho/musubix-core": "^1.7.5",
+    "@nahisaho/musubix-formal-verify": "^1.7.5",
+    "@nahisaho/yata-local": "^1.7.5",
+    "commander": "^12.0.0",
+    "cosmiconfig": "^9.0.0",
+    "minimatch": "^9.0.0",
+    "ts-morph": "^22.0.0",
+    "yaml": "^2.4.0",
+    "zod": "^3.23.0"
+  },
+  "peerDependencies": {
+    "vscode": "^1.85.0"
+  },
+  "peerDependenciesMeta": {
+    "vscode": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.0.16"
+  }
+}

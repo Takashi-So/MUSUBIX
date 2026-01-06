@@ -5,6 +5,111 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-01-06
+
+### Added - Security Analysis Edition
+
+セキュリティ分析機能を提供する新パッケージ`@nahisaho/musubix-security`をリリース。全59テスト合格。
+
+#### 脆弱性スキャン
+
+OWASP Top 10/CWE Top 25に基づくセキュリティ脆弱性検出:
+
+```typescript
+import { VulnerabilityScanner, createSecurityService } from '@nahisaho/musubix-security';
+
+// 脆弱性スキャナー
+const scanner = new VulnerabilityScanner();
+const vulnerabilities = scanner.scanFile('src/api.ts');
+const result = await scanner.scanDirectory('./src');
+
+// 統合セキュリティサービス
+const service = createSecurityService();
+const fullScan = await service.scan({
+  target: './src',
+  vulnerabilities: true,
+  taint: true,
+  secrets: true,
+  dependencies: true,
+  generateFixes: true,
+});
+```
+
+#### 検出可能な脆弱性
+
+| カテゴリ | 検出パターン |
+|---------|-------------|
+| SQLインジェクション | 文字列連結、テンプレートリテラル |
+| コマンドインジェクション | exec, execSync, spawn |
+| XSS | innerHTML, document.write |
+| パストラバーサル | fs.readFile with user input |
+| コードインジェクション | eval, new Function |
+
+#### シークレット検出
+
+機密情報のハードコード検出:
+
+```typescript
+import { SecretDetector } from '@nahisaho/musubix-security';
+
+const detector = new SecretDetector();
+const secrets = detector.scanContent(content, 'config.ts');
+const result = await detector.scan('./src');
+```
+
+| シークレットタイプ | パターン |
+|------------------|----------|
+| AWS Access Key | AKIA... |
+| AWS Secret Key | 40文字base64 |
+| GitHub Token | ghp_*, gho_*, ghu_* |
+| Private Key | PEM形式 |
+| Database URL | postgres://, mongodb:// |
+| JWT | eyJ... |
+| Stripe Key | sk_live_*, sk_test_* |
+
+#### テイント解析
+
+データフロー追跡による汚染解析:
+
+```typescript
+import { TaintAnalyzer } from '@nahisaho/musubix-security';
+
+const analyzer = new TaintAnalyzer();
+const result = analyzer.analyze('./src');
+// sources: ユーザー入力の検出
+// sinks: 危険な関数呼び出しの検出
+// paths: ソースからシンクへのデータフロー
+```
+
+#### 依存関係監査
+
+npm audit統合による脆弱な依存関係の検出:
+
+```typescript
+import { DependencyAuditor } from '@nahisaho/musubix-security';
+
+const auditor = new DependencyAuditor();
+const result = await auditor.audit('./project');
+// vulnerabilities: 脆弱な依存関係
+// upgradeSuggestions: アップグレード提案
+```
+
+#### レポート生成
+
+複数フォーマットでのレポート出力:
+
+```typescript
+const report = await service.generateReport(scanResult, 'sarif');
+// 対応フォーマット: json, markdown, html, sarif
+```
+
+### テスト統計
+
+- **テスト数**: 59件（全合格）
+- **カバレッジ**: types, secret-detector, vulnerability-scanner, security-service
+
+---
+
 ## [1.7.5] - 2026-01-07
 
 ### Added - Formal Verification Edition
@@ -1906,7 +2011,7 @@ Project-07 Medical ClinicとProject-08 Property Rentalの実装から学習し�
 
 ---
 
-## [1.0.20] - 2026-01-05
+## [1.0.20] - 2026-01-04
 
 ### Added
 - **IdGenerator ユーティリティ**: 10プロジェクト検証から学んだID生成パターンを実装

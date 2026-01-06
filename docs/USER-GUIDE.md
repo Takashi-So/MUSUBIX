@@ -22,10 +22,11 @@
 14. [KGPR - Knowledge Graph Pull Request](#kgpr---knowledge-graph-pull-request) *(v1.6.4)*
 15. [YATA Platform Enhancements](#yata-platform-enhancements) *(v1.7.0)*
 16. [Formal Verification](#formal-verification) *(v1.7.5)*
-17. [MCP Server Integration](#mcp-server-integration)
-17. [YATA Integration](#yata-integration)
-18. [Best Practices](#best-practices)
-19. [Troubleshooting](#troubleshooting)
+17. [Security Analysis](#security-analysis) *(v1.8.0)*
+18. [MCP Server Integration](#mcp-server-integration)
+19. [YATA Integration](#yata-integration)
+20. [Best Practices](#best-practices)
+21. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -1207,6 +1208,170 @@ console.log(`Impacted nodes: ${impact.totalImpacted}`);
 
 ---
 
+## Security Analysis
+
+*(v1.8.0)*
+
+The `@nahisaho/musubix-security` package provides comprehensive security analysis capabilities for TypeScript/JavaScript projects.
+
+### Installation
+
+```bash
+npm install @nahisaho/musubix-security
+```
+
+### Vulnerability Scanning
+
+Detects OWASP Top 10 and CWE Top 25 vulnerabilities using AST analysis:
+
+```typescript
+import { VulnerabilityScanner, createSecurityService } from '@nahisaho/musubix-security';
+
+// Scan a single file
+const scanner = new VulnerabilityScanner();
+const vulnerabilities = scanner.scanFile('src/api.ts');
+
+// Scan a directory
+const result = await scanner.scanDirectory('./src');
+console.log(`Found ${result.vulnerabilities.length} vulnerabilities`);
+console.log(`Scanned ${result.scannedFiles} files`);
+```
+
+### Detected Vulnerabilities
+
+| Category | CWE | Severity |
+|----------|-----|----------|
+| SQL Injection | CWE-89 | Critical |
+| Command Injection | CWE-78 | Critical |
+| XSS | CWE-79 | High |
+| Path Traversal | CWE-22 | High |
+| Code Injection | CWE-94 | Critical |
+| NoSQL Injection | CWE-943 | High |
+
+### Secret Detection
+
+Detects hardcoded credentials and sensitive information:
+
+```typescript
+import { SecretDetector } from '@nahisaho/musubix-security';
+
+const detector = new SecretDetector();
+const secrets = detector.scanContent(content, 'config.ts');
+const result = await detector.scan('./src');
+
+console.log(`Found ${result.summary.total} secrets`);
+```
+
+### Detected Secret Types
+
+| Type | Pattern |
+|------|--------|
+| AWS Access Key | `AKIA...` |
+| AWS Secret Key | 40-char base64 |
+| GitHub Token | `ghp_*`, `gho_*`, `ghu_*` |
+| Private Key | PEM format |
+| Database URL | `postgres://`, `mongodb://` |
+| JWT Secret | JWT signing secrets |
+| Stripe Key | `sk_live_*`, `sk_test_*` |
+
+### Taint Analysis
+
+Tracks data flow from user input (sources) to dangerous functions (sinks):
+
+```typescript
+import { TaintAnalyzer } from '@nahisaho/musubix-security';
+
+const analyzer = new TaintAnalyzer();
+const result = analyzer.analyze('./src');
+
+console.log(`Sources: ${result.sources.length}`);
+console.log(`Sinks: ${result.sinks.length}`);
+console.log(`Taint paths: ${result.paths.length}`);
+```
+
+### Dependency Auditing
+
+Integrates with npm audit to detect vulnerable dependencies:
+
+```typescript
+import { DependencyAuditor } from '@nahisaho/musubix-security';
+
+const auditor = new DependencyAuditor();
+const result = await auditor.audit('./project');
+
+console.log(`Critical: ${result.summary.critical}`);
+console.log(`High: ${result.summary.high}`);
+```
+
+### Integrated Security Service
+
+Combines all security analysis features:
+
+```typescript
+import { createSecurityService } from '@nahisaho/musubix-security';
+
+const service = createSecurityService();
+
+// Full security scan
+const result = await service.scan({
+  target: './src',
+  vulnerabilities: true,
+  taint: true,
+  secrets: true,
+  dependencies: true,
+  generateFixes: true,
+});
+
+console.log(`Total vulnerabilities: ${result.summary.totalVulnerabilities}`);
+console.log(`Total secrets: ${result.summary.totalSecrets}`);
+console.log(`Fixes generated: ${result.summary.fixesGenerated}`);
+```
+
+### Report Generation
+
+Generate reports in multiple formats:
+
+```typescript
+// SARIF format (GitHub Code Scanning compatible)
+const sarifReport = await service.generateReport(result, 'sarif');
+
+// Markdown format
+const mdReport = await service.generateReport(result, 'markdown');
+
+// HTML format
+const htmlReport = await service.generateReport(result, 'html');
+```
+
+### CLI Usage
+
+```bash
+# Full security scan
+npx musubix-security scan ./src
+
+# Vulnerability scan only
+npx musubix-security scan ./src --vulnerabilities-only
+
+# Secret detection
+npx musubix-security secrets ./src
+
+# Taint analysis
+npx musubix-security taint ./src
+
+# Dependency audit
+npx musubix-security audit ./project
+
+# Generate SARIF report
+npx musubix-security scan ./src --format sarif --output report.sarif
+```
+
+### v1.8.0 Package Summary
+
+| Package | Description |
+|---------|-------------|
+| `@nahisaho/musubix-security` | Vulnerability scanning, secret detection, taint analysis, dependency auditing |
+
+---
+
 ## MCP Server Integration
 
 ### CLI Startup
@@ -1817,6 +1982,6 @@ const client = createYATAClient({
 
 ---
 
-**Version**: 1.6.0  
+**Version**: 1.8.0  
 **Last Updated**: 2026-01-06  
 **MUSUBIX Project**

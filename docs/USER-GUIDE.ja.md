@@ -24,10 +24,11 @@
 18. [KGPR - Knowledge Graph Pull Request](#kgpr---knowledge-graph-pull-request) *(v1.6.4)*
 19. [YATA プラットフォーム拡張](#yata-プラットフォーム拡張) *(v1.7.0)*
 20. [形式検証](#形式検証) *(v1.7.5)*
-21. [MCPサーバー連携](#mcpサーバー連携)
-21. [YATA知識グラフ](#yata知識グラフ)
-22. [ベストプラクティス](#ベストプラクティス)
-23. [トラブルシューティング](#トラブルシューティング)
+21. [セキュリティ分析](#セキュリティ分析) *(v1.8.0)*
+22. [MCPサーバー連携](#mcpサーバー連携)
+23. [YATA知識グラフ](#yata知識グラフ)
+24. [ベストプラクティス](#ベストプラクティス)
+25. [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -1665,6 +1666,170 @@ console.log(`影響ノード数: ${impact.totalImpacted}`);
 
 ---
 
+## セキュリティ分析
+
+*(v1.8.0)*
+
+`@nahisaho/musubix-security` パッケージは、TypeScript/JavaScriptプロジェクト向けの包括的なセキュリティ分析機能を提供します。
+
+### インストール
+
+```bash
+npm install @nahisaho/musubix-security
+```
+
+### 脆弱性スキャン
+
+AST解析によりOWASP Top 10およびCWE Top 25の脆弱性を検出します：
+
+```typescript
+import { VulnerabilityScanner, createSecurityService } from '@nahisaho/musubix-security';
+
+// 単一ファイルのスキャン
+const scanner = new VulnerabilityScanner();
+const vulnerabilities = scanner.scanFile('src/api.ts');
+
+// ディレクトリのスキャン
+const result = await scanner.scanDirectory('./src');
+console.log(`検出された脆弱性: ${result.vulnerabilities.length}`);
+console.log(`スキャンしたファイル: ${result.scannedFiles}`);
+```
+
+### 検出可能な脆弱性
+
+| カテゴリ | CWE | 重要度 |
+|---------|-----|--------|
+| SQLインジェクション | CWE-89 | Critical |
+| コマンドインジェクション | CWE-78 | Critical |
+| XSS | CWE-79 | High |
+| パストラバーサル | CWE-22 | High |
+| コードインジェクション | CWE-94 | Critical |
+| NoSQLインジェクション | CWE-943 | High |
+
+### シークレット検出
+
+ハードコードされた認証情報や機密情報を検出します：
+
+```typescript
+import { SecretDetector } from '@nahisaho/musubix-security';
+
+const detector = new SecretDetector();
+const secrets = detector.scanContent(content, 'config.ts');
+const result = await detector.scan('./src');
+
+console.log(`検出されたシークレット: ${result.summary.total}`);
+```
+
+### 検出可能なシークレットタイプ
+
+| タイプ | パターン |
+|--------|--------|
+| AWS Access Key | `AKIA...` |
+| AWS Secret Key | 40文字のbase64 |
+| GitHub Token | `ghp_*`, `gho_*`, `ghu_*` |
+| 秘密鍵 | PEM形式 |
+| データベースURL | `postgres://`, `mongodb://` |
+| JWTシークレット | JWT署名シークレット |
+| Stripe Key | `sk_live_*`, `sk_test_*` |
+
+### テイント解析
+
+ユーザー入力（ソース）から危険な関数（シンク）へのデータフローを追跡します：
+
+```typescript
+import { TaintAnalyzer } from '@nahisaho/musubix-security';
+
+const analyzer = new TaintAnalyzer();
+const result = analyzer.analyze('./src');
+
+console.log(`ソース: ${result.sources.length}`);
+console.log(`シンク: ${result.sinks.length}`);
+console.log(`テイントパス: ${result.paths.length}`);
+```
+
+### 依存関係監査
+
+npm auditと統合して脆弱な依存関係を検出します：
+
+```typescript
+import { DependencyAuditor } from '@nahisaho/musubix-security';
+
+const auditor = new DependencyAuditor();
+const result = await auditor.audit('./project');
+
+console.log(`Critical: ${result.summary.critical}`);
+console.log(`High: ${result.summary.high}`);
+```
+
+### 統合セキュリティサービス
+
+すべてのセキュリティ分析機能を統合：
+
+```typescript
+import { createSecurityService } from '@nahisaho/musubix-security';
+
+const service = createSecurityService();
+
+// フルセキュリティスキャン
+const result = await service.scan({
+  target: './src',
+  vulnerabilities: true,
+  taint: true,
+  secrets: true,
+  dependencies: true,
+  generateFixes: true,
+});
+
+console.log(`総脆弱性数: ${result.summary.totalVulnerabilities}`);
+console.log(`総シークレット数: ${result.summary.totalSecrets}`);
+console.log(`生成された修正: ${result.summary.fixesGenerated}`);
+```
+
+### レポート生成
+
+複数のフォーマットでレポートを生成：
+
+```typescript
+// SARIF形式（GitHub Code Scanning対応）
+const sarifReport = await service.generateReport(result, 'sarif');
+
+// Markdown形式
+const mdReport = await service.generateReport(result, 'markdown');
+
+// HTML形式
+const htmlReport = await service.generateReport(result, 'html');
+```
+
+### CLIの使い方
+
+```bash
+# フルセキュリティスキャン
+npx musubix-security scan ./src
+
+# 脆弱性スキャンのみ
+npx musubix-security scan ./src --vulnerabilities-only
+
+# シークレット検出
+npx musubix-security secrets ./src
+
+# テイント解析
+npx musubix-security taint ./src
+
+# 依存関係監査
+npx musubix-security audit ./project
+
+# SARIFレポート生成
+npx musubix-security scan ./src --format sarif --output report.sarif
+```
+
+### v1.8.0 パッケージ概要
+
+| パッケージ | 説明 |
+|-----------|------|
+| `@nahisaho/musubix-security` | 脆弱性スキャン、シークレット検出、テイント解析、依存関係監査 |
+
+---
+
 ## MCPサーバー連携
 
 ### MCPサーバーの起動
@@ -1977,6 +2142,6 @@ const client = createYATAClient({
 
 ---
 
-**バージョン**: 1.6.0  
+**バージョン**: 1.8.0  
 **最終更新**: 2026-01-06  
 **MUSUBIX Project**

@@ -8,13 +8,13 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.7.5 (Formal Verification Edition) |
+| **バージョン** | 1.8.0 (Security Analysis Edition) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 1527 (全合格) |
+| **テスト数** | 1586 (全合格) |
 | **コンポーネント数** | 249 (62ドメイン対応) |
 | **Agent Skills** | 12 (Claude Code対応) |
 
@@ -28,7 +28,8 @@
 packages/
 ├── core/           # @nahisaho/musubix-core
 ├── mcp-server/     # @nahisaho/musubix-mcp-server  
-├── formal-verify/  # @nahisaho/musubix-formal-verify (NEW!)
+├── security/       # @nahisaho/musubix-security (NEW!)
+├── formal-verify/  # @nahisaho/musubix-formal-verify
 ├── yata-client/    # @nahisaho/musubix-yata-client
 ├── yata-local/     # @nahisaho/yata-local
 ├── yata-global/    # @nahisaho/yata-global
@@ -43,7 +44,8 @@ packages/
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
 | `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 19ツール、3プロンプト |
-| `packages/formal-verify/` | `@nahisaho/musubix-formal-verify` | **形式検証** - Z3統合、Hoare検証、EARS→SMT変換 (NEW!) |
+| `packages/security/` | `@nahisaho/musubix-security` | **セキュリティ分析** - 脆弱性検出、シークレット検出、テイント解析 (NEW!) |
+| `packages/formal-verify/` | `@nahisaho/musubix-formal-verify` | 形式検証 - Z3統合、Hoare検証、EARS→SMT変換 |
 | `packages/yata-client/` | `@nahisaho/musubix-yata-client` | YATAクライアント - 知識グラフ連携 |
 | `packages/yata-local/` | `@nahisaho/yata-local` | **YATA Local** - SQLiteベースローカル知識グラフ |
 | `packages/yata-global/` | `@nahisaho/yata-global` | **YATA Global** - 分散型知識グラフプラットフォーム |
