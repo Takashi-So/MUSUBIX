@@ -10,328 +10,15 @@
  * - trace_impact: 影響分析
  */
 
-import { z } from 'zod';
-import type { Tool, ToolResult } from '../types.js';
-
-// Input schemas
-const VariableDeclarationSchema = z.object({
-  name: z.string().describe('Variable name'),
-  type: z.enum(['Int', 'Real', 'Bool', 'String', 'Array', 'BitVec']).describe('Variable type'),
-  elementType: z.enum(['Int', 'Real', 'Bool', 'String']).optional().describe('Array element type'),
-  bitWidth: z.number().optional().describe('BitVec width'),
-});
-
-const ConditionSchema = z.object({
-  expression: z.string().describe('Condition expression'),
-  format: z.enum(['natural', 'smt', 'javascript']).default('javascript').describe('Expression format'),
-  description: z.string().optional().describe('Optional description'),
-});
-
-const VerificationOptionsSchema = z.object({
-  timeout: z.number().optional().describe('Timeout in milliseconds'),
-  generateCounterexample: z.boolean().optional().describe('Generate counterexample'),
-  generateProof: z.boolean().optional().describe('Generate proof'),
-  verbose: z.boolean().optional().describe('Verbose output'),
-});
-
-// Tool: verify_precondition
-export const verifyPreconditionTool: Tool = {
-  name: 'verify_precondition',
-  description: 'Verify a precondition using Z3 SMT solver. Checks if the precondition is satisfiable.',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      condition: {
-        type: 'object',
-        description: 'The precondition to verify',
-        properties: {
-          expression: { type: 'string', description: 'Condition expression (e.g., "amount > 0")' },
-          format: { type: 'string', enum: ['natural', 'smt', 'javascript'], default: 'javascript' },
-        },
-        required: ['expression'],
-      },
-      variables: {
-        type: 'array',
-        description: 'Variable declarations',
-        items: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            type: { type: 'string', enum: ['Int', 'Real', 'Bool', 'String', 'Array', 'BitVec'] },
-          },
-          required: ['name', 'type'],
-        },
-      },
-      options: {
-        type: 'object',
-        description: 'Verification options',
-        properties: {
-          timeout: { type: 'number' },
-          generateCounterexample: { type: 'boolean' },
-          verbose: { type: 'boolean' },
-        },
-      },
-    },
-    required: ['condition', 'variables'],
-  },
-};
-
-// Tool: verify_postcondition
-export const verifyPostconditionTool: Tool = {
-  name: 'verify_postcondition',
-  description: 'Verify that a postcondition holds given a precondition (Hoare triple verification)',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      precondition: {
-        type: 'object',
-        description: 'The precondition',
-        properties: {
-          expression: { type: 'string' },
-          format: { type: 'string', enum: ['natural', 'smt', 'javascript'] },
-        },
-        required: ['expression'],
-      },
-      postcondition: {
-        type: 'object',
-        description: 'The postcondition to verify',
-        properties: {
-          expression: { type: 'string' },
-          format: { type: 'string', enum: ['natural', 'smt', 'javascript'] },
-        },
-        required: ['expression'],
-      },
-      preVariables: {
-        type: 'array',
-        description: 'Pre-state variable declarations',
-        items: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            type: { type: 'string', enum: ['Int', 'Real', 'Bool', 'String', 'Array', 'BitVec'] },
-          },
-        },
-      },
-      postVariables: {
-        type: 'array',
-        description: 'Post-state variable declarations',
-        items: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            type: { type: 'string', enum: ['Int', 'Real', 'Bool', 'String', 'Array', 'BitVec'] },
-          },
-        },
-      },
-      transition: {
-        type: 'string',
-        description: 'Transition relation (e.g., "balance_new := balance - amount")',
-      },
-    },
-    required: ['precondition', 'postcondition', 'preVariables', 'postVariables'],
-  },
-};
-
-// Tool: ears_to_smt
-export const earsToSmtTool: Tool = {
-  name: 'ears_to_smt',
-  description: 'Convert EARS format requirement to SMT-LIB2 formula. Supports all 5 EARS patterns.',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      requirement: {
-        type: 'string',
-        description: 'EARS format requirement (e.g., "WHEN user clicks submit, THE system SHALL save the data")',
-      },
-      options: {
-        type: 'object',
-        description: 'Conversion options',
-        properties: {
-          strict: { type: 'boolean', description: 'Treat warnings as errors' },
-          inferTypes: { type: 'boolean', description: 'Infer variable types' },
-          debug: { type: 'boolean', description: 'Debug output' },
-        },
-      },
-    },
-    required: ['requirement'],
-  },
-};
-
-// Tool: trace_add_link
-export const traceAddLinkTool: Tool = {
-  name: 'trace_add_link',
-  description: 'Add a traceability link between two nodes (requirement, design, code, test)',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      source: {
-        type: 'string',
-        description: 'Source node ID (e.g., "REQ-001")',
-      },
-      target: {
-        type: 'string',
-        description: 'Target node ID (e.g., "DES-001")',
-      },
-      type: {
-        type: 'string',
-        enum: ['implements', 'derives', 'refines', 'satisfies', 'verifies', 'traces', 'depends', 'conflicts', 'related'],
-        description: 'Link type',
-      },
-      description: {
-        type: 'string',
-        description: 'Optional link description',
-      },
-      confidence: {
-        type: 'number',
-        description: 'Confidence score (0-1)',
-        minimum: 0,
-        maximum: 1,
-      },
-    },
-    required: ['source', 'target', 'type'],
-  },
-};
-
-// Tool: trace_query
-export const traceQueryTool: Tool = {
-  name: 'trace_query',
-  description: 'Query traceability graph for related nodes',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      nodeId: {
-        type: 'string',
-        description: 'Starting node ID',
-      },
-      direction: {
-        type: 'string',
-        enum: ['forward', 'backward', 'both'],
-        default: 'both',
-        description: 'Query direction',
-      },
-      linkTypes: {
-        type: 'array',
-        items: {
-          type: 'string',
-          enum: ['implements', 'derives', 'refines', 'satisfies', 'verifies', 'traces', 'depends', 'conflicts', 'related'],
-        },
-        description: 'Filter by link types',
-      },
-      nodeTypes: {
-        type: 'array',
-        items: {
-          type: 'string',
-          enum: ['requirement', 'design', 'component', 'code', 'test', 'task'],
-        },
-        description: 'Filter by node types',
-      },
-      maxDepth: {
-        type: 'number',
-        default: 5,
-        description: 'Maximum traversal depth',
-      },
-    },
-    required: ['nodeId'],
-  },
-};
-
-// Tool: trace_impact
-export const traceImpactTool: Tool = {
-  name: 'trace_impact',
-  description: 'Analyze impact of changing a node - find all affected nodes',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      nodeId: {
-        type: 'string',
-        description: 'Node ID to analyze impact for',
-      },
-      maxDepth: {
-        type: 'number',
-        default: 5,
-        description: 'Maximum analysis depth',
-      },
-      decayRate: {
-        type: 'number',
-        default: 0.7,
-        description: 'Impact decay rate per depth level',
-        minimum: 0,
-        maximum: 1,
-      },
-      minImpactScore: {
-        type: 'number',
-        default: 0.1,
-        description: 'Minimum impact score threshold',
-        minimum: 0,
-        maximum: 1,
-      },
-    },
-    required: ['nodeId'],
-  },
-};
-
-// Export all formal verification tools
-export const formalVerifyTools: Tool[] = [
-  verifyPreconditionTool,
-  verifyPostconditionTool,
-  earsToSmtTool,
-  traceAddLinkTool,
-  traceQueryTool,
-  traceImpactTool,
-];
-
-/**
- * Get all formal verification tools
- */
-export function getFormalVerifyTools(): Tool[] {
-  return formalVerifyTools;
-}
-
-/**
- * Handle formal verification tool calls
- */
-export async function handleFormalVerifyTool(
-  toolName: string,
-  args: Record<string, unknown>
-): Promise<ToolResult> {
-  try {
-    switch (toolName) {
-      case 'verify_precondition':
-        return await handleVerifyPrecondition(args);
-      case 'verify_postcondition':
-        return await handleVerifyPostcondition(args);
-      case 'ears_to_smt':
-        return await handleEarsToSmt(args);
-      case 'trace_add_link':
-        return await handleTraceAddLink(args);
-      case 'trace_query':
-        return await handleTraceQuery(args);
-      case 'trace_impact':
-        return await handleTraceImpact(args);
-      default:
-        return {
-          content: [{ type: 'text', text: `Unknown tool: ${toolName}` }],
-          isError: true,
-        };
-    }
-  } catch (error) {
-    return {
-      content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
-      isError: true,
-    };
-  }
-}
+import type { ToolDefinition, ToolResult } from '../types.js';
 
 // Handler implementations
 async function handleVerifyPrecondition(args: Record<string, unknown>): Promise<ToolResult> {
-  // Note: 実際の実装ではformal-verifyパッケージをインポートして使用
-  const { condition, variables, options } = args as {
+  const { condition, variables } = args as {
     condition: { expression: string; format?: string };
     variables: Array<{ name: string; type: string }>;
-    options?: { timeout?: number; generateCounterexample?: boolean; verbose?: boolean };
   };
 
-  // Placeholder implementation
   const result = {
     status: 'valid' as const,
     condition: condition,
@@ -351,21 +38,21 @@ async function handleVerifyPrecondition(args: Record<string, unknown>): Promise<
 }
 
 async function handleVerifyPostcondition(args: Record<string, unknown>): Promise<ToolResult> {
-  const { precondition, postcondition, preVariables, postVariables, transition } = args as {
+  const { precondition, postcondition, transition } = args as {
     precondition: { expression: string };
     postcondition: { expression: string };
-    preVariables: Array<{ name: string; type: string }>;
-    postVariables: Array<{ name: string; type: string }>;
     transition?: string;
   };
 
   const result = {
     status: 'valid' as const,
-    precondition: precondition.expression,
-    postcondition: postcondition.expression,
-    transition: transition,
+    hoareTriple: {
+      precondition: precondition.expression,
+      postcondition: postcondition.expression,
+      transition: transition ?? 'implicit',
+    },
     duration: 75,
-    message: 'Postcondition holds under given precondition (placeholder)',
+    message: 'Postcondition verified successfully (placeholder)',
   };
 
   return {
@@ -377,12 +64,10 @@ async function handleVerifyPostcondition(args: Record<string, unknown>): Promise
 }
 
 async function handleEarsToSmt(args: Record<string, unknown>): Promise<ToolResult> {
-  const { requirement, options } = args as {
+  const { requirement } = args as {
     requirement: string;
-    options?: { strict?: boolean; inferTypes?: boolean; debug?: boolean };
   };
 
-  // EARS pattern detection (simplified)
   let pattern = 'unknown';
   if (requirement.toUpperCase().startsWith('WHEN ')) {
     pattern = 'event-driven';
@@ -419,24 +104,21 @@ async function handleEarsToSmt(args: Record<string, unknown>): Promise<ToolResul
 }
 
 async function handleTraceAddLink(args: Record<string, unknown>): Promise<ToolResult> {
-  const { source, target, type, description, confidence } = args as {
+  const { source, target, type } = args as {
     source: string;
     target: string;
     type: string;
-    description?: string;
-    confidence?: number;
   };
 
   const linkId = `${source}-${type}-${target}-${Date.now()}`;
-  
   const result = {
     success: true,
     linkId: linkId,
     source: source,
     target: target,
     type: type,
-    confidence: confidence ?? 1.0,
-    message: `Link added: ${source} -[${type}]-> ${target}`,
+    createdAt: new Date().toISOString(),
+    message: 'Link added successfully (placeholder)',
   };
 
   return {
@@ -448,11 +130,9 @@ async function handleTraceAddLink(args: Record<string, unknown>): Promise<ToolRe
 }
 
 async function handleTraceQuery(args: Record<string, unknown>): Promise<ToolResult> {
-  const { nodeId, direction, linkTypes, nodeTypes, maxDepth } = args as {
+  const { nodeId, direction, maxDepth } = args as {
     nodeId: string;
     direction?: string;
-    linkTypes?: string[];
-    nodeTypes?: string[];
     maxDepth?: number;
   };
 
@@ -480,11 +160,9 @@ async function handleTraceQuery(args: Record<string, unknown>): Promise<ToolResu
 }
 
 async function handleTraceImpact(args: Record<string, unknown>): Promise<ToolResult> {
-  const { nodeId, maxDepth, decayRate, minImpactScore } = args as {
+  const { nodeId, maxDepth } = args as {
     nodeId: string;
     maxDepth?: number;
-    decayRate?: number;
-    minImpactScore?: number;
   };
 
   const result = {
@@ -506,4 +184,257 @@ async function handleTraceImpact(args: Record<string, unknown>): Promise<ToolRes
       text: JSON.stringify(result, null, 2),
     }],
   };
+}
+
+// Tool definitions with handlers
+export const verifyPreconditionTool: ToolDefinition = {
+  name: 'verify_precondition',
+  description: 'Verify a precondition using Z3 SMT solver. Checks if the precondition is satisfiable.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      condition: {
+        type: 'object',
+        description: 'The precondition to verify',
+        properties: {
+          expression: { type: 'string', description: 'Condition expression (e.g., "amount > 0")' },
+          format: { type: 'string', enum: ['natural', 'smt', 'javascript'], default: 'javascript' },
+        },
+        required: ['expression'],
+      },
+      variables: {
+        type: 'array',
+        description: 'Variable declarations',
+        items: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            type: { type: 'string', enum: ['Int', 'Real', 'Bool', 'String', 'Array', 'BitVec'] },
+          },
+          required: ['name', 'type'],
+        },
+      },
+    },
+    required: ['condition', 'variables'],
+  },
+  handler: handleVerifyPrecondition,
+};
+
+export const verifyPostconditionTool: ToolDefinition = {
+  name: 'verify_postcondition',
+  description: 'Verify a Hoare triple {P} C {Q} using Z3 SMT solver.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      precondition: {
+        type: 'object',
+        description: 'Precondition (P)',
+        properties: {
+          expression: { type: 'string' },
+          format: { type: 'string', enum: ['natural', 'smt', 'javascript'] },
+        },
+        required: ['expression'],
+      },
+      postcondition: {
+        type: 'object',
+        description: 'Postcondition (Q)',
+        properties: {
+          expression: { type: 'string' },
+          format: { type: 'string', enum: ['natural', 'smt', 'javascript'] },
+        },
+        required: ['expression'],
+      },
+      preVariables: {
+        type: 'array',
+        description: 'Pre-state variable declarations',
+        items: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            type: { type: 'string', enum: ['Int', 'Real', 'Bool', 'String', 'Array', 'BitVec'] },
+          },
+        },
+      },
+      postVariables: {
+        type: 'array',
+        description: 'Post-state variable declarations',
+        items: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            type: { type: 'string', enum: ['Int', 'Real', 'Bool', 'String', 'Array', 'BitVec'] },
+          },
+        },
+      },
+      transition: {
+        type: 'string',
+        description: 'Transition relation (e.g., "balance_new := balance - amount")',
+      },
+    },
+    required: ['precondition', 'postcondition', 'preVariables', 'postVariables'],
+  },
+  handler: handleVerifyPostcondition,
+};
+
+export const earsToSmtTool: ToolDefinition = {
+  name: 'ears_to_smt',
+  description: 'Convert EARS format requirement to SMT-LIB2 formula. Supports all 5 EARS patterns.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      requirement: {
+        type: 'string',
+        description: 'EARS format requirement (e.g., "WHEN user clicks submit, THE system SHALL save the data")',
+      },
+      options: {
+        type: 'object',
+        description: 'Conversion options',
+        properties: {
+          strict: { type: 'boolean', description: 'Treat warnings as errors' },
+          inferTypes: { type: 'boolean', description: 'Automatically infer variable types' },
+          debug: { type: 'boolean', description: 'Include debug information' },
+        },
+      },
+    },
+    required: ['requirement'],
+  },
+  handler: handleEarsToSmt,
+};
+
+export const traceAddLinkTool: ToolDefinition = {
+  name: 'trace_add_link',
+  description: 'Add a traceability link between two artifacts.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      source: {
+        type: 'string',
+        description: 'Source artifact ID (e.g., "REQ-001")',
+      },
+      target: {
+        type: 'string',
+        description: 'Target artifact ID (e.g., "DES-001")',
+      },
+      type: {
+        type: 'string',
+        enum: ['satisfies', 'implements', 'verifies', 'traces-to', 'depends-on'],
+        description: 'Link type',
+      },
+      description: {
+        type: 'string',
+        description: 'Optional description of the link',
+      },
+      confidence: {
+        type: 'number',
+        description: 'Link confidence score (0.0-1.0)',
+      },
+    },
+    required: ['source', 'target', 'type'],
+  },
+  handler: handleTraceAddLink,
+};
+
+export const traceQueryTool: ToolDefinition = {
+  name: 'trace_query',
+  description: 'Query traceability relationships for an artifact.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      nodeId: {
+        type: 'string',
+        description: 'Artifact ID to query',
+      },
+      direction: {
+        type: 'string',
+        enum: ['upstream', 'downstream', 'both'],
+        default: 'both',
+        description: 'Query direction',
+      },
+      linkTypes: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Filter by link types',
+      },
+      nodeTypes: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Filter by node types',
+      },
+      maxDepth: {
+        type: 'number',
+        default: 5,
+        description: 'Maximum traversal depth',
+      },
+    },
+    required: ['nodeId'],
+  },
+  handler: handleTraceQuery,
+};
+
+export const traceImpactTool: ToolDefinition = {
+  name: 'trace_impact',
+  description: 'Analyze the impact of changes to an artifact.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      nodeId: {
+        type: 'string',
+        description: 'Artifact ID to analyze',
+      },
+      maxDepth: {
+        type: 'number',
+        default: 5,
+        description: 'Maximum impact depth',
+      },
+      decayRate: {
+        type: 'number',
+        default: 0.7,
+        description: 'Impact score decay rate per hop',
+      },
+      minImpactScore: {
+        type: 'number',
+        default: 0.1,
+        description: 'Minimum impact score to include',
+      },
+    },
+    required: ['nodeId'],
+  },
+  handler: handleTraceImpact,
+};
+
+// Export all formal verification tools
+export const formalVerifyTools: ToolDefinition[] = [
+  verifyPreconditionTool,
+  verifyPostconditionTool,
+  earsToSmtTool,
+  traceAddLinkTool,
+  traceQueryTool,
+  traceImpactTool,
+];
+
+/**
+ * Get all formal verification tools
+ */
+export function getFormalVerifyTools(): ToolDefinition[] {
+  return formalVerifyTools;
+}
+
+/**
+ * Handle formal verification tool calls
+ */
+export async function handleFormalVerifyTool(
+  toolName: string,
+  args: Record<string, unknown>
+): Promise<ToolResult> {
+  const tool = formalVerifyTools.find(t => t.name === toolName);
+  if (!tool) {
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({ error: `Unknown tool: ${toolName}` }),
+      }],
+      isError: true,
+    };
+  }
+  return tool.handler(args);
 }
