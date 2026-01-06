@@ -1,0 +1,79 @@
+{
+  "name": "@nahisaho/musubix-formal-verify",
+  "version": "1.7.5",
+  "description": "Formal verification tools for MUSUBIX - Z3 integration, precondition/postcondition verification, and EARS-to-SMT conversion",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./z3": {
+      "import": "./dist/z3/index.js",
+      "types": "./dist/z3/index.d.ts"
+    },
+    "./verifiers": {
+      "import": "./dist/verifiers/index.js",
+      "types": "./dist/verifiers/index.d.ts"
+    },
+    "./converters": {
+      "import": "./dist/converters/index.js",
+      "types": "./dist/converters/index.d.ts"
+    },
+    "./traceability": {
+      "import": "./dist/traceability/index.js",
+      "types": "./dist/traceability/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "musubix",
+    "formal-verification",
+    "z3",
+    "smt",
+    "ears",
+    "precondition",
+    "postcondition",
+    "traceability"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/formal-verify"
+  },
+  "bugs": {
+    "url": "https://github.com/nahisaho/MUSUBIX/issues"
+  },
+  "homepage": "https://github.com/nahisaho/MUSUBIX/tree/main/packages/formal-verify#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vitest": "^2.0.0"
+  },
+  "peerDependencies": {
+    "@nahisaho/musubix-core": "^1.7.0"
+  }
+}

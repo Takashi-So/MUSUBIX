@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-mcp-server",
-  "version": "1.6.6",
+  "version": "1.7.0",
   "description": "MUSUBIX MCP Server - Model Context Protocol Server for AI Platforms",
   "type": "module",
   "main": "./dist/index.js",
@@ -45,7 +45,6 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.1",
-    "@nahisaho/yata-local": "^0.1.0",
     "zod": "^3.22.0"
   },
   "devDependencies": {

@@ -17,6 +17,8 @@
   - [YATA Local](#yata-local) *(v1.6.3)*
   - [YATA Global](#yata-global) *(v1.6.3)*
   - [KGPR](#kgpr) *(v1.6.4)*
+  - [YATA Platform](#yata-platform) *(v1.7.0)*
+  - [Formal Verification](#formal-verification) *(v1.7.5)*
   - [Validation](#validation)
   - [Utils](#utils)
 - [MCP Server](#mcp-server)
@@ -684,6 +686,443 @@ await reasoner.reason(store, { progressReporter: reporter });
 
 ---
 
+### YATA Platform (v1.7.0)
+
+Version 1.7.0 introduces enhanced YATA platform APIs.
+
+#### IndexOptimizer
+
+Optimizes database indexes for improved query performance.
+
+```typescript
+import { IndexOptimizer } from '@nahisaho/yata-local';
+
+const optimizer = new IndexOptimizer(database);
+
+// Analyze query patterns
+const analysis = await optimizer.analyzeQueryPatterns();
+
+// Create optimal indexes
+const created = await optimizer.createOptimalIndexes();
+
+// Check index health
+const health = await optimizer.checkIndexHealth();
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `analyzeQueryPatterns()` | - | `QueryAnalysis` | Analyze query patterns |
+| `createOptimalIndexes()` | - | `IndexCreationResult` | Create composite indexes |
+| `checkIndexHealth()` | - | `IndexHealthReport` | Check fragmentation |
+| `rebuildIndex(name)` | `name: string` | `void` | Rebuild specific index |
+
+---
+
+#### ExportPipeline
+
+Exports knowledge graph data with transformation support.
+
+```typescript
+import { ExportPipeline } from '@nahisaho/yata-local';
+
+const pipeline = new ExportPipeline(database);
+
+// Full export
+const data = await pipeline.exportFull({ namespace: 'myproject' });
+
+// Incremental export
+const changes = await pipeline.exportIncremental({
+  since: lastExportTime,
+  format: 'json'
+});
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `exportFull(options)` | `ExportOptions` | `ExportData` | Full data export |
+| `exportIncremental(options)` | `IncrementalOptions` | `ExportData` | Export changes since timestamp |
+| `exportWithTransform(options)` | `TransformOptions` | `ExportData` | Export with format transformation |
+
+**Export Formats:**
+
+| Format | Description |
+|--------|-------------|
+| `json` | JSON format (default) |
+| `rdf` | RDF/Turtle format |
+| `ntriples` | N-Triples format |
+
+---
+
+#### GlobalSyncClient
+
+Synchronizes local knowledge graph with YATA Global.
+
+```typescript
+import { GlobalSyncClient } from '@nahisaho/yata-global';
+
+const client = new GlobalSyncClient({
+  endpoint: 'https://yata-global.example.com',
+  offlineMode: true
+});
+
+await client.initialize();
+
+const result = await client.sync({
+  namespace: 'myproject',
+  direction: 'push'
+});
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `initialize()` | - | `Promise<void>` | Initialize client |
+| `sync(options)` | `SyncOptions` | `SyncResult` | Synchronize data |
+| `getStatus()` | - | `SyncStatus` | Get sync status |
+| `resolveConflict(id, resolution)` | `id: string, resolution: Resolution` | `void` | Resolve conflict |
+
+---
+
+#### SyncEngine
+
+Core synchronization engine with conflict resolution.
+
+```typescript
+import { SyncEngine } from '@nahisaho/yata-global';
+
+const engine = new SyncEngine({
+  conflictStrategy: 'server-wins',
+  batchSize: 100
+});
+
+const result = await engine.sync(localData, remoteData);
+```
+
+**Conflict Strategies:**
+
+| Strategy | Description |
+|----------|-------------|
+| `server-wins` | Server data takes precedence |
+| `client-wins` | Client data takes precedence |
+| `merge` | Attempt automatic merge |
+| `manual` | Require manual resolution |
+
+---
+
+#### CacheManager
+
+Manages local caching for offline support.
+
+```typescript
+import { CacheManager } from '@nahisaho/yata-global';
+
+const cache = new CacheManager({
+  maxSize: 100 * 1024 * 1024, // 100MB
+  ttl: 24 * 60 * 60 * 1000    // 24 hours
+});
+
+await cache.set('key', data);
+const cached = await cache.get('key');
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `get(key)` | `key: string` | `T \| undefined` | Get cached item |
+| `set(key, value)` | `key: string, value: T` | `void` | Cache item |
+| `has(key)` | `key: string` | `boolean` | Check if exists |
+| `clearAll()` | - | `void` | Clear all cache |
+| `getStats()` | - | `CacheStats` | Get cache statistics |
+
+---
+
+#### YataUIServer
+
+Web-based visualization server for knowledge graphs.
+
+```typescript
+import { YataUIServer, createYataUIServer } from '@nahisaho/yata-ui';
+
+const server = createYataUIServer({
+  port: 3000,
+  host: 'localhost',
+  cors: true,
+  enableRealtime: true
+});
+
+server.setDataProvider(async () => ({
+  nodes: await getEntities(),
+  edges: await getRelationships()
+}));
+
+await server.start();
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `start()` | - | `Promise<void>` | Start server |
+| `stop()` | - | `Promise<void>` | Stop server |
+| `isRunning()` | - | `boolean` | Check if running |
+| `getUrl()` | - | `string` | Get server URL |
+| `setDataProvider(fn)` | `DataProvider` | `void` | Set data provider |
+| `broadcastUpdate(event, data)` | `event: string, data: any` | `void` | Broadcast to clients |
+
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `port` | `number` | `3000` | Server port |
+| `host` | `string` | `localhost` | Server host |
+| `cors` | `boolean` | `true` | Enable CORS |
+| `enableRealtime` | `boolean` | `true` | Enable WebSocket |
+
+---
+
+### Formal Verification (v1.7.5)
+
+The formal verification module provides Z3 SMT solver integration for verifying code correctness.
+
+#### Z3Adapter
+
+Unified interface for Z3 backends (WASM or Process).
+
+```typescript
+import { Z3Adapter } from '@nahisaho/musubix-formal-verify';
+
+// Create adapter (auto-selects best backend)
+const z3 = await Z3Adapter.create();
+
+// Check satisfiability
+const result = await z3.checkSat('(declare-const x Int) (assert (> x 0))');
+console.log(result); // 'sat' | 'unsat' | 'unknown'
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `create()` | - | `Promise<Z3Adapter>` | Create adapter instance |
+| `checkSat(smtLib2)` | `smtLib2: string` | `Promise<string>` | Check satisfiability |
+| `dispose()` | - | `Promise<void>` | Cleanup resources |
+
+---
+
+#### PreconditionVerifier
+
+Verifies preconditions for functions and methods.
+
+```typescript
+import { PreconditionVerifier } from '@nahisaho/musubix-formal-verify';
+
+const verifier = new PreconditionVerifier(z3Adapter);
+
+const result = await verifier.verify({
+  condition: { expression: 'amount > 0 && balance >= amount', format: 'javascript' },
+  variables: [
+    { name: 'amount', type: 'Int' },
+    { name: 'balance', type: 'Int' }
+  ]
+});
+
+console.log(result.status); // 'valid' | 'invalid' | 'unknown' | 'error'
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `verify(spec)` | `PreconditionSpec` | `Promise<VerificationResult>` | Verify precondition |
+
+**PreconditionSpec:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `condition` | `Condition` | The precondition to verify |
+| `variables` | `Variable[]` | Variables with types |
+
+**VerificationResult:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `status` | `'valid' \| 'invalid' \| 'unknown' \| 'error'` | Verification status |
+| `counterexample?` | `Record<string, any>` | Counterexample if invalid |
+| `message?` | `string` | Additional message |
+
+---
+
+#### PostconditionVerifier
+
+Verifies Hoare triples {P} C {Q}.
+
+```typescript
+import { PostconditionVerifier } from '@nahisaho/musubix-formal-verify';
+
+const verifier = new PostconditionVerifier(z3Adapter);
+
+const result = await verifier.verify({
+  precondition: { expression: 'balance >= amount', format: 'javascript' },
+  postcondition: { expression: 'balance_new == balance - amount', format: 'javascript' },
+  preVariables: [
+    { name: 'balance', type: 'Int' },
+    { name: 'amount', type: 'Int' }
+  ],
+  postVariables: [
+    { name: 'balance_new', type: 'Int' }
+  ],
+  transition: 'balance_new == balance - amount'
+});
+```
+
+**PostconditionSpec:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `precondition` | `Condition` | Pre-state condition |
+| `postcondition` | `Condition` | Post-state condition |
+| `preVariables` | `Variable[]` | Pre-state variables |
+| `postVariables` | `Variable[]` | Post-state variables |
+| `transition` | `string` | State transition expression |
+
+---
+
+#### EarsToSmtConverter
+
+Converts EARS requirements to SMT-LIB2 formulas.
+
+```typescript
+import { EarsToSmtConverter } from '@nahisaho/musubix-formal-verify';
+
+const converter = new EarsToSmtConverter();
+
+// Single conversion
+const result = converter.convert('THE system SHALL validate inputs');
+
+// Multiple conversions
+const results = converter.convertMultiple([
+  'THE system SHALL validate inputs',           // ubiquitous
+  'WHEN error, THE system SHALL notify user',   // event-driven
+  'WHILE busy, THE system SHALL queue requests', // state-driven
+  'THE system SHALL NOT expose secrets',        // unwanted
+  'IF admin, THEN THE system SHALL allow edit'  // optional
+]);
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `convert(ears)` | `ears: string` | `ConversionResult` | Convert single requirement |
+| `convertMultiple(ears[])` | `ears: string[]` | `ConversionResult[]` | Convert multiple requirements |
+
+**EARS Patterns:**
+
+| Pattern | Syntax | SMT Encoding |
+|---------|--------|--------------|
+| Ubiquitous | `THE system SHALL [action]` | `(assert action)` |
+| Event-driven | `WHEN [event], THE system SHALL [response]` | `(assert (=> event response))` |
+| State-driven | `WHILE [state], THE system SHALL [response]` | `(assert (=> state response))` |
+| Unwanted | `THE system SHALL NOT [behavior]` | `(assert (not behavior))` |
+| Optional | `IF [condition], THEN THE system SHALL [response]` | `(assert (=> condition response))` |
+
+---
+
+#### TraceabilityDB
+
+SQLite-based traceability database.
+
+```typescript
+import { TraceabilityDB } from '@nahisaho/musubix-formal-verify';
+
+const db = new TraceabilityDB('./trace.db');
+
+// Add nodes
+await db.addNode({ id: 'REQ-001', type: 'requirement', title: 'User Auth' });
+await db.addNode({ id: 'DES-001', type: 'design', title: 'AuthService' });
+await db.addNode({ id: 'CODE-001', type: 'code', title: 'auth.ts' });
+
+// Add links
+await db.addLink({ source: 'DES-001', target: 'REQ-001', type: 'satisfies' });
+await db.addLink({ source: 'CODE-001', target: 'DES-001', type: 'implements' });
+
+// Query
+const node = await db.getNode('REQ-001');
+const stats = await db.getStatistics();
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `addNode(node)` | `TraceNode` | `Promise<void>` | Add traceability node |
+| `getNode(id)` | `id: string` | `Promise<TraceNode \| undefined>` | Get node by ID |
+| `addLink(link)` | `TraceLink` | `Promise<void>` | Add traceability link |
+| `getStatistics()` | - | `Promise<TraceStats>` | Get database statistics |
+| `query(nodeId, options?)` | `nodeId: string, QueryOptions` | `Promise<QueryResult>` | Query related nodes |
+| `close()` | - | `void` | Close database |
+
+**Node Types:**
+
+| Type | Description |
+|------|-------------|
+| `requirement` | Requirements (REQ-*) |
+| `design` | Design artifacts (DES-*) |
+| `code` | Code files |
+| `test` | Test cases |
+
+**Link Types:**
+
+| Type | Description |
+|------|-------------|
+| `satisfies` | Design satisfies requirement |
+| `implements` | Code implements design |
+| `verifies` | Test verifies requirement |
+| `traces-to` | Generic traceability |
+
+---
+
+#### ImpactAnalyzer
+
+Analyzes change impact across traceability graph.
+
+```typescript
+import { ImpactAnalyzer } from '@nahisaho/musubix-formal-verify';
+
+const analyzer = new ImpactAnalyzer(traceabilityDB);
+
+// Analyze impact of changing REQ-001
+const impact = await analyzer.analyze('REQ-001');
+
+console.log(`Total impacted: ${impact.totalImpacted}`);
+console.log(`Direct: ${impact.directImpact.length}`);
+console.log(`Indirect: ${impact.indirectImpact.length}`);
+```
+
+**Methods:**
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `analyze(nodeId)` | `nodeId: string` | `Promise<ImpactResult>` | Analyze change impact |
+
+**ImpactResult:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `sourceId` | `string` | Source node ID |
+| `directImpact` | `ImpactedNode[]` | Directly impacted nodes |
+| `indirectImpact` | `ImpactedNode[]` | Transitively impacted nodes |
+| `totalImpacted` | `number` | Total number of impacted nodes |
+| `maxDepth` | `number` | Maximum impact depth |
+
+---
+
 ### Utils
 
 #### I18nManager
@@ -981,6 +1420,6 @@ MIT License - see [LICENSE](./LICENSE) for details.
 
 ---
 
-**Version:** 1.6.0  
+**Version:** 1.7.0  
 **Generated:** 2026-01-06  
 **MUSUBIX Core Package**

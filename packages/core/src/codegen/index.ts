@@ -172,3 +172,19 @@ export {
   type AdapterType,
   type AdapterNamingRule,
 } from './adapter-naming.js';
+
+// Enhanced Code Generator (v1.7.0 NEW!)
+// @see REQ-YI-GEN-001, REQ-YI-GEN-002, REQ-YI-GEN-003
+export {
+  EnhancedCodeGenerator,
+  createEnhancedCodeGenerator,
+  DEFAULT_CODEGEN_CONFIG,
+  type CodeGenConfig,
+  type GeneratedFile,
+  type TraceabilityEntry,
+  type GenerationResult,
+  type C4Component,
+  type C4Design,
+  // EARSRequirement is exported from types with different structure
+} from './enhanced-generator.js';
+export type { EARSRequirement as EnhancedEARSRequirement } from './enhanced-generator.js';

@@ -1,7 +1,7 @@
 {
-  "name": "project-08-property-rental",
+  "name": "@musubix/project-08-property-rental",
   "version": "1.0.0",
-  "description": "Property Rental Management System - MUSUBIX Virtual Project 08",
+  "description": "Property Rental Management System - SDD Redevelopment",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,17 +12,13 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": [
-    "property-rental",
-    "musubix",
-    "sdd",
-    "domain-driven-design"
-  ],
-  "author": "MUSUBIX SDD",
-  "license": "MIT",
+  "dependencies": {
+    "neverthrow": "^8.1.1"
+  },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "typescript": "^5.3.0",
-    "vitest": "^1.0.0"
-  }
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.2"
+  },
+  "keywords": ["property-rental", "real-estate", "sdd"],
+  "author": "MUSUBIX SDD System"
 }

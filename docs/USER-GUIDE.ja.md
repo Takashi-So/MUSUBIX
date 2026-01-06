@@ -22,10 +22,12 @@
 16. [YATA Local](#yata-local) *(v1.6.3)*
 17. [YATA Global](#yata-global) *(v1.6.3)*
 18. [KGPR - Knowledge Graph Pull Request](#kgpr---knowledge-graph-pull-request) *(v1.6.4)*
-19. [MCPサーバー連携](#mcpサーバー連携)
-20. [YATA知識グラフ](#yata知識グラフ)
-21. [ベストプラクティス](#ベストプラクティス)
-22. [トラブルシューティング](#トラブルシューティング)
+19. [YATA プラットフォーム拡張](#yata-プラットフォーム拡張) *(v1.7.0)*
+20. [形式検証](#形式検証) *(v1.7.5)*
+21. [MCPサーバー連携](#mcpサーバー連携)
+21. [YATA知識グラフ](#yata知識グラフ)
+22. [ベストプラクティス](#ベストプラクティス)
+23. [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -1385,6 +1387,281 @@ musubix kgpr show KGPR-001
 # 4. レビューに送信
 musubix kgpr submit KGPR-001
 ```
+
+---
+
+## YATA プラットフォーム拡張
+
+*(v1.7.0)*
+
+バージョン1.7.0では、YATAプラットフォームに5つの主要機能が追加されました。
+
+### Phase 1: インデックス最適化
+
+YATA Localのクエリパフォーマンスを複合インデックスで最適化。
+
+```typescript
+import { IndexOptimizer } from '@nahisaho/yata-local';
+
+const optimizer = new IndexOptimizer(database);
+
+// クエリパターンを分析して最適なインデックスを作成
+const analysis = await optimizer.analyzeQueryPatterns();
+const created = await optimizer.createOptimalIndexes();
+
+// インデックスの健全性をチェック
+const health = await optimizer.checkIndexHealth();
+```
+
+**主な機能:**
+- 一般的なクエリパターン用の複合インデックス作成
+- 断片化検出によるインデックス健全性監視
+- 自動最適化推奨
+
+### Phase 2: 拡張エクスポートパイプライン
+
+増分エクスポートと複数フォーマット対応の強力なエクスポート機能。
+
+```typescript
+import { ExportPipeline } from '@nahisaho/yata-local';
+
+const pipeline = new ExportPipeline(database);
+
+// フルエクスポート
+const fullData = await pipeline.exportFull({ namespace: 'myproject' });
+
+// 増分エクスポート（前回エクスポート以降の変更）
+const changes = await pipeline.exportIncremental({
+  since: lastExportTimestamp,
+  format: 'json'
+});
+
+// 変換付きエクスポート
+const transformed = await pipeline.exportWithTransform({
+  format: 'rdf',
+  includeMetadata: true
+});
+```
+
+**対応フォーマット:**
+- JSON（デフォルト）
+- RDF/Turtle
+- N-Triples
+- カスタムトランスフォーマー
+
+### Phase 3: Global同期統合
+
+YATA LocalとYATA Global間のシームレスな同期。
+
+```typescript
+import { GlobalSyncClient, SyncEngine } from '@nahisaho/yata-global';
+
+const client = new GlobalSyncClient({
+  endpoint: 'https://yata-global.example.com',
+  offlineMode: true
+});
+
+// 同期を初期化
+await client.initialize();
+
+// ローカル変更をプッシュ
+const syncResult = await client.sync({
+  namespace: 'myproject',
+  direction: 'push'
+});
+
+// グローバルから更新をプル
+await client.sync({
+  namespace: 'shared-patterns',
+  direction: 'pull'
+});
+```
+
+**機能:**
+- オフラインファーストと自動同期
+- 競合解決戦略
+- 選択的な名前空間同期
+- フレームワークパターンリポジトリ
+
+### Phase 4: コードジェネレーター強化
+
+設計ドキュメントからの高度なコード生成。
+
+```typescript
+import { CodeGenerator } from '@nahisaho/yata-local';
+
+const generator = new CodeGenerator({
+  language: 'typescript',
+  outputDir: './src/generated'
+});
+
+// C4設計から生成
+const result = await generator.generateFromC4(designDocument);
+
+// カスタムテンプレートで生成
+await generator.generate({
+  template: 'repository-pattern',
+  context: { entityName: 'User' }
+});
+```
+
+**対応パターン:**
+- Repositoryパターン
+- Serviceレイヤー
+- Factoryパターン
+- ドメインイベント
+- Value Objects
+
+### Phase 5: YATA UI（Web可視化）
+
+知識グラフのWebベース可視化・管理インターフェース。
+
+```typescript
+import { YataUIServer, createYataUIServer } from '@nahisaho/yata-ui';
+
+// サーバーを作成して起動
+const server = createYataUIServer({
+  port: 3000,
+  enableRealtime: true
+});
+
+// データプロバイダーを設定
+server.setDataProvider(async () => ({
+  nodes: await getEntities(),
+  edges: await getRelationships()
+}));
+
+await server.start();
+console.log(`UI: ${server.getUrl()}`);
+```
+
+**UI機能:**
+- インタラクティブなグラフ可視化
+- WebSocketによるリアルタイム更新
+- 名前空間フィルタリング
+- エンティティ/リレーションシップ編集
+- エクスポート/インポート機能
+
+### v1.7.0 パッケージ概要
+
+| パッケージ | 説明 |
+|-----------|------|
+| `@nahisaho/yata-local` | IndexOptimizer, ExportPipeline, CodeGenerator |
+| `@nahisaho/yata-global` | GlobalSyncClient, SyncEngine, CacheManager |
+| `@nahisaho/yata-ui` | YataUIServer, グラフ可視化 |
+
+---
+
+## 形式検証
+
+*(v1.7.5)*
+
+`@nahisaho/musubix-formal-verify` パッケージは、Z3 SMTソルバーを使用した形式検証機能を提供します。
+
+### インストール
+
+```bash
+npm install @nahisaho/musubix-formal-verify
+# オプション: WebAssemblyサポート用にz3-solverをインストール
+npm install z3-solver
+```
+
+### Z3 SMTソルバー統合
+
+```typescript
+import { Z3Adapter, PreconditionVerifier, PostconditionVerifier } from '@nahisaho/musubix-formal-verify';
+
+// Z3アダプター作成（バックエンド自動選択）
+const z3 = await Z3Adapter.create();
+
+// 事前条件検証
+const preVerifier = new PreconditionVerifier(z3);
+const result = await preVerifier.verify({
+  condition: { expression: 'amount > 0 && balance >= amount', format: 'javascript' },
+  variables: [
+    { name: 'amount', type: 'Int' },
+    { name: 'balance', type: 'Int' },
+  ],
+});
+
+console.log(result.status); // 'valid' | 'invalid' | 'unknown' | 'error'
+```
+
+### Hoareトリプル検証
+
+```typescript
+// {P} C {Q} の検証
+const postVerifier = new PostconditionVerifier(z3);
+const hoareResult = await postVerifier.verify({
+  precondition: { expression: 'balance >= amount', format: 'javascript' },
+  postcondition: { expression: 'balance_new == balance - amount', format: 'javascript' },
+  preVariables: [{ name: 'balance', type: 'Int' }, { name: 'amount', type: 'Int' }],
+  postVariables: [{ name: 'balance_new', type: 'Int' }],
+  transition: 'balance_new == balance - amount',
+});
+```
+
+### EARS→SMT変換
+
+```typescript
+import { EarsToSmtConverter } from '@nahisaho/musubix-formal-verify';
+
+const converter = new EarsToSmtConverter();
+
+// EARS要件をSMT-LIB2に変換
+const results = converter.convertMultiple([
+  'THE system SHALL validate inputs',           // ubiquitous
+  'WHEN error, THE system SHALL notify user',   // event-driven
+  'WHILE busy, THE system SHALL queue requests', // state-driven
+  'THE system SHALL NOT expose secrets',        // unwanted
+  'IF admin, THEN THE system SHALL allow edit', // optional
+]);
+
+results.forEach(r => {
+  console.log(`パターン: ${r.formula?.metadata.earsPattern.type}`);
+  console.log(`SMT: ${r.formula?.smtLib2}`);
+});
+```
+
+### トレーサビリティデータベース
+
+```typescript
+import { TraceabilityDB, ImpactAnalyzer } from '@nahisaho/musubix-formal-verify';
+
+// SQLiteベースのトレーサビリティDB作成
+const db = new TraceabilityDB('./trace.db');
+
+// ノード追加
+await db.addNode({ id: 'REQ-001', type: 'requirement', title: 'ユーザー認証' });
+await db.addNode({ id: 'DES-001', type: 'design', title: 'AuthService' });
+await db.addNode({ id: 'CODE-001', type: 'code', title: 'auth.ts' });
+
+// トレーサビリティリンク追加
+await db.addLink({ source: 'DES-001', target: 'REQ-001', type: 'satisfies' });
+await db.addLink({ source: 'CODE-001', target: 'DES-001', type: 'implements' });
+
+// 影響分析
+const analyzer = new ImpactAnalyzer(db);
+const impact = await analyzer.analyze('REQ-001');
+console.log(`影響ノード数: ${impact.totalImpacted}`);
+```
+
+### v1.7.5 パッケージ概要
+
+| パッケージ | 説明 |
+|-----------|------|
+| `@nahisaho/musubix-formal-verify` | Z3統合、Hoare検証、EARS→SMT、トレーサビリティDB |
+
+### サポートされる変数型
+
+| 型 | 説明 |
+|----|------|
+| `Int` | 整数値 |
+| `Real` | 実数 |
+| `Bool` | 真偽値 |
+| `String` | 文字列 |
+| `Array` | 配列型 |
+| `BitVec` | ビットベクトル |
 
 ---
 

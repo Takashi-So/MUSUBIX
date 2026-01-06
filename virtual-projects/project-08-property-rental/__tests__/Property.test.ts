@@ -1,225 +1,262 @@
 /**
  * Property Entity Tests
- * TSK-026: Property Entity Unit Tests
  * 
- * @see REQ-RENTAL-001 F001-F006
+ * @requirement REQ-RENTAL-001-F001 (Property Registration)
+ * @requirement REQ-RENTAL-001-F002 (Property Status Transition)
+ * @design DES-RENTAL-001-C001
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
+  Property,
   createProperty,
-  updateProperty,
-  updatePropertyStatus,
-  matchesSearchCriteria,
-  resetPropertyCounter,
+  CreatePropertyInput,
+  canTransitionPropertyStatus,
+  transitionPropertyStatus,
 } from '../src/entities/Property.js';
-import type { Property, Address, CreatePropertyInput } from '../src/types/index.js';
+import {
+  resetPropertyCounter,
+  PropertyStatus,
+} from '../src/types/common.js';
 
 describe('Property Entity', () => {
-  let validAddress: Address;
-
   beforeEach(() => {
+    // BP-TEST-001: Reset counters before each test
     resetPropertyCounter();
-    validAddress = {
-      postalCode: '150-0001',
-      prefecture: '東京都',
-      city: '渋谷区',
-      street: '神宮前1-2-3',
-      building: 'サンプルマンション 101',
-    };
   });
 
   describe('createProperty', () => {
-    it('should create a property with valid inputs', () => {
+    it('should create a property with valid input', () => {
+      // Arrange
       const input: CreatePropertyInput = {
-        ownerId: 'OWN-20250101-001',
-        address: validAddress,
+        address: {
+          prefecture: '東京都',
+          city: '渋谷区',
+          street: '恵比寿1-1-1',
+          building: 'テストビル101',
+        },
         propertyType: 'apartment',
-        sizeSqm: 45.5,
-        monthlyRent: 120000,
-        deposit: 240000,
-        keyMoney: 120000,
-        maintenanceFee: 8000,
-        amenities: ['エアコン', 'バス・トイレ別'],
-        description: 'オートロック完備',
-      };
-
-      const property = createProperty(input);
-
-      expect(property.id).toMatch(/^PROP-\d{8}-\d{3}$/);
-      expect(property.ownerId).toBe('OWN-20250101-001');
-      expect(property.status).toBe('available');
-      expect(property.monthlyRent.amount).toBe(120000);
-      expect(property.monthlyRent.currency).toBe('JPY');
-    });
-
-    it('should throw error for invalid postal code', () => {
-      const input: CreatePropertyInput = {
-        ownerId: 'OWN-20250101-001',
-        address: { ...validAddress, postalCode: 'invalid' },
-        propertyType: 'apartment',
-        sizeSqm: 45,
-        monthlyRent: 100000,
-        deposit: 200000,
-        keyMoney: 100000,
-        maintenanceFee: 5000,
-      };
-
-      expect(() => createProperty(input)).toThrow('Invalid postal code format');
-    });
-
-    it('should throw error for zero size', () => {
-      const input: CreatePropertyInput = {
-        ownerId: 'OWN-20250101-001',
-        address: validAddress,
-        propertyType: 'apartment',
-        sizeSqm: 0,
-        monthlyRent: 100000,
-        deposit: 200000,
-        keyMoney: 100000,
-        maintenanceFee: 5000,
-      };
-
-      expect(() => createProperty(input)).toThrow('Size must be greater than 0');
-    });
-
-    it('should throw error for negative rent', () => {
-      const input: CreatePropertyInput = {
-        ownerId: 'OWN-20250101-001',
-        address: validAddress,
-        propertyType: 'apartment',
-        sizeSqm: 45,
-        monthlyRent: -10000,
-        deposit: 200000,
-        keyMoney: 100000,
-        maintenanceFee: 5000,
-      };
-
-      expect(() => createProperty(input)).toThrow('Monthly rent cannot be negative');
-    });
-  });
-
-  describe('updateProperty', () => {
-    let existingProperty: Property;
-
-    beforeEach(() => {
-      const input: CreatePropertyInput = {
-        ownerId: 'OWN-20250101-001',
-        address: validAddress,
-        propertyType: 'apartment',
-        sizeSqm: 45,
-        monthlyRent: 100000,
-        deposit: 200000,
-        keyMoney: 100000,
-        maintenanceFee: 5000,
-      };
-      existingProperty = createProperty(input);
-    });
-
-    it('should update property description', () => {
-      const updated = updateProperty(existingProperty, { description: '新しい説明' });
-      expect(updated.description).toBe('新しい説明');
-      expect(updated.id).toBe(existingProperty.id);
-    });
-
-    it('should update rent amount', () => {
-      const updated = updateProperty(existingProperty, { monthlyRent: 130000 });
-      expect(updated.monthlyRent.amount).toBe(130000);
-    });
-
-    it('should update timestamp', () => {
-      const updated = updateProperty(existingProperty, { description: '更新' });
-      expect(updated.updatedAt.getTime()).toBeGreaterThanOrEqual(
-        existingProperty.updatedAt.getTime()
-      );
-    });
-  });
-
-  describe('updatePropertyStatus', () => {
-    let property: Property;
-
-    beforeEach(() => {
-      const input: CreatePropertyInput = {
-        ownerId: 'OWN-20250101-001',
-        address: validAddress,
-        propertyType: 'apartment',
-        sizeSqm: 45,
-        monthlyRent: 100000,
-        deposit: 200000,
-        keyMoney: 100000,
-        maintenanceFee: 5000,
-      };
-      property = createProperty(input);
-    });
-
-    it('should update status to occupied', () => {
-      const updated = updatePropertyStatus(property, 'occupied');
-      expect(updated.status).toBe('occupied');
-    });
-
-    it('should update status to under_maintenance', () => {
-      const updated = updatePropertyStatus(property, 'under_maintenance');
-      expect(updated.status).toBe('under_maintenance');
-    });
-
-    it('should throw error for invalid transition', () => {
-      const occupied = updatePropertyStatus(property, 'occupied');
-      expect(() => updatePropertyStatus(occupied, 'reserved')).toThrow('Invalid status transition');
-    });
-  });
-
-  describe('matchesSearchCriteria', () => {
-    let property: Property;
-
-    beforeEach(() => {
-      const input: CreatePropertyInput = {
-        ownerId: 'OWN-20250101-001',
-        address: validAddress,
-        propertyType: 'apartment',
-        sizeSqm: 45,
-        monthlyRent: 100000,
-        deposit: 200000,
-        keyMoney: 100000,
-        maintenanceFee: 5000,
+        sizeSqm: 50,
+        monthlyRent: 150000,
+        deposit: 300000,
         amenities: ['エアコン', '駐車場'],
+        description: 'テスト物件',
       };
-      property = createProperty(input);
+
+      // Act
+      const result = createProperty(input);
+
+      // Assert (BP-TEST-004: Result Type Test Pattern)
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        const property = result.value;
+        expect(property.id.value).toMatch(/^PROP-\d{8}-001$/);
+        expect(property.address.prefecture).toBe('東京都');
+        expect(property.address.city).toBe('渋谷区');
+        expect(property.propertyType).toBe('apartment');
+        expect(property.sizeSqm).toBe(50);
+        expect(property.monthlyRent.amount).toBe(150000);
+        expect(property.deposit.amount).toBe(300000);
+        expect(property.status).toBe('available'); // AC4: Default status
+        expect(property.amenities).toEqual(['エアコン', '駐車場']);
+        expect(property.version).toBe(1);
+      }
     });
 
-    it('should match when no criteria specified', () => {
-      expect(matchesSearchCriteria(property, {})).toBe(true);
+    it('should generate unique IDs for multiple properties', () => {
+      const input: CreatePropertyInput = {
+        address: {
+          prefecture: '東京都',
+          city: '新宿区',
+          street: '西新宿2-2-2',
+        },
+        propertyType: 'house',
+        sizeSqm: 100,
+        monthlyRent: 200000,
+        deposit: 400000,
+      };
+
+      const result1 = createProperty(input);
+      const result2 = createProperty(input);
+
+      expect(result1.isOk()).toBe(true);
+      expect(result2.isOk()).toBe(true);
+      if (result1.isOk() && result2.isOk()) {
+        expect(result1.value.id.value).not.toBe(result2.value.id.value);
+        expect(result1.value.id.value).toMatch(/-001$/);
+        expect(result2.value.id.value).toMatch(/-002$/);
+      }
     });
 
-    it('should match property type', () => {
-      expect(matchesSearchCriteria(property, { propertyType: 'apartment' })).toBe(true);
+    it('should reject negative monthly rent', () => {
+      const input: CreatePropertyInput = {
+        address: {
+          prefecture: '東京都',
+          city: '渋谷区',
+          street: '恵比寿1-1-1',
+        },
+        propertyType: 'apartment',
+        sizeSqm: 50,
+        monthlyRent: -10000, // Invalid
+        deposit: 300000,
+      };
+
+      const result = createProperty(input);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('non-negative');
+      }
     });
 
-    it('should not match different property type', () => {
-      expect(matchesSearchCriteria(property, { propertyType: 'house' })).toBe(false);
+    it('should reject zero size', () => {
+      const input: CreatePropertyInput = {
+        address: {
+          prefecture: '東京都',
+          city: '渋谷区',
+          street: '恵比寿1-1-1',
+        },
+        propertyType: 'apartment',
+        sizeSqm: 0, // Invalid
+        monthlyRent: 150000,
+        deposit: 300000,
+      };
+
+      const result = createProperty(input);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('positive');
+      }
     });
 
-    it('should match rent range', () => {
-      expect(matchesSearchCriteria(property, { minRent: 80000, maxRent: 120000 })).toBe(true);
+    it('should reject empty prefecture', () => {
+      const input: CreatePropertyInput = {
+        address: {
+          prefecture: '', // Invalid
+          city: '渋谷区',
+          street: '恵比寿1-1-1',
+        },
+        propertyType: 'apartment',
+        sizeSqm: 50,
+        monthlyRent: 150000,
+        deposit: 300000,
+      };
+
+      const result = createProperty(input);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('Prefecture');
+      }
+    });
+  });
+
+  describe('Property Status Transitions (BP-TEST-005)', () => {
+    // REQ-RENTAL-001-F002: Valid transitions
+    
+    it('should allow available → pending transition', () => {
+      expect(canTransitionPropertyStatus('available', 'pending')).toBe(true);
     });
 
-    it('should not match rent below minimum', () => {
-      expect(matchesSearchCriteria(property, { minRent: 150000 })).toBe(false);
+    it('should allow available → maintenance transition', () => {
+      expect(canTransitionPropertyStatus('available', 'maintenance')).toBe(true);
     });
 
-    it('should match size range', () => {
-      expect(matchesSearchCriteria(property, { minSize: 40, maxSize: 50 })).toBe(true);
+    it('should allow pending → occupied transition', () => {
+      expect(canTransitionPropertyStatus('pending', 'occupied')).toBe(true);
     });
 
-    it('should match prefecture', () => {
-      expect(matchesSearchCriteria(property, { prefecture: '東京都' })).toBe(true);
+    it('should allow pending → available transition', () => {
+      expect(canTransitionPropertyStatus('pending', 'available')).toBe(true);
     });
 
-    it('should match amenities', () => {
-      expect(matchesSearchCriteria(property, { amenities: ['エアコン'] })).toBe(true);
+    it('should allow occupied → available transition', () => {
+      expect(canTransitionPropertyStatus('occupied', 'available')).toBe(true);
     });
 
-    it('should not match missing amenities', () => {
-      expect(matchesSearchCriteria(property, { amenities: ['オートロック'] })).toBe(false);
+    it('should allow occupied → maintenance transition', () => {
+      expect(canTransitionPropertyStatus('occupied', 'maintenance')).toBe(true);
+    });
+
+    it('should allow maintenance → available transition', () => {
+      expect(canTransitionPropertyStatus('maintenance', 'available')).toBe(true);
+    });
+
+    // Invalid transitions
+    it('should NOT allow available → occupied transition', () => {
+      expect(canTransitionPropertyStatus('available', 'occupied')).toBe(false);
+    });
+
+    it('should NOT allow pending → maintenance transition', () => {
+      expect(canTransitionPropertyStatus('pending', 'maintenance')).toBe(false);
+    });
+
+    it('should NOT allow maintenance → occupied transition', () => {
+      expect(canTransitionPropertyStatus('maintenance', 'occupied')).toBe(false);
+    });
+
+    it('should NOT allow same-status transition', () => {
+      const statuses: PropertyStatus[] = ['available', 'pending', 'occupied', 'maintenance'];
+      statuses.forEach(status => {
+        expect(canTransitionPropertyStatus(status, status)).toBe(false);
+      });
+    });
+  });
+
+  describe('transitionPropertyStatus', () => {
+    it('should transition property status successfully', () => {
+      const input: CreatePropertyInput = {
+        address: {
+          prefecture: '東京都',
+          city: '渋谷区',
+          street: '恵比寿1-1-1',
+        },
+        propertyType: 'apartment',
+        sizeSqm: 50,
+        monthlyRent: 150000,
+        deposit: 300000,
+      };
+
+      const createResult = createProperty(input);
+      expect(createResult.isOk()).toBe(true);
+      if (!createResult.isOk()) return;
+
+      const property = createResult.value;
+      const transitionResult = transitionPropertyStatus(property, 'pending', 'Application received');
+
+      expect(transitionResult.isOk()).toBe(true);
+      if (transitionResult.isOk()) {
+        expect(transitionResult.value.status).toBe('pending');
+        expect(transitionResult.value.version).toBe(2); // Version incremented
+      }
+    });
+
+    it('should reject invalid transition', () => {
+      const input: CreatePropertyInput = {
+        address: {
+          prefecture: '東京都',
+          city: '渋谷区',
+          street: '恵比寿1-1-1',
+        },
+        propertyType: 'apartment',
+        sizeSqm: 50,
+        monthlyRent: 150000,
+        deposit: 300000,
+      };
+
+      const createResult = createProperty(input);
+      expect(createResult.isOk()).toBe(true);
+      if (!createResult.isOk()) return;
+
+      const property = createResult.value;
+      // available → occupied is invalid
+      const transitionResult = transitionPropertyStatus(property, 'occupied', 'Invalid');
+
+      expect(transitionResult.isErr()).toBe(true);
+      if (transitionResult.isErr()) {
+        expect(transitionResult.error._tag).toBe('InvalidStatusTransitionError');
+      }
     });
   });
 });

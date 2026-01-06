@@ -1,102 +1,249 @@
 /**
  * Tenant Entity Tests
- * TSK-027: Tenant Entity Unit Tests
  * 
- * @see REQ-RENTAL-001 F010-F013
+ * @requirement REQ-RENTAL-001-F010 (Tenant Registration)
+ * @requirement REQ-RENTAL-001-F011 (Tenant Verification Status)
+ * @design DES-RENTAL-001-C002
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
+  Tenant,
   createTenant,
-  updateTenant,
-  assignGuarantor,
-  resetTenantCounter,
+  CreateTenantInput,
+  canTransitionVerificationStatus,
+  transitionVerificationStatus,
 } from '../src/entities/Tenant.js';
-import type { CreateTenantInput, PersonName, ContactInfo, EmploymentInfo, EmergencyContact, Identification } from '../src/types/index.js';
+import {
+  resetTenantCounter,
+  VerificationStatus,
+} from '../src/types/common.js';
 
 describe('Tenant Entity', () => {
-  let validInput: CreateTenantInput;
-
   beforeEach(() => {
     resetTenantCounter();
-
-    const name: PersonName = {
-      firstName: '太郎',
-      lastName: '山田',
-      firstNameKana: 'タロウ',
-      lastNameKana: 'ヤマダ',
-    };
-
-    const contact: ContactInfo = {
-      phone: '090-1234-5678',
-      email: 'yamada@example.com',
-      address: {
-        postalCode: '150-0001',
-        prefecture: '東京都',
-        city: '渋谷区',
-        street: '神宮前1-2-3',
-      },
-    };
-
-    const identification: Identification = {
-      type: '運転免許証',
-      number: '123456789012',
-      issuedDate: new Date('2020-01-01'),
-      expiryDate: new Date('2030-01-01'),
-    };
-
-    const employment: EmploymentInfo = {
-      companyName: '株式会社テスト',
-      position: 'エンジニア',
-      annualIncome: { amount: 5000000, currency: 'JPY' },
-      employmentType: '正社員',
-      yearsEmployed: 3,
-    };
-
-    const emergencyContact: EmergencyContact = {
-      name: { firstName: '花子', lastName: '山田', firstNameKana: 'ハナコ', lastNameKana: 'ヤマダ' },
-      relationship: '母',
-      phone: '090-9999-8888',
-    };
-
-    validInput = { name, contact, identification, employment, emergencyContact };
   });
 
   describe('createTenant', () => {
-    it('should create a tenant with valid inputs', () => {
-      const tenant = createTenant(validInput);
+    it('should create a tenant with valid input', () => {
+      const input: CreateTenantInput = {
+        fullName: '山田太郎',
+        email: 'yamada@example.com',
+        phone: '090-1234-5678',
+        emergencyContact: {
+          name: '山田花子',
+          phone: '080-9876-5432',
+        },
+      };
 
-      expect(tenant.id).toMatch(/^TEN-\d{8}-\d{3}$/);
-      expect(tenant.name.lastName).toBe('山田');
-      expect(tenant.status).toBe('prospective');
+      const result = createTenant(input);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        const tenant = result.value;
+        expect(tenant.id.value).toMatch(/^TEN-\d{8}-001$/);
+        expect(tenant.fullName).toBe('山田太郎');
+        expect(tenant.email.value).toBe('yamada@example.com');
+        expect(tenant.phone.value).toBe('090-1234-5678');
+        expect(tenant.emergencyContact.name).toBe('山田花子');
+        expect(tenant.verificationStatus).toBe('pending-verification');
+        expect(tenant.version).toBe(1);
+      }
     });
 
-    it('should throw error for missing company name', () => {
-      const invalidInput = {
-        ...validInput,
-        employment: { ...validInput.employment, companyName: '' },
+    it('should normalize email to lowercase', () => {
+      const input: CreateTenantInput = {
+        fullName: '山田太郎',
+        email: 'YAMADA@EXAMPLE.COM',
+        phone: '090-1234-5678',
+        emergencyContact: {
+          name: '山田花子',
+          phone: '080-9876-5432',
+        },
       };
-      expect(() => createTenant(invalidInput)).toThrow('Company name is required');
+
+      const result = createTenant(input);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.email.value).toBe('yamada@example.com');
+      }
+    });
+
+    it('should reject invalid email format', () => {
+      const input: CreateTenantInput = {
+        fullName: '山田太郎',
+        email: 'invalid-email', // Invalid
+        phone: '090-1234-5678',
+        emergencyContact: {
+          name: '山田花子',
+          phone: '080-9876-5432',
+        },
+      };
+
+      const result = createTenant(input);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('email');
+      }
+    });
+
+    it('should reject invalid phone format', () => {
+      const input: CreateTenantInput = {
+        fullName: '山田太郎',
+        email: 'yamada@example.com',
+        phone: 'abc-defg', // Invalid
+        emergencyContact: {
+          name: '山田花子',
+          phone: '080-9876-5432',
+        },
+      };
+
+      const result = createTenant(input);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('phone');
+      }
+    });
+
+    it('should reject empty full name', () => {
+      const input: CreateTenantInput = {
+        fullName: '  ', // Empty after trim
+        email: 'yamada@example.com',
+        phone: '090-1234-5678',
+        emergencyContact: {
+          name: '山田花子',
+          phone: '080-9876-5432',
+        },
+      };
+
+      const result = createTenant(input);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('name');
+      }
+    });
+
+    it('should reject invalid emergency contact phone', () => {
+      const input: CreateTenantInput = {
+        fullName: '山田太郎',
+        email: 'yamada@example.com',
+        phone: '090-1234-5678',
+        emergencyContact: {
+          name: '山田花子',
+          phone: 'invalid', // Invalid
+        },
+      };
+
+      const result = createTenant(input);
+
+      expect(result.isErr()).toBe(true);
     });
   });
 
-  describe('updateTenant', () => {
-    it('should update tenant contact', () => {
-      const tenant = createTenant(validInput);
-      const newContact: ContactInfo = {
-        ...validInput.contact,
-        phone: '080-1111-2222',
-      };
-      const updated = updateTenant(tenant, { contact: newContact });
-      expect(updated.contact.phone).toBe('080-1111-2222');
+  describe('Verification Status Transitions', () => {
+    // REQ-RENTAL-001-F011: Valid transitions
+    
+    it('should allow pending-verification → verified transition', () => {
+      expect(canTransitionVerificationStatus('pending-verification', 'verified')).toBe(true);
+    });
+
+    it('should allow pending-verification → rejected transition', () => {
+      expect(canTransitionVerificationStatus('pending-verification', 'rejected')).toBe(true);
+    });
+
+    // Invalid transitions
+    it('should NOT allow verified → any transition', () => {
+      expect(canTransitionVerificationStatus('verified', 'pending-verification')).toBe(false);
+      expect(canTransitionVerificationStatus('verified', 'rejected')).toBe(false);
+    });
+
+    it('should NOT allow rejected → any transition', () => {
+      expect(canTransitionVerificationStatus('rejected', 'pending-verification')).toBe(false);
+      expect(canTransitionVerificationStatus('rejected', 'verified')).toBe(false);
     });
   });
 
-  describe('assignGuarantor', () => {
-    it('should assign guarantor to tenant', () => {
-      const tenant = createTenant(validInput);
-      const updated = assignGuarantor(tenant, 'GUA-20250101-001');
-      expect(updated.guarantorId).toBe('GUA-20250101-001');
+  describe('transitionVerificationStatus', () => {
+    it('should verify tenant successfully', () => {
+      const input: CreateTenantInput = {
+        fullName: '山田太郎',
+        email: 'yamada@example.com',
+        phone: '090-1234-5678',
+        emergencyContact: {
+          name: '山田花子',
+          phone: '080-9876-5432',
+        },
+      };
+
+      const createResult = createTenant(input);
+      expect(createResult.isOk()).toBe(true);
+      if (!createResult.isOk()) return;
+
+      const tenant = createResult.value;
+      const transitionResult = transitionVerificationStatus(tenant, 'verified');
+
+      expect(transitionResult.isOk()).toBe(true);
+      if (transitionResult.isOk()) {
+        expect(transitionResult.value.verificationStatus).toBe('verified');
+        expect(transitionResult.value.version).toBe(2);
+      }
+    });
+
+    it('should reject tenant successfully', () => {
+      const input: CreateTenantInput = {
+        fullName: '山田太郎',
+        email: 'yamada@example.com',
+        phone: '090-1234-5678',
+        emergencyContact: {
+          name: '山田花子',
+          phone: '080-9876-5432',
+        },
+      };
+
+      const createResult = createTenant(input);
+      expect(createResult.isOk()).toBe(true);
+      if (!createResult.isOk()) return;
+
+      const tenant = createResult.value;
+      const transitionResult = transitionVerificationStatus(tenant, 'rejected');
+
+      expect(transitionResult.isOk()).toBe(true);
+      if (transitionResult.isOk()) {
+        expect(transitionResult.value.verificationStatus).toBe('rejected');
+      }
+    });
+
+    it('should not allow transition from verified status', () => {
+      const input: CreateTenantInput = {
+        fullName: '山田太郎',
+        email: 'yamada@example.com',
+        phone: '090-1234-5678',
+        emergencyContact: {
+          name: '山田花子',
+          phone: '080-9876-5432',
+        },
+      };
+
+      const createResult = createTenant(input);
+      expect(createResult.isOk()).toBe(true);
+      if (!createResult.isOk()) return;
+
+      const tenant = createResult.value;
+      const verifyResult = transitionVerificationStatus(tenant, 'verified');
+      expect(verifyResult.isOk()).toBe(true);
+      if (!verifyResult.isOk()) return;
+
+      const verifiedTenant = verifyResult.value;
+      const rejectResult = transitionVerificationStatus(verifiedTenant, 'rejected');
+
+      expect(rejectResult.isErr()).toBe(true);
+      if (rejectResult.isErr()) {
+        expect(rejectResult.error._tag).toBe('InvalidStatusTransitionError');
+      }
     });
   });
 });

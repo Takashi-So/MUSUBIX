@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-local",
-  "version": "1.6.6",
+  "version": "1.7.0",
   "description": "YATA Local - Project-local Knowledge Graph Storage with SQLite",
   "type": "module",
   "main": "dist/index.js",

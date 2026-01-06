@@ -536,6 +536,56 @@ export class YataLocal {
     return this.ioModule.exportToRdf(filePath, options);
   }
 
+  // ============================================================
+  // Enhanced Export/Import API (v1.7.0)
+  // @see REQ-YI-EXP-001, REQ-YI-EXP-002, REQ-YI-EXP-003
+  // ============================================================
+
+  /**
+   * Unified export API supporting multiple formats (JSON, RDF, GraphML)
+   * Performance target: 30 seconds for up to 100,000 entities
+   *
+   * @param options - Export options (format, namespace filter, output path)
+   * @returns Export result with content or file path
+   *
+   * @see REQ-YI-EXP-001
+   */
+  async export(options: import('./io.js').ExportOptions): Promise<import('./io.js').ExportResult> {
+    return this.ioModule.export(options);
+  }
+
+  /**
+   * Unified import API supporting multiple formats
+   *
+   * @param input - File path or content string
+   * @param options - Import options (format, merge strategy)
+   * @returns Import result with statistics
+   *
+   * @see REQ-YI-EXP-002
+   */
+  async import(
+    input: string,
+    options: import('./io.js').ImportOptions
+  ): Promise<import('./io.js').ImportResult> {
+    return this.ioModule.import(input, options);
+  }
+
+  /**
+   * Export incremental changes since a specific date
+   *
+   * @param since - Export changes since this date
+   * @param options - Export options (format, output path)
+   * @returns Export result with only changed entities
+   *
+   * @see REQ-YI-EXP-003
+   */
+  async exportIncremental(
+    since: Date,
+    options?: Omit<import('./io.js').ExportOptions, 'since'>
+  ): Promise<import('./io.js').ExportResult> {
+    return this.ioModule.exportIncremental(since, options);
+  }
+
   /**
    * Compute delta between states
    * @see REQ-YL-IO-004
@@ -586,7 +636,16 @@ export * from './types.js';
 export { YataDatabase } from './database.js';
 export { QueryEngine } from './query-engine.js';
 export { ReasoningEngine, type InferenceResult } from './reasoning.js';
-export { IoModule, type JsonExport, type RdfExportOptions } from './io.js';
+export {
+  IoModule,
+  type JsonExport,
+  type RdfExportOptions,
+  type EnhancedJsonExport,
+  type ExportOptions,
+  type ImportOptions,
+  type ExportResult,
+  type ImportResult,
+} from './io.js';
 
 // Auto-updater for MCP integration
 export {
@@ -656,3 +715,35 @@ export type {
   SimilarityMethod,
   WakeSleepConfig,
 } from './wake-sleep/types.js';
+
+// Index Optimizer Module (v1.7.0 NEW!)
+// @see REQ-YI-IDX-001, REQ-YI-IDX-002, REQ-YI-IDX-003
+export {
+  IndexOptimizer,
+  QUERY_LOG_SCHEMA,
+} from './index-optimizer.js';
+export type {
+  IndexInfo,
+  IndexRecommendation,
+  QueryStats,
+  IndexAnalysisResult,
+  AnalysisOptions,
+  CompositeIndexOptions,
+} from './index-optimizer.js';
+
+// Global Sync Module (v1.7.0 NEW!)
+// @see REQ-YI-GLB-001, REQ-YI-GLB-002, REQ-YI-GLB-003
+export {
+  GlobalSyncManager,
+  createGlobalSyncManager,
+  DEFAULT_SYNC_CONFIG,
+} from './sync.js';
+export type {
+  SyncConfig,
+  SyncState,
+  SyncStatus,
+  SyncConflict,
+  SyncResult,
+  ChangeSet,
+  SyncResponse,
+} from './sync.js';

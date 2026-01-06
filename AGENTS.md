@@ -8,13 +8,13 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.6.4 (KGPR - Knowledge Graph Pull Request) |
+| **バージョン** | 1.7.5 (Formal Verification Edition) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 1292 (全合格) |
+| **テスト数** | 1527 (全合格) |
 | **コンポーネント数** | 249 (62ドメイン対応) |
 | **Agent Skills** | 12 (Claude Code対応) |
 
@@ -28,9 +28,11 @@
 packages/
 ├── core/           # @nahisaho/musubix-core
 ├── mcp-server/     # @nahisaho/musubix-mcp-server  
+├── formal-verify/  # @nahisaho/musubix-formal-verify (NEW!)
 ├── yata-client/    # @nahisaho/musubix-yata-client
-├── yata-local/     # @nahisaho/yata-local (NEW!)
-├── yata-global/    # @nahisaho/yata-global (NEW!)
+├── yata-local/     # @nahisaho/yata-local
+├── yata-global/    # @nahisaho/yata-global
+├── yata-ui/        # @nahisaho/yata-ui
 ├── pattern-mcp/    # @nahisaho/musubix-pattern-mcp
 ├── ontology-mcp/   # @nahisaho/musubix-ontology-mcp
 ├── wake-sleep/     # @nahisaho/musubix-wake-sleep
@@ -41,9 +43,11 @@ packages/
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
 | `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 19ツール、3プロンプト |
+| `packages/formal-verify/` | `@nahisaho/musubix-formal-verify` | **形式検証** - Z3統合、Hoare検証、EARS→SMT変換 (NEW!) |
 | `packages/yata-client/` | `@nahisaho/musubix-yata-client` | YATAクライアント - 知識グラフ連携 |
 | `packages/yata-local/` | `@nahisaho/yata-local` | **YATA Local** - SQLiteベースローカル知識グラフ |
 | `packages/yata-global/` | `@nahisaho/yata-global` | **YATA Global** - 分散型知識グラフプラットフォーム |
+| `packages/yata-ui/` | `@nahisaho/yata-ui` | **YATA UI** - Web可視化・管理インターフェース |
 | `packages/pattern-mcp/` | `@nahisaho/musubix-pattern-mcp` | パターン学習 - 抽出・圧縮・ライブラリ |
 | `packages/ontology-mcp/` | `@nahisaho/musubix-ontology-mcp` | オントロジー - N3Store・推論エンジン |
 | `packages/wake-sleep/` | `@nahisaho/musubix-wake-sleep` | Wake-Sleep学習サイクル |
@@ -100,8 +104,11 @@ npx musubix test coverage <dir>            # カバレッジ測定
 
 # トレーサビリティ
 npx musubix trace matrix                   # トレーサビリティマトリクス
+npx musubix trace matrix -p <project>      # 指定プロジェクトのマトリクス
 npx musubix trace impact <id>              # 影響分析
 npx musubix trace validate                 # リンク検証
+npx musubix trace sync                     # トレースマトリクス自動更新 (v1.6.7 NEW!)
+npx musubix trace sync --dry-run           # プレビューのみ
 
 # 説明生成
 npx musubix explain why <id>               # 決定理由の説明
@@ -138,6 +145,12 @@ npx musubix kgpr submit <id>               # KGPR送信
 npx musubix kgpr show <id>                 # KGPR詳細表示
 npx musubix kgpr close <id>                # KGPRクローズ
   # オプション: --namespace <ns>, --entity-types <types>, --privacy <strict|moderate|none>
+
+# SDDプロジェクトスキャフォールド (v1.6.7 NEW!)
+npx musubix scaffold domain-model <name>   # DDDプロジェクト生成
+npx musubix scaffold domain-model <name> -e "Entity1,Entity2"  # エンティティ指定
+npx musubix scaffold domain-model <name> -d DOMAIN  # ドメイン接頭辞指定
+npx musubix scaffold minimal <name>        # 最小構成プロジェクト
 
 # ヘルプ
 npx musubix --help

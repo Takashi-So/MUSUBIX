@@ -6,11 +6,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1292%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1569%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > MUSUBI × YATA 統合による次世代AIコーディングシステム
 >
-> **v1.6.4** - KGPR（Knowledge Graph Pull Request）
+> **v1.7.5** - 形式検証エディション
 
 ## 概要
 
@@ -35,6 +35,8 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 - 🗄️ **YATA Local** - SQLiteベースローカル知識グラフ (BFS/DFS、推論) *(v1.6.3)*
 - 🌐 **YATA Global** - オフライン同期対応分散型知識プラットフォーム *(v1.6.3)*
 - 📤 **KGPR** - 安全な知識共有のためのKnowledge Graph Pull Request *(v1.6.4)*
+- 🚀 **YATAプラットフォーム拡張** - インデックス最適化、拡張エクスポート、グローバル同期、コード生成、Web UI *(v1.7.0)*
+- 🔬 **形式検証** - Z3 SMTソルバー統合、Hoareトリプル検証、EARS→SMT変換 *(v1.7.5)*
 
 ## アーキテクチャ
 

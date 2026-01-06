@@ -1,96 +1,190 @@
 /**
  * Payment Entity Tests
- * TSK-029: Payment Entity Unit Tests
  * 
- * @see REQ-RENTAL-001 F040-F043
+ * @requirement REQ-RENTAL-001-F030 (Payment Recording)
+ * @requirement REQ-RENTAL-001-F031 (Overdue Payment Detection)
+ * @design DES-RENTAL-001-C004
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
+  Payment,
   createPayment,
-  recordPaymentReceived,
-  calculateLateFee,
-  markAsOverdue,
-  resetPaymentCounter,
+  CreatePaymentInput,
+  isPaymentOverdue,
+  PAYMENT_GRACE_PERIOD_DAYS,
 } from '../src/entities/Payment.js';
-import type { RecordPaymentInput } from '../src/types/index.js';
+import {
+  resetPaymentCounter,
+} from '../src/types/common.js';
 
 describe('Payment Entity', () => {
-  let validInput: RecordPaymentInput;
-
   beforeEach(() => {
     resetPaymentCounter();
-    validInput = {
-      contractId: 'LEASE-20250101-001',
-      tenantId: 'TEN-20250101-001',
-      amount: 100000,
-      paymentType: 'rent',
-      paymentMethod: 'bank_transfer',
-      dueDate: new Date('2025-04-27'),
-    };
   });
 
   describe('createPayment', () => {
-    it('should create a payment with valid inputs', () => {
-      const payment = createPayment(validInput);
+    it('should create a payment with valid input', () => {
+      const input: CreatePaymentInput = {
+        contractId: { value: 'LEASE-20260106-001' },
+        amount: 150000,
+        paymentDate: new Date('2026-01-25'),
+        paymentMethod: 'bank-transfer',
+        paymentPeriod: '2026-01',
+        dueDate: new Date('2026-01-31'),
+      };
 
-      expect(payment.id).toMatch(/^PAY-\d{8}-\d{3}$/);
-      expect(payment.contractId).toBe('LEASE-20250101-001');
-      expect(payment.amount.amount).toBe(100000);
-      expect(payment.status).toBe('pending');
+      const result = createPayment(input);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        const payment = result.value;
+        expect(payment.id.value).toMatch(/^PAY-\d{8}-001$/);
+        expect(payment.contractId.value).toBe('LEASE-20260106-001');
+        expect(payment.amount.amount).toBe(150000);
+        expect(payment.paymentMethod).toBe('bank-transfer');
+        expect(payment.paymentPeriod).toBe('2026-01');
+        expect(payment.status).toBe('paid');
+      }
     });
 
-    it('should throw error for zero amount', () => {
-      const invalidInput = { ...validInput, amount: 0 };
-      expect(() => createPayment(invalidInput)).toThrow('Payment amount must be greater than 0');
+    it('should create payment with credit-card method', () => {
+      const input: CreatePaymentInput = {
+        contractId: { value: 'LEASE-20260106-001' },
+        amount: 150000,
+        paymentDate: new Date('2026-01-25'),
+        paymentMethod: 'credit-card',
+        paymentPeriod: '2026-01',
+        dueDate: new Date('2026-01-31'),
+      };
+
+      const result = createPayment(input);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.paymentMethod).toBe('credit-card');
+      }
     });
 
-    it('should throw error for negative amount', () => {
-      const invalidInput = { ...validInput, amount: -10000 };
-      expect(() => createPayment(invalidInput)).toThrow('Payment amount must be greater than 0');
+    it('should create payment with cash method', () => {
+      const input: CreatePaymentInput = {
+        contractId: { value: 'LEASE-20260106-001' },
+        amount: 150000,
+        paymentDate: new Date('2026-01-25'),
+        paymentMethod: 'cash',
+        paymentPeriod: '2026-01',
+        dueDate: new Date('2026-01-31'),
+      };
+
+      const result = createPayment(input);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.paymentMethod).toBe('cash');
+      }
     });
 
-    it('should create paid payment when paidDate provided', () => {
-      const inputWithPaid = { ...validInput, paidDate: new Date('2025-04-25') };
-      const payment = createPayment(inputWithPaid);
-      expect(payment.status).toBe('paid');
-      expect(payment.paidDate).toBeDefined();
+    it('should create payment with auto-debit method', () => {
+      const input: CreatePaymentInput = {
+        contractId: { value: 'LEASE-20260106-001' },
+        amount: 150000,
+        paymentDate: new Date('2026-01-25'),
+        paymentMethod: 'auto-debit',
+        paymentPeriod: '2026-01',
+        dueDate: new Date('2026-01-31'),
+      };
+
+      const result = createPayment(input);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.paymentMethod).toBe('auto-debit');
+      }
+    });
+
+    it('should reject negative amount', () => {
+      const input: CreatePaymentInput = {
+        contractId: { value: 'LEASE-20260106-001' },
+        amount: -5000, // Invalid
+        paymentDate: new Date('2026-01-25'),
+        paymentMethod: 'bank-transfer',
+        paymentPeriod: '2026-01',
+        dueDate: new Date('2026-01-31'),
+      };
+
+      const result = createPayment(input);
+
+      expect(result.isErr()).toBe(true);
+    });
+
+    it('should reject zero amount', () => {
+      const input: CreatePaymentInput = {
+        contractId: { value: 'LEASE-20260106-001' },
+        amount: 0, // Invalid
+        paymentDate: new Date('2026-01-25'),
+        paymentMethod: 'bank-transfer',
+        paymentPeriod: '2026-01',
+        dueDate: new Date('2026-01-31'),
+      };
+
+      const result = createPayment(input);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('positive');
+      }
+    });
+
+    it('should reject invalid payment period format', () => {
+      const input: CreatePaymentInput = {
+        contractId: { value: 'LEASE-20260106-001' },
+        amount: 150000,
+        paymentDate: new Date('2026-01-25'),
+        paymentMethod: 'bank-transfer',
+        paymentPeriod: '2026/01', // Invalid format
+        dueDate: new Date('2026-01-31'),
+      };
+
+      const result = createPayment(input);
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.message).toContain('YYYY-MM');
+      }
     });
   });
 
-  describe('recordPaymentReceived', () => {
-    it('should record payment as paid', () => {
-      const payment = createPayment(validInput);
-      const recorded = recordPaymentReceived(payment, new Date('2025-04-25'));
-
-      expect(recorded.status).toBe('paid');
-      // receiptNumberは自動生成されるフォーマット
-      expect(recorded.receiptNumber).toMatch(/^RCP-\d{8}-\d{4}$/);
-    });
-  });
-
-  describe('calculateLateFee', () => {
-    it('should return zero for payment before due date', () => {
-      const payment = createPayment(validInput);
-      const checkDate = new Date('2025-04-20');
-      const lateFee = calculateLateFee(payment, checkDate);
-      expect(lateFee.amount).toBe(0);
+  describe('Overdue Payment Detection (REQ-RENTAL-001-F031)', () => {
+    it('should have grace period of 5 days', () => {
+      expect(PAYMENT_GRACE_PERIOD_DAYS).toBe(5);
     });
 
-    it('should calculate late fee for overdue payment', () => {
-      const payment = createPayment(validInput);
-      // 10日延滞
-      const checkDate = new Date('2025-05-07');
-      const lateFee = calculateLateFee(payment, checkDate);
-      expect(lateFee.amount).toBeGreaterThan(0);
-    });
-  });
+    it('should not be overdue when paid on time', () => {
+      const dueDate = new Date('2026-01-31');
+      const checkDate = new Date('2026-01-31');
 
-  describe('markAsOverdue', () => {
-    it('should mark pending payment as overdue', () => {
-      const payment = createPayment(validInput);
-      const overdue = markAsOverdue(payment);
-      expect(overdue.status).toBe('overdue');
+      expect(isPaymentOverdue(dueDate, checkDate)).toBe(false);
+    });
+
+    it('should not be overdue during grace period', () => {
+      const dueDate = new Date('2026-01-31');
+      const checkDate = new Date('2026-02-05'); // 5 days after due date
+
+      expect(isPaymentOverdue(dueDate, checkDate)).toBe(false);
+    });
+
+    it('should be overdue after grace period', () => {
+      const dueDate = new Date('2026-01-31');
+      const checkDate = new Date('2026-02-06'); // 6 days after due date
+
+      expect(isPaymentOverdue(dueDate, checkDate)).toBe(true);
+    });
+
+    it('should not be overdue before due date', () => {
+      const dueDate = new Date('2026-01-31');
+      const checkDate = new Date('2026-01-15');
+
+      expect(isPaymentOverdue(dueDate, checkDate)).toBe(false);
     });
   });
 });

@@ -20,10 +20,12 @@
 12. [YATA Local](#yata-local) *(v1.6.3)*
 13. [YATA Global](#yata-global) *(v1.6.3)*
 14. [KGPR - Knowledge Graph Pull Request](#kgpr---knowledge-graph-pull-request) *(v1.6.4)*
-15. [MCP Server Integration](#mcp-server-integration)
-16. [YATA Integration](#yata-integration)
-17. [Best Practices](#best-practices)
-18. [Troubleshooting](#troubleshooting)
+15. [YATA Platform Enhancements](#yata-platform-enhancements) *(v1.7.0)*
+16. [Formal Verification](#formal-verification) *(v1.7.5)*
+17. [MCP Server Integration](#mcp-server-integration)
+17. [YATA Integration](#yata-integration)
+18. [Best Practices](#best-practices)
+19. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -927,6 +929,281 @@ musubix kgpr show KGPR-001
 # 4. Submit for review
 musubix kgpr submit KGPR-001
 ```
+
+---
+
+## YATA Platform Enhancements
+
+*(v1.7.0)*
+
+Version 1.7.0 introduces significant enhancements to the YATA platform with 5 major features.
+
+### Phase 1: Index Optimization
+
+Optimized query performance for YATA Local with composite indexes.
+
+```typescript
+import { IndexOptimizer } from '@nahisaho/yata-local';
+
+const optimizer = new IndexOptimizer(database);
+
+// Analyze and create optimal indexes
+const analysis = await optimizer.analyzeQueryPatterns();
+const created = await optimizer.createOptimalIndexes();
+
+// Check index health
+const health = await optimizer.checkIndexHealth();
+```
+
+**Key Features:**
+- Composite index creation for common query patterns
+- Index health monitoring with fragmentation detection
+- Automatic optimization recommendations
+
+### Phase 2: Enhanced Export Pipeline
+
+Powerful export capabilities with incremental export and multiple formats.
+
+```typescript
+import { ExportPipeline } from '@nahisaho/yata-local';
+
+const pipeline = new ExportPipeline(database);
+
+// Full export
+const fullData = await pipeline.exportFull({ namespace: 'myproject' });
+
+// Incremental export (changes since last export)
+const changes = await pipeline.exportIncremental({
+  since: lastExportTimestamp,
+  format: 'json'
+});
+
+// Export with transformation
+const transformed = await pipeline.exportWithTransform({
+  format: 'rdf',
+  includeMetadata: true
+});
+```
+
+**Supported Formats:**
+- JSON (default)
+- RDF/Turtle
+- N-Triples
+- Custom transformers
+
+### Phase 3: Global Sync Integration
+
+Seamless synchronization between YATA Local and YATA Global.
+
+```typescript
+import { GlobalSyncClient, SyncEngine } from '@nahisaho/yata-global';
+
+const client = new GlobalSyncClient({
+  endpoint: 'https://yata-global.example.com',
+  offlineMode: true
+});
+
+// Initialize sync
+await client.initialize();
+
+// Push local changes
+const syncResult = await client.sync({
+  namespace: 'myproject',
+  direction: 'push'
+});
+
+// Pull updates from global
+await client.sync({
+  namespace: 'shared-patterns',
+  direction: 'pull'
+});
+```
+
+**Features:**
+- Offline-first with automatic sync
+- Conflict resolution strategies
+- Selective namespace sync
+- Framework pattern repository
+
+### Phase 4: Code Generator Enhancement
+
+Advanced code generation from design documents.
+
+```typescript
+import { CodeGenerator } from '@nahisaho/yata-local';
+
+const generator = new CodeGenerator({
+  language: 'typescript',
+  outputDir: './src/generated'
+});
+
+// Generate from C4 design
+const result = await generator.generateFromC4(designDocument);
+
+// Generate with custom templates
+await generator.generate({
+  template: 'repository-pattern',
+  context: { entityName: 'User' }
+});
+```
+
+**Supported Patterns:**
+- Repository Pattern
+- Service Layer
+- Factory Pattern
+- Domain Events
+- Value Objects
+
+### Phase 5: YATA UI (Web Visualization)
+
+Web-based visualization and management interface for knowledge graphs.
+
+```typescript
+import { YataUIServer, createYataUIServer } from '@nahisaho/yata-ui';
+
+// Create and start server
+const server = createYataUIServer({
+  port: 3000,
+  enableRealtime: true
+});
+
+// Set data provider
+server.setDataProvider(async () => ({
+  nodes: await getEntities(),
+  edges: await getRelationships()
+}));
+
+await server.start();
+console.log(`UI available at ${server.getUrl()}`);
+```
+
+**UI Features:**
+- Interactive graph visualization
+- Real-time updates via WebSocket
+- Namespace filtering
+- Entity/Relationship editing
+- Export/Import functionality
+
+### v1.7.0 Package Summary
+
+| Package | Description |
+|---------|-------------|
+| `@nahisaho/yata-local` | IndexOptimizer, ExportPipeline, CodeGenerator |
+| `@nahisaho/yata-global` | GlobalSyncClient, SyncEngine, CacheManager |
+| `@nahisaho/yata-ui` | YataUIServer, Graph visualization |
+
+---
+
+## Formal Verification
+
+*(v1.7.5)*
+
+The `@nahisaho/musubix-formal-verify` package provides formal verification capabilities using the Z3 SMT solver.
+
+### Installation
+
+```bash
+npm install @nahisaho/musubix-formal-verify
+# Optional: Install z3-solver for WebAssembly support
+npm install z3-solver
+```
+
+### Z3 SMT Solver Integration
+
+```typescript
+import { Z3Adapter, PreconditionVerifier, PostconditionVerifier } from '@nahisaho/musubix-formal-verify';
+
+// Create Z3 adapter (auto-selects backend)
+const z3 = await Z3Adapter.create();
+
+// Precondition verification
+const preVerifier = new PreconditionVerifier(z3);
+const result = await preVerifier.verify({
+  condition: { expression: 'amount > 0 && balance >= amount', format: 'javascript' },
+  variables: [
+    { name: 'amount', type: 'Int' },
+    { name: 'balance', type: 'Int' },
+  ],
+});
+
+console.log(result.status); // 'valid' | 'invalid' | 'unknown' | 'error'
+```
+
+### Hoare Triple Verification
+
+```typescript
+// Verify {P} C {Q}
+const postVerifier = new PostconditionVerifier(z3);
+const hoareResult = await postVerifier.verify({
+  precondition: { expression: 'balance >= amount', format: 'javascript' },
+  postcondition: { expression: 'balance_new == balance - amount', format: 'javascript' },
+  preVariables: [{ name: 'balance', type: 'Int' }, { name: 'amount', type: 'Int' }],
+  postVariables: [{ name: 'balance_new', type: 'Int' }],
+  transition: 'balance_new == balance - amount',
+});
+```
+
+### EARS to SMT Conversion
+
+```typescript
+import { EarsToSmtConverter } from '@nahisaho/musubix-formal-verify';
+
+const converter = new EarsToSmtConverter();
+
+// Convert EARS requirements to SMT-LIB2
+const results = converter.convertMultiple([
+  'THE system SHALL validate inputs',           // ubiquitous
+  'WHEN error, THE system SHALL notify user',   // event-driven
+  'WHILE busy, THE system SHALL queue requests', // state-driven
+  'THE system SHALL NOT expose secrets',        // unwanted
+  'IF admin, THEN THE system SHALL allow edit', // optional
+]);
+
+results.forEach(r => {
+  console.log(`Pattern: ${r.formula?.metadata.earsPattern.type}`);
+  console.log(`SMT: ${r.formula?.smtLib2}`);
+});
+```
+
+### Traceability Database
+
+```typescript
+import { TraceabilityDB, ImpactAnalyzer } from '@nahisaho/musubix-formal-verify';
+
+// Create SQLite-based traceability database
+const db = new TraceabilityDB('./trace.db');
+
+// Add nodes
+await db.addNode({ id: 'REQ-001', type: 'requirement', title: 'User Auth' });
+await db.addNode({ id: 'DES-001', type: 'design', title: 'AuthService' });
+await db.addNode({ id: 'CODE-001', type: 'code', title: 'auth.ts' });
+
+// Add traceability links
+await db.addLink({ source: 'DES-001', target: 'REQ-001', type: 'satisfies' });
+await db.addLink({ source: 'CODE-001', target: 'DES-001', type: 'implements' });
+
+// Impact analysis
+const analyzer = new ImpactAnalyzer(db);
+const impact = await analyzer.analyze('REQ-001');
+console.log(`Impacted nodes: ${impact.totalImpacted}`);
+```
+
+### v1.7.5 Package Summary
+
+| Package | Description |
+|---------|-------------|
+| `@nahisaho/musubix-formal-verify` | Z3 integration, Hoare verification, EARS→SMT, TraceabilityDB |
+
+### Supported Variable Types
+
+| Type | Description |
+|------|-------------|
+| `Int` | Integer values |
+| `Real` | Real numbers |
+| `Bool` | Boolean values |
+| `String` | String values |
+| `Array` | Array types |
+| `BitVec` | Bit vectors |
 
 ---
 

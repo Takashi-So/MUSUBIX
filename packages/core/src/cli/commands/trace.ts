@@ -145,14 +145,16 @@ export function registerTraceCommand(program: Command): void {
     .description('Generate traceability matrix')
     .option('-o, --output <file>', 'Output file')
     .option('-f, --format <format>', 'Output format (markdown|json|csv|html)', 'markdown')
-    .option('--specs <dir>', 'Specs directory', 'storage/specs')
-    .option('--src <dir>', 'Source directory', 'packages')
-    .action(async (options: TraceOptions & { specs?: string; src?: string }) => {
+    .option('-p, --path <dir>', 'Project root path (for virtual-projects)', process.cwd())
+    .option('--specs <dir>', 'Specs directory relative to path', 'storage/specs')
+    .option('--src <dir>', 'Source directory relative to path', 'src')
+    .action(async (options: TraceOptions & { specs?: string; src?: string; path?: string }) => {
       const globalOpts = getGlobalOptions(program);
 
       try {
-        const specsDir = resolve(process.cwd(), options.specs ?? 'storage/specs');
-        const srcDir = resolve(process.cwd(), options.src ?? 'packages');
+        const projectRoot = resolve(options.path ?? process.cwd());
+        const specsDir = resolve(projectRoot, options.specs ?? 'storage/specs');
+        const srcDir = resolve(projectRoot, options.src ?? 'src');
 
         // Collect all artifacts
         const entries = await collectArtifacts(specsDir, srcDir);
@@ -208,13 +210,15 @@ export function registerTraceCommand(program: Command): void {
     .command('impact <id>')
     .description('Analyze change impact')
     .option('--depth <number>', 'Analysis depth', '3')
-    .action(async (id: string, options: { depth?: string }) => {
+    .option('-p, --path <dir>', 'Project root path (for virtual-projects)', process.cwd())
+    .action(async (id: string, options: { depth?: string; path?: string }) => {
       const globalOpts = getGlobalOptions(program);
 
       try {
         const depth = parseInt(options.depth ?? '3', 10);
-        const specsDir = resolve(process.cwd(), 'storage/specs');
-        const srcDir = resolve(process.cwd(), 'packages');
+        const projectRoot = resolve(options.path ?? process.cwd());
+        const specsDir = resolve(projectRoot, 'storage/specs');
+        const srcDir = resolve(projectRoot, 'src');
 
         // Find artifact by ID
         const entries = await collectArtifacts(specsDir, srcDir);
@@ -255,12 +259,14 @@ export function registerTraceCommand(program: Command): void {
     .command('validate')
     .description('Validate traceability links')
     .option('--strict', 'Enable strict mode', false)
-    .action(async (options: { strict?: boolean }) => {
+    .option('-p, --path <dir>', 'Project root path (for virtual-projects)', process.cwd())
+    .action(async (options: { strict?: boolean; path?: string }) => {
       const globalOpts = getGlobalOptions(program);
 
       try {
-        const specsDir = resolve(process.cwd(), 'storage/specs');
-        const srcDir = resolve(process.cwd(), 'packages');
+        const projectRoot = resolve(options.path ?? process.cwd());
+        const specsDir = resolve(projectRoot, 'storage/specs');
+        const srcDir = resolve(projectRoot, 'src');
 
         // Collect and link artifacts
         const entries = await collectArtifacts(specsDir, srcDir);
@@ -293,6 +299,86 @@ export function registerTraceCommand(program: Command): void {
       } catch (error) {
         if (!globalOpts.quiet) {
           console.error(`❌ Validation failed: ${(error as Error).message}`);
+        }
+        process.exit(ExitCode.GENERAL_ERROR);
+      }
+    });
+
+  // trace sync - Auto-update traceability matrix
+  trace
+    .command('sync')
+    .description('Auto-sync traceability matrix from source files')
+    .option('-p, --path <dir>', 'Project root path', process.cwd())
+    .option('-o, --output <file>', 'Output file for updated matrix')
+    .option('--dry-run', 'Preview changes without writing', false)
+    .action(async (options: { path?: string; output?: string; dryRun?: boolean }) => {
+      const globalOpts = getGlobalOptions(program);
+
+      try {
+        const projectRoot = resolve(options.path ?? process.cwd());
+        const specsDir = resolve(projectRoot, 'storage/specs');
+        const srcDir = resolve(projectRoot, 'src');
+        const traceDir = resolve(projectRoot, 'storage/traceability');
+
+        // Collect artifacts
+        const entries = await collectArtifacts(specsDir, srcDir);
+        await buildTraceabilityLinks(entries, specsDir, srcDir);
+        const statistics = calculateStatistics(entries);
+
+        // Generate markdown matrix
+        const matrixContent = generateMarkdownMatrix(entries, statistics);
+
+        // Find domain prefix from requirements
+        let domainPrefix = 'PROJECT';
+        const reqEntry = entries.find(e => e.type === 'requirement');
+        if (reqEntry) {
+          const match = reqEntry.id.match(/REQ-([A-Z]+)-/);
+          if (match) domainPrefix = match[1];
+        }
+
+        const outputPath = options.output 
+          ? resolve(projectRoot, options.output)
+          : resolve(traceDir, `TRACE-${domainPrefix}-001.md`);
+
+        if (options.dryRun) {
+          if (!globalOpts.quiet) {
+            console.log('🔍 Dry run - would update:');
+            console.log(`   ${outputPath}`);
+            console.log('\n📊 Summary:');
+            console.log(`   Requirements: ${statistics.requirements}`);
+            console.log(`   Designs: ${statistics.designs}`);
+            console.log(`   Implementations: ${statistics.implementations}`);
+            console.log(`   Tests: ${statistics.tests}`);
+            console.log(`   Coverage: ${statistics.coverage.toFixed(1)}%`);
+          }
+        } else {
+          await mkdir(traceDir, { recursive: true });
+          await writeFile(outputPath, matrixContent, 'utf-8');
+
+          if (!globalOpts.quiet) {
+            console.log(`✅ Traceability matrix synced to ${outputPath}`);
+            console.log(`   Coverage: ${statistics.coverage.toFixed(1)}%`);
+          }
+        }
+
+        const result = {
+          success: true,
+          outputPath,
+          statistics,
+          dryRun: options.dryRun,
+          message: options.dryRun
+            ? `Would sync traceability matrix (${statistics.coverage.toFixed(1)}% coverage)`
+            : `Synced traceability matrix to ${outputPath}`,
+        };
+
+        if (globalOpts.json) {
+          outputResult(result, globalOpts);
+        }
+
+        process.exit(ExitCode.SUCCESS);
+      } catch (error) {
+        if (!globalOpts.quiet) {
+          console.error(`❌ Sync failed: ${(error as Error).message}`);
         }
         process.exit(ExitCode.GENERAL_ERROR);
       }

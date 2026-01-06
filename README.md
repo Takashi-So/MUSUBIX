@@ -7,11 +7,11 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1292%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1569%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.6.4** - KGPR (Knowledge Graph Pull Request)
+> **v1.7.5** - Formal Verification Edition
 
 **[日本語版 README](README.ja.md)**
 
@@ -38,6 +38,8 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 - 🗄️ **YATA Local** - SQLite-based local knowledge graph (BFS/DFS, reasoning) *(v1.6.3)*
 - 🌐 **YATA Global** - Distributed knowledge platform with offline sync *(v1.6.3)*
 - 📤 **KGPR** - Knowledge Graph Pull Request for safe knowledge sharing *(v1.6.4)*
+- 🚀 **YATA Platform Enhancements** - Index optimization, enhanced export, global sync, code generation, web UI *(v1.7.0)*
+- 🔬 **Formal Verification** - Z3 SMT solver integration, Hoare triple verification, EARS-to-SMT conversion *(v1.7.5)*
 
 ## Architecture
 

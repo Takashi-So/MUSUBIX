@@ -5,6 +5,277 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.5] - 2026-01-07
+
+### Added - Formal Verification Edition
+
+形式検証機能を追加する新パッケージ`@nahisaho/musubix-formal-verify`をリリース。全141テスト合格。
+
+#### Z3 SMTソルバー統合
+
+Z3定理証明器との統合により、コード仕様の形式検証が可能に:
+
+```typescript
+import { Z3Adapter, PreconditionVerifier, PostconditionVerifier } from '@nahisaho/musubix-formal-verify';
+
+// Z3アダプター（自動フォールバック機能付き）
+const z3 = await Z3Adapter.create();
+
+// 事前条件検証
+const preVerifier = new PreconditionVerifier(z3);
+const result = await preVerifier.verify({
+  condition: { expression: 'amount > 0 && balance >= amount', format: 'javascript' },
+  variables: [
+    { name: 'amount', type: 'Int' },
+    { name: 'balance', type: 'Int' },
+  ],
+});
+
+// 事後条件検証（Hoareトリプル）
+const postVerifier = new PostconditionVerifier(z3);
+const hoareResult = await postVerifier.verify({
+  precondition: { expression: 'balance >= amount', format: 'javascript' },
+  postcondition: { expression: 'balance_new == balance - amount', format: 'javascript' },
+  preVariables: [{ name: 'balance', type: 'Int' }, { name: 'amount', type: 'Int' }],
+  postVariables: [{ name: 'balance_new', type: 'Int' }],
+  transition: 'balance_new == balance - amount',
+});
+```
+
+#### Z3バックエンド
+
+| クラス | 説明 |
+|--------|------|
+| `Z3WasmClient` | WebAssembly版z3-solver（高速） |
+| `Z3ProcessFallback` | 外部Z3プロセス（フォールバック） |
+| `Z3Adapter` | 自動バックエンド選択 |
+
+#### EARS→SMT変換
+
+EARS形式要件をSMT-LIB2に変換:
+
+```typescript
+import { EarsToSmtConverter } from '@nahisaho/musubix-formal-verify';
+
+const converter = new EarsToSmtConverter();
+
+// 5パターン対応
+const results = converter.convertMultiple([
+  'THE system SHALL validate inputs',           // ubiquitous
+  'WHEN error, THE system SHALL notify user',   // event-driven
+  'WHILE busy, THE system SHALL queue requests', // state-driven
+  'THE system SHALL NOT expose secrets',        // unwanted
+  'IF admin, THEN THE system SHALL allow edit', // optional
+]);
+```
+
+#### トレーサビリティDB
+
+SQLiteベースの高性能トレーサビリティデータベース:
+
+```typescript
+import { TraceabilityDB, ImpactAnalyzer } from '@nahisaho/musubix-formal-verify';
+
+const db = new TraceabilityDB('./trace.db');
+
+// ノード追加
+await db.addNode({ id: 'REQ-001', type: 'requirement', title: 'Auth' });
+await db.addNode({ id: 'DES-001', type: 'design', title: 'AuthService' });
+
+// リンク追加
+await db.addLink({ source: 'DES-001', target: 'REQ-001', type: 'satisfies' });
+
+// 影響分析
+const analyzer = new ImpactAnalyzer(db);
+const impact = await analyzer.analyze('REQ-001');
+console.log(`影響ノード数: ${impact.totalImpacted}`);
+```
+
+#### MCPツール（6ツール）
+
+| ツール | 説明 |
+|--------|------|
+| `verify_precondition` | 事前条件の充足可能性検証 |
+| `verify_postcondition` | 事後条件（Hoareトリプル）検証 |
+| `ears_to_smt` | EARS→SMT-LIB2変換 |
+| `trace_add_link` | トレーサビリティリンク追加 |
+| `trace_query` | トレーサビリティクエリ |
+| `trace_impact` | 影響範囲分析 |
+
+### Technical Details
+
+- **パッケージ**: `@nahisaho/musubix-formal-verify@1.7.5`
+- **依存関係**: `z3-solver`（オプション）, `better-sqlite3`
+- **テスト**: 141テスト（100%合格）
+- **サポート型**: `Int`, `Real`, `Bool`, `String`, `Array`, `BitVec`
+
+---
+
+## [1.7.0] - 2026-01-06
+
+### Added - YATA Platform Enhancements
+
+5つの重要な改善を実装。全1386テスト合格。
+
+#### Phase 1: インデックス最適化 (REQ-YI-IDX-001〜003)
+
+`IndexOptimizer`クラスを`@nahisaho/yata-local`に追加:
+
+| メソッド | 説明 |
+|---------|------|
+| `analyzeQueries()` | クエリパターン分析 |
+| `suggestIndexes()` | インデックス推奨（<5秒） |
+| `createIndex()` | インデックス作成 |
+| `dropIndex()` | インデックス削除 |
+| `getIndexStats()` | 統計取得 |
+| `optimizeAll()` | 自動最適化 |
+
+#### Phase 2: エクスポート機能 (REQ-YI-EXP-001〜003)
+
+複数フォーマットでのエクスポート対応:
+
+```typescript
+import { exportToRDF, exportToJSON, exportToCSV } from '@nahisaho/yata-local';
+
+// RDF/Turtle形式（標準準拠）
+const rdf = await exportToRDF(db, { format: 'turtle' });
+
+// JSON-LD形式
+const jsonld = await exportToJSON(db, { format: 'json-ld' });
+
+// CSV形式（スプレッドシート互換）
+const csv = await exportToCSV(db, { includeMetadata: true });
+```
+
+#### Phase 3: YATA Global統合 (REQ-YI-GLB-001〜003)
+
+`GlobalSyncManager`クラスを追加:
+
+| メソッド | 説明 |
+|---------|------|
+| `sync()` | 双方向同期（60秒/1000変更以内） |
+| `push()` | ローカル→リモート同期 |
+| `pull()` | リモート→ローカル同期 |
+| `getStatus()` | 同期状態取得 |
+| `resolveConflict()` | 手動競合解決 |
+
+競合解決戦略: `local-wins` | `remote-wins` | `manual`
+
+#### Phase 4: コード生成強化 (REQ-YI-GEN-001〜003)
+
+`EnhancedCodeGenerator`クラスを`@nahisaho/musubix-core`に追加:
+
+```typescript
+import { EnhancedCodeGenerator } from '@nahisaho/musubix-core';
+
+const generator = new EnhancedCodeGenerator();
+
+// C4設計からコード生成
+const files = await generator.generateFromDesign(designMarkdown);
+
+// EARS要件からテスト生成
+const tests = await generator.generateTestsFromEARS(requirements);
+
+// トレーサビリティマトリクス生成
+const matrix = generator.generateTraceabilityMatrix(files);
+```
+
+#### Phase 5: Web UI (REQ-YI-WEB-001〜003)
+
+新パッケージ`@nahisaho/yata-ui`を追加:
+
+```bash
+# CLIで起動
+npx yata-ui --port 3000
+
+# プログラムから起動
+import { createYataUIServer } from '@nahisaho/yata-ui';
+const server = createYataUIServer({ port: 3000 });
+await server.start();
+```
+
+機能:
+- REST API: `/api/graph`, `/api/nodes`, `/api/edges`, `/api/stats`
+- SSE: `/api/events`（リアルタイム更新）
+- 組み込みUI: Cytoscape.js可視化、PNG出力
+
+### テスト統計
+
+| パッケージ | 新規テスト |
+|-----------|-----------|
+| yata-local (IndexOptimizer) | 23 |
+| yata-local (Export) | 12 |
+| yata-local (GlobalSync) | 26 |
+| core (EnhancedCodeGenerator) | 25 |
+| yata-ui | 8 |
+| **合計新規** | **94** |
+| **全体** | **1386** |
+
+## [1.6.7] - 2026-01-05
+
+### Added - Scaffold & Trace Sync
+
+project-08-property-rental のSDD再開発から発見された改善点を実装。
+
+#### scaffoldコマンド追加 (IMP-SDD-001)
+
+SDDプロジェクトの即座生成:
+
+```bash
+# DDDプロジェクト生成
+npx musubix scaffold domain-model <name>
+
+# エンティティ指定
+npx musubix scaffold domain-model <name> -e "User,Order,Product"
+
+# ドメイン接頭辞指定
+npx musubix scaffold domain-model <name> -d DOMAIN
+
+# 最小構成
+npx musubix scaffold minimal <name>
+```
+
+生成されるファイル:
+- `storage/specs/REQ-DOMAIN-001.md` (EARS形式要件)
+- `storage/design/DES-DOMAIN-001.md` (C4設計)
+- `storage/traceability/TRACE-DOMAIN-001.md` (トレーサビリティ)
+- `src/types/common.ts` (Value Objects)
+- `src/types/errors.ts` (ドメインエラー)
+- `src/entities/*.ts` (エンティティ実装)
+- `__tests__/*.test.ts` (テストスタブ)
+- `package.json`, `tsconfig.json`, `vitest.config.ts`
+- `.yata/config.json` (YATA Local設定)
+
+#### trace sync コマンド追加 (IMP-SDD-003)
+
+トレーサビリティマトリクスの自動更新:
+
+```bash
+# トレーサビリティマトリクス自動更新
+npx musubix trace sync
+
+# プロジェクト指定
+npx musubix trace sync -p virtual-projects/project-08
+
+# プレビューのみ
+npx musubix trace sync --dry-run
+```
+
+#### CLI --path オプション追加 (IMP-CLI-001)
+
+全traceサブコマンドに`--path`オプションを追加:
+
+```bash
+npx musubix trace matrix -p virtual-projects/project-08
+npx musubix trace validate -p virtual-projects/project-08
+npx musubix trace impact REQ-001 -p virtual-projects/project-08
+```
+
+#### テスト
+
+- 1292テスト全合格
+- ビルド成功
+
 ## [1.6.5] - 2026-01-07
 
 ### Added - YATA Local改善とCLI強化

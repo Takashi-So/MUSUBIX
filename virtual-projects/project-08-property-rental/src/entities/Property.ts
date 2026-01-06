@@ -1,265 +1,210 @@
 /**
  * Property Entity
- * TSK-004: Property Entity
  * 
- * @see REQ-RENTAL-001 F010-F012
- * @see DES-RENTAL-001 §4.1.1
+ * @requirement REQ-RENTAL-001-F001 (Property Registration)
+ * @requirement REQ-RENTAL-001-F002 (Property Status Transition)
+ * @design DES-RENTAL-001-C001
  */
 
-import type {
-  Property,
+import { Result, ok, err } from 'neverthrow';
+import {
   PropertyId,
-  OwnerId,
-  Address,
-  PropertyType,
   PropertyStatus,
+  PropertyType,
   Money,
-  CreatePropertyInput,
-} from '../types/index.js';
+  Address,
+  generatePropertyId,
+  createMoney,
+  createAddress,
+  validPropertyStatusTransitions,
+  ValidationError,
+} from '../types/common.js';
+import { InvalidStatusTransitionError } from '../types/errors.js';
 
-/**
- * ID生成カウンター（インメモリ用）
- */
-let propertyCounter = 0;
+// ============================================================
+// Property Entity
+// ============================================================
 
-/**
- * Property ID生成
- * Format: PROP-YYYYMMDD-NNN
- */
-export function generatePropertyId(): PropertyId {
-  const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-  propertyCounter++;
-  const seq = String(propertyCounter).padStart(3, '0');
-  return `PROP-${dateStr}-${seq}` as PropertyId;
+export interface Property {
+  readonly id: PropertyId;
+  readonly address: Address;
+  readonly propertyType: PropertyType;
+  readonly sizeSqm: number;
+  readonly monthlyRent: Money;
+  readonly deposit: Money;
+  readonly status: PropertyStatus;
+  readonly amenities: string[];
+  readonly description?: string;
+  readonly photos?: string[];
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+  readonly version: number;
 }
 
-/**
- * ID生成カウンターをリセット（テスト用）
- */
-export function resetPropertyCounter(): void {
-  propertyCounter = 0;
+// ============================================================
+// Input DTO (BP-CODE-001)
+// ============================================================
+
+export interface CreatePropertyInput {
+  address: {
+    prefecture: string;
+    city: string;
+    street: string;
+    building?: string;
+  };
+  propertyType: PropertyType;
+  sizeSqm: number;
+  monthlyRent: number;
+  deposit: number;
+  amenities?: string[];
+  description?: string;
+  photos?: string[];
 }
 
-/**
- * Money value objectを作成
- */
-export function createMoney(amount: number, currency: string = 'JPY'): Money {
-  if (amount < 0) {
-    throw new Error('Amount cannot be negative');
-  }
-  return { amount, currency };
-}
+// ============================================================
+// Factory Function
+// ============================================================
 
-/**
- * Addressを検証
- */
-export function validateAddress(address: Address): void {
-  if (!address.postalCode || !/^\d{3}-?\d{4}$/.test(address.postalCode)) {
-    throw new Error('Invalid postal code format. Expected: xxx-xxxx or xxxxxxx');
+export function createProperty(
+  input: CreatePropertyInput,
+  date: Date = new Date()
+): Result<Property, ValidationError> {
+  // Validate address
+  const addressResult = createAddress(input.address);
+  if (addressResult.isErr()) {
+    return err(addressResult.error);
   }
-  if (!address.prefecture) {
-    throw new Error('Prefecture is required');
-  }
-  if (!address.city) {
-    throw new Error('City is required');
-  }
-  if (!address.street) {
-    throw new Error('Street is required');
-  }
-}
 
-/**
- * Property作成パラメータを検証
- */
-export function validatePropertyInput(input: CreatePropertyInput): void {
-  validateAddress(input.address);
-  
+  // Validate size
   if (input.sizeSqm <= 0) {
-    throw new Error('Size must be greater than 0');
+    return err(new ValidationError('Size must be positive'));
   }
-  if (input.monthlyRent < 0) {
-    throw new Error('Monthly rent cannot be negative');
-  }
-  if (input.deposit < 0) {
-    throw new Error('Deposit cannot be negative');
-  }
-  if (input.keyMoney < 0) {
-    throw new Error('Key money cannot be negative');
-  }
-  if (input.maintenanceFee < 0) {
-    throw new Error('Maintenance fee cannot be negative');
-  }
-}
 
-/**
- * Propertyエンティティを作成
- * @see REQ-RENTAL-001 F010
- */
-export function createProperty(input: CreatePropertyInput): Property {
-  validatePropertyInput(input);
-  
+  // Validate monthly rent
+  const monthlyRentResult = createMoney(input.monthlyRent);
+  if (monthlyRentResult.isErr()) {
+    return err(monthlyRentResult.error);
+  }
+
+  // Validate deposit
+  const depositResult = createMoney(input.deposit);
+  if (depositResult.isErr()) {
+    return err(depositResult.error);
+  }
+
   const now = new Date();
-  
-  return {
-    id: generatePropertyId(),
-    ownerId: input.ownerId,
-    address: { ...input.address },
+  const property: Property = {
+    id: generatePropertyId(date),
+    address: addressResult.value,
     propertyType: input.propertyType,
     sizeSqm: input.sizeSqm,
-    monthlyRent: createMoney(input.monthlyRent),
-    deposit: createMoney(input.deposit),
-    keyMoney: createMoney(input.keyMoney),
-    maintenanceFee: createMoney(input.maintenanceFee),
-    amenities: input.amenities ? [...input.amenities] : [],
-    status: 'available',
-    photos: input.photos ? [...input.photos] : [],
+    monthlyRent: monthlyRentResult.value,
+    deposit: depositResult.value,
+    status: 'available', // AC4: Default status
+    amenities: input.amenities ?? [],
     description: input.description,
+    photos: input.photos,
     createdAt: now,
     updatedAt: now,
+    version: 1,
   };
+
+  return ok(property);
 }
 
-/**
- * Property情報を更新
- * @see REQ-RENTAL-001 F011
- */
-export function updateProperty(
-  property: Property,
-  updates: Partial<Omit<CreatePropertyInput, 'ownerId'>>
-): Property {
-  if (updates.address) {
-    validateAddress(updates.address);
-  }
-  if (updates.sizeSqm !== undefined && updates.sizeSqm <= 0) {
-    throw new Error('Size must be greater than 0');
-  }
-  if (updates.monthlyRent !== undefined && updates.monthlyRent < 0) {
-    throw new Error('Monthly rent cannot be negative');
-  }
-  
-  return {
-    ...property,
-    address: updates.address ? { ...updates.address } : property.address,
-    propertyType: updates.propertyType ?? property.propertyType,
-    sizeSqm: updates.sizeSqm ?? property.sizeSqm,
-    monthlyRent: updates.monthlyRent !== undefined 
-      ? createMoney(updates.monthlyRent) 
-      : property.monthlyRent,
-    deposit: updates.deposit !== undefined 
-      ? createMoney(updates.deposit) 
-      : property.deposit,
-    keyMoney: updates.keyMoney !== undefined 
-      ? createMoney(updates.keyMoney) 
-      : property.keyMoney,
-    maintenanceFee: updates.maintenanceFee !== undefined 
-      ? createMoney(updates.maintenanceFee) 
-      : property.maintenanceFee,
-    amenities: updates.amenities ? [...updates.amenities] : property.amenities,
-    photos: updates.photos ? [...updates.photos] : property.photos,
-    description: updates.description ?? property.description,
-    updatedAt: new Date(),
-  };
+// ============================================================
+// Status Transition Functions (BP-DESIGN-001)
+// ============================================================
+
+export function canTransitionPropertyStatus(
+  currentStatus: PropertyStatus,
+  targetStatus: PropertyStatus
+): boolean {
+  const validTransitions = validPropertyStatusTransitions[currentStatus];
+  return validTransitions.includes(targetStatus);
 }
 
-/**
- * 有効なステータス遷移マップ
- */
-const validStatusTransitions: Record<PropertyStatus, PropertyStatus[]> = {
-  available: ['occupied', 'reserved', 'under_maintenance'],
-  occupied: ['available', 'under_maintenance'],
-  reserved: ['occupied', 'available'],
-  under_maintenance: ['available'],
-};
-
-/**
- * Propertyステータスを更新
- * @see REQ-RENTAL-001 F012
- */
-export function updatePropertyStatus(
+export function transitionPropertyStatus(
   property: Property,
-  newStatus: PropertyStatus
-): Property {
-  const allowedTransitions = validStatusTransitions[property.status];
-  
-  if (!allowedTransitions.includes(newStatus)) {
-    throw new Error(
-      `Invalid status transition: ${property.status} -> ${newStatus}. ` +
-      `Allowed: ${allowedTransitions.join(', ')}`
+  targetStatus: PropertyStatus,
+  reason: string
+): Result<Property, InvalidStatusTransitionError> {
+  if (!canTransitionPropertyStatus(property.status, targetStatus)) {
+    return err(
+      new InvalidStatusTransitionError('Property', property.status, targetStatus)
     );
   }
-  
-  return {
+
+  const updatedProperty: Property = {
     ...property,
-    status: newStatus,
+    status: targetStatus,
     updatedAt: new Date(),
+    version: property.version + 1,
   };
+
+  return ok(updatedProperty);
 }
 
-/**
- * Propertyを削除マーク（論理削除）
- */
-export function markPropertyAsDeleted(property: Property): Property {
-  if (property.status === 'occupied') {
-    throw new Error('Cannot delete occupied property');
-  }
-  
-  return {
-    ...property,
-    status: 'under_maintenance',  // 削除は under_maintenance で表現
-    updatedAt: new Date(),
-  };
+// ============================================================
+// Search Filters
+// ============================================================
+
+export interface PropertySearchFilters {
+  location?: string;
+  minRent?: number;
+  maxRent?: number;
+  minSize?: number;
+  maxSize?: number;
+  propertyType?: PropertyType;
+  amenities?: string[];
+  status?: PropertyStatus;
 }
 
-/**
- * 検索条件に一致するかチェック
- */
-export function matchesSearchCriteria(
-  property: Property,
-  criteria: {
-    prefecture?: string;
-    city?: string;
-    propertyType?: PropertyType;
-    minRent?: number;
-    maxRent?: number;
-    minSize?: number;
-    maxSize?: number;
-    amenities?: string[];
-    status?: PropertyStatus;
+export function matchesFilters(property: Property, filters: PropertySearchFilters): boolean {
+  // Location filter (partial match on prefecture, city, or street)
+  if (filters.location) {
+    const locationLower = filters.location.toLowerCase();
+    const addressString = `${property.address.prefecture}${property.address.city}${property.address.street}`.toLowerCase();
+    if (!addressString.includes(locationLower)) {
+      return false;
+    }
   }
-): boolean {
-  if (criteria.prefecture && property.address.prefecture !== criteria.prefecture) {
+
+  // Rent range filter
+  if (filters.minRent !== undefined && property.monthlyRent.amount < filters.minRent) {
     return false;
   }
-  if (criteria.city && property.address.city !== criteria.city) {
+  if (filters.maxRent !== undefined && property.monthlyRent.amount > filters.maxRent) {
     return false;
   }
-  if (criteria.propertyType && property.propertyType !== criteria.propertyType) {
+
+  // Size range filter
+  if (filters.minSize !== undefined && property.sizeSqm < filters.minSize) {
     return false;
   }
-  if (criteria.minRent !== undefined && property.monthlyRent.amount < criteria.minRent) {
+  if (filters.maxSize !== undefined && property.sizeSqm > filters.maxSize) {
     return false;
   }
-  if (criteria.maxRent !== undefined && property.monthlyRent.amount > criteria.maxRent) {
+
+  // Property type filter
+  if (filters.propertyType !== undefined && property.propertyType !== filters.propertyType) {
     return false;
   }
-  if (criteria.minSize !== undefined && property.sizeSqm < criteria.minSize) {
-    return false;
-  }
-  if (criteria.maxSize !== undefined && property.sizeSqm > criteria.maxSize) {
-    return false;
-  }
-  if (criteria.status && property.status !== criteria.status) {
-    return false;
-  }
-  if (criteria.amenities && criteria.amenities.length > 0) {
-    const hasAllAmenities = criteria.amenities.every(a => 
-      property.amenities.includes(a)
+
+  // Amenities filter (AND match - all requested amenities must be present)
+  if (filters.amenities && filters.amenities.length > 0) {
+    const hasAllAmenities = filters.amenities.every(amenity =>
+      property.amenities.includes(amenity)
     );
     if (!hasAllAmenities) {
       return false;
     }
   }
-  
+
+  // Status filter
+  if (filters.status !== undefined && property.status !== filters.status) {
+    return false;
+  }
+
   return true;
 }

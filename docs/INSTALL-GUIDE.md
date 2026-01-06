@@ -1,8 +1,8 @@
 # MUSUBIX Installation Guide
 
 **Document ID**: INSTALL-GUIDE  
-**Version**: 1.6.4  
-**Last Updated**: 2026-01-06
+**Version**: 1.7.5  
+**Last Updated**: 2026-01-07
 
 ---
 

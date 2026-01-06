@@ -354,9 +354,9 @@ describe('CLI Commands', () => {
       const traceCmd = program.commands.find(c => c.name() === 'trace');
       expect(traceCmd).toBeDefined();
       
-      // 3 subcommands + help
+      // 4 subcommands (matrix, impact, validate, sync) + help
       const subcommands = traceCmd?.commands.filter(c => c.name() !== 'help');
-      expect(subcommands?.length).toBe(3);
+      expect(subcommands?.length).toBe(4);
     });
   });
 

@@ -1,286 +1,201 @@
 /**
  * MaintenanceRequest Entity
- * TSK-010: MaintenanceRequest Entity
  * 
- * @see REQ-RENTAL-001 F060-F062
- * @see DES-RENTAL-001 §4.1.6
+ * @requirement REQ-RENTAL-001-F040 (Maintenance Request Submission)
+ * @requirement REQ-RENTAL-001-F041 (Maintenance Request Status Workflow)
+ * @requirement REQ-RENTAL-001-F042 (Emergency Maintenance Escalation)
+ * @design DES-RENTAL-001-C005
  */
 
-import type {
-  MaintenanceRequest,
+import { Result, ok, err } from 'neverthrow';
+import {
   MaintenanceRequestId,
   PropertyId,
   TenantId,
-  Money,
-  UrgencyLevel,
+  MaintenancePriority,
   MaintenanceStatus,
-  SubmitMaintenanceInput,
-} from '../types/index.js';
-import { createMoney } from './Property.js';
+  generateMaintenanceRequestId,
+  validMaintenanceStatusTransitions,
+  ValidationError,
+} from '../types/common.js';
+import { InvalidStatusTransitionError } from '../types/errors.js';
 
-/**
- * ID生成カウンター（インメモリ用）
- */
-let maintenanceCounter = 0;
+// ============================================================
+// Constants
+// ============================================================
 
-/**
- * MaintenanceRequest ID生成
- * Format: MNT-YYYYMMDD-NNN
- */
-export function generateMaintenanceId(): MaintenanceRequestId {
-  const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-  maintenanceCounter++;
-  const seq = String(maintenanceCounter).padStart(3, '0');
-  return `MNT-${dateStr}-${seq}` as MaintenanceRequestId;
+export const EMERGENCY_ESCALATION_MINUTES = 60;
+
+// ============================================================
+// MaintenanceRequest Entity
+// ============================================================
+
+export interface MaintenanceRequest {
+  readonly id: MaintenanceRequestId;
+  readonly propertyId: PropertyId;
+  readonly tenantId: TenantId;
+  readonly description: string;
+  readonly priority: MaintenancePriority;
+  readonly status: MaintenanceStatus;
+  readonly photos?: string[];
+  readonly assignedTo?: string;
+  readonly assignedAt?: Date;
+  readonly completedAt?: Date;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
 }
 
-/**
- * ID生成カウンターをリセット（テスト用）
- */
-export function resetMaintenanceCounter(): void {
-  maintenanceCounter = 0;
+// ============================================================
+// Input DTO (BP-CODE-001)
+// ============================================================
+
+export interface CreateMaintenanceRequestInput {
+  propertyId: PropertyId;
+  tenantId: TenantId;
+  description: string;
+  priority: MaintenancePriority;
+  photos?: string[];
 }
 
-/**
- * MaintenanceRequestエンティティを作成
- * @see REQ-RENTAL-001 F060
- */
+// ============================================================
+// Factory Function
+// ============================================================
+
 export function createMaintenanceRequest(
-  input: SubmitMaintenanceInput
-): MaintenanceRequest {
-  if (!input.title || input.title.trim().length === 0) {
-    throw new Error('Title is required');
+  input: CreateMaintenanceRequestInput,
+  date: Date = new Date()
+): Result<MaintenanceRequest, ValidationError> {
+  // Validate description
+  const trimmedDescription = input.description.trim();
+  if (!trimmedDescription) {
+    return err(new ValidationError('Maintenance description is required'));
   }
-  if (!input.description || input.description.trim().length === 0) {
-    throw new Error('Description is required');
-  }
-  
+
   const now = new Date();
-  
-  return {
-    id: generateMaintenanceId(),
+  const request: MaintenanceRequest = {
+    id: generateMaintenanceRequestId(date),
     propertyId: input.propertyId,
     tenantId: input.tenantId,
-    title: input.title.trim(),
-    description: input.description.trim(),
-    urgency: input.urgency,
+    description: trimmedDescription,
+    priority: input.priority,
     status: 'submitted',
-    assignedTo: undefined,
-    scheduledDate: undefined,
-    completedDate: undefined,
-    cost: undefined,
-    photos: input.photos ? [...input.photos] : [],
+    photos: input.photos,
     createdAt: now,
     updatedAt: now,
   };
+
+  return ok(request);
 }
 
-/**
- * 有効なステータス遷移マップ
- */
-const validMaintenanceStatusTransitions: Record<MaintenanceStatus, MaintenanceStatus[]> = {
-  submitted: ['assigned', 'cancelled'],
-  assigned: ['in_progress', 'cancelled'],
-  in_progress: ['completed', 'cancelled'],
-  completed: [],    // 完了は変更不可
-  cancelled: [],    // キャンセル済みは変更不可
-};
+// ============================================================
+// Status Transition Functions (BP-DESIGN-001)
+// ============================================================
 
-/**
- * MaintenanceRequestステータスを更新
- */
-export function updateMaintenanceStatus(
+export function canTransitionMaintenanceStatus(
+  currentStatus: MaintenanceStatus,
+  targetStatus: MaintenanceStatus
+): boolean {
+  const validTransitions = validMaintenanceStatusTransitions[currentStatus];
+  return validTransitions.includes(targetStatus);
+}
+
+export function transitionMaintenanceStatus(
   request: MaintenanceRequest,
-  newStatus: MaintenanceStatus
-): MaintenanceRequest {
-  const allowedTransitions = validMaintenanceStatusTransitions[request.status];
-  
-  if (!allowedTransitions.includes(newStatus)) {
-    throw new Error(
-      `Invalid status transition: ${request.status} -> ${newStatus}. ` +
-      `Allowed: ${allowedTransitions.join(', ') || 'none'}`
+  targetStatus: MaintenanceStatus,
+  assignee?: string
+): Result<MaintenanceRequest, InvalidStatusTransitionError> {
+  if (!canTransitionMaintenanceStatus(request.status, targetStatus)) {
+    return err(
+      new InvalidStatusTransitionError('MaintenanceRequest', request.status, targetStatus)
     );
   }
-  
-  return {
-    ...request,
-    status: newStatus,
-    updatedAt: new Date(),
-  };
-}
 
-/**
- * 担当者を割り当て
- * @see REQ-RENTAL-001 F061
- */
-export function assignStaff(
-  request: MaintenanceRequest,
-  staffId: string,
-  scheduledDate?: Date
-): MaintenanceRequest {
-  if (request.status !== 'submitted') {
-    throw new Error('Can only assign staff to submitted requests');
-  }
-  
-  if (!staffId || staffId.trim().length === 0) {
-    throw new Error('Staff ID is required');
-  }
-  
-  return {
-    ...request,
-    assignedTo: staffId.trim(),
-    scheduledDate: scheduledDate ? new Date(scheduledDate) : undefined,
-    status: 'assigned',
-    updatedAt: new Date(),
-  };
-}
-
-/**
- * 作業を開始
- */
-export function startWork(request: MaintenanceRequest): MaintenanceRequest {
-  if (request.status !== 'assigned') {
-    throw new Error('Can only start work on assigned requests');
-  }
-  
-  return updateMaintenanceStatus(request, 'in_progress');
-}
-
-/**
- * メンテナンスを完了
- * @see REQ-RENTAL-001 F062
- */
-export function completeMaintenanceRequest(
-  request: MaintenanceRequest,
-  cost?: number
-): MaintenanceRequest {
-  if (request.status !== 'in_progress') {
-    throw new Error('Can only complete in-progress requests');
-  }
-  
   const now = new Date();
-  
-  return {
+  let updatedRequest: MaintenanceRequest = {
     ...request,
-    status: 'completed',
-    completedDate: now,
-    cost: cost !== undefined ? createMoney(cost) : undefined,
+    status: targetStatus,
     updatedAt: now,
   };
-}
 
-/**
- * メンテナンスをキャンセル
- */
-export function cancelMaintenanceRequest(
-  request: MaintenanceRequest
-): MaintenanceRequest {
-  if (request.status === 'completed' || request.status === 'cancelled') {
-    throw new Error('Cannot cancel completed or already cancelled requests');
+  // Handle assignment
+  if (targetStatus === 'assigned' && assignee) {
+    updatedRequest = {
+      ...updatedRequest,
+      assignedTo: assignee,
+      assignedAt: now,
+    };
   }
-  
-  return updateMaintenanceStatus(request, 'cancelled');
+
+  // Handle completion
+  if (targetStatus === 'completed') {
+    updatedRequest = {
+      ...updatedRequest,
+      completedAt: now,
+    };
+  }
+
+  return ok(updatedRequest);
 }
 
-/**
- * リクエスト情報を更新
- */
-export function updateMaintenanceRequest(
+// ============================================================
+// Emergency Escalation (REQ-RENTAL-001-F042)
+// ============================================================
+
+export function isEmergencyEscalationNeeded(
   request: MaintenanceRequest,
-  updates: {
-    title?: string;
-    description?: string;
-    urgency?: UrgencyLevel;
-    photos?: string[];
-  }
-): MaintenanceRequest {
-  if (request.status === 'completed' || request.status === 'cancelled') {
-    throw new Error('Cannot update completed or cancelled requests');
-  }
-  
-  if (updates.title !== undefined && updates.title.trim().length === 0) {
-    throw new Error('Title cannot be empty');
-  }
-  
-  return {
-    ...request,
-    title: updates.title !== undefined ? updates.title.trim() : request.title,
-    description: updates.description !== undefined 
-      ? updates.description.trim() 
-      : request.description,
-    urgency: updates.urgency ?? request.urgency,
-    photos: updates.photos ? [...updates.photos] : request.photos,
-    updatedAt: new Date(),
-  };
-}
-
-/**
- * 緊急度を更新（エスカレーション）
- */
-export function escalateUrgency(
-  request: MaintenanceRequest,
-  newUrgency: UrgencyLevel
-): MaintenanceRequest {
-  const urgencyOrder: UrgencyLevel[] = ['low', 'medium', 'high', 'emergency'];
-  const currentIndex = urgencyOrder.indexOf(request.urgency);
-  const newIndex = urgencyOrder.indexOf(newUrgency);
-  
-  if (newIndex <= currentIndex) {
-    throw new Error('Can only escalate to higher urgency level');
-  }
-  
-  return {
-    ...request,
-    urgency: newUrgency,
-    updatedAt: new Date(),
-  };
-}
-
-/**
- * 緊急度に基づく対応期限を計算
- */
-export function getResponseDeadline(
-  request: MaintenanceRequest
-): Date {
-  const deadlines: Record<UrgencyLevel, number> = {
-    low: 7,        // 7日
-    medium: 3,     // 3日
-    high: 1,       // 1日
-    emergency: 0,  // 即日
-  };
-  
-  const days = deadlines[request.urgency];
-  const deadline = new Date(request.createdAt);
-  deadline.setDate(deadline.getDate() + days);
-  
-  return deadline;
-}
-
-/**
- * 対応期限を過ぎているかチェック
- */
-export function isOverdue(request: MaintenanceRequest): boolean {
-  if (request.status === 'completed' || request.status === 'cancelled') {
+  checkTime: Date = new Date()
+): boolean {
+  // Only check emergency priority requests
+  if (request.priority !== 'emergency') {
     return false;
   }
-  
-  const deadline = getResponseDeadline(request);
-  return new Date() > deadline;
+
+  // Only check unassigned requests (submitted status)
+  if (request.status !== 'submitted') {
+    return false;
+  }
+
+  // Check if more than EMERGENCY_ESCALATION_MINUTES have passed
+  const minutesSinceCreation = 
+    (checkTime.getTime() - request.createdAt.getTime()) / (1000 * 60);
+
+  return minutesSinceCreation > EMERGENCY_ESCALATION_MINUTES;
 }
 
-/**
- * 解決までの日数を計算
- */
-export function getResolutionDays(request: MaintenanceRequest): number | null {
-  if (request.status !== 'completed' || !request.completedDate) {
-    return null;
-  }
-  
-  const days = Math.floor(
-    (request.completedDate.getTime() - request.createdAt.getTime()) / 
-    (24 * 60 * 60 * 1000)
-  );
-  
-  return Math.max(0, days);
+// ============================================================
+// Query Helpers
+// ============================================================
+
+export function isOpenRequest(request: MaintenanceRequest): boolean {
+  return !['completed', 'cancelled'].includes(request.status);
+}
+
+export function isPendingAssignment(request: MaintenanceRequest): boolean {
+  return request.status === 'submitted';
+}
+
+export function isInProgress(request: MaintenanceRequest): boolean {
+  return request.status === 'in-progress';
+}
+
+// ============================================================
+// Escalation Report
+// ============================================================
+
+export interface EscalationReport {
+  escalatedRequests: MaintenanceRequest[];
+  generatedAt: Date;
+  totalCount: number;
+}
+
+export function generateEscalationReport(
+  requests: MaintenanceRequest[]
+): EscalationReport {
+  const escalatedRequests = requests.filter(req => isEmergencyEscalationNeeded(req));
+
+  return {
+    escalatedRequests,
+    generatedAt: new Date(),
+    totalCount: escalatedRequests.length,
+  };
 }

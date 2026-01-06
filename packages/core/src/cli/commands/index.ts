@@ -25,6 +25,7 @@ import { registerReplCommand } from './repl.js';
 import { registerPerfCommand } from './perf.js';
 import { registerKgprCommands } from './kgpr.js';
 import { registerTasksCommand } from './tasks.js';
+import { registerScaffoldCommand } from './scaffold.js';
 
 /**
  * Register all CLI commands
@@ -62,6 +63,9 @@ export function registerCommands(program: Command): void {
   
   // Task management commands
   registerTasksCommand(program);
+  
+  // Project scaffolding commands (IMP-SDD-001)
+  registerScaffoldCommand(program);
 }
 
 // Core command exports
@@ -94,3 +98,6 @@ export { registerKgprCommands } from './kgpr.js';
 
 // Tasks command export
 export { registerTasksCommand } from './tasks.js';
+
+// Scaffold command export (IMP-SDD-001)
+export { registerScaffoldCommand } from './scaffold.js';

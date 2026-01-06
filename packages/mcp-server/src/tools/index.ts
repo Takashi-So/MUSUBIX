@@ -69,6 +69,18 @@ export {
   kgprTools,
 } from './kgpr-tools.js';
 
+export {
+  verifyPreconditionTool,
+  verifyPostconditionTool,
+  earsToSmtTool,
+  traceAddLinkTool,
+  traceQueryTool,
+  traceImpactTool,
+  formalVerifyTools,
+  getFormalVerifyTools,
+  handleFormalVerifyTool,
+} from './formal-verify-tools.js';
+
 /**
  * Get all available tools
  */
@@ -79,5 +91,14 @@ export function getAllTools() {
   const { getOntologyTools } = require('./ontology-tools.js');
   const { getYataTools } = require('./yata-tools.js');
   const { kgprTools } = require('./kgpr-tools.js');
-  return [...getSddTools(), ...getSymbolicTools(), ...getPatternIntegrationTools(), ...getOntologyTools(), ...getYataTools(), ...kgprTools];
+  const { getFormalVerifyTools } = require('./formal-verify-tools.js');
+  return [
+    ...getSddTools(),
+    ...getSymbolicTools(),
+    ...getPatternIntegrationTools(),
+    ...getOntologyTools(),
+    ...getYataTools(),
+    ...kgprTools,
+    ...getFormalVerifyTools(),
+  ];
 }

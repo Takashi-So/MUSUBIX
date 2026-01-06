@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "project-08-property-rental",
+    "domain": "real-estate",
+    "namespace": "property-rental"
+  },
+  "learning": {
+    "enabled": true,
+    "autoLearn": true,
+    "patternExtraction": true,
+    "feedbackCollection": true,
+    "minConfidenceThreshold": 0.7
+  },
+  "storage": {
+    "path": ".yata/knowledge.db",
+    "backupEnabled": true
+  },
+  "sync": {
+    "autoSync": false,
+    "remoteUrl": null
+  }
+}

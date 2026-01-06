@@ -1,23 +1,16 @@
 /**
- * MUSUBIX Property Rental Management System
+ * Property Rental System - Public API
  * 
- * Main entry point for the property rental management library.
- * 
- * @see REQ-RENTAL-001 Requirements Document
- * @see DES-RENTAL-001 Design Document
- * @see TSK-RENTAL-001 Task Breakdown
- * 
- * @packageDocumentation
+ * @module index
  */
 
 // Types
-export * from './types/index.js';
+export * from './types/common.js';
+export * from './types/errors.js';
 
 // Entities
-export * from './entities/index.js';
-
-// Repositories
-export * from './repositories/index.js';
-
-// Services
-export * from './services/index.js';
+export * from './entities/Property.js';
+export * from './entities/Tenant.js';
+export * from './entities/LeaseContract.js';
+export * from './entities/Payment.js';
+export * from './entities/MaintenanceRequest.js';

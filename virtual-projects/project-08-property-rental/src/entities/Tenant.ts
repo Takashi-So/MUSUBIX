@@ -1,243 +1,146 @@
 /**
  * Tenant Entity
- * TSK-006: Tenant Entity
  * 
- * @see REQ-RENTAL-001 F020-F023
- * @see DES-RENTAL-001 §4.1.2
+ * @requirement REQ-RENTAL-001-F010 (Tenant Registration)
+ * @requirement REQ-RENTAL-001-F011 (Tenant Verification Status)
+ * @design DES-RENTAL-001-C002
  */
 
-import type {
-  Tenant,
+import { Result, ok, err } from 'neverthrow';
+import {
   TenantId,
-  GuarantorId,
-  PersonName,
-  ContactInfo,
-  Identification,
-  EmploymentInfo,
+  VerificationStatus,
+  Email,
+  Phone,
   EmergencyContact,
-  TenantStatus,
-  CreateTenantInput,
-} from '../types/index.js';
-import { validatePersonName, validateContactInfo } from './PropertyOwner.js';
+  generateTenantId,
+  createEmail,
+  createPhone,
+  createEmergencyContact,
+  validVerificationStatusTransitions,
+  ValidationError,
+} from '../types/common.js';
+import { InvalidStatusTransitionError } from '../types/errors.js';
 
-/**
- * ID生成カウンター（インメモリ用）
- */
-let tenantCounter = 0;
+// ============================================================
+// Tenant Entity
+// ============================================================
 
-/**
- * Tenant ID生成
- * Format: TEN-YYYYMMDD-NNN
- */
-export function generateTenantId(): TenantId {
+export interface Tenant {
+  readonly id: TenantId;
+  readonly fullName: string;
+  readonly email: Email;
+  readonly phone: Phone;
+  readonly emergencyContact: EmergencyContact;
+  readonly verificationStatus: VerificationStatus;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+  readonly version: number;
+}
+
+// ============================================================
+// Input DTO (BP-CODE-001)
+// ============================================================
+
+export interface CreateTenantInput {
+  fullName: string;
+  email: string;
+  phone: string;
+  emergencyContact: {
+    name: string;
+    phone: string;
+  };
+}
+
+// ============================================================
+// Factory Function
+// ============================================================
+
+export function createTenant(
+  input: CreateTenantInput,
+  date: Date = new Date()
+): Result<Tenant, ValidationError> {
+  // Validate full name
+  const trimmedName = input.fullName.trim();
+  if (!trimmedName) {
+    return err(new ValidationError('Full name is required'));
+  }
+
+  // Validate email
+  const emailResult = createEmail(input.email);
+  if (emailResult.isErr()) {
+    return err(emailResult.error);
+  }
+
+  // Validate phone
+  const phoneResult = createPhone(input.phone);
+  if (phoneResult.isErr()) {
+    return err(phoneResult.error);
+  }
+
+  // Validate emergency contact
+  const emergencyContactResult = createEmergencyContact(input.emergencyContact);
+  if (emergencyContactResult.isErr()) {
+    return err(emergencyContactResult.error);
+  }
+
   const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-  tenantCounter++;
-  const seq = String(tenantCounter).padStart(3, '0');
-  return `TEN-${dateStr}-${seq}` as TenantId;
-}
-
-/**
- * ID生成カウンターをリセット（テスト用）
- */
-export function resetTenantCounter(): void {
-  tenantCounter = 0;
-}
-
-/**
- * Identificationを検証
- */
-export function validateIdentification(id: Identification): void {
-  if (!id.type) {
-    throw new Error('Identification type is required');
-  }
-  if (!id.number) {
-    throw new Error('Identification number is required');
-  }
-  if (!id.issuedDate) {
-    throw new Error('Issue date is required');
-  }
-  if (id.expiryDate && id.expiryDate < new Date()) {
-    throw new Error('Identification has expired');
-  }
-}
-
-/**
- * EmploymentInfoを検証
- */
-export function validateEmploymentInfo(employment: EmploymentInfo): void {
-  if (!employment.companyName) {
-    throw new Error('Company name is required');
-  }
-  if (!employment.position) {
-    throw new Error('Position is required');
-  }
-  if (!employment.annualIncome || employment.annualIncome.amount < 0) {
-    throw new Error('Valid annual income is required');
-  }
-  if (!employment.employmentType) {
-    throw new Error('Employment type is required');
-  }
-  if (employment.yearsEmployed < 0) {
-    throw new Error('Years employed cannot be negative');
-  }
-}
-
-/**
- * EmergencyContactを検証
- */
-export function validateEmergencyContact(contact: EmergencyContact): void {
-  validatePersonName(contact.name);
-  if (!contact.relationship) {
-    throw new Error('Relationship is required for emergency contact');
-  }
-  if (!contact.phone) {
-    throw new Error('Phone is required for emergency contact');
-  }
-}
-
-/**
- * Tenantエンティティを作成
- * @see REQ-RENTAL-001 F020
- */
-export function createTenant(input: CreateTenantInput): Tenant {
-  validatePersonName(input.name);
-  validateContactInfo(input.contact);
-  validateIdentification(input.identification);
-  validateEmploymentInfo(input.employment);
-  validateEmergencyContact(input.emergencyContact);
-  
-  const now = new Date();
-  
-  return {
-    id: generateTenantId(),
-    name: { ...input.name },
-    contact: { ...input.contact },
-    identification: { ...input.identification },
-    employment: { ...input.employment },
-    emergencyContact: { ...input.emergencyContact },
-    guarantorId: undefined,
-    status: 'prospective',
+  const tenant: Tenant = {
+    id: generateTenantId(date),
+    fullName: trimmedName,
+    email: emailResult.value,
+    phone: phoneResult.value,
+    emergencyContact: emergencyContactResult.value,
+    verificationStatus: 'pending-verification',
     createdAt: now,
     updatedAt: now,
+    version: 1,
   };
+
+  return ok(tenant);
 }
 
-/**
- * Tenant情報を更新
- * @see REQ-RENTAL-001 F022
- */
-export function updateTenant(
-  tenant: Tenant,
-  updates: Partial<CreateTenantInput>
-): Tenant {
-  if (updates.name) {
-    validatePersonName(updates.name);
-  }
-  if (updates.contact) {
-    validateContactInfo(updates.contact);
-  }
-  if (updates.identification) {
-    validateIdentification(updates.identification);
-  }
-  if (updates.employment) {
-    validateEmploymentInfo(updates.employment);
-  }
-  if (updates.emergencyContact) {
-    validateEmergencyContact(updates.emergencyContact);
-  }
-  
-  return {
-    ...tenant,
-    name: updates.name ? { ...updates.name } : tenant.name,
-    contact: updates.contact ? { ...updates.contact } : tenant.contact,
-    identification: updates.identification 
-      ? { ...updates.identification } 
-      : tenant.identification,
-    employment: updates.employment 
-      ? { ...updates.employment } 
-      : tenant.employment,
-    emergencyContact: updates.emergencyContact 
-      ? { ...updates.emergencyContact } 
-      : tenant.emergencyContact,
-    updatedAt: new Date(),
-  };
+// ============================================================
+// Status Transition Functions
+// ============================================================
+
+export function canTransitionVerificationStatus(
+  currentStatus: VerificationStatus,
+  targetStatus: VerificationStatus
+): boolean {
+  const validTransitions = validVerificationStatusTransitions[currentStatus];
+  return validTransitions.includes(targetStatus);
 }
 
-/**
- * Tenantに保証人を設定
- * @see REQ-RENTAL-001 F023
- */
-export function assignGuarantor(
+export function transitionVerificationStatus(
   tenant: Tenant,
-  guarantorId: GuarantorId
-): Tenant {
-  return {
-    ...tenant,
-    guarantorId,
-    updatedAt: new Date(),
-  };
-}
-
-/**
- * 有効なステータス遷移マップ
- */
-const validTenantStatusTransitions: Record<TenantStatus, TenantStatus[]> = {
-  prospective: ['active', 'former'],  // 申込中 → 入居 or 却下
-  active: ['former'],                  // 入居中 → 退去
-  former: [],                          // 退去済みは変更不可
-};
-
-/**
- * Tenantステータスを更新
- * @see REQ-RENTAL-001 F021
- */
-export function updateTenantStatus(
-  tenant: Tenant,
-  newStatus: TenantStatus
-): Tenant {
-  const allowedTransitions = validTenantStatusTransitions[tenant.status];
-  
-  if (!allowedTransitions.includes(newStatus)) {
-    throw new Error(
-      `Invalid status transition: ${tenant.status} -> ${newStatus}. ` +
-      `Allowed: ${allowedTransitions.join(', ') || 'none'}`
+  targetStatus: VerificationStatus
+): Result<Tenant, InvalidStatusTransitionError> {
+  if (!canTransitionVerificationStatus(tenant.verificationStatus, targetStatus)) {
+    return err(
+      new InvalidStatusTransitionError('Tenant', tenant.verificationStatus, targetStatus)
     );
   }
-  
-  return {
+
+  const updatedTenant: Tenant = {
     ...tenant,
-    status: newStatus,
+    verificationStatus: targetStatus,
     updatedAt: new Date(),
+    version: tenant.version + 1,
   };
+
+  return ok(updatedTenant);
 }
 
-/**
- * Tenantを非アクティブ化（退去処理）
- */
-export function deactivateTenant(tenant: Tenant): Tenant {
-  if (tenant.status === 'former') {
-    throw new Error('Tenant is already deactivated');
-  }
-  
-  return updateTenantStatus(tenant, 'former');
+// ============================================================
+// Query Helpers
+// ============================================================
+
+export function isVerified(tenant: Tenant): boolean {
+  return tenant.verificationStatus === 'verified';
 }
 
-/**
- * 収入審査（年収が家賃の36倍以上か）
- * @see REQ-RENTAL-001 F021
- */
-export function checkIncomeEligibility(
-  tenant: Tenant,
-  monthlyRent: number
-): { eligible: boolean; ratio: number; requiredRatio: number } {
-  const annualIncome = tenant.employment.annualIncome.amount;
-  const requiredAnnualIncome = monthlyRent * 36;  // 家賃の36倍
-  const ratio = annualIncome / monthlyRent;
-  
-  return {
-    eligible: annualIncome >= requiredAnnualIncome,
-    ratio,
-    requiredRatio: 36,
-  };
+export function canSignContract(tenant: Tenant): boolean {
+  // REQ-RENTAL-001-F011: Tenant must be verified to sign contracts
+  return tenant.verificationStatus === 'verified';
 }
