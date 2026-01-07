@@ -23,10 +23,13 @@
 15. [YATA Platform Enhancements](#yata-platform-enhancements) *(v1.7.0)*
 16. [Formal Verification](#formal-verification) *(v1.7.5)*
 17. [Security Analysis](#security-analysis) *(v1.8.0)*
-18. [MCP Server Integration](#mcp-server-integration)
-19. [YATA Integration](#yata-integration)
-20. [Best Practices](#best-practices)
-21. [Troubleshooting](#troubleshooting)
+18. [DFG/CFG Extraction](#dfgcfg-extraction) *(v2.0.0-alpha.1)*
+19. [Lean 4 Integration](#lean-4-integration) *(v2.0.0-alpha.1)*
+20. [YATA Scale](#yata-scale) *(v2.0.0-alpha.1)*
+21. [MCP Server Integration](#mcp-server-integration)
+22. [YATA Integration](#yata-integration)
+23. [Best Practices](#best-practices)
+24. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -1372,6 +1375,319 @@ npx musubix-security scan ./src --format sarif --output report.sarif
 
 ---
 
+## DFG/CFG Extraction
+
+*(v2.0.0-alpha.1)*
+
+The `@nahisaho/musubix-dfg` package provides Data Flow Graph (DFG) and Control Flow Graph (CFG) extraction for TypeScript and JavaScript code analysis.
+
+### Installation
+
+```bash
+npm install @nahisaho/musubix-dfg
+```
+
+### DFG Extraction
+
+Extract data flow graphs from source code:
+
+```typescript
+import { extractDFG, DFGExtractor } from '@nahisaho/musubix-dfg';
+
+// Simple extraction
+const dfg = extractDFG(sourceCode, 'typescript');
+
+// With configuration
+const extractor = new DFGExtractor({
+  includeImplicitFlows: true,
+  trackConstants: true,
+});
+const result = extractor.extract(sourceCode);
+
+console.log(`Nodes: ${result.nodes.length}`);
+console.log(`Edges: ${result.edges.length}`);
+```
+
+### CFG Extraction
+
+Extract control flow graphs:
+
+```typescript
+import { extractCFG, CFGExtractor } from '@nahisaho/musubix-dfg';
+
+const cfg = extractCFG(sourceCode);
+
+// Traverse CFG
+for (const block of cfg.blocks) {
+  console.log(`Block ${block.id}: ${block.statements.length} statements`);
+  console.log(`Successors: ${block.successors.join(', ')}`);
+}
+```
+
+### Def-Use Chain Analysis
+
+Build definition-use chains for variable tracking:
+
+```typescript
+import { analyzeDefUse } from '@nahisaho/musubix-dfg';
+
+const chains = analyzeDefUse(dfg);
+
+for (const chain of chains) {
+  console.log(`Variable: ${chain.variable}`);
+  console.log(`Defined at: line ${chain.definition.line}`);
+  console.log(`Used at: ${chain.uses.map(u => u.line).join(', ')}`);
+}
+```
+
+### Data Dependency Analysis
+
+Analyze data dependencies between statements:
+
+```typescript
+import { analyzeDataDependencies } from '@nahisaho/musubix-dfg';
+
+const deps = analyzeDataDependencies(dfg);
+
+for (const dep of deps) {
+  console.log(`${dep.from} -> ${dep.to}: ${dep.type}`);
+}
+```
+
+---
+
+## Lean 4 Integration
+
+*(v2.0.0-alpha.1)*
+
+The `@nahisaho/musubix-lean` package provides integration with the Lean 4 theorem prover for formal verification of requirements.
+
+### Installation
+
+```bash
+npm install @nahisaho/musubix-lean
+```
+
+### EARS to Lean Conversion
+
+Convert EARS requirements to Lean 4 theorems:
+
+```typescript
+import { EarsToLeanConverter } from '@nahisaho/musubix-lean';
+
+const converter = new EarsToLeanConverter();
+
+// Convert EARS requirement
+const earsRequirement = {
+  id: 'REQ-001',
+  type: 'event-driven',
+  trigger: 'user clicks submit',
+  response: 'system saves form data',
+};
+
+const theorem = converter.convert(earsRequirement);
+console.log(theorem.leanCode);
+// theorem REQ_001 : ∀ (s : State), 
+//   user_clicks_submit s → saves_form_data (next s)
+```
+
+### Lean AST Parsing
+
+Parse and manipulate Lean 4 code:
+
+```typescript
+import { LeanParser, LeanAST } from '@nahisaho/musubix-lean';
+
+const parser = new LeanParser();
+const ast = parser.parse(leanCode);
+
+// Traverse AST
+for (const decl of ast.declarations) {
+  if (decl.type === 'theorem') {
+    console.log(`Theorem: ${decl.name}`);
+    console.log(`Statement: ${decl.statement}`);
+  }
+}
+```
+
+### Proof Engine
+
+Execute proofs using Lean 4:
+
+```typescript
+import { LeanProofEngine } from '@nahisaho/musubix-lean';
+
+const engine = new LeanProofEngine({
+  leanPath: '/usr/bin/lean',
+  timeout: 30000,
+});
+
+const result = await engine.prove(theorem);
+
+if (result.success) {
+  console.log('Proof verified!');
+  console.log(`Proof: ${result.proof}`);
+} else {
+  console.log(`Failed: ${result.error}`);
+}
+```
+
+### ReProver Integration
+
+Use ReProver for automated proof search:
+
+```typescript
+import { ReProverClient } from '@nahisaho/musubix-lean';
+
+const reprover = new ReProverClient({
+  endpoint: 'http://localhost:8080',
+  maxDepth: 10,
+});
+
+const proof = await reprover.searchProof(theorem);
+
+if (proof.found) {
+  console.log('Proof found!');
+  console.log(proof.tactics);
+}
+```
+
+---
+
+## YATA Scale
+
+*(v2.0.0-alpha.1)*
+
+The `@nahisaho/yata-scale` package provides distributed knowledge graph capabilities with sharding, caching, and synchronization.
+
+### Installation
+
+```bash
+npm install @nahisaho/yata-scale
+```
+
+### High-Level API
+
+Use `YataScaleManager` for simplified access:
+
+```typescript
+import { YataScaleManager } from '@nahisaho/yata-scale';
+
+const yata = new YataScaleManager({
+  shards: 16,
+  cacheConfig: {
+    l1MaxSize: 1000,
+    l2MaxSize: 10000,
+    l3Path: './cache',
+  },
+});
+
+// Store entity
+await yata.putEntity({
+  id: 'entity-1',
+  type: 'Document',
+  properties: { title: 'Example' },
+});
+
+// Query
+const results = await yata.query('SELECT ?s WHERE { ?s rdf:type Document }');
+```
+
+### Sharding
+
+Distribute data across shards using consistent hashing:
+
+```typescript
+import { ShardManager, HashPartitionStrategy } from '@nahisaho/yata-scale';
+
+const shardManager = new ShardManager({
+  shardCount: 16,
+  virtualNodes: 150,
+  strategy: new HashPartitionStrategy(),
+});
+
+// Get shard for entity
+const shard = shardManager.getShardForEntity('entity-id');
+console.log(`Entity assigned to shard ${shard.id}`);
+
+// Rebalance on node changes
+await shardManager.addNode('node-5');
+```
+
+### Multi-Tier Caching
+
+Three-tier caching for optimal performance:
+
+```typescript
+import { CacheManager, L1Cache, L2Cache, L3Cache } from '@nahisaho/yata-scale';
+
+const cache = new CacheManager({
+  l1: new L1Cache({ maxSize: 1000 }),    // LRU cache
+  l2: new L2Cache({ maxSize: 10000 }),   // LFU cache
+  l3: new L3Cache({ path: './cache' }),  // Disk cache
+});
+
+// Cache operations
+await cache.set('key', value, { ttl: 3600 });
+const result = await cache.get('key');
+
+// Invalidation
+await cache.invalidate('key');
+await cache.invalidatePattern('user:*');
+```
+
+### Index Management
+
+Multiple index types for efficient queries:
+
+```typescript
+import { IndexManager, BPlusTreeIndex, FullTextIndex, GraphIndex } from '@nahisaho/yata-scale';
+
+const indexManager = new IndexManager();
+
+// B+ Tree for range queries
+indexManager.addIndex('timestamp', new BPlusTreeIndex());
+
+// Full-text for search
+indexManager.addIndex('content', new FullTextIndex());
+
+// Graph for traversal
+indexManager.addIndex('relationships', new GraphIndex());
+```
+
+### Vector Clock Synchronization
+
+Distributed synchronization with conflict resolution:
+
+```typescript
+import { SyncController, VectorClock, ConflictResolver } from '@nahisaho/yata-scale';
+
+const sync = new SyncController({
+  nodeId: 'node-1',
+  conflictStrategy: 'last-write-wins',
+});
+
+// Synchronize with peers
+await sync.synchronize();
+
+// Manual conflict resolution
+sync.onConflict((conflict) => {
+  console.log(`Conflict on ${conflict.key}`);
+  return conflict.local; // or conflict.remote
+});
+```
+
+### v2.0.0-alpha.1 Package Summary
+
+| Package | Tests | Description |
+|---------|-------|-------------|
+| `@nahisaho/musubix-dfg` | 30 | DFG/CFG extraction, Def-Use analysis |
+| `@nahisaho/musubix-lean` | 151 | Lean 4 theorem proving, EARS conversion |
+| `@nahisaho/yata-scale` | 57 | Distributed sharding, caching, sync |
+| **Total** | **238** | **Phase 1: Deep Symbolic Integration** |
+
+---
+
 ## MCP Server Integration
 
 ### CLI Startup
@@ -1982,6 +2298,6 @@ const client = createYATAClient({
 
 ---
 
-**Version**: 1.8.0  
-**Last Updated**: 2026-01-06  
+**Version**: 1.8.5  
+**Last Updated**: 2026-01-08  
 **MUSUBIX Project**

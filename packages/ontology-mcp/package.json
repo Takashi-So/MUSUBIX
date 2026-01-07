@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-ontology-mcp",
-  "version": "1.7.0",
+  "version": "1.8.5",
   "description": "MUSUBIX Ontology Reasoning MCP - OWL 2 RL inference and SPARQL query",
   "type": "module",
   "main": "./dist/index.js",

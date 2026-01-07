@@ -7,12 +7,15 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1586%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1824%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 [![npm security](https://img.shields.io/npm/v/@nahisaho/musubix-security.svg?label=@nahisaho/musubix-security)](https://www.npmjs.com/package/@nahisaho/musubix-security)
+[![npm dfg](https://img.shields.io/npm/v/@nahisaho/musubix-dfg.svg?label=@nahisaho/musubix-dfg)](https://www.npmjs.com/package/@nahisaho/musubix-dfg)
+[![npm lean](https://img.shields.io/npm/v/@nahisaho/musubix-lean.svg?label=@nahisaho/musubix-lean)](https://www.npmjs.com/package/@nahisaho/musubix-lean)
+[![npm yata-scale](https://img.shields.io/npm/v/@nahisaho/yata-scale.svg?label=@nahisaho/yata-scale)](https://www.npmjs.com/package/@nahisaho/yata-scale)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.8.0** - Security Analysis Edition
+> **v1.8.5** - Deep Symbolic Integration Edition
 
 **[日本語版 README](README.ja.md)**
 
@@ -42,6 +45,9 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 - 🚀 **YATA Platform Enhancements** - Index optimization, enhanced export, global sync, code generation, web UI *(v1.7.0)*
 - 🔬 **Formal Verification** - Z3 SMT solver integration, Hoare triple verification, EARS-to-SMT conversion *(v1.7.5)*
 - 🛡️ **Security Analysis** - Vulnerability scanning, secret detection, taint analysis, dependency auditing *(v1.8.0)*
+- 📊 **DFG/CFG Extraction** - Data flow graph and control flow graph analysis for TypeScript/JavaScript *(v2.0.0-alpha.1)*
+- 🧮 **Lean 4 Integration** - Theorem proving with EARS-to-Lean conversion and ReProver proof search *(v2.0.0-alpha.1)*
+- 📈 **YATA Scale** - Distributed knowledge graph with sharding, multi-tier caching, and vector clock sync *(v2.0.0-alpha.1)*
 
 ## Architecture
 
@@ -95,6 +101,9 @@ flowchart TB
 | `packages/yata-global/` | **YATA Global - Distributed Knowledge Platform (NEW!)** |
 | `packages/security/` | **Security Analysis (NEW!)** |
 | `packages/formal-verify/` | **Formal Verification** |
+| `packages/dfg/` | **DFG/CFG Extraction - Data Flow Analysis (v2.0.0)** |
+| `packages/lean/` | **Lean 4 Integration - Theorem Proving (v2.0.0)** |
+| `packages/yata-scale/` | **YATA Scale - Distributed KG (v2.0.0)** |
 | `steering/` | Project Memory |
 | `storage/` | Specifications & Artifacts |
 | `templates/` | Templates |
@@ -132,6 +141,9 @@ npm install @nahisaho/musubix-mcp-server
 npm install @nahisaho/musubix-yata-client
 npm install @nahisaho/musubix-security
 npm install @nahisaho/musubix-formal-verify
+npm install @nahisaho/musubix-dfg
+npm install @nahisaho/musubix-lean
+npm install @nahisaho/yata-scale
 ```
 
 ### Build from Source

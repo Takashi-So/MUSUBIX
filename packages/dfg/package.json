@@ -1,0 +1,82 @@
+{
+  "name": "@nahisaho/musubix-dfg",
+  "version": "1.8.5",
+  "description": "MUSUBIX Data Flow Graph and Control Flow Graph analysis for neuro-symbolic code understanding",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./analyzers": {
+      "types": "./dist/analyzers/index.d.ts",
+      "import": "./dist/analyzers/index.js"
+    },
+    "./graph": {
+      "types": "./dist/graph/index.d.ts",
+      "import": "./dist/graph/index.js"
+    },
+    "./yata": {
+      "types": "./dist/yata/index.d.ts",
+      "import": "./dist/yata/index.js"
+    }
+  },
+  "bin": {
+    "musubix-dfg": "bin/musubix-dfg.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "musubix",
+    "dfg",
+    "data-flow-graph",
+    "cfg",
+    "control-flow-graph",
+    "static-analysis",
+    "neuro-symbolic",
+    "code-analysis",
+    "typescript"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX",
+    "directory": "packages/dfg"
+  },
+  "bugs": {
+    "url": "https://github.com/nahisaho/MUSUBIX/issues"
+  },
+  "homepage": "https://github.com/nahisaho/MUSUBIX/tree/main/packages/dfg#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "typescript": "^5.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "vitest": "^3.0.4"
+  },
+  "peerDependencies": {
+    "@nahisaho/yata-local": "^1.8.0"
+  },
+  "peerDependenciesMeta": {
+    "@nahisaho/yata-local": {
+      "optional": true
+    }
+  }
+}
