@@ -103,10 +103,232 @@ const report = await service.generateReport(scanResult, 'sarif');
 // 対応フォーマット: json, markdown, html, sarif
 ```
 
+#### Phase 2: 高度なセキュリティ分析 (2026-01-07追加)
+
+##### コンテナイメージスキャン
+
+Dockerfile/コンテナイメージのセキュリティ分析:
+
+```typescript
+import { createImageScanner } from '@nahisaho/musubix-security';
+
+const scanner = createImageScanner({ minSeverity: 'medium' });
+
+// Dockerfile分析
+const analysis = await scanner.analyzeDockerfile('./Dockerfile');
+// issues: セキュリティ問題 (DKR-001〜008)
+// bestPractices: ベストプラクティス違反
+
+// イメージスキャン (Trivy/Grype統合)
+const result = await scanner.scan('myapp:latest');
+```
+
+| ルールID | 検出内容 | 重要度 |
+|---------|---------|--------|
+| DKR-001 | :latestタグ使用 | medium |
+| DKR-002 | rootユーザー実行 | high |
+| DKR-004 | curl \| bash パターン | critical |
+| DKR-007 | 環境変数でのシークレット | critical |
+
+##### Infrastructure as Code (IaC) セキュリティ
+
+Terraform/CloudFormation/Kubernetesのセキュリティチェック:
+
+```typescript
+import { createIaCChecker } from '@nahisaho/musubix-security';
+
+const checker = createIaCChecker();
+const result = await checker.analyze('./infrastructure');
+// Terraform, CloudFormation, Kubernetes YAMLに対応
+```
+
+| 検出カテゴリ | 例 |
+|-------------|---|
+| 公開アクセス | S3バケット公開、セキュリティグループ0.0.0.0/0 |
+| 暗号化不足 | EBS/RDS暗号化なし |
+| 認証問題 | IAM過剰権限、MFA未設定 |
+
+##### AIセキュリティ（プロンプトインジェクション検出）
+
+LLM連携コードのセキュリティ分析:
+
+```typescript
+import { createPromptInjectionDetector } from '@nahisaho/musubix-security';
+
+const detector = createPromptInjectionDetector();
+const result = await detector.analyze(code, 'api.ts');
+// パターン: 直接入力、システムプロンプト上書き、Jailbreak試行
+```
+
+##### ゼロデイ脆弱性検出
+
+ヒューリスティック解析による未知の脆弱性パターン検出:
+
+```typescript
+import { createZeroDayDetector } from '@nahisaho/musubix-security';
+
+const detector = createZeroDayDetector({ sensitivity: 'high' });
+const result = await detector.analyze(code, 'module.ts');
+// 異常パターン、危険なAPI組み合わせ、未検証入力の検出
+```
+
+##### 手続き間解析（Interprocedural Analysis）
+
+関数境界を超えたデータフロー追跡:
+
+```typescript
+import { createInterproceduralAnalyzer } from '@nahisaho/musubix-security';
+
+const analyzer = createInterproceduralAnalyzer();
+const result = await analyzer.analyze(code, 'service.ts');
+// callGraph: 関数呼び出しグラフ
+// dataFlowPaths: 関数間データフロー
+// crossFunctionTaints: 関数境界を超える汚染
+```
+
 ### テスト統計
 
-- **テスト数**: 59件（全合格）
-- **カバレッジ**: types, secret-detector, vulnerability-scanner, security-service
+- **Phase 1テスト**: 125件（124合格、1スキップ）
+- **Phase 2テスト**: 84件（82合格、2スキップ - 外部ツール依存）
+- **Phase 3テスト**: 136件（136合格）
+- **合計**: 345件（343合格、2スキップ）
+- **カバレッジ**: 全セキュリティ分析機能
+
+#### Phase 3: エンタープライズセキュリティ機能 (2026-01-07追加)
+
+##### コンプライアンスチェッカー
+
+OWASP ASVS/PCI-DSSコンプライアンス検証:
+
+```typescript
+import { createComplianceChecker } from '@nahisaho/musubix-security';
+
+const checker = createComplianceChecker({
+  standards: ['OWASP-ASVS-L1', 'PCI-DSS'],
+});
+
+// 単一標準のチェック
+const report = await checker.checkCompliance('OWASP-ASVS-L1');
+// standard, timestamp, findings, summary
+
+// コードベースのチェック
+const codeReport = await checker.check(code, 'auth.ts', 'OWASP-ASVS-L2');
+
+// 全標準のチェック
+const allReports = await checker.checkAllStandards();
+```
+
+| 標準 | 対応レベル |
+|------|-----------|
+| OWASP ASVS | Level 1/2/3 |
+| PCI-DSS | 全要件 |
+
+##### 依存関係スキャナー（SCA）
+
+Software Composition Analysis + SBOM生成:
+
+```typescript
+import { createDependencyScanner } from '@nahisaho/musubix-security';
+
+const scanner = createDependencyScanner({
+  checkVulnerabilities: true,
+  checkLicenses: true,
+  checkOutdated: true,
+  generateSBOM: true,
+});
+
+const result = await scanner.scan('./project');
+// packageManager, vulnerabilities, licenseRisks, outdatedPackages, sbom
+
+// API互換メソッド
+const simpleResult = await scanner.scanDependencies('./project');
+```
+
+| 機能 | 説明 |
+|------|------|
+| パッケージマネージャー検出 | npm/yarn/pnpm自動検出 |
+| SBOM生成 | CycloneDX 1.4形式 |
+| ライセンスリスク | GPL/AGPL等の検出 |
+| 脆弱性検出 | npm audit統合 |
+
+##### APIセキュリティアナライザー
+
+OpenAPI仕様のセキュリティ分析:
+
+```typescript
+import { createAPISecurityAnalyzer } from '@nahisaho/musubix-security';
+
+const analyzer = createAPISecurityAnalyzer();
+const result = await analyzer.analyze(openApiSpec);
+// findings: セキュリティ問題
+// summary: カテゴリ別集計
+```
+
+| ルールID | 検出内容 |
+|---------|---------|
+| API-AUTH-001 | 認証スキーム未定義 |
+| API-AUTH-002 | Bearer認証推奨 |
+| API-INJ-001 | SQLインジェクションリスク |
+| API-DATA-001 | 機密データ露出リスク |
+
+##### リアルタイムモニター
+
+ファイル監視付き継続的セキュリティスキャン:
+
+```typescript
+import { createRealtimeMonitor, createSecurityMonitor } from '@nahisaho/musubix-security';
+
+const monitor = createRealtimeMonitor({
+  watchPaths: ['./src'],
+  includePatterns: ['**/*.ts', '**/*.js'],
+  excludePatterns: ['**/node_modules/**'],
+  debounceMs: 500,
+});
+
+monitor.on('vulnerability-found', (event) => {
+  console.log('脆弱性検出:', event.vulnerability);
+});
+
+monitor.on('scan-complete', (event) => {
+  console.log('スキャン完了:', event.scanResult.summary);
+});
+
+await monitor.start();
+// ファイル変更時に自動スキャン
+```
+
+##### セキュリティダッシュボード
+
+統合レポート生成:
+
+```typescript
+import { createSecurityDashboard } from '@nahisaho/musubix-security';
+
+const dashboard = createSecurityDashboard({
+  projectName: 'MyProject',
+  format: 'html',
+  includeTrends: true,
+  includeRecommendations: true,
+});
+
+// スキャン結果を追加
+dashboard.addScanResult(scanResult);
+
+// レポート生成
+const report = dashboard.generateReport();
+// executiveSummary, metrics, findings, recommendations
+
+// エクスポート
+const html = dashboard.exportHTML();
+const markdown = dashboard.exportMarkdown();
+const json = dashboard.exportJSON();
+```
+
+| 出力形式 | 用途 |
+|---------|------|
+| HTML | 経営層向けレポート |
+| Markdown | 技術ドキュメント |
+| JSON | CI/CD統合 |
 
 ---
 

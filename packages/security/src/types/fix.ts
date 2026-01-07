@@ -22,7 +22,14 @@ export type FixStrategy =
   | 'encryption' // Sensitive data
   | 'sanitization' // Generic sanitization
   | 'configuration' // Config changes
-  | 'dependency-update'; // Vulnerable dependencies
+  | 'dependency-update' // Vulnerable dependencies
+  // Phase 5: Auto-Fix strategies
+  | 'encoding' // Output encoding
+  | 'parameterization' // Query parameterization
+  | 'validation' // Input validation
+  | 'replacement' // Code replacement
+  | 'combined' // Multiple strategies combined
+  | 'revert'; // Revert a fix
 
 /**
  * Code edit to apply
@@ -53,6 +60,8 @@ export interface ImportEdit {
   namespaceImport?: string;
   /** Insert at line (0 for top of file) */
   insertLine: number;
+  /** Whether this is a type-only import */
+  isTypeOnly?: boolean;
 }
 
 /**

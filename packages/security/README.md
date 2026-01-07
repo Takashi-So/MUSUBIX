@@ -13,6 +13,8 @@ MUSUBIXシステムにセキュリティ特化機能を提供するパッケー�
 - **自動修正**: LLM（VS Code LM API）+ Z3形式検証による安全な修正
 - **シークレット検出**: APIキー、トークン、パスワードの検出
 - **依存関係監査**: npm依存関係の脆弱性チェック
+- **セキュリティインテリジェンス**: 脅威フィード統合、MITRE ATT&CK対応
+- **リスク分析**: CVSS計算、予測分析、異常検出
 
 ## インストール
 
@@ -64,6 +66,31 @@ const taintResult = await taintAnalyzer.analyze(code, 'file.ts');
 const fixPipeline = new FixPipeline();
 const fixes = await fixPipeline.generateFix(vulnerability);
 const verified = await fixPipeline.verifyFix(fixes[0]);
+
+// セキュリティインテリジェンス (Phase 6)
+import {
+  ThreatIntelligence,
+  AttackPatternMatcher,
+  RiskScorer,
+  SecurityAnalytics,
+  PredictiveAnalyzer
+} from '@nahisaho/musubix-security';
+
+// 脅威インテリジェンス
+const threatIntel = new ThreatIntelligence();
+await threatIntel.addFeed({ id: 'feed-1', name: 'My Feed', url: 'https://...' });
+const matches = threatIntel.matchCode(code);
+
+// リスクスコアリング
+const riskScorer = new RiskScorer();
+const cvss = riskScorer.calculateCVSS(vulnerability);
+const businessImpact = riskScorer.assessBusinessImpact(vulnerability);
+
+// 予測分析
+const predictor = new PredictiveAnalyzer();
+predictor.addDataPoints([...historicalData]);
+const forecast = predictor.projectRisk(30); // 30日先の予測
+const anomalies = predictor.detectAnomalies();
 ```
 
 ## 設定

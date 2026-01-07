@@ -2,7 +2,7 @@
 
 **パッケージ名**: `@nahisaho/musubix-security`  
 **バージョン**: 1.8.0  
-**最終更新**: 2026-01-06
+**最終更新**: 2026-01-07
 
 ---
 
@@ -20,6 +20,9 @@
 | **依存関係監査** | npm audit統合による脆弱な依存関係の検出 |
 | **自動修正生成** | 検出された脆弱性に対する修正コードの提案 |
 | **レポート生成** | JSON/Markdown/HTML/SARIF形式のレポート出力 |
+| **自動修正・修復** | AutoFixer、パッチ生成、修正検証（Phase 5） |
+| **セキュリティインテリジェンス** | 脅威フィード統合、MITRE ATT&CK対応（Phase 6） |
+| **リスク分析** | CVSS計算、予測分析、異常検出（Phase 6） |
 
 ### 1.2 モジュール構成
 
@@ -35,6 +38,18 @@ packages/security/src/
 │   ├── fix-generator.ts          # 修正生成
 │   ├── fix-verifier.ts           # 修正検証
 │   └── report-generator.ts       # レポート生成
+├── remediation/         # 自動修正（Phase 5）
+│   ├── auto-fixer.ts             # 自動修正エンジン
+│   ├── fix-validator.ts          # 修正検証
+│   ├── patch-generator.ts        # パッチ生成
+│   ├── remediation-planner.ts    # 修復計画
+│   └── secure-code-transformer.ts # セキュアコード変換
+├── intelligence/        # セキュリティインテリジェンス（Phase 6）
+│   ├── threat-intelligence.ts    # 脅威インテリジェンス
+│   ├── attack-pattern-matcher.ts # MITRE ATT&CK統合
+│   ├── risk-scorer.ts            # リスクスコアリング
+│   ├── security-analytics.ts     # セキュリティ分析
+│   └── predictive-analyzer.ts    # 予測分析
 ├── infrastructure/      # インフラストラクチャ
 │   ├── ast-parser.ts             # AST解析
 │   ├── file-scanner.ts           # ファイルスキャン
@@ -482,9 +497,253 @@ interface CodeEdit {
 
 ---
 
-## 9. CLI使用方法
+## 9. 自動修正・修復システム（Phase 5）
 
-### 9.1 基本コマンド
+### 9.1 AutoFixer
+
+検出された脆弱性に対する自動修正を生成します。
+
+```typescript
+import { AutoFixer, createAutoFixer } from '@nahisaho/musubix-security';
+
+const fixer = createAutoFixer();
+
+// 脆弱性に対する修正を生成
+const fixes = fixer.generateFixes(vulnerability, {
+  maxFixes: 3,
+  minConfidence: 0.7,
+  includeBreakingChanges: false,
+  preferredStrategies: ['sanitization', 'parameterization'],
+});
+
+// 修正を適用
+const result = fixer.applyFix(fixes[0], fileContent);
+```
+
+### 9.2 FixValidator
+
+修正の適用前に検証を行います。
+
+```typescript
+import { FixValidator, createFixValidator } from '@nahisaho/musubix-security';
+
+const validator = createFixValidator();
+
+// 修正の検証
+const result = await validator.validate(fix, originalCode, fixedCode);
+
+console.log(result.valid);           // 検証結果
+console.log(result.checks);          // 検証チェック一覧
+console.log(result.score);           // スコア (0-100)
+console.log(result.recommendations); // 推奨事項
+```
+
+### 9.3 PatchGenerator
+
+修正をパッチ形式で出力します。
+
+```typescript
+import { PatchGenerator, createPatchGenerator } from '@nahisaho/musubix-security';
+
+const generator = createPatchGenerator();
+
+// パッチ生成
+const patch = generator.generatePatch(fix, originalContent, {
+  format: 'unified', // unified | git | json | context
+  contextLines: 3,
+});
+
+// パッチの適用
+const applied = generator.applyPatch(patch, targetContent);
+
+// リバースパッチ
+const reversePatch = generator.generateReversePatch(patch);
+```
+
+### 9.4 RemediationPlanner
+
+複数の脆弱性に対する修復計画を策定します。
+
+```typescript
+import { RemediationPlanner, createRemediationPlanner } from '@nahisaho/musubix-security';
+
+const planner = createRemediationPlanner();
+
+// 修復計画の作成
+const plan = planner.createPlan(vulnerabilities, {
+  strategy: 'risk-based', // severity-first | effort-first | risk-based | dependency-aware | balanced
+  maxParallelFixes: 3,
+});
+
+console.log(plan.phases);           // フェーズ分けされた修復順序
+console.log(plan.estimatedEffort);  // 推定作業量
+console.log(plan.riskReduction);    // リスク削減効果
+```
+
+### 9.5 SecureCodeTransformer
+
+セキュアなコードパターンへの変換を行います。
+
+```typescript
+import { SecureCodeTransformer, createSecureCodeTransformer } from '@nahisaho/musubix-security';
+
+const transformer = createSecureCodeTransformer();
+
+// 変換の適用
+const result = transformer.transform(code, {
+  categories: ['output-encoding', 'cryptography', 'error-handling'],
+});
+
+console.log(result.transformed);    // 変換後のコード
+console.log(result.changes);        // 変更一覧
+console.log(result.riskLevel);      // リスクレベル
+```
+
+---
+
+## 10. セキュリティインテリジェンス（Phase 6）
+
+### 10.1 ThreatIntelligence
+
+外部脅威フィードとの統合とIOCマッチングを提供します。
+
+```typescript
+import { ThreatIntelligence, createThreatIntelligence } from '@nahisaho/musubix-security';
+
+const intel = createThreatIntelligence();
+
+// フィードの追加
+await intel.addFeed({
+  id: 'custom-feed',
+  name: 'Custom Threat Feed',
+  url: 'https://threat-feed.example.com/iocs',
+  type: 'stix',
+  refreshInterval: 3600000, // 1時間
+});
+
+// コードに対するIOCマッチング
+const matches = intel.matchCode(sourceCode);
+
+// IOC検索
+const iocs = intel.searchIOCs({ type: 'ip', severity: 'high' });
+```
+
+### 10.2 AttackPatternMatcher
+
+MITRE ATT&CKフレームワークとの統合を提供します。
+
+```typescript
+import { AttackPatternMatcher, createAttackPatternMatcher } from '@nahisaho/musubix-security';
+
+const matcher = createAttackPatternMatcher();
+
+// コードに対するパターンマッチング
+const matches = matcher.matchCode(sourceCode);
+
+// 特定のテクニックの取得
+const technique = matcher.getTechnique('T1059');
+
+// タクティクス別のテクニック一覧
+const techniques = matcher.getTechniquesByTactic('execution');
+
+// カスタムパターンの追加
+matcher.addPattern({
+  id: 'CUSTOM-001',
+  name: 'Custom Attack Pattern',
+  technique: 'T1059',
+  patterns: [/eval\s*\(/g],
+  severity: 'high',
+});
+```
+
+### 10.3 RiskScorer
+
+CVSS計算とビジネスインパクト評価を行います。
+
+```typescript
+import { RiskScorer, createRiskScorer } from '@nahisaho/musubix-security';
+
+const scorer = createRiskScorer();
+
+// CVSS計算
+const cvss = scorer.calculateCVSS(vulnerability);
+console.log(cvss.baseScore);        // 基本スコア
+console.log(cvss.temporalScore);    // 時間的スコア
+console.log(cvss.environmentalScore); // 環境的スコア
+console.log(cvss.severity);         // 重要度ラベル
+
+// ビジネスインパクト評価
+const impact = scorer.assessBusinessImpact(vulnerability, {
+  assetCriticality: 'high',
+  dataClassification: 'confidential',
+  serviceAvailability: 'critical',
+});
+
+console.log(impact.score);          // インパクトスコア
+console.log(impact.factors);        // 評価要素
+console.log(impact.recommendations); // 推奨事項
+```
+
+### 10.4 SecurityAnalytics
+
+セキュリティメトリクスの収集とダッシュボード生成を行います。
+
+```typescript
+import { SecurityAnalytics, createSecurityAnalytics } from '@nahisaho/musubix-security';
+
+const analytics = createSecurityAnalytics();
+
+// イベントの記録
+analytics.recordVulnerability(vulnerability);
+analytics.recordFix(fix);
+analytics.recordScan(scanResult);
+
+// メトリクス計算
+const mttr = analytics.calculateMetric('mean-time-to-remediation');
+const vulnTrend = analytics.calculateMetric('vulnerability-trend');
+
+// ダッシュボード生成
+const dashboard = analytics.generateDashboard();
+console.log(dashboard.summary);     // サマリー
+console.log(dashboard.kpis);        // KPI一覧
+console.log(dashboard.trends);      // トレンドデータ
+```
+
+### 10.5 PredictiveAnalyzer
+
+セキュリティトレンドの予測と異常検出を行います。
+
+```typescript
+import { PredictiveAnalyzer, createPredictiveAnalyzer } from '@nahisaho/musubix-security';
+
+const analyzer = createPredictiveAnalyzer();
+
+// データポイントの追加
+analyzer.addDataPoints([
+  { timestamp: new Date('2026-01-01'), value: 10, metric: 'vulnerabilities' },
+  { timestamp: new Date('2026-01-02'), value: 12, metric: 'vulnerabilities' },
+  // ...
+]);
+
+// リスク予測（30日先）
+const projection = analyzer.projectRisk(30);
+console.log(projection.projectedRisk);  // 予測リスク値
+console.log(projection.confidence);     // 信頼度
+console.log(projection.trend);          // トレンド方向
+
+// 異常検出
+const anomalies = analyzer.detectAnomalies();
+console.log(anomalies);  // 検出された異常一覧
+
+// アラート取得
+const alerts = analyzer.getAlerts();
+```
+
+---
+
+## 11. CLI使用方法
+
+### 11.1 基本コマンド
 
 ```bash
 # フルスキャン
@@ -503,7 +762,7 @@ npx musubix-security taint ./src
 npx musubix-security audit ./project
 ```
 
-### 9.2 オプション
+### 11.2 オプション
 
 ```bash
 # 重要度フィルタ
@@ -521,9 +780,9 @@ npx musubix-security scan ./src --verbose
 
 ---
 
-## 10. MCP統合
+## 12. MCP統合
 
-### 10.1 MCPツール
+### 12.1 MCPツール
 
 MCP（Model Context Protocol）サーバーとして以下のツールを提供。
 
@@ -537,7 +796,7 @@ MCP（Model Context Protocol）サーバーとして以下のツールを提供�
 | `security_generate_fix` | 修正コード生成 |
 | `security_generate_report` | レポート生成 |
 
-### 10.2 MCPサーバー起動
+### 12.2 MCPサーバー起動
 
 ```bash
 npx musubix-security-mcp
@@ -545,9 +804,9 @@ npx musubix-security-mcp
 
 ---
 
-## 11. 設定
+## 13. 設定
 
-### 11.1 設定ファイル
+### 13.1 設定ファイル
 
 プロジェクトルートに `.musubix-securityrc.json` を配置：
 
@@ -574,7 +833,7 @@ npx musubix-security-mcp
 }
 ```
 
-### 11.2 DEFAULT_CONFIG
+### 13.2 DEFAULT_CONFIG
 
 ```typescript
 import { DEFAULT_CONFIG } from '@nahisaho/musubix-security';
@@ -586,19 +845,23 @@ console.log(DEFAULT_CONFIG.scan.severityFilter);
 
 ---
 
-## 12. テスト統計
+## 14. テスト統計
 
-| カテゴリ | テスト数 | 状態 |
-|---------|---------|------|
-| types.test.ts | 13 | ✅ 合格 |
-| secret-detector.test.ts | 17 | ✅ 合格 |
-| vulnerability-scanner.test.ts | 13 | ✅ 合格 |
-| security-service.test.ts | 16 | ✅ 合格 |
-| **合計** | **59** | **✅ 全合格** |
+| フェーズ | テストファイル数 | テスト数 | 状態 |
+|---------|-----------------|---------|------|
+| Core | 7 | 125 | ✅ 合格 |
+| Phase 2 (Advanced Detection) | 5 | 91 | ✅ 合格 |
+| Phase 3 (Enterprise) | 5 | 120 | ✅ 合格 |
+| Phase 4 (Integration) | 5 | 141 | ✅ 合格 |
+| Phase 5 (Auto-Fix) | 5 | 176 | ✅ 合格 |
+| Phase 6 (Intelligence) | 5 | 70 | ✅ 合格 |
+| **合計** | **32** | **723** | **✅ 全合格** |
+
+※ 2件のスキップテストあり（Container/Image Scanner の外部依存）
 
 ---
 
-## 13. 依存関係
+## 15. 依存関係
 
 | パッケージ | バージョン | 用途 |
 |-----------|-----------|------|
@@ -612,7 +875,7 @@ console.log(DEFAULT_CONFIG.scan.severityFilter);
 
 ---
 
-## 14. 関連ドキュメント
+## 16. 関連ドキュメント
 
 - [MUSUBIX Overview](./MUSUBIX-Overview.md) - システム全体概要
 - [MUSUBIX Core](./MUSUBIX-Core.md) - コアライブラリ
@@ -621,7 +884,7 @@ console.log(DEFAULT_CONFIG.scan.severityFilter);
 
 ---
 
-## 15. ライセンス
+## 17. ライセンス
 
 MIT License
 

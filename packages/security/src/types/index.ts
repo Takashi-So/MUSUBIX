@@ -93,3 +93,80 @@ export {
   ENV_PREFIX,
   CONFIG_SCHEMA_VERSION,
 } from './config.js';
+
+// Pipeline types (v2.0)
+export type {
+  StageId,
+  StageStatus,
+  AnalyzerType,
+  PipelineStage,
+  PipelineConfig,
+  ProgressCallback,
+  PipelineProgress,
+  StageResult,
+  PipelineResult,
+  IPipelineManager,
+  Pipeline,
+  AnalyzerFactory,
+  AnalyzerInstance,
+} from './pipeline.js';
+
+// Neuro-Symbolic types (v2.0)
+export type {
+  EvidenceType,
+  Evidence,
+  NeuralResult,
+  SymbolicResult,
+  KnowledgeGraphMatch,
+  FinalDecision,
+  NeuroSymbolicResult,
+  IntegrationOptions,
+  INeuroSymbolicCore,
+  ILLMAnalyzer,
+  IKnowledgeQuery,
+} from './neuro-symbolic.js';
+
+// Zero-day detection types (v2.0)
+export type {
+  DeviationType,
+  LLMRecommendation,
+  LLMAnalysisResult,
+  RiskFactor,
+  RiskAssessment,
+  ZeroDayCandidate,
+  ZeroDayDetectionOptions,
+  ZeroDayResult,
+  IZeroDayDetector,
+} from './zero-day.js';
+
+// Interprocedural analysis types (v2.0)
+export type {
+  DataFlowOperation,
+  ParameterInfo,
+  CallGraphNode,
+  ArgumentMapping,
+  CallGraphEdge,
+  CallGraph,
+  CycleInfo,
+  DataFlowStep,
+  DataFlowPath,
+  InterproceduralOptions,
+  InterproceduralResult,
+  IInterproceduralAnalyzer,
+} from './interprocedural.js';
+
+// Result aggregation types (v2.0)
+export type {
+  DetectionSource,
+  AggregatedVulnerability,
+  AnalysisResult,
+  AggregatedResult,
+  DeduplicationRule,
+  PrioritizationCriteria,
+  IResultAggregator,
+} from './result.js';
+
+export {
+  DEFAULT_PRIORITIZATION,
+  SEVERITY_SCORES,
+} from './result.js';

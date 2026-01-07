@@ -77,7 +77,7 @@ describe('SecretDetector', () => {
     });
 
     it('should detect Slack tokens', () => {
-      const content = `{"token": "xoxb-0000000000-0000000000-` + `testvalue12345678test"}`;  // Concatenated to avoid detection
+      const content = `{"token": "xoxb-1234567890-1234567890-` + `abcdefghijklmnop12345678"}`;  // Concatenated to avoid detection
       const secrets = detector.scanContent(content, 'config.json');
       
       expect(secrets.length).toBeGreaterThan(0);
