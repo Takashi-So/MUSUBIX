@@ -461,3 +461,14 @@ export {
   type SecureCodeTransformerOptions,
   type TransformOptions,
 } from './remediation/index.js';
+
+// ============================================================================
+// CVE Database Integration (v2.1)
+// ============================================================================
+
+export {
+  NVDClient,
+  NVDAPIError,
+  type NVDClientOptions,
+  type CVESearchResult,
+} from './cve/index.js';

@@ -170,3 +170,42 @@ export {
   DEFAULT_PRIORITIZATION,
   SEVERITY_SCORES,
 } from './result.js';
+
+// CVE types (v2.1.0)
+export type {
+  CVSSScore,
+  CVSSSeverity,
+  CVEStatus,
+  CVEReference,
+  CPEMatch,
+  CVE,
+  CVEFinding,
+  CVESearchQuery,
+  CVESyncResult,
+  CVEDatabaseOptions,
+  NpmCPEMapping,
+  NVDVulnerability,
+  NVDAPIResponse,
+} from './cve.js';
+
+// Security rule types (v2.1.0)
+export type {
+  RuleCategory,
+  OWASPTopTenCategory,
+  ASTPattern,
+  ASTPatternMatcher,
+  ASTPatternAnyOf,
+  ASTPatternAllOf,
+  PatternConstraint,
+  RuleFixTemplate,
+  RuleFixImport,
+  SecurityRuleDefinition,
+  RuleMatch,
+  RuleMatchContext,
+  RuleFilter,
+  RuleSetConfig,
+  BuiltinRuleSet,
+  RuleMatchOptions,
+  RuleYAMLEntry,
+  RuleYAMLFile,
+} from './rule.js';

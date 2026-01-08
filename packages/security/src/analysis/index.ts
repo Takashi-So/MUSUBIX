@@ -16,6 +16,13 @@ export {
 } from './taint-analyzer.js';
 
 export {
+  EnhancedTaintAnalyzer,
+  createEnhancedTaintAnalyzer,
+  type EnhancedTaintOptions,
+  type EnhancedTaintResult,
+} from './enhanced-taint-analyzer.js';
+
+export {
   SecretDetector,
   createSecretDetector,
   resetSecretCounter,
