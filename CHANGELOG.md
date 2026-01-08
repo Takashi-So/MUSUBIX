@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-01-08
+
+### Fixed
+
+- **依存関係の整理**: ルートpackage.jsonから不要な依存関係を削除
+  - `@nahisaho/musubi` を依存関係から削除（後方互換エイリアスとして維持）
+  - `musubix` の自己参照（循環参照）を削除
+- **バージョン統一**: 全依存関係を `^2.1.0` に更新
+
+### Changed
+
+- `@nahisaho/musubi` パッケージを後方互換エイリアスとして維持（非推奨マーク解除）
+
 ## [2.1.0] - 2026-01-08
 
 ### 🔐 Security Enhancement Release
