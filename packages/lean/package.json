@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-lean",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Lean 4 formal verification integration for MUSUBIX - EARS-to-Lean conversion, TypeScript specification, and proof generation",
   "type": "module",
   "main": "dist/index.js",
@@ -73,6 +73,6 @@
     "vitest": "^4.0.16"
   },
   "peerDependencies": {
-    "@nahisaho/musubix-core": "^1.8.0"
+    "@nahisaho/musubix-core": "^2.0.0"
   }
 }

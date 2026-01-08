@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-dfg",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "MUSUBIX Data Flow Graph and Control Flow Graph analysis for neuro-symbolic code understanding",
   "type": "module",
   "main": "dist/index.js",
@@ -72,7 +72,7 @@
     "vitest": "^3.0.4"
   },
   "peerDependencies": {
-    "@nahisaho/yata-local": "^1.8.0"
+    "@nahisaho/yata-local": "^2.0.0"
   },
   "peerDependenciesMeta": {
     "@nahisaho/yata-local": {

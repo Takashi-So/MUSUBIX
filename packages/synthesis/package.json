@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-synthesis",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "MUSUBIX synthesis - DSL-based program synthesis with PBE and rule learning",
   "type": "module",
   "main": "dist/index.js",
@@ -39,8 +39,8 @@
     "directory": "packages/synthesis"
   },
   "dependencies": {
-    "@nahisaho/musubix-core": "^1.8.5",
-    "@nahisaho/musubix-neural-search": "^2.5.0"
+    "@nahisaho/musubix-core": "^2.0.0",
+    "@nahisaho/musubix-neural-search": "^2.0.0"
   },
   "devDependencies": {
     "typescript": "^5.3.0",

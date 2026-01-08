@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-global",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "YATA Global - Distributed Knowledge Graph Platform with Framework Repository",
   "type": "module",
   "main": "dist/index.js",
@@ -51,6 +51,6 @@
     "vitest": "^4.0.16"
   },
   "peerDependencies": {
-    "@nahisaho/musubix-core": "^1.6.0"
+    "@nahisaho/musubix-core": "^2.0.0"
   }
 }
