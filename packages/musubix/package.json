@@ -1,0 +1,64 @@
+{
+  "name": "musubix",
+  "version": "2.2.0",
+  "description": "MUSUBIX - Neuro-Symbolic AI Integration System for Software Development",
+  "keywords": [
+    "ai",
+    "neuro-symbolic",
+    "knowledge-graph",
+    "sdd",
+    "software-development",
+    "code-generation",
+    "ears",
+    "requirements",
+    "design-patterns"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX.git"
+  },
+  "homepage": "https://github.com/nahisaho/MUSUBIX#readme",
+  "bugs": {
+    "url": "https://github.com/nahisaho/MUSUBIX/issues"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "musubix": "./bin/musubix.js"
+  },
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@nahisaho/musubix-core": "^2.2.0",
+    "@nahisaho/musubix-mcp-server": "^2.2.0",
+    "@nahisaho/musubix-security": "^2.2.0",
+    "@nahisaho/musubix-formal-verify": "^2.2.0",
+    "@nahisaho/musubix-yata-client": "^2.2.0",
+    "@nahisaho/yata-local": "^2.2.0",
+    "@nahisaho/yata-global": "^2.2.0",
+    "@nahisaho/yata-scale": "^2.2.0",
+    "@nahisaho/musubix-pattern-mcp": "^2.2.0",
+    "@nahisaho/musubix-ontology-mcp": "^2.2.0",
+    "@nahisaho/musubix-wake-sleep": "^2.2.0",
+    "@nahisaho/musubix-sdd-ontology": "^2.2.0",
+    "@nahisaho/musubix-dfg": "^2.2.0",
+    "@nahisaho/musubix-lean": "^2.2.0",
+    "@nahisaho/musubix-library-learner": "^2.2.0",
+    "@nahisaho/musubix-neural-search": "^2.2.0",
+    "@nahisaho/musubix-synthesis": "^2.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
