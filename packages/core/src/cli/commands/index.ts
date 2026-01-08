@@ -26,6 +26,7 @@ import { registerPerfCommand } from './perf.js';
 import { registerKgprCommands } from './kgpr.js';
 import { registerTasksCommand } from './tasks.js';
 import { registerScaffoldCommand } from './scaffold.js';
+import { registerSynthesisCommands } from './synthesis.js';
 
 /**
  * Register all CLI commands
@@ -66,6 +67,9 @@ export function registerCommands(program: Command): void {
   
   // Project scaffolding commands (IMP-SDD-001)
   registerScaffoldCommand(program);
+  
+  // Synthesis commands (REQ-SY-v2.2.0)
+  registerSynthesisCommands(program);
 }
 
 // Core command exports
@@ -101,3 +105,6 @@ export { registerTasksCommand } from './tasks.js';
 
 // Scaffold command export (IMP-SDD-001)
 export { registerScaffoldCommand } from './scaffold.js';
+
+// Synthesis command export (REQ-SY-v2.2.0)
+export { registerSynthesisCommands } from './synthesis.js';

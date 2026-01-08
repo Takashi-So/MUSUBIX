@@ -123,6 +123,34 @@ export * from './testing/index.js';
 // Export performance utilities (REQ-PERF-v1.5.1)
 export * from './perf/index.js';
 
+// Pipeline Configuration (v2.2.0 NEW!)
+export type {
+  PipelineConfig,
+  PipelineStage,
+  PipelineInput,
+  PipelineOutput,
+  PipelineExecutionResult,
+  PipelineConfigOptions,
+  PipelineConfigJSON,
+  ParallelGroup,
+} from './pipeline/PipelineConfig.js';
+export { createPipelineConfig, DefaultPipelineConfig } from './pipeline/PipelineConfig.js';
+
+// Synthesis Orchestrator (v2.2.0 NEW!)
+export type {
+  SynthesisOrchestrator,
+  OrchestratorConfig,
+  PipelinePreset,
+  SynthesisRequest,
+  SynthesisResponse,
+  SynthesisTiming,
+  SynthesisStatus,
+  OrchestratorStatistics,
+  IOExample,
+  LibraryPattern,
+} from './synthesis/index.js';
+export { createSynthesisOrchestrator, DefaultSynthesisOrchestrator } from './synthesis/index.js';
+
 /**
  * Core Library Entry Point
  * 

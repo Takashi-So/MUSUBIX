@@ -15,3 +15,10 @@ export {
   sddPrompts,
   getSddPrompts,
 } from './sdd-prompts.js';
+
+export {
+  synthesisGuidancePrompt,
+  patternExplanationPrompt,
+  SYNTHESIS_PROMPTS,
+  getSynthesisPrompts,
+} from './synthesis-prompts.js';

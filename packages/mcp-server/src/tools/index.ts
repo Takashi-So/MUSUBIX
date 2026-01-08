@@ -81,6 +81,15 @@ export {
   handleFormalVerifyTool,
 } from './formal-verify-tools.js';
 
+export {
+  synthesizeFromExamples,
+  analyzeExamples,
+  learnPatterns,
+  queryPatterns,
+  getSynthesisStats,
+  SYNTHESIS_TOOLS,
+} from './synthesis-tools.js';
+
 /**
  * Get all available tools
  */
@@ -92,6 +101,7 @@ export function getAllTools() {
   const { getYataTools } = require('./yata-tools.js');
   const { kgprTools } = require('./kgpr-tools.js');
   const { getFormalVerifyTools } = require('./formal-verify-tools.js');
+  const { SYNTHESIS_TOOLS } = require('./synthesis-tools.js');
   return [
     ...getSddTools(),
     ...getSymbolicTools(),
@@ -100,5 +110,6 @@ export function getAllTools() {
     ...getYataTools(),
     ...kgprTools,
     ...getFormalVerifyTools(),
+    ...SYNTHESIS_TOOLS,
   ];
 }

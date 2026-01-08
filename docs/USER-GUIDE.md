@@ -26,13 +26,14 @@
 18. [DFG/CFG Extraction](#dfgcfg-extraction) *(v2.0.0)*
 19. [Lean 4 Integration](#lean-4-integration) *(v2.0.0)*
 20. [YATA Scale](#yata-scale) *(v2.0.0)*
-21. [Library Learning](#library-learning) *(v2.0.0 NEW!)*
-22. [Neural Search](#neural-search) *(v2.0.0 NEW!)*
-23. [Program Synthesis](#program-synthesis) *(v2.0.0 NEW!)*
-24. [MCP Server Integration](#mcp-server-integration)
-25. [YATA Integration](#yata-integration)
-26. [Best Practices](#best-practices)
-27. [Troubleshooting](#troubleshooting)
+21. [Library Learning](#library-learning) *(v2.0.0)*
+22. [Neural Search](#neural-search) *(v2.0.0)*
+23. [Program Synthesis](#program-synthesis) *(v2.0.0)*
+24. [Advanced Learning Enhancement](#advanced-learning-enhancement) *(v2.2.0 NEW!)*
+25. [MCP Server Integration](#mcp-server-integration)
+26. [YATA Integration](#yata-integration)
+27. [Best Practices](#best-practices)
+28. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -2037,6 +2038,199 @@ for (const issue of verification.issues) {
 
 ---
 
+## Advanced Learning Enhancement
+
+*(v2.2.0 NEW!)*
+
+MUSUBIX v2.2.0では、Neural Search、Library Learner、Synthesisの3パッケージに対して高度な学習機能を追加しました。
+
+### Neural Search Enhancement
+
+#### ContextAwareEmbedder
+
+AST構造を認識したコンテキスト埋め込み:
+
+```typescript
+import { ContextAwareEmbedder } from '@nahisaho/musubix-neural-search';
+
+const embedder = new ContextAwareEmbedder({
+  windowSize: 5,
+  includeAST: true,
+});
+
+const embedding = embedder.embed(code, {
+  surrounding: surroundingCode,
+  imports: importStatements,
+});
+```
+
+#### HybridRanker
+
+BM25とベクトル類似度のハイブリッドランキング:
+
+```typescript
+import { HybridRanker } from '@nahisaho/musubix-neural-search';
+
+const ranker = new HybridRanker({ alpha: 0.6 });
+const results = ranker.rank(query, documents);
+```
+
+#### EmbeddingCache
+
+LRU + TTL管理キャッシュ:
+
+```typescript
+import { EmbeddingCache } from '@nahisaho/musubix-neural-search';
+
+const cache = new EmbeddingCache({
+  maxSize: 10000,
+  ttlMs: 3600000,
+});
+
+cache.set('key', embedding);
+const stats = cache.getStats(); // { hits, misses, hitRate }
+```
+
+#### TrajectoryLogger
+
+検索軌跡のロギング:
+
+```typescript
+import { createTrajectoryLogger } from '@nahisaho/musubix-neural-search';
+
+const logger = createTrajectoryLogger();
+logger.logBranch({ depth: 1, score: 0.85, action: 'expand' });
+
+const trajectory = logger.getTrajectory();
+const parquet = logger.export('parquet');
+```
+
+### Library Learner Enhancement
+
+#### SemanticChunker
+
+AST境界認識チャンキング:
+
+```typescript
+import { SemanticChunker } from '@nahisaho/musubix-library-learner';
+
+const chunker = new SemanticChunker({
+  minSize: 50,
+  maxSize: 500,
+  respectBoundaries: true,
+});
+
+const chunks = chunker.chunk(code);
+```
+
+#### PatternVersionManager
+
+Git風バージョン管理:
+
+```typescript
+import { PatternVersionManager } from '@nahisaho/musubix-library-learner';
+
+const manager = new PatternVersionManager();
+manager.commit(pattern, 'Add validation pattern');
+const history = manager.getHistory(patternId);
+manager.rollback(patternId, commitId);
+```
+
+#### MetricsExporter
+
+学習メトリクスのエクスポート:
+
+```typescript
+import { createMetricsExporter } from '@nahisaho/musubix-library-learner';
+
+const exporter = createMetricsExporter(library);
+const json = exporter.export('json');
+const markdown = exporter.export('markdown');
+const summary = exporter.getSummary();
+// { totalPatterns, averageConfidence, healthStatus }
+```
+
+### Synthesis Enhancement
+
+#### MetaLearningEngine
+
+タスク類似度ベースの戦略選択:
+
+```typescript
+import { createMetaLearningEngine } from '@nahisaho/musubix-synthesis';
+
+const meta = createMetaLearningEngine({
+  historySize: 100,
+  similarityThreshold: 0.7,
+});
+
+meta.recordTask(task, result);
+const strategy = meta.selectStrategy(newTask);
+```
+
+#### DSLExtender
+
+パターンからのDSL演算子自動生成:
+
+```typescript
+import { createDSLExtender } from '@nahisaho/musubix-synthesis';
+
+const extender = createDSLExtender(baseDSL);
+const gaps = extender.detectGaps(patterns);
+const suggestions = extender.suggestOperators(gaps);
+```
+
+#### ExampleAnalyzer
+
+例題品質分析:
+
+```typescript
+import { createExampleAnalyzer } from '@nahisaho/musubix-synthesis';
+
+const analyzer = createExampleAnalyzer();
+const quality = analyzer.analyzeQuality(examples);
+const coverage = analyzer.analyzeCoverage(examples, dsl);
+```
+
+#### ExplanationGenerator
+
+合成プログラムの自然言語説明:
+
+```typescript
+import { createExplanationGenerator } from '@nahisaho/musubix-synthesis';
+
+const explainer = createExplanationGenerator();
+const explanation = explainer.generate(program);
+const summary = explainer.summarize(program);
+// "Converts to uppercase"
+```
+
+### v2.2.0 CLI Commands
+
+```bash
+# プログラム合成
+npx musubix synthesize <examples.json>
+npx musubix syn <examples.json>  # エイリアス
+
+# パターンライブラリ管理
+npx musubix library learn <file>
+npx musubix library query <query>
+npx musubix library stats
+npx musubix lib stats  # エイリアス
+```
+
+### v2.2.0 Test Statistics
+
+| EPIC | Tasks | Tests |
+|------|-------|-------|
+| Neural Search | 7 | 138 |
+| Library Learner | 7 | 145 |
+| Synthesis | 6 | 108 |
+| Integration | 4 | 73 |
+| **Total** | **28** | **464** |
+
+---
+
 ## MCP Server Integration
 
 ### CLI Startup
@@ -2644,9 +2838,10 @@ const client = createYATAClient({
 | [INSTALL-GUIDE.md](INSTALL-GUIDE.md) | Detailed installation guide |
 | [API-REFERENCE.md](API-REFERENCE.md) | API reference |
 | [evolution-from-musubi-to-musubix.md](evolution-from-musubi-to-musubix.md) | Evolution from MUSUBI |
+| [overview/MUSUBIX-v2.2.0-Advanced-Learning.md](overview/MUSUBIX-v2.2.0-Advanced-Learning.md) | v2.2.0 Advanced Learning details |
 
 ---
 
-**Version**: 2.0.0  
+**Version**: 2.2.0  
 **Last Updated**: 2026-01-08  
 **MUSUBIX Project**

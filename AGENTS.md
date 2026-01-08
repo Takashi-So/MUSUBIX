@@ -8,13 +8,13 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 2.0.0 (Deep Symbolic + Advanced Learning) |
+| **バージョン** | 2.2.0 (Advanced Learning Enhancement) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 1660+ (全合格) |
+| **テスト数** | 2100+ (全合格) |
 | **パッケージ数** | 19 |
 | **Agent Skills** | 12 (Claude Code対応) |
 
@@ -63,9 +63,9 @@ packages/
 | `packages/sdd-ontology/` | `@nahisaho/musubix-sdd-ontology` | SDD方法論オントロジー |
 | `packages/dfg/` | `@nahisaho/musubix-dfg` | **DFG/CFG抽出** - データフロー・制御フロー解析 (v2.0.0 NEW!) |
 | `packages/lean/` | `@nahisaho/musubix-lean` | **Lean 4統合** - 定理証明・EARS変換 (v2.0.0 NEW!) |
-| `packages/library-learner/` | `@nahisaho/musubix-library-learner` | **ライブラリ学習** - APIパターン抽出 (v2.0.0 NEW!) |
-| `packages/neural-search/` | `@nahisaho/musubix-neural-search` | **ニューラル検索** - 意味的コード検索 (v2.0.0 NEW!) |
-| `packages/synthesis/` | `@nahisaho/musubix-synthesis` | **プログラム合成** - ニューラル誘導合成 (v2.0.0 NEW!) |
+| `packages/library-learner/` | `@nahisaho/musubix-library-learner` | **ライブラリ学習** - APIパターン抽出、メトリクスエクスポート (v2.2.0 Enhanced!) |
+| `packages/neural-search/` | `@nahisaho/musubix-neural-search` | **ニューラル検索** - 意味的コード検索、軌跡ロギング (v2.2.0 Enhanced!) |
+| `packages/synthesis/` | `@nahisaho/musubix-synthesis` | **プログラム合成** - ニューラル誘導合成、説明生成 (v2.2.0 Enhanced!) |
 
 ### Core パッケージモジュール
 
@@ -166,6 +166,17 @@ npx musubix scaffold domain-model <name> -e "Entity1,Entity2"  # エンティテ
 npx musubix scaffold domain-model <name> -d DOMAIN  # ドメイン接頭辞指定
 npx musubix scaffold minimal <name>        # 最小構成プロジェクト
 
+# プログラム合成 (v2.2.0 NEW!)
+npx musubix synthesize <examples.json>     # 例からプログラム合成
+npx musubix synthesize pbe <examples.json> # PBE特化合成
+npx musubix syn <examples.json>            # エイリアス
+
+# パターンライブラリ管理 (v2.2.0 NEW!)
+npx musubix library learn <file>           # コードからパターン学習
+npx musubix library query <query>          # パターン検索
+npx musubix library stats                  # 統計表示
+npx musubix lib stats                      # エイリアス
+
 # ヘルプ
 npx musubix --help
 npx musubix help <command>
@@ -182,7 +193,7 @@ npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
-### ツール一覧（24ツール）
+### ツール一覧（29ツール）
 
 #### SDD基本ツール（9ツール）
 
@@ -228,13 +239,25 @@ npx musubix-mcp --transport stdio
 | `kgpr_submit` | KGPR送信（レビュー用） |
 | `kgpr_review` | KGPRレビュー（approve/changes_requested/commented） |
 
-### プロンプト一覧（3プロンプト）
+#### Synthesisツール（5ツール）- v2.2.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `synthesis_from_examples` | 例からプログラム合成 |
+| `synthesis_analyze_examples` | 例題品質分析 |
+| `synthesis_learn_patterns` | パターン学習 |
+| `synthesis_query_patterns` | パターン検索 |
+| `synthesis_get_stats` | 統計取得 |
+
+### プロンプト一覧（5プロンプト）
 
 | プロンプト名 | 説明 |
 |-------------|------|
 | `sdd_requirements_analysis` | 機能説明からEARS形式要件を生成 |
 | `sdd_requirements_review` | 要件の完全性・憲法準拠レビュー |
 | `sdd_design_generation` | 要件からC4モデル設計を生成 |
+| `synthesis_guidance` | 合成ガイダンス (v2.2.0 NEW!) |
+| `synthesis_explain_pattern` | パターン説明 (v2.2.0 NEW!) |
 
 ---
 
@@ -388,6 +411,51 @@ Sleep Phase: consolidate() → compress() → optimize()
 - `PatternOntologyBridge`: パターン↔オントロジー相互変換
 - `N3Store`: RDF/OWLベースの知識グラフストレージ
 
+### 7. Advanced Learning Enhancement（v2.2.0 NEW!）
+
+3パッケージに高度な学習機能を追加：
+
+#### Neural Search強化
+```typescript
+import {
+  ContextAwareEmbedder,   // コンテキスト認識埋め込み
+  HybridRanker,           // BM25 + ベクトル類似度
+  EmbeddingCache,         // LRU + TTL キャッシュ
+  createTrajectoryLogger, // 検索軌跡ロギング
+} from '@nahisaho/musubix-neural-search';
+
+const logger = createTrajectoryLogger();
+logger.logBranch({ depth: 1, score: 0.85, action: 'expand' });
+const parquet = logger.export('parquet');
+```
+
+#### Library Learner強化
+```typescript
+import {
+  SemanticChunker,        // AST境界認識チャンキング
+  PatternVersionManager,  // Git風バージョン管理
+  createMetricsExporter,  // メトリクスエクスポート
+} from '@nahisaho/musubix-library-learner';
+
+const exporter = createMetricsExporter(library);
+const markdown = exporter.export('markdown');
+const summary = exporter.getSummary(); // { healthStatus: 'good' }
+```
+
+#### Synthesis強化
+```typescript
+import {
+  createMetaLearningEngine,    // メタ学習エンジン
+  createExampleAnalyzer,       // 例題品質分析
+  createExplanationGenerator,  // 説明生成
+} from '@nahisaho/musubix-synthesis';
+
+const explainer = createExplanationGenerator();
+const explanation = explainer.generate(program);
+const summary = explainer.summarize(program);
+// "Converts to uppercase"
+```
+
 ---
 
 ## 📚 学習済みベストプラクティス（v1.1.10 Updated!）
@@ -524,64 +592,91 @@ npx musubix learn best-practices --format markdown
 
 ### 推奨ワークフロー
 
-> **⚠️ 重要ルール**: Phase 1〜3（要件定義・設計・タスク分解）は、**承認可能な状態になるまでレビューと修正を繰り返すこと**。ユーザーから明示的な承認を得るまで次フェーズに進んではならない。
+> **⚠️ 重要ルール**: Phase 1〜3（要件定義・設計・タスク分解）は、**レビュー結果をユーザーに表示し、修正か次ステップかを確認すること**。ユーザーから明示的な承認を得るまで次フェーズに進んではならない。
 
 ```
-【Phase 1: 要件定義】 ※承認まで繰り返し
+【Phase 1: 要件定義】
 ┌─────────────────────────────────────────────────────────────┐
 │ 1. steering/ を読む                                         │
 │ 2. 要件定義書を作成（EARS形式）                              │
-│ 3. ユーザーに提示 → フィードバック待ち                       │
+│ 3. ユーザーに提示                                           │
 │                                                              │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ 4. レビュー実施                                          │ │
-│ │    - 既存実装との整合性チェック                          │ │
-│ │    - EARS形式の検証                                      │ │
-│ │    - 要件の網羅性・完全性確認                            │ │
-│ │                                                          │ │
-│ │ 5. 問題あり? ─Yes→ 修正して4へ戻る                      │ │
-│ │              └No─→ 6へ進む                              │ │
-│ └─────────────────────────────────────────────────────────┘ │
+│ 4. セルフレビュー実施                                        │
+│    - 既存実装との整合性チェック                              │
+│    - EARS形式の検証                                          │
+│    - 要件の網羅性・完全性確認                                │
 │                                                              │
-│ 6. 「承認」確認 → Phase 2へ                                 │
+│ 5. レビュー結果を表示                                        │
+│    ┌───────────────────────────────────────────────────────┐│
+│    │ 📋 レビュー結果:                                       ││
+│    │ ✅ EARS形式: 準拠                                      ││
+│    │ ✅ 優先度設定: 完了                                    ││
+│    │ ⚠️ 整合性: 既存REQ-XXXと重複の可能性あり              ││
+│    │                                                        ││
+│    │ 👉 修正しますか？それとも次に進みますか？              ││
+│    │    - 「修正」→ 指摘箇所を修正して再提示               ││
+│    │    - 「承認」→ Phase 2（設計）へ進む                  ││
+│    └───────────────────────────────────────────────────────┘│
+│                                                              │
+│ 6. ユーザー応答待ち                                          │
+│    - 修正指示 → 修正して3へ戻る                             │
+│    - 承認 → Phase 2へ                                       │
 └─────────────────────────────────────────────────────────────┘
 
-【Phase 2: 設計】 ※承認まで繰り返し
+【Phase 2: 設計】
 ┌─────────────────────────────────────────────────────────────┐
 │ 1. 設計書を作成（C4モデル）                                  │
-│ 2. ユーザーに提示 → フィードバック待ち                       │
+│ 2. ユーザーに提示                                           │
 │                                                              │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ 3. レビュー実施                                          │ │
-│ │    - 既存実装との型・インターフェース整合性               │ │
-│ │    - 要件トレーサビリティ（REQ-* → DES-*）               │ │
-│ │    - 設計パターン・SOLID原則の適用確認                   │ │
-│ │    - 後方互換性・移行パスの確認                          │ │
-│ │                                                          │ │
-│ │ 4. 問題あり? ─Yes→ 修正して3へ戻る                      │ │
-│ │              └No─→ 5へ進む                              │ │
-│ └─────────────────────────────────────────────────────────┘ │
+│ 3. セルフレビュー実施                                        │
+│    - 既存実装との型・インターフェース整合性                   │
+│    - 要件トレーサビリティ（REQ-* → DES-*）                   │
+│    - 設計パターン・SOLID原則の適用確認                       │
+│    - 後方互換性・移行パスの確認                              │
 │                                                              │
-│ 5. 「承認」確認 → Phase 3へ                                 │
+│ 4. レビュー結果を表示                                        │
+│    ┌───────────────────────────────────────────────────────┐│
+│    │ 📋 レビュー結果:                                       ││
+│    │ ✅ トレーサビリティ: REQ-001→DES-001 完了              ││
+│    │ ✅ 型整合性: 既存インターフェースと互換                 ││
+│    │ ✅ 設計パターン: Repository, Service適用               ││
+│    │                                                        ││
+│    │ 👉 修正しますか？それとも次に進みますか？              ││
+│    │    - 「修正」→ 指摘箇所を修正して再提示               ││
+│    │    - 「承認」→ Phase 3（タスク分解）へ進む            ││
+│    └───────────────────────────────────────────────────────┘│
+│                                                              │
+│ 5. ユーザー応答待ち                                          │
+│    - 修正指示 → 修正して2へ戻る                             │
+│    - 承認 → Phase 3へ                                       │
 └─────────────────────────────────────────────────────────────┘
 
-【Phase 3: タスク分解】 ※承認まで繰り返し
+【Phase 3: タスク分解】
 ┌─────────────────────────────────────────────────────────────┐
 │ 1. タスク分解書を作成（設計→実装タスク）                     │
-│ 2. ユーザーに提示 → フィードバック待ち                       │
+│ 2. ユーザーに提示                                           │
 │                                                              │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ 3. レビュー実施                                          │ │
-│ │    - 設計との対応確認（DES-* → TSK-*）                   │ │
-│ │    - タスクサイズの適切性                                │ │
-│ │    - 依存関係・実行順序の妥当性                          │ │
-│ │    - 工数見積もりの現実性                                │ │
-│ │                                                          │ │
-│ │ 4. 問題あり? ─Yes→ 修正して3へ戻る                      │ │
-│ │              └No─→ 5へ進む                              │ │
-│ └─────────────────────────────────────────────────────────┘ │
+│ 3. セルフレビュー実施                                        │
+│    - 設計との対応確認（DES-* → TSK-*）                       │
+│    - タスクサイズの適切性                                    │
+│    - 依存関係・実行順序の妥当性                              │
+│    - 工数見積もりの現実性                                    │
 │                                                              │
-│ 5. 「承認」確認 → Phase 4へ                                 │
+│ 4. レビュー結果を表示                                        │
+│    ┌───────────────────────────────────────────────────────┐│
+│    │ 📋 レビュー結果:                                       ││
+│    │ ✅ トレーサビリティ: DES-001→TSK-001〜003 完了         ││
+│    │ ✅ タスクサイズ: 各2-4時間で適切                       ││
+│    │ ✅ 依存関係: TSK-001→TSK-002→TSK-003 明確             ││
+│    │                                                        ││
+│    │ 👉 修正しますか？それとも実装に進みますか？            ││
+│    │    - 「修正」→ 指摘箇所を修正して再提示               ││
+│    │    - 「承認」→ Phase 4（実装）へ進む                  ││
+│    └───────────────────────────────────────────────────────┘│
+│                                                              │
+│ 5. ユーザー応答待ち                                          │
+│    - 修正指示 → 修正して2へ戻る                             │
+│    - 承認 → Phase 4へ                                       │
 └─────────────────────────────────────────────────────────────┘
 
 【Phase 4: 実装】
@@ -602,13 +697,23 @@ npx musubix learn best-practices --format markdown
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### レビュー観点チェックリスト
+### レビュー結果の表示フォーマット
 
-| フェーズ | チェック項目 |
-|---------|-------------|
-| **要件定義** | ☐ EARS形式準拠 ☐ 優先度設定 ☐ 受け入れ基準明確 ☐ 既存機能との整合性 |
-| **設計** | ☐ C4モデル完備 ☐ 型定義整合性 ☐ REQ→DESトレース ☐ 移行パス明記 |
-| **タスク分解** | ☐ DES→TSKトレース ☐ 依存関係明確 ☐ サイズ適切 ☐ 工数現実的 |
+各フェーズ終了時に以下の形式でレビュー結果を表示:
+
+```
+📋 **レビュー結果**
+
+| 観点 | 状態 | 詳細 |
+|------|------|------|
+| チェック項目1 | ✅ OK | 説明 |
+| チェック項目2 | ⚠️ 警告 | 要確認事項 |
+| チェック項目3 | ❌ NG | 修正が必要 |
+
+👉 **次のアクションを選択してください:**
+- 「修正」/ 具体的な修正指示 → 修正して再提示
+- 「承認」/「OK」/「進める」 → 次フェーズへ
+```
 
 ### 承認キーワード
 
@@ -619,4 +724,4 @@ npx musubix learn best-practices --format markdown
 
 **Agent**: GitHub Copilot / Claude
 **Last Updated**: 2026-01-08
-**Version**: 2.0.0
+**Version**: 2.2.0

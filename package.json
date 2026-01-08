@@ -80,6 +80,7 @@
     "@nahisaho/yata-global": "^2.1.0",
     "@nahisaho/yata-local": "^2.1.0",
     "@nahisaho/yata-scale": "^2.1.0",
-    "@nahisaho/yata-ui": "^2.1.0"
+    "@nahisaho/yata-ui": "^2.1.0",
+    "musubix": "^2.1.1"
   }
 }
