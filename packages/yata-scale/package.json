@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-scale",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "YATA Knowledge Graph Scale-up Package - Distributed graph, high-performance indexing, multi-level cache",
   "type": "module",
   "main": "./dist/index.js",

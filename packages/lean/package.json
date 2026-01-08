@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-lean",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Lean 4 formal verification integration for MUSUBIX - EARS-to-Lean conversion, TypeScript specification, and proof generation",
   "type": "module",
   "main": "dist/index.js",
