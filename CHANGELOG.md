@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] - 2026-01-08
+
+### Changed
+
+- **AGENTS.md**: ワークフローにレビュー・修正サイクルを強化
+  - Phase 1〜3（要件定義・設計・タスク分解）に「承認まで繰り返し」ルールを明記
+  - レビュー観点チェックリストを追加
+  - 承認キーワード一覧を追加
+  - 重要ルールとして「承認可能な状態になるまでレビューと修正を繰り返すこと」を追加
+
+### Added
+
+- **v2.1.0 Security強化の設計ドキュメント**:
+  - `storage/specs/REQ-SECURITY-2.1.0.md` - 要件定義書（16 EARS要件）
+  - `storage/design/DES-SECURITY-2.1.0.md` - 設計書（C4モデル、インターフェース定義）
+  - `storage/tasks/TSK-SECURITY-2.1.0.md` - タスク分解書（30タスク、4 Epic）
+
 ## [2.0.0] - 2026-01-08
 
 ### 🎉 Major Release - Neuro-Symbolic AI 2.0

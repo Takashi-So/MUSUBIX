@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-library-learner",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "description": "DreamCoder-style hierarchical abstraction and library learning for MUSUBIX",
   "type": "module",
   "main": "dist/index.js",

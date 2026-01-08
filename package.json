@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Neuro-Symbolic AI Coding System - MUSUBI × YATA Integration",
   "type": "module",
   "workspaces": [
@@ -81,6 +81,7 @@
     "@nahisaho/yata-global": "^2.0.1",
     "@nahisaho/yata-local": "^2.0.1",
     "@nahisaho/yata-scale": "^2.0.2",
-    "@nahisaho/yata-ui": "^2.0.1"
+    "@nahisaho/yata-ui": "^2.0.1",
+    "musubix": "^2.0.3"
   }
 }
