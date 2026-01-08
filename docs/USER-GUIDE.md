@@ -23,13 +23,16 @@
 15. [YATA Platform Enhancements](#yata-platform-enhancements) *(v1.7.0)*
 16. [Formal Verification](#formal-verification) *(v1.7.5)*
 17. [Security Analysis](#security-analysis) *(v1.8.0)*
-18. [DFG/CFG Extraction](#dfgcfg-extraction) *(v2.0.0-alpha.1)*
-19. [Lean 4 Integration](#lean-4-integration) *(v2.0.0-alpha.1)*
-20. [YATA Scale](#yata-scale) *(v2.0.0-alpha.1)*
-21. [MCP Server Integration](#mcp-server-integration)
-22. [YATA Integration](#yata-integration)
-23. [Best Practices](#best-practices)
-24. [Troubleshooting](#troubleshooting)
+18. [DFG/CFG Extraction](#dfgcfg-extraction) *(v2.0.0)*
+19. [Lean 4 Integration](#lean-4-integration) *(v2.0.0)*
+20. [YATA Scale](#yata-scale) *(v2.0.0)*
+21. [Library Learning](#library-learning) *(v2.0.0 NEW!)*
+22. [Neural Search](#neural-search) *(v2.0.0 NEW!)*
+23. [Program Synthesis](#program-synthesis) *(v2.0.0 NEW!)*
+24. [MCP Server Integration](#mcp-server-integration)
+25. [YATA Integration](#yata-integration)
+26. [Best Practices](#best-practices)
+27. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -1377,7 +1380,7 @@ npx musubix-security scan ./src --format sarif --output report.sarif
 
 ## DFG/CFG Extraction
 
-*(v2.0.0-alpha.1)*
+*(v2.0.0)*
 
 The `@nahisaho/musubix-dfg` package provides Data Flow Graph (DFG) and Control Flow Graph (CFG) extraction for TypeScript and JavaScript code analysis.
 
@@ -1458,7 +1461,7 @@ for (const dep of deps) {
 
 ## Lean 4 Integration
 
-*(v2.0.0-alpha.1)*
+*(v2.0.0)*
 
 The `@nahisaho/musubix-lean` package provides integration with the Lean 4 theorem prover for formal verification of requirements.
 
@@ -1556,7 +1559,7 @@ if (proof.found) {
 
 ## YATA Scale
 
-*(v2.0.0-alpha.1)*
+*(v2.0.0)*
 
 The `@nahisaho/yata-scale` package provides distributed knowledge graph capabilities with sharding, caching, and synchronization.
 
@@ -1677,7 +1680,7 @@ sync.onConflict((conflict) => {
 });
 ```
 
-### v2.0.0-alpha.1 Package Summary
+### v2.0.0 Package Summary
 
 | Package | Tests | Description |
 |---------|-------|-------------|
@@ -1685,6 +1688,352 @@ sync.onConflict((conflict) => {
 | `@nahisaho/musubix-lean` | 151 | Lean 4 theorem proving, EARS conversion |
 | `@nahisaho/yata-scale` | 57 | Distributed sharding, caching, sync |
 | **Total** | **238** | **Phase 1: Deep Symbolic Integration** |
+
+---
+
+## Library Learning
+
+*(v2.0.0 NEW!)*
+
+The `@nahisaho/musubix-library-learner` package provides intelligent API pattern extraction and documentation from TypeScript libraries, enabling the system to learn and suggest library usage patterns.
+
+### Installation
+
+```bash
+npm install @nahisaho/musubix-library-learner
+```
+
+### Library Analysis
+
+Analyze and learn patterns from TypeScript libraries:
+
+```typescript
+import { LibraryLearner, LibraryAnalyzer } from '@nahisaho/musubix-library-learner';
+
+const learner = new LibraryLearner();
+
+// Analyze a library
+const patterns = await learner.analyze({
+  libraryName: 'lodash',
+  sourceDir: './node_modules/lodash',
+  includeExamples: true,
+});
+
+console.log(`Found ${patterns.length} API patterns`);
+for (const pattern of patterns) {
+  console.log(`- ${pattern.name}: ${pattern.description}`);
+}
+```
+
+### Pattern Extraction
+
+Extract usage patterns from code examples:
+
+```typescript
+import { PatternExtractor } from '@nahisaho/musubix-library-learner';
+
+const extractor = new PatternExtractor();
+
+const patterns = await extractor.extract({
+  code: sourceCode,
+  libraryContext: 'express',
+});
+
+// Get common patterns
+for (const pattern of patterns) {
+  console.log(`Pattern: ${pattern.type}`);
+  console.log(`Example: ${pattern.example}`);
+  console.log(`Frequency: ${pattern.frequency}`);
+}
+```
+
+### API Documentation Generation
+
+Generate documentation from learned patterns:
+
+```typescript
+import { DocGenerator } from '@nahisaho/musubix-library-learner';
+
+const generator = new DocGenerator();
+
+const docs = await generator.generate({
+  patterns: learnedPatterns,
+  format: 'markdown',
+  includeExamples: true,
+});
+
+await fs.writeFile('API-PATTERNS.md', docs);
+```
+
+### TypeScript Analysis
+
+Deep analysis of TypeScript declarations:
+
+```typescript
+import { TypeScriptAnalyzer } from '@nahisaho/musubix-library-learner';
+
+const analyzer = new TypeScriptAnalyzer();
+
+const analysis = await analyzer.analyze('./src/index.ts');
+
+// Get exported types
+for (const type of analysis.exports) {
+  console.log(`${type.name}: ${type.kind}`);
+  if (type.kind === 'function') {
+    console.log(`  Params: ${type.parameters.join(', ')}`);
+    console.log(`  Returns: ${type.returnType}`);
+  }
+}
+```
+
+---
+
+## Neural Search
+
+*(v2.0.0 NEW!)*
+
+The `@nahisaho/musubix-neural-search` package provides semantic code search using embeddings and neural ranking, enabling context-aware code discovery across your codebase.
+
+### Installation
+
+```bash
+npm install @nahisaho/musubix-neural-search
+```
+
+### Semantic Search
+
+Search code by meaning, not just keywords:
+
+```typescript
+import { NeuralSearchEngine } from '@nahisaho/musubix-neural-search';
+
+const search = new NeuralSearchEngine({
+  embeddingModel: 'code-bert',
+  indexPath: './search-index',
+});
+
+// Index your codebase
+await search.index('./src');
+
+// Semantic search
+const results = await search.search({
+  query: 'function that validates email addresses',
+  limit: 10,
+});
+
+for (const result of results) {
+  console.log(`${result.file}:${result.line} (score: ${result.score})`);
+  console.log(`  ${result.snippet}`);
+}
+```
+
+### Code Embeddings
+
+Generate embeddings for code snippets:
+
+```typescript
+import { CodeEmbedder } from '@nahisaho/musubix-neural-search';
+
+const embedder = new CodeEmbedder();
+
+const embedding = await embedder.embed({
+  code: 'function add(a: number, b: number) { return a + b; }',
+  language: 'typescript',
+});
+
+// Compare similarity
+const similarity = embedder.cosineSimilarity(embedding1, embedding2);
+console.log(`Similarity: ${similarity}`);
+```
+
+### Hybrid Search
+
+Combine lexical and semantic search:
+
+```typescript
+import { HybridSearchEngine } from '@nahisaho/musubix-neural-search';
+
+const hybrid = new HybridSearchEngine({
+  lexicalWeight: 0.3,
+  semanticWeight: 0.7,
+});
+
+const results = await hybrid.search({
+  query: 'authentication middleware express',
+  filters: {
+    language: 'typescript',
+    path: 'src/middleware/**',
+  },
+});
+```
+
+### Code Ranking
+
+Neural ranking for search results:
+
+```typescript
+import { CodeRanker } from '@nahisaho/musubix-neural-search';
+
+const ranker = new CodeRanker();
+
+const ranked = await ranker.rank({
+  query: 'parse JSON safely',
+  candidates: searchResults,
+  context: {
+    currentFile: './src/utils.ts',
+    recentFiles: ['./src/api.ts', './src/config.ts'],
+  },
+});
+```
+
+---
+
+## Program Synthesis
+
+*(v2.0.0 NEW!)*
+
+The `@nahisaho/musubix-synthesis` package provides neural-guided program synthesis, generating code from specifications using symbolic constraints and neural networks.
+
+### Installation
+
+```bash
+npm install @nahisaho/musubix-synthesis
+```
+
+### Specification-Based Synthesis
+
+Generate code from formal specifications:
+
+```typescript
+import { ProgramSynthesizer } from '@nahisaho/musubix-synthesis';
+
+const synthesizer = new ProgramSynthesizer();
+
+const result = await synthesizer.synthesize({
+  specification: {
+    input: 'array of numbers',
+    output: 'array of numbers (sorted ascending)',
+    constraints: ['stable sort', 'O(n log n) complexity'],
+  },
+  language: 'typescript',
+});
+
+console.log(result.code);
+// function sort(arr: number[]): number[] {
+//   return [...arr].sort((a, b) => a - b);
+// }
+```
+
+### Example-Based Synthesis
+
+Generate code from input/output examples:
+
+```typescript
+import { ExampleBasedSynthesizer } from '@nahisaho/musubix-synthesis';
+
+const synthesizer = new ExampleBasedSynthesizer();
+
+const result = await synthesizer.synthesize({
+  examples: [
+    { input: ['hello', 'world'], output: 'hello world' },
+    { input: ['foo', 'bar', 'baz'], output: 'foo bar baz' },
+  ],
+  language: 'typescript',
+});
+
+console.log(result.code);
+// function join(arr: string[]): string {
+//   return arr.join(' ');
+// }
+```
+
+### Sketch-Based Synthesis
+
+Fill in holes in partial programs:
+
+```typescript
+import { SketchSynthesizer } from '@nahisaho/musubix-synthesis';
+
+const synthesizer = new SketchSynthesizer();
+
+const result = await synthesizer.complete({
+  sketch: `
+    function validate(email: string): boolean {
+      const pattern = ??; // hole to fill
+      return pattern.test(email);
+    }
+  `,
+  constraints: ['must validate common email formats'],
+});
+
+console.log(result.code);
+// const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+```
+
+### Neural-Guided Search
+
+Use neural networks to guide synthesis search:
+
+```typescript
+import { NeuralGuidedSynthesizer } from '@nahisaho/musubix-synthesis';
+
+const synthesizer = new NeuralGuidedSynthesizer({
+  model: 'codegen-2B',
+  beamWidth: 5,
+  maxDepth: 10,
+});
+
+const result = await synthesizer.synthesize({
+  description: 'Parse a CSV string into array of objects with headers as keys',
+  tests: [
+    {
+      input: 'name,age\\nAlice,30\\nBob,25',
+      output: [{ name: 'Alice', age: '30' }, { name: 'Bob', age: '25' }],
+    },
+  ],
+});
+
+if (result.verified) {
+  console.log('All tests pass!');
+  console.log(result.code);
+}
+```
+
+### Synthesis Verification
+
+Verify synthesized code against specifications:
+
+```typescript
+import { SynthesisVerifier } from '@nahisaho/musubix-synthesis';
+
+const verifier = new SynthesisVerifier();
+
+const verification = await verifier.verify({
+  code: synthesizedCode,
+  specification: originalSpec,
+  tests: testCases,
+});
+
+console.log(`Verified: ${verification.passed}`);
+console.log(`Coverage: ${verification.testCoverage}%`);
+for (const issue of verification.issues) {
+  console.log(`Issue: ${issue.message}`);
+}
+```
+
+### v2.0.0 Package Summary
+
+| Package | Tests | Description |
+|---------|-------|-------------|
+| **Phase 1: Deep Symbolic Integration** | | |
+| `@nahisaho/musubix-dfg` | 30 | DFG/CFG extraction, Def-Use analysis |
+| `@nahisaho/musubix-lean` | 151 | Lean 4 theorem proving, EARS conversion |
+| `@nahisaho/yata-scale` | 57 | Distributed sharding, caching, sync |
+| **Phase 2: Advanced Learning** | | |
+| `@nahisaho/musubix-library-learner` | 132 | API pattern extraction, documentation |
+| `@nahisaho/musubix-neural-search` | 144 | Semantic code search, embeddings |
+| `@nahisaho/musubix-synthesis` | 146 | Neural-guided program synthesis |
+| **Total v2.0.0 New** | **660** | **6 new packages** |
 
 ---
 
@@ -2298,6 +2647,6 @@ const client = createYATAClient({
 
 ---
 
-**Version**: 1.8.5  
+**Version**: 2.0.0  
 **Last Updated**: 2026-01-08  
 **MUSUBIX Project**

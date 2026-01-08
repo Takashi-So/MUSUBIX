@@ -1,0 +1,52 @@
+{
+  "name": "@nahisaho/musubix-synthesis",
+  "version": "2.0.0",
+  "description": "MUSUBIX synthesis - DSL-based program synthesis with PBE and rule learning",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "musubix",
+    "synthesis",
+    "program-synthesis",
+    "pbe",
+    "dsl",
+    "witness-functions",
+    "version-space"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/synthesis"
+  },
+  "dependencies": {
+    "@nahisaho/musubix-core": "^1.8.5",
+    "@nahisaho/musubix-neural-search": "^2.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

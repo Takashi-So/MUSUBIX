@@ -8,14 +8,14 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 1.8.0 (Security Analysis Edition) |
+| **バージョン** | 2.0.0 (Deep Symbolic + Advanced Learning) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 1586 (全合格) |
-| **コンポーネント数** | 249 (62ドメイン対応) |
+| **テスト数** | 1660+ (全合格) |
+| **パッケージ数** | 19 |
 | **Agent Skills** | 12 (Claude Code対応) |
 
 ---
@@ -28,32 +28,44 @@
 packages/
 ├── core/           # @nahisaho/musubix-core
 ├── mcp-server/     # @nahisaho/musubix-mcp-server  
-├── security/       # @nahisaho/musubix-security (NEW!)
+├── security/       # @nahisaho/musubix-security
 ├── formal-verify/  # @nahisaho/musubix-formal-verify
 ├── yata-client/    # @nahisaho/musubix-yata-client
 ├── yata-local/     # @nahisaho/yata-local
 ├── yata-global/    # @nahisaho/yata-global
 ├── yata-ui/        # @nahisaho/yata-ui
+├── yata-scale/     # @nahisaho/yata-scale (v2.0.0 NEW!)
 ├── pattern-mcp/    # @nahisaho/musubix-pattern-mcp
 ├── ontology-mcp/   # @nahisaho/musubix-ontology-mcp
 ├── wake-sleep/     # @nahisaho/musubix-wake-sleep
-└── sdd-ontology/   # @nahisaho/musubix-sdd-ontology
+├── sdd-ontology/   # @nahisaho/musubix-sdd-ontology
+├── dfg/            # @nahisaho/musubix-dfg (v2.0.0 NEW!)
+├── lean/           # @nahisaho/musubix-lean (v2.0.0 NEW!)
+├── library-learner/# @nahisaho/musubix-library-learner (v2.0.0 NEW!)
+├── neural-search/  # @nahisaho/musubix-neural-search (v2.0.0 NEW!)
+└── synthesis/      # @nahisaho/musubix-synthesis (v2.0.0 NEW!)
 ```
 
 | パッケージ | npm | 役割 |
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
 | `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 19ツール、3プロンプト |
-| `packages/security/` | `@nahisaho/musubix-security` | **セキュリティ分析** - 脆弱性検出、シークレット検出、テイント解析 (NEW!) |
+| `packages/security/` | `@nahisaho/musubix-security` | セキュリティ分析 - 脆弱性検出、シークレット検出、テイント解析 |
 | `packages/formal-verify/` | `@nahisaho/musubix-formal-verify` | 形式検証 - Z3統合、Hoare検証、EARS→SMT変換 |
 | `packages/yata-client/` | `@nahisaho/musubix-yata-client` | YATAクライアント - 知識グラフ連携 |
-| `packages/yata-local/` | `@nahisaho/yata-local` | **YATA Local** - SQLiteベースローカル知識グラフ |
-| `packages/yata-global/` | `@nahisaho/yata-global` | **YATA Global** - 分散型知識グラフプラットフォーム |
-| `packages/yata-ui/` | `@nahisaho/yata-ui` | **YATA UI** - Web可視化・管理インターフェース |
+| `packages/yata-local/` | `@nahisaho/yata-local` | YATA Local - SQLiteベースローカル知識グラフ |
+| `packages/yata-global/` | `@nahisaho/yata-global` | YATA Global - 分散型知識グラフプラットフォーム |
+| `packages/yata-ui/` | `@nahisaho/yata-ui` | YATA UI - Web可視化・管理インターフェース |
+| `packages/yata-scale/` | `@nahisaho/yata-scale` | **YATA Scale** - 分散シャーディング・キャッシュ (v2.0.0 NEW!) |
 | `packages/pattern-mcp/` | `@nahisaho/musubix-pattern-mcp` | パターン学習 - 抽出・圧縮・ライブラリ |
 | `packages/ontology-mcp/` | `@nahisaho/musubix-ontology-mcp` | オントロジー - N3Store・推論エンジン |
 | `packages/wake-sleep/` | `@nahisaho/musubix-wake-sleep` | Wake-Sleep学習サイクル |
 | `packages/sdd-ontology/` | `@nahisaho/musubix-sdd-ontology` | SDD方法論オントロジー |
+| `packages/dfg/` | `@nahisaho/musubix-dfg` | **DFG/CFG抽出** - データフロー・制御フロー解析 (v2.0.0 NEW!) |
+| `packages/lean/` | `@nahisaho/musubix-lean` | **Lean 4統合** - 定理証明・EARS変換 (v2.0.0 NEW!) |
+| `packages/library-learner/` | `@nahisaho/musubix-library-learner` | **ライブラリ学習** - APIパターン抽出 (v2.0.0 NEW!) |
+| `packages/neural-search/` | `@nahisaho/musubix-neural-search` | **ニューラル検索** - 意味的コード検索 (v2.0.0 NEW!) |
+| `packages/synthesis/` | `@nahisaho/musubix-synthesis` | **プログラム合成** - ニューラル誘導合成 (v2.0.0 NEW!) |
 
 ### Core パッケージモジュール
 
@@ -525,5 +537,5 @@ npx musubix learn best-practices --format markdown
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-06
-**Version**: 1.6.4
+**Last Updated**: 2026-01-08
+**Version**: 2.0.0

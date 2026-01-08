@@ -7,15 +7,18 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1824%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-1600%2B%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 [![npm security](https://img.shields.io/npm/v/@nahisaho/musubix-security.svg?label=@nahisaho/musubix-security)](https://www.npmjs.com/package/@nahisaho/musubix-security)
 [![npm dfg](https://img.shields.io/npm/v/@nahisaho/musubix-dfg.svg?label=@nahisaho/musubix-dfg)](https://www.npmjs.com/package/@nahisaho/musubix-dfg)
 [![npm lean](https://img.shields.io/npm/v/@nahisaho/musubix-lean.svg?label=@nahisaho/musubix-lean)](https://www.npmjs.com/package/@nahisaho/musubix-lean)
 [![npm yata-scale](https://img.shields.io/npm/v/@nahisaho/yata-scale.svg?label=@nahisaho/yata-scale)](https://www.npmjs.com/package/@nahisaho/yata-scale)
+[![npm synthesis](https://img.shields.io/npm/v/@nahisaho/musubix-synthesis.svg?label=@nahisaho/musubix-synthesis)](https://www.npmjs.com/package/@nahisaho/musubix-synthesis)
+[![npm library-learner](https://img.shields.io/npm/v/@nahisaho/musubix-library-learner.svg?label=@nahisaho/musubix-library-learner)](https://www.npmjs.com/package/@nahisaho/musubix-library-learner)
+[![npm neural-search](https://img.shields.io/npm/v/@nahisaho/musubix-neural-search.svg?label=@nahisaho/musubix-neural-search)](https://www.npmjs.com/package/@nahisaho/musubix-neural-search)
 
 > Next-generation AI Coding System powered by MUSUBI × YATA Integration
 >
-> **v1.8.5** - Deep Symbolic Integration Edition
+> **v2.0.0** - Deep Symbolic Integration & Advanced Learning Edition
 
 **[日本語版 README](README.ja.md)**
 
@@ -23,31 +26,30 @@
 
 MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and **Symbolic (Knowledge Graph)** reasoning. It combines MUSUBI SDD methodology with YATA knowledge graph reasoning to support high-quality software development.
 
+### 🎉 v2.0.0 Highlights
+
+- **Phase 1: Deep Symbolic Integration** - DFG/CFG analysis, Lean 4 theorem proving, distributed KG
+- **Phase 2: Advanced Learning** - DreamCoder-style library learning, neural search, program synthesis
+- **1600+ tests** passing across 19 packages
+
 ### Features
 
 - 🧠 **Neuro-Symbolic Integration** - Fusion of LLM creativity and YATA knowledge graph precision
-- � **Symbolic Reasoning** - Formal verification, hallucination detection, constitution enforcement
+- 📊 **DFG/CFG Analysis** - Data flow and control flow graph extraction for TypeScript/JavaScript *(v2.0.0)*
+- 🧮 **Lean 4 Integration** - Formal theorem proving with EARS-to-Lean conversion *(v2.0.0)*
+- 📈 **YATA Scale** - Distributed knowledge graph with sharding and multi-tier caching *(v2.0.0)*
+- 📚 **Library Learning** - DreamCoder-style hierarchical abstraction and pattern compression *(v2.0.0)*
+- 🔍 **Neural Search** - Neural-guided program synthesis with beam search *(v2.0.0)*
+- ⚗️ **Program Synthesis** - DSL-based PBE synthesis with witness functions *(v2.0.0)*
+- 🔒 **Symbolic Reasoning** - Formal verification, hallucination detection, constitution enforcement
 - 📝 **EARS Requirements Analysis** - Conversion and validation from natural language to formal requirements
 - 🎨 **Design Pattern Recommendations** - Context-based C4 model and ADR generation
 - ✅ **Test-Driven Development** - Quality assurance through Test-First principles
 - 🔗 **Complete Traceability** - Tracking from requirements to code
-- 💬 **Interactive Q&A Hearing** - Dialogue-based requirements gathering support
-- 🌐 **Internationalization (i18n)** - Japanese and English support
-- 🔒 **Security Scanning** - Vulnerability detection, secret scanning, OWASP patterns
-- 📚 **Self-Learning System** - Adaptive improvement through feedback collection and pattern extraction
-- 🏗️ **C4 Code Generation** - Generate TypeScript skeleton from C4 design documents
-- ⚙️ **Quality Gates** - Automated quality validation before phase transitions
-- 🔮 **Advanced Inference** - OWL 2 RL reasoning and Datalog evaluation *(v1.4.5)*
+- 🛡️ **Security Analysis** - Vulnerability scanning, secret detection, taint analysis *(v1.8.0)*
+- 🔬 **Formal Verification** - Z3 SMT solver integration, Hoare triple verification *(v1.7.5)*
 - 🖥️ **Interactive REPL** - Command completion, history, session variables *(v1.6.0)*
-- 🗄️ **YATA Local** - SQLite-based local knowledge graph (BFS/DFS, reasoning) *(v1.6.3)*
-- 🌐 **YATA Global** - Distributed knowledge platform with offline sync *(v1.6.3)*
-- 📤 **KGPR** - Knowledge Graph Pull Request for safe knowledge sharing *(v1.6.4)*
-- 🚀 **YATA Platform Enhancements** - Index optimization, enhanced export, global sync, code generation, web UI *(v1.7.0)*
-- 🔬 **Formal Verification** - Z3 SMT solver integration, Hoare triple verification, EARS-to-SMT conversion *(v1.7.5)*
-- 🛡️ **Security Analysis** - Vulnerability scanning, secret detection, taint analysis, dependency auditing *(v1.8.0)*
-- 📊 **DFG/CFG Extraction** - Data flow graph and control flow graph analysis for TypeScript/JavaScript *(v2.0.0-alpha.1)*
-- 🧮 **Lean 4 Integration** - Theorem proving with EARS-to-Lean conversion and ReProver proof search *(v2.0.0-alpha.1)*
-- 📈 **YATA Scale** - Distributed knowledge graph with sharding, multi-tier caching, and vector clock sync *(v2.0.0-alpha.1)*
+- 🔮 **Advanced Inference** - OWL 2 RL reasoning and Datalog evaluation *(v1.4.5)*
 
 ## Architecture
 
@@ -97,13 +99,16 @@ flowchart TB
 | `packages/ontology-mcp/` | **Ontology Engine (NEW!)** |
 | `packages/wake-sleep/` | **Wake-Sleep Learning (NEW!)** |
 | `packages/sdd-ontology/` | **SDD Ontology (NEW!)** |
-| `packages/yata-local/` | **YATA Local - SQLite Knowledge Graph (NEW!)** |
-| `packages/yata-global/` | **YATA Global - Distributed Knowledge Platform (NEW!)** |
-| `packages/security/` | **Security Analysis (NEW!)** |
+| `packages/yata-local/` | **YATA Local - SQLite Knowledge Graph** |
+| `packages/yata-global/` | **YATA Global - Distributed Knowledge Platform** |
+| `packages/security/` | **Security Analysis** |
 | `packages/formal-verify/` | **Formal Verification** |
 | `packages/dfg/` | **DFG/CFG Extraction - Data Flow Analysis (v2.0.0)** |
 | `packages/lean/` | **Lean 4 Integration - Theorem Proving (v2.0.0)** |
 | `packages/yata-scale/` | **YATA Scale - Distributed KG (v2.0.0)** |
+| `packages/library-learner/` | **Library Learning - DreamCoder-style (v2.0.0)** |
+| `packages/neural-search/` | **Neural Search - Guided Synthesis (v2.0.0)** |
+| `packages/synthesis/` | **Program Synthesis - DSL/PBE (v2.0.0)** |
 | `steering/` | Project Memory |
 | `storage/` | Specifications & Artifacts |
 | `templates/` | Templates |
@@ -141,9 +146,16 @@ npm install @nahisaho/musubix-mcp-server
 npm install @nahisaho/musubix-yata-client
 npm install @nahisaho/musubix-security
 npm install @nahisaho/musubix-formal-verify
+
+# Phase 1: Deep Symbolic Integration
 npm install @nahisaho/musubix-dfg
 npm install @nahisaho/musubix-lean
 npm install @nahisaho/yata-scale
+
+# Phase 2: Advanced Learning
+npm install @nahisaho/musubix-library-learner
+npm install @nahisaho/musubix-neural-search
+npm install @nahisaho/musubix-synthesis
 ```
 
 ### Build from Source
