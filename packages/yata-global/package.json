@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-global",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "YATA Global - Distributed Knowledge Graph Platform with Framework Repository",
   "type": "module",
   "main": "dist/index.js",
