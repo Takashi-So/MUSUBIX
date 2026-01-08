@@ -16,9 +16,11 @@ Before starting any development task:
 2. Check `steering/rules/constitution.md` for the 9 constitutional articles
 3. Review existing specs in `storage/specs/`
 
-## Workflow Steps
+## Complete Workflow
 
-### Step 1: Requirements Phase (Article IV - EARS Format)
+### Phase 1: Requirements Definition
+
+#### Step 1: Create Requirements Document (Article IV - EARS Format)
 
 Create requirements using EARS patterns:
 
@@ -41,7 +43,19 @@ EARS Patterns:
 - **Unwanted**: `THE [system] SHALL NOT [behavior]`
 - **Optional**: `IF [condition], THEN THE [system] SHALL [response]`
 
-### Step 2: Design Phase (Article VII - Design Patterns)
+#### Step 2-3: Requirements Review Loop
+
+Review requirements for:
+- EARS format compliance
+- Completeness and clarity
+- Testability
+- Traceability readiness
+
+**Repeat until no issues remain.**
+
+### Phase 2: Design
+
+#### Step 4: Create Design Document (Article VII - Design Patterns)
 
 Create C4 model design documents:
 
@@ -65,7 +79,19 @@ Design document template:
 [Component details]
 ```
 
-### Step 3: Task Generation
+#### Step 5-6: Design Review Loop
+
+Review design for:
+- Requirement coverage
+- SOLID principles compliance
+- Design pattern appropriateness
+- Traceability to requirements
+
+**Repeat until no issues remain.**
+
+### Phase 3: Task Decomposition
+
+#### Step 7: Generate Tasks
 
 Generate implementation tasks from design:
 
@@ -81,28 +107,75 @@ Generate implementation tasks from design:
 ## 受入基準
 - [ ] Criterion 1
 - [ ] Criterion 2
+
+## 見積もり
+[4時間以内を推奨]
 ```
 
-### Step 4: Implementation (Article III - Test-First)
+#### Step 8-9: Task Review Loop
 
-Follow Red-Green-Blue cycle:
+Review tasks for:
+- Appropriate granularity (≤4 hours)
+- Clear acceptance criteria
+- Complete traceability chain
+
+**Repeat until no issues remain.**
+
+### Phase 4: Implementation
+
+#### Step 10: Coding & Unit Testing (Article III - Test-First)
+
+For each task, follow Red-Green-Blue cycle:
 
 1. **Red**: Write failing test first
 2. **Green**: Write minimal code to pass
 3. **Blue**: Refactor while keeping tests green
-
-### Step 5: Traceability Validation (Article V)
-
-Ensure 100% traceability:
-```
-REQ-* → DES-* → TSK-* → Code → Test
-```
 
 Add requirement IDs in code comments:
 ```typescript
 /**
  * @see REQ-INT-001 - Neuro-Symbolic Integration
  */
+```
+
+#### Step 11: Integration Testing
+
+When required by the task:
+- Run integration tests
+- Verify component interactions
+- Ensure end-to-end flows work correctly
+
+### Phase 5: Documentation & Completion
+
+#### Step 12: Update CHANGELOG.md
+
+Document all changes:
+- New features
+- Bug fixes
+- Breaking changes
+- Migration notes
+
+#### Step 13: Update Other Documentation
+
+If necessary, update:
+- README.md
+- USER-GUIDE.md
+- API-REFERENCE.md
+- AGENTS.md
+
+#### Step 14: Git Commit & Push
+
+```bash
+git add .
+git commit -m "feat/fix/chore: description"
+git push
+```
+
+## Traceability Validation (Article V)
+
+Ensure 100% traceability throughout:
+```
+REQ-* → DES-* → TSK-* → Code → Test
 ```
 
 ## CLI Commands
