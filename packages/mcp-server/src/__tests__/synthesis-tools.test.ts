@@ -6,6 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import type { TextContent } from '@modelcontextprotocol/sdk/types.js';
 import {
   synthesizeFromExamples,
   analyzeExamples,
@@ -50,7 +51,7 @@ describe('Synthesis Tools', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const content = result.content[0];
+      const content = result.content[0] as TextContent;
       expect(content.type).toBe('text');
       expect(content.text).toContain('Synthesis completed');
     });
@@ -61,7 +62,7 @@ describe('Synthesis Tools', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('At least one example');
+      expect((result.content[0] as TextContent).text).toContain('At least one example');
     });
   });
 
@@ -81,7 +82,7 @@ describe('Synthesis Tools', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse((result.content[0] as TextContent).text);
       expect(content.quality.score).toBeGreaterThan(0.5);
     });
 
@@ -91,7 +92,7 @@ describe('Synthesis Tools', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse((result.content[0] as TextContent).text);
       expect(content.quality.issues).toContain('Insufficient examples');
     });
   });
@@ -109,7 +110,7 @@ describe('Synthesis Tools', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse((result.content[0] as TextContent).text);
       expect(content.result.extracted).toBeGreaterThanOrEqual(1);
     });
 
@@ -134,7 +135,7 @@ describe('Synthesis Tools', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse((result.content[0] as TextContent).text);
       expect(content.result.matches).toBeDefined();
     });
 
@@ -158,7 +159,7 @@ describe('Synthesis Tools', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const content = JSON.parse(result.content[0].text);
+      const content = JSON.parse((result.content[0] as TextContent).text);
       expect(content.stats.synthesisCount).toBeDefined();
       expect(content.stats.patternLibrary).toBeDefined();
     });
@@ -190,7 +191,7 @@ describe('Synthesis Prompts', () => {
       });
 
       expect(result.messages).toHaveLength(1);
-      expect(result.messages[0].content.text).toContain('examples');
+      expect((result.messages[0].content as TextContent).text).toContain('examples');
     });
   });
 
@@ -207,7 +208,7 @@ describe('Synthesis Prompts', () => {
       });
 
       expect(result.messages).toHaveLength(1);
-      expect(result.messages[0].content.text).toContain('explain');
+      expect((result.messages[0].content as TextContent).text).toContain('explain');
     });
   });
 });
