@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-core",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "MUSUBIX Core Library - Neuro-Symbolic Integration Engine",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,6 +11,11 @@
       "types": "./dist/index.d.ts"
     },
     "./bin/musubix.js": "./bin/musubix.js",
+    "./cli": {
+      "import": "./dist/cli/index.js",
+      "types": "./dist/cli/index.d.ts"
+    },
+    "./dist/cli/index.js": "./dist/cli/index.js",
     "./integrator": {
       "import": "./dist/integrator/index.js",
       "types": "./dist/integrator/index.d.ts"

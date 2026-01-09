@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "MUSUBIX - Neuro-Symbolic AI Integration System for Software Development",
   "keywords": [
     "ai",
@@ -40,22 +40,23 @@
   "dependencies": {
     "@nahisaho/musubix-codegraph": "^2.3.0",
     "@nahisaho/musubix-core": "^2.2.0",
-    "@nahisaho/musubix-mcp-server": "^2.2.0",
-    "@nahisaho/musubix-security": "^2.2.0",
-    "@nahisaho/musubix-formal-verify": "^2.2.0",
-    "@nahisaho/musubix-yata-client": "^2.2.0",
-    "@nahisaho/yata-local": "^2.2.0",
-    "@nahisaho/yata-global": "^2.2.0",
-    "@nahisaho/yata-scale": "^2.2.0",
-    "@nahisaho/musubix-pattern-mcp": "^2.2.0",
-    "@nahisaho/musubix-ontology-mcp": "^2.2.0",
-    "@nahisaho/musubix-wake-sleep": "^2.2.0",
-    "@nahisaho/musubix-sdd-ontology": "^2.2.0",
     "@nahisaho/musubix-dfg": "^2.2.0",
+    "@nahisaho/musubix-formal-verify": "^2.2.0",
     "@nahisaho/musubix-lean": "^2.2.0",
     "@nahisaho/musubix-library-learner": "^2.2.0",
+    "@nahisaho/musubix-mcp-server": "^2.2.0",
     "@nahisaho/musubix-neural-search": "^2.2.0",
-    "@nahisaho/musubix-synthesis": "^2.2.0"
+    "@nahisaho/musubix-ontology-mcp": "^2.2.0",
+    "@nahisaho/musubix-pattern-mcp": "^2.2.0",
+    "@nahisaho/musubix-sdd-ontology": "^2.2.0",
+    "@nahisaho/musubix-security": "^2.2.0",
+    "@nahisaho/musubix-synthesis": "^2.2.0",
+    "@nahisaho/musubix-wake-sleep": "^2.2.0",
+    "@nahisaho/musubix-yata-client": "^2.2.0",
+    "@nahisaho/yata-global": "^2.2.0",
+    "@nahisaho/yata-local": "^2.2.0",
+    "@nahisaho/yata-scale": "^2.2.0",
+    "musubix": "^2.3.0"
   },
   "devDependencies": {
     "typescript": "^5.3.3"
