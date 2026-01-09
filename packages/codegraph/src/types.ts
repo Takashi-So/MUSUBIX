@@ -75,8 +75,10 @@ export const LANGUAGE_EXTENSIONS: Record<string, Language> = {
 /**
  * Entity types in the code graph
  * @see REQ-CG-AST-003
+ * @see REQ-CG-v2.3.2-001 (16-language support)
  */
 export type EntityType =
+  // Common types
   | 'file'
   | 'module'
   | 'class'
@@ -96,6 +98,39 @@ export type EntityType =
   | 'trait'
   | 'struct'
   | 'impl'
+  // Go/Java/Kotlin/Scala types
+  | 'package'
+  // Java/C# types
+  | 'constructor'
+  | 'field'
+  // C# types
+  | 'record'
+  // C/C++ types
+  | 'union'
+  | 'typedef'
+  | 'macro'
+  | 'template_class'
+  | 'template_function'
+  // Kotlin/Scala types
+  | 'object'
+  // Scala types
+  | 'case_class'
+  | 'val'
+  | 'var'
+  // Swift types
+  | 'protocol'
+  | 'extension'
+  | 'initializer'
+  // Lua types
+  | 'table'
+  // HCL/Terraform types (dynamic)
+  | 'resource'
+  | 'data'
+  | 'provider'
+  | 'locals'
+  | 'output'
+  | 'terraform'
+  // Generic fallback
   | 'unknown';
 
 /**

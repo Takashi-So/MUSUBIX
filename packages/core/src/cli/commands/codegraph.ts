@@ -348,15 +348,76 @@ async function showStats(options: { json?: boolean; quiet?: boolean }): Promise<
 }
 
 /**
+ * Supported languages constant (v2.3.2)
+ */
+const SUPPORTED_LANGUAGES = [
+  { name: 'TypeScript', extensions: ['.ts', '.tsx'], priority: 'Existing' },
+  { name: 'JavaScript', extensions: ['.js', '.jsx', '.mjs'], priority: 'Existing' },
+  { name: 'Python', extensions: ['.py', '.pyw'], priority: 'Existing' },
+  { name: 'Rust', extensions: ['.rs'], priority: 'P0' },
+  { name: 'Go', extensions: ['.go'], priority: 'P0' },
+  { name: 'Java', extensions: ['.java'], priority: 'P0' },
+  { name: 'PHP', extensions: ['.php'], priority: 'P1' },
+  { name: 'C#', extensions: ['.cs'], priority: 'P1' },
+  { name: 'C', extensions: ['.c', '.h'], priority: 'P1' },
+  { name: 'C++', extensions: ['.cpp', '.hpp', '.cc', '.hh'], priority: 'P1' },
+  { name: 'Ruby', extensions: ['.rb'], priority: 'P1' },
+  { name: 'HCL/Terraform', extensions: ['.tf', '.hcl'], priority: 'P2' },
+  { name: 'Kotlin', extensions: ['.kt', '.kts'], priority: 'P2' },
+  { name: 'Swift', extensions: ['.swift'], priority: 'P2' },
+  { name: 'Scala', extensions: ['.scala', '.sc'], priority: 'P2' },
+  { name: 'Lua', extensions: ['.lua'], priority: 'P2' },
+];
+
+/**
+ * Show supported languages
+ */
+function showLanguages(options: { json?: boolean; quiet?: boolean }): void {
+  // Debug: check options received
+  // console.error('DEBUG: options received:', JSON.stringify(options));
+  
+  // Fallback: check process.argv directly if options.json is not set
+  const jsonFlag = options.json || process.argv.includes('--json');
+  const quietFlag = options.quiet || process.argv.includes('--quiet') || process.argv.includes('-q');
+  
+  if (jsonFlag) {
+    console.log(
+      JSON.stringify(
+        {
+          success: true,
+          count: SUPPORTED_LANGUAGES.length,
+          languages: SUPPORTED_LANGUAGES,
+        },
+        null,
+        2
+      )
+    );
+  } else if (!quietFlag) {
+    console.log('\n📚 Supported Languages (16 languages)\n');
+    console.log('┌─────────────────┬────────────────────────────────┬──────────┐');
+    console.log('│ Language        │ Extensions                     │ Priority │');
+    console.log('├─────────────────┼────────────────────────────────┼──────────┤');
+    for (const lang of SUPPORTED_LANGUAGES) {
+      const name = lang.name.padEnd(15);
+      const ext = lang.extensions.join(', ').padEnd(30);
+      const priority = lang.priority.padEnd(8);
+      console.log(`│ ${name} │ ${ext} │ ${priority} │`);
+    }
+    console.log('└─────────────────┴────────────────────────────────┴──────────┘');
+    console.log('\nPriority: Existing = Built-in, P0 = High, P1 = Medium, P2 = Low\n');
+  }
+}
+
+/**
  * Register codegraph commands
  */
 export function registerCodeGraphCommand(program: Command): void {
-  const cg = program.command('cg').description('Code graph operations');
+  const cg = program.command('cg').description('Code graph operations (16 languages supported)');
 
   // Alias: codegraph
   program
     .command('codegraph')
-    .description('Code graph operations (alias for cg)')
+    .description('Code graph operations (alias for cg, 16 languages supported)')
     .action(() => {
       cg.help();
     });
@@ -434,5 +495,25 @@ export function registerCodeGraphCommand(program: Command): void {
     .option('-q, --quiet', 'Suppress non-essential output')
     .action(async (options: { json?: boolean; quiet?: boolean }) => {
       await showStats(options);
+    });
+
+  // cg languages (v2.3.2 NEW!)
+  cg.command('languages')
+    .description('Show supported programming languages (16 languages)')
+    .option('--json', 'Output in JSON format')
+    .option('-q, --quiet', 'Suppress non-essential output')
+    .action(function (this: Command) {
+      const opts = this.opts<{ json?: boolean; quiet?: boolean }>();
+      showLanguages(opts);
+    });
+
+  // cg langs - alias for languages
+  cg.command('langs')
+    .description('Show supported programming languages (alias for languages)')
+    .option('--json', 'Output in JSON format')
+    .option('-q, --quiet', 'Suppress non-essential output')
+    .action(function (this: Command) {
+      const opts = this.opts<{ json?: boolean; quiet?: boolean }>();
+      showLanguages(opts);
     });
 }

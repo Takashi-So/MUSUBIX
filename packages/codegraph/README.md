@@ -9,7 +9,7 @@
 
 `@nahisaho/musubix-codegraph` is a high-performance code graph analysis library that provides:
 
-- **AST Parsing**: Tree-sitter based multi-language code parsing (16 languages)
+- **AST Parsing**: Tree-sitter based multi-language code parsing (**16 languages** in v2.3.2)
 - **Graph Engine**: Code entity and relationship graph construction
 - **GraphRAG**: Graph-based Retrieval Augmented Generation for code search
 - **YATA Integration**: Seamless integration with YATA knowledge graph
@@ -66,22 +66,35 @@ const search = new GraphRAGSearch(graph);
 const communities = await search.detectCommunities();
 ```
 
-## Supported Languages
+## Supported Languages (16 languages - v2.3.2)
 
-| Language | Extensions | Status |
-|----------|-----------|--------|
-| TypeScript | `.ts`, `.tsx` | ✅ |
-| JavaScript | `.js`, `.jsx`, `.mjs` | ✅ |
-| Python | `.py` | ✅ |
-| Rust | `.rs` | ✅ |
-| Go | `.go` | ✅ |
-| Java | `.java` | ✅ |
-| PHP | `.php` | ✅ |
-| C# | `.cs` | ✅ |
-| C | `.c`, `.h` | ✅ |
-| C++ | `.cpp`, `.hpp`, `.cc` | ✅ |
-| Ruby | `.rb` | ✅ |
-| HCL | `.tf`, `.hcl` | ✅ |
+| Priority | Language | Extensions | Status |
+|----------|----------|-----------|--------|
+| **Existing** | TypeScript | `.ts`, `.tsx` | ✅ Full Support |
+| **Existing** | JavaScript | `.js`, `.jsx`, `.mjs` | ✅ Full Support |
+| **Existing** | Python | `.py`, `.pyw` | ✅ Full Support |
+| **P0** | Rust | `.rs` | ✅ Full Support |
+| **P0** | Go | `.go` | ✅ Full Support |
+| **P0** | Java | `.java` | ✅ Full Support |
+| **P1** | PHP | `.php` | ✅ Full Support |
+| **P1** | C# | `.cs` | ✅ Full Support |
+| **P1** | C | `.c`, `.h` | ✅ Full Support |
+| **P1** | C++ | `.cpp`, `.hpp`, `.cc`, `.hh` | ✅ Full Support |
+| **P1** | Ruby | `.rb` | ✅ Full Support |
+| **P2** | HCL/Terraform | `.tf`, `.hcl` | ✅ Full Support |
+| **P2** | Kotlin | `.kt`, `.kts` | ✅ Full Support |
+| **P2** | Swift | `.swift` | ✅ Full Support |
+| **P2** | Scala | `.scala`, `.sc` | ✅ Full Support |
+| **P2** | Lua | `.lua` | ✅ Full Support |
+
+**Entity Types Extracted:**
+- Functions, Methods, Constructors
+- Classes, Interfaces, Traits, Protocols
+- Structs, Enums, Records, Unions
+- Modules, Packages, Namespaces
+- Variables, Constants, Properties
+- Type Definitions, Templates
+- Language-specific constructs (Terraform resources, Swift extensions, etc.)
 
 ## API Reference
 
@@ -147,19 +160,28 @@ When used with MUSUBIX CLI:
 
 ```bash
 # Index repository
-musubix codegraph index /path/to/repo
+musubix cg index /path/to/repo
 
 # Query graph
-musubix codegraph query "UserService"
+musubix cg query "UserService"
 
 # Find dependencies
-musubix codegraph find-deps UserService --depth 3
+musubix cg deps UserService
+
+# Find callers/callees
+musubix cg callers functionName
+musubix cg callees functionName
+
+# Semantic search
+musubix cg search "authentication flow"
 
 # Show statistics
-musubix codegraph stats
+musubix cg stats
 
-# Start MCP server
-musubix codegraph serve
+# Show supported languages (v2.3.2)
+musubix cg languages        # Table format
+musubix cg languages --json # JSON format
+musubix cg langs            # Alias
 ```
 
 ## Performance

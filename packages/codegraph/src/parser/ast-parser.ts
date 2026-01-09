@@ -2,12 +2,14 @@
  * @nahisaho/musubix-codegraph - AST Parser
  *
  * Tree-sitter based AST parser for code entity extraction
+ * Enhanced with ExtractorRegistry for 16-language support (v2.3.2)
  *
  * @see REQ-CG-AST-001 - Multi-language support
  * @see REQ-CG-AST-002 - Entity extraction
  * @see REQ-CG-AST-003 - Relation extraction
+ * @see REQ-CG-MULTILANG-001 to REQ-CG-MULTILANG-013 (v2.3.2)
  * @see DES-CG-002
- * @see TSK-CG-010
+ * @see TSK-CG-003, TSK-CG-010
  */
 
 import type {
@@ -24,6 +26,7 @@ import {
   generateRelationId,
   LANGUAGE_EXTENSIONS,
 } from '../types.js';
+import { extractorRegistry } from './extractors/index.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -50,12 +53,14 @@ type SyntaxNode = {
 
 /**
  * AST Parser using Tree-sitter
+ * Enhanced with ExtractorRegistry for multi-language support (v2.3.2)
  */
 export class ASTParser {
   private options: Required<ParserOptions>;
   private parser: Parser | null = null;
   private languages = new Map<Language, unknown>();
   private initialized = false;
+  private useExtractors = true; // Use new extractor system by default
 
   constructor(options: Partial<ParserOptions> = {}) {
     this.options = {
@@ -67,6 +72,7 @@ export class ASTParser {
 
   /**
    * Initialize tree-sitter and load language grammars
+   * Now supports 16 languages via ExtractorRegistry
    */
   private async ensureInitialized(): Promise<void> {
     if (this.initialized) return;
@@ -76,27 +82,84 @@ export class ASTParser {
       const Parser = (await import('tree-sitter')).default;
       this.parser = new Parser();
 
-      // Load TypeScript/JavaScript grammar
-      try {
-        const TypeScript = (await import('tree-sitter-typescript')).default;
-        this.languages.set('typescript', TypeScript.typescript);
-        this.languages.set('javascript', TypeScript.typescript);
-      } catch {
-        // TypeScript grammar not available
-      }
-
-      // Load Python grammar
-      try {
-        const Python = (await import('tree-sitter-python')).default;
-        this.languages.set('python', Python);
-      } catch {
-        // Python grammar not available
-      }
+      // Load grammars dynamically based on available extractors
+      await this.loadAvailableGrammars();
 
       this.initialized = true;
     } catch {
       // Tree-sitter not available, will use fallback parsing
       this.initialized = true;
+    }
+  }
+
+  /**
+   * Load grammar for a specific language
+   */
+  private async loadGrammar(language: Language): Promise<boolean> {
+    if (this.languages.has(language)) return true;
+
+    const grammarMap: Record<Language, string> = {
+      typescript: 'tree-sitter-typescript',
+      javascript: 'tree-sitter-typescript',
+      python: 'tree-sitter-python',
+      rust: 'tree-sitter-rust',
+      go: 'tree-sitter-go',
+      java: 'tree-sitter-java',
+      php: 'tree-sitter-php',
+      csharp: 'tree-sitter-c-sharp',
+      c: 'tree-sitter-c',
+      cpp: 'tree-sitter-cpp',
+      ruby: 'tree-sitter-ruby',
+      hcl: 'tree-sitter-hcl',
+      kotlin: 'tree-sitter-kotlin',
+      swift: 'tree-sitter-swift',
+      scala: 'tree-sitter-scala',
+      lua: 'tree-sitter-lua',
+    };
+
+    const grammarModule = grammarMap[language];
+    if (!grammarModule) return false;
+
+    try {
+      const mod = await import(grammarModule);
+      const grammar = mod.default;
+      
+      // Handle TypeScript/JavaScript special case
+      if (language === 'typescript' || language === 'javascript') {
+        if (grammar.typescript) {
+          this.languages.set('typescript', grammar.typescript);
+          this.languages.set('javascript', grammar.typescript);
+        } else {
+          this.languages.set(language, grammar);
+        }
+      } else {
+        this.languages.set(language, grammar);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Load all available grammars
+   */
+  private async loadAvailableGrammars(): Promise<void> {
+    // Load TypeScript/JavaScript grammar (commonly available)
+    try {
+      const TypeScript = (await import('tree-sitter-typescript')).default;
+      this.languages.set('typescript', TypeScript.typescript);
+      this.languages.set('javascript', TypeScript.typescript);
+    } catch {
+      // TypeScript grammar not available
+    }
+
+    // Load Python grammar (commonly available)
+    try {
+      const Python = (await import('tree-sitter-python')).default;
+      this.languages.set('python', Python);
+    } catch {
+      // Python grammar not available
     }
   }
 
@@ -143,6 +206,7 @@ export class ASTParser {
 
   /**
    * Parse source code content
+   * Enhanced to use ExtractorRegistry for 16-language support
    */
   async parseContent(
     content: string,
@@ -153,8 +217,26 @@ export class ASTParser {
     const startTime = Date.now();
     const lines = content.split('\n');
 
-    // Try tree-sitter parsing first
+    // Try using ExtractorRegistry-based parsing first (v2.3.2)
+    if (this.useExtractors && extractorRegistry.hasExtractor(language)) {
+      try {
+        return await this.parseWithExtractor(content, language, filePath);
+      } catch {
+        // Fall back to legacy parsing
+      }
+    }
+
+    // Try tree-sitter parsing 
     if (this.parser && this.languages.has(language)) {
+      try {
+        return this.parseWithTreeSitter(content, language, filePath, lines.length);
+      } catch {
+        // Fall back to regex parsing
+      }
+    }
+
+    // Try to load grammar on-demand
+    if (this.parser && await this.loadGrammar(language)) {
       try {
         return this.parseWithTreeSitter(content, language, filePath, lines.length);
       } catch {
@@ -164,6 +246,42 @@ export class ASTParser {
 
     // Fallback: regex-based parsing
     return this.parseWithRegex(content, language, filePath, lines.length, startTime);
+  }
+
+  /**
+   * Parse using ExtractorRegistry (v2.3.2)
+   * Supports 16 languages with unified interface
+   */
+  private async parseWithExtractor(
+    content: string,
+    language: Language,
+    filePath?: string
+  ): Promise<ParseResult> {
+    const extractor = await extractorRegistry.getExtractor(language);
+    if (!extractor) {
+      throw new Error(`No extractor for language: ${language}`);
+    }
+
+    // Get grammar for tree-sitter
+    let grammar = this.languages.get(language);
+    if (!grammar) {
+      await this.loadGrammar(language);
+      grammar = this.languages.get(language);
+    }
+
+    if (!grammar || !this.parser) {
+      throw new Error(`Grammar not available for: ${language}`);
+    }
+
+    this.parser.setLanguage(grammar);
+    const tree = this.parser.parse(content);
+
+    // Use extractor to parse - cast tree to proper type expected by extractor
+    return extractor.extract(
+      tree as unknown as Parameters<typeof extractor.extract>[0],
+      filePath || 'unknown',
+      content
+    );
   }
 
   /**
@@ -603,10 +721,32 @@ export class ASTParser {
 
   /**
    * Get supported languages
+   * Now returns all 16 supported languages (v2.3.2)
    */
   getSupportedLanguages(): Language[] {
+    // Get languages from ExtractorRegistry (16 languages)
+    const registryLanguages = extractorRegistry.getRegisteredLanguages();
+    if (registryLanguages.length > 0) {
+      return registryLanguages;
+    }
+
+    // Fallback to LANGUAGE_EXTENSIONS
     return Object.values(LANGUAGE_EXTENSIONS).filter(
       (v, i, a) => a.indexOf(v) === i
     ) as Language[];
+  }
+
+  /**
+   * Check if a language is supported
+   */
+  isLanguageSupported(language: Language): boolean {
+    return extractorRegistry.hasExtractor(language);
+  }
+
+  /**
+   * Preload all extractors for faster parsing
+   */
+  async preloadExtractors(): Promise<void> {
+    await extractorRegistry.preloadAll();
   }
 }

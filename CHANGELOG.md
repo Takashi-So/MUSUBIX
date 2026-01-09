@@ -5,6 +5,106 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.2] - 2026-01-12
+
+### 🌐 CodeGraph - Full 16-Language Support
+
+MUSUBIX v2.3.2は、CodeGraphパッケージを**16プログラミング言語**に完全対応するメジャーアップデートです。[CodeGraphMCPServer](https://github.com/nahisaho/CodeGraphMCPServer/)と同等の言語サポートを実現します。
+
+### Added
+
+#### 16言語AST解析 (REQ-CG-v2.3.2)
+
+**新規サポート言語（13言語追加）:**
+
+| 優先度 | 言語 | 拡張子 | 用途 |
+|--------|------|--------|------|
+| P0 | Rust | `.rs` | システムプログラミング |
+| P0 | Go | `.go` | クラウドネイティブ |
+| P0 | Java | `.java` | エンタープライズ |
+| P1 | PHP | `.php` | Web開発 |
+| P1 | C# | `.cs` | .NET開発 |
+| P1 | C | `.c`, `.h` | システム |
+| P1 | C++ | `.cpp`, `.hpp`, `.cc` | パフォーマンス |
+| P1 | Ruby | `.rb` | Web/スクリプト |
+| P2 | HCL/Terraform | `.tf`, `.hcl` | インフラストラクチャ |
+| P2 | Kotlin | `.kt`, `.kts` | Android/JVM |
+| P2 | Swift | `.swift` | iOS/macOS |
+| P2 | Scala | `.scala`, `.sc` | ビッグデータ |
+| P2 | Lua | `.lua` | ゲーム/組込み |
+
+**既存サポート言語:**
+- TypeScript (`.ts`, `.tsx`)
+- JavaScript (`.js`, `.jsx`, `.mjs`)
+- Python (`.py`, `.pyw`)
+
+#### アーキテクチャ
+
+**BaseExtractor基底クラス (TSK-CG-001)**
+- Template Methodパターンによる言語固有抽出の統一インターフェース
+- エンティティ/リレーション作成のFactory Methodパターン
+- AST走査ユーティリティ（walkTree, findChildByType等）
+- Docstring抽出ヘルパー
+
+**ExtractorRegistry (TSK-CG-002)**
+- Lazy Loading: 言語使用時にのみ文法をロード
+- Factoryパターン: 動的エクストラクタ生成
+- 16言語の自動登録
+
+**AST Parser統合 (TSK-CG-003)**
+- `useExtractors`フラグで新旧パーサー切り替え
+- `loadGrammar()`による動的文法ロード
+- `preloadExtractors()`でバッチロード対応
+
+#### テスト
+
+- 25ユニットテスト（全合格）
+- ExtractorRegistry、言語設定、エクストラクタ取得テスト
+
+### Changed
+
+- `package.json`: v2.3.0 → v2.3.2
+- `optionalDependencies`: 13言語のtree-sitter文法追加
+- `EntityType`: 言語固有の型を追加（package, constructor, field, record, union等）
+
+### Technical Details
+
+**設計パターン:**
+- Template Method: BaseExtractor抽象クラス
+- Factory Method: エンティティ/リレーション作成
+- Strategy: 言語別抽出ロジック
+- Registry: エクストラクタ管理
+- Lazy Loading: オンデマンド文法ロード
+
+**ファイル構成:**
+```
+packages/codegraph/src/parser/extractors/
+├── base-extractor.ts    # 基底クラス（410行）
+├── index.ts             # ExtractorRegistry（224行）
+├── typescript.ts        # TypeScript/JavaScript
+├── python.ts            # Python
+├── rust.ts              # Rust
+├── go.ts                # Go
+├── java.ts              # Java
+├── php.ts               # PHP
+├── csharp.ts            # C#
+├── c-cpp.ts             # C/C++
+├── ruby.ts              # Ruby
+├── hcl.ts               # HCL/Terraform
+├── kotlin.ts            # Kotlin
+├── swift.ts             # Swift
+├── scala.ts             # Scala
+└── lua.ts               # Lua
+```
+
+### Related Requirements
+
+- REQ-CG-v2.3.2-001〜013: 16言語サポート要件
+- DES-CG-v2.3.2: 設計ドキュメント
+- TSK-CG-v2.3.2: 22タスク完了
+
+---
+
 ## [2.3.0] - 2026-01-09
 
 ### 🔍 CodeGraph - Code Knowledge Graph Release
