@@ -24,6 +24,135 @@ program
   .version(packageJson.version);
 
 // ============================================================================
+// Index Command (v2.3.4 NEW)
+// @see REQ-CG-v234-002, DES-CG-v234-002, TSK-v234-005
+// ============================================================================
+
+program
+  .command('index <path>')
+  .description('Index a codebase for graph analysis')
+  .option('-d, --depth <n>', 'Maximum directory depth (for future use)', '3')
+  .option('--json', 'Output as JSON')
+  .option('--languages <langs>', 'Target languages (comma-separated, for future use)')
+  .action(async (targetPath, options) => {
+    try {
+      const { CodeGraph } = await import('./codegraph.js');
+      const resolvedPath = resolve(targetPath);
+      const cg = new CodeGraph({ storage: 'memory' });
+
+      console.log(`🔍 Indexing ${resolvedPath}...`);
+
+      const startTime = Date.now();
+      const result = await cg.index(resolvedPath);
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+
+      if (options.json) {
+        console.log(JSON.stringify({ 
+          success: result.success, 
+          entitiesIndexed: result.entitiesIndexed,
+          relationsIndexed: result.relationsIndexed,
+          filesProcessed: result.filesProcessed,
+          durationMs: result.durationMs,
+          elapsedSeconds: parseFloat(elapsed) 
+        }, null, 2));
+      } else {
+        console.log(`✅ Indexing complete in ${elapsed}s`);
+        console.log(`   Entities: ${result.entitiesIndexed}`);
+        console.log(`   Relations: ${result.relationsIndexed}`);
+        console.log(`   Files: ${result.filesProcessed}`);
+      }
+
+      await cg.close();
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// ============================================================================
+// Query Command (v2.3.4 NEW)
+// @see REQ-CG-v234-002, DES-CG-v234-002, TSK-v234-006
+// ============================================================================
+
+program
+  .command('query <query>')
+  .description('Query entities in the code graph')
+  .option('--type <type>', 'Entity type filter (function, class, method, etc.)')
+  .option('--limit <n>', 'Maximum results', '10')
+  .option('--json', 'Output as JSON')
+  .action(async (queryText, options) => {
+    try {
+      const { CodeGraph } = await import('./codegraph.js');
+      const cg = new CodeGraph({ storage: 'memory' });
+
+      const limit = parseInt(options.limit, 10);
+      
+      // Build query object
+      const graphQuery = options.type 
+        ? { textSearch: queryText, entityType: options.type, limit }
+        : { textSearch: queryText, limit };
+      
+      const result = await cg.query(graphQuery);
+
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        if (result.entities.length === 0) {
+          console.log(`No entities found for "${queryText}"`);
+        } else {
+          console.log(`Found ${result.entities.length} entities (total: ${result.totalCount}):`);
+          result.entities.slice(0, limit).forEach((e, i) => {
+            console.log(`  ${i + 1}. ${e.name} (${e.type})${e.filePath ? ` - ${e.filePath}` : ''}`);
+          });
+          if (result.hasMore) {
+            console.log(`  ... and ${result.totalCount - result.entities.length} more`);
+          }
+        }
+      }
+
+      await cg.close();
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// ============================================================================
+// Stats Command (v2.3.4 NEW)
+// @see REQ-CG-v234-002, DES-CG-v234-002, TSK-v234-007
+// ============================================================================
+
+program
+  .command('stats')
+  .description('Show code graph statistics')
+  .option('--json', 'Output as JSON')
+  .action(async (options) => {
+    try {
+      const { CodeGraph } = await import('./codegraph.js');
+      const cg = new CodeGraph({ storage: 'memory' });
+
+      const stats = await cg.getStats();
+
+      if (options.json) {
+        console.log(JSON.stringify(stats, null, 2));
+      } else {
+        console.log('📊 Graph Statistics:');
+        console.log(`   Entities: ${stats.entityCount}`);
+        console.log(`   Relations: ${stats.relationCount}`);
+        console.log(`   Files: ${stats.fileCount}`);
+        if (stats.languages && stats.languages.length > 0) {
+          console.log(`   Languages: ${stats.languages.join(', ')}`);
+        }
+      }
+
+      await cg.close();
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+// ============================================================================
 // PR Commands
 // ============================================================================
 
@@ -122,6 +251,9 @@ prCommand
 
 /**
  * cg pr preview
+ * 
+ * Uses initializeOffline() for GitHub-auth-free preview (v2.3.4)
+ * @see REQ-CG-v234-001, DES-CG-v234-001
  */
 prCommand
   .command('preview <suggestionFile>')
@@ -143,13 +275,16 @@ prCommand
       const repoPath = options.repo ?? process.cwd();
 
       const creator = createPRCreator(repoPath);
-      const initResult = await creator.initialize();
+      
+      // v2.3.4: Use initializeOffline() for preview (no GitHub auth required)
+      const initResult = await creator.initializeOffline();
       if (!initResult.success) {
         console.error(`❌ Initialization failed: ${initResult.error}`);
         process.exit(1);
       }
 
-      const preview = await creator.preview({ suggestion });
+      // v2.3.4: Use previewSuggestion() instead of preview() (sync function)
+      const preview = creator.previewSuggestion(suggestion);
 
       if (options.json) {
         console.log(JSON.stringify(preview, null, 2));

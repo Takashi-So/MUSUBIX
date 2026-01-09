@@ -5,6 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.5] - 2026-01-12
+
+### 🔧 CodeGraph - CLI pr preview Fix
+
+MUSUBIX v2.3.5は、**`cg pr preview` CLIコマンドの修正**を行ったホットフィックスリリースです。
+
+### Fixed
+
+- **CLI: `cg pr preview` が `initializeOffline()` を使用するように修正**
+  - `initialize()` から `initializeOffline()` に変更し、GitHub認証なしでプレビュー可能に
+  - `preview()` から `previewSuggestion()` に変更し、正しいAPIを使用
+
+### Usage
+
+```bash
+# GitHub認証なしでPRプレビューが可能に
+cg pr preview suggestion.json --json
+```
+
+---
+
+## [2.3.4] - 2026-01-12
+
+### 🔧 CodeGraph - Offline Preview & CLI Enhancement
+
+MUSUBIX v2.3.4は、**PRプレビュー機能のオフライン対応**と**CLIコマンドの拡充**を行ったバグフィックス・機能強化リリースです。
+
+### Fixed
+
+- **PRCreator: GitHub認証なしでプレビュー可能に** (REQ-CG-v234-001)
+  - `initializeOffline()` メソッドを追加
+  - `previewSuggestion()` がオフラインモードで動作
+  - GitHub認証が必要なのは `create()` のみに
+
+### Added
+
+#### CLI コマンド拡充 (REQ-CG-v234-002)
+
+```bash
+# コードベースのインデックス作成
+cg index <path>
+  -d, --depth <n>      ディレクトリ深度
+  --json               JSON形式で出力
+  --languages <langs>  対象言語（カンマ区切り）
+
+# エンティティ検索
+cg query <query>
+  --type <type>        エンティティ種別フィルタ
+  --limit <n>          最大結果数（デフォルト: 10）
+  --json               JSON形式で出力
+
+# 統計情報表示
+cg stats
+  --json               JSON形式で出力
+```
+
+#### PRCreator 状態管理 (REQ-CG-v234-003)
+
+| 状態 | 説明 | 利用可能な操作 |
+|------|------|----------------|
+| `uninitialized` | 初期状態 | なし |
+| `offline` | オフライン初期化済み | `previewSuggestion()` |
+| `full` | GitHub認証済み | すべて |
+
+```typescript
+const creator = new PRCreator({ repoPath: '/path/to/repo' });
+
+// オフラインモードで初期化（GitHub認証不要）
+await creator.initializeOffline();
+console.log(creator.getState()); // 'offline'
+
+// プレビューはオフラインでも可能
+const preview = creator.previewSuggestion(suggestion);
+console.log(preview.title, preview.body);
+
+// PR作成にはfull初期化が必要
+await creator.initialize();
+const result = await creator.create({ suggestion });
+```
+
+#### エラーメッセージ改善 (REQ-CG-v234-004)
+
+```typescript
+import { PRCreatorError, PRErrorMessages } from '@nahisaho/musubix-codegraph';
+
+// エラーコードから作成
+const error = PRCreatorError.fromCode('NOT_INITIALIZED');
+console.log(error.message);     // "PRCreator is not initialized"
+console.log(error.suggestion);  // "Call initializeOffline() for preview..."
+
+// 完全なメッセージ
+console.log(error.getFullMessage());
+// "PRCreator is not initialized
+//
+// 💡 Suggestion: Call initializeOffline() for preview or initialize() for full functionality"
+```
+
+### Changed
+
+- `PRCreator.initialize()` は内部で `initializeOffline()` を先に呼び出すように変更
+- エラーメッセージにアクション可能な提案を含むように改善
+
+### Tests
+
+- PRCreatorテスト: 11テスト追加
+- 合計: 129テスト (all passing)
+
 ## [2.3.3] - 2026-01-12
 
 ### 🔄 CodeGraph - Automatic PR Generation from Refactoring Suggestions

@@ -20,6 +20,7 @@ import { GitOperations } from './git-operations.js';
 import { GitHubAdapter } from './github-adapter.js';
 import { RefactoringApplier } from './refactoring-applier.js';
 import { PRTemplateGenerator } from './pr-template.js';
+import { PRCreatorError, PRErrorMessages } from './errors.js';
 import type {
   RefactoringSuggestion,
   PRCreateOptions,
@@ -31,6 +32,12 @@ import {
   generateBranchName,
   generateCommitMessage,
 } from './types.js';
+
+/**
+ * PRCreator state
+ * @see DES-CG-v234-003
+ */
+export type PRCreatorState = 'uninitialized' | 'offline' | 'full';
 
 /**
  * PR Creator configuration
@@ -81,6 +88,7 @@ export class PRCreator extends EventEmitter {
   private templateGenerator: PRTemplateGenerator;
   private initialized = false;
   private originalBranch: string | null = null;
+  private state: PRCreatorState = 'uninitialized';
 
   /**
    * Create a new PRCreator
@@ -101,23 +109,61 @@ export class PRCreator extends EventEmitter {
   // ============================================================================
 
   /**
-   * Initialize the PR creator
-   * Sets up Git operations and authenticates with GitHub
+   * Initialize for offline operations (preview only)
+   * Does not require GitHub authentication
+   *
+   * @see REQ-CG-v234-001
+   * @see DES-CG-v234-001
    */
-  async initialize(): Promise<{ success: boolean; error?: string }> {
+  async initializeOffline(): Promise<{ success: boolean; error?: string }> {
     try {
-      // Initialize Git operations
+      // Initialize Git operations (local only)
       this.git = new GitOperations({
         repoPath: this.config.repoPath,
         remote: this.config.remote,
       });
 
+      // Initialize refactoring applier
+      this.applier = new RefactoringApplier({
+        repoPath: this.config.repoPath,
+        createBackups: this.config.createBackups,
+      });
+
+      // Store current branch for potential rollback
+      this.originalBranch = this.git.getCurrentBranch();
+
+      this.state = 'offline';
+      this.initialized = true;
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  /**
+   * Initialize the PR creator with full GitHub authentication
+   * Sets up Git operations and authenticates with GitHub
+   */
+  async initialize(): Promise<{ success: boolean; error?: string }> {
+    try {
+      // First do offline initialization if not already done
+      if (this.state === 'uninitialized') {
+        const offlineResult = await this.initializeOffline();
+        if (!offlineResult.success) {
+          return offlineResult;
+        }
+      }
+
       // Parse GitHub owner/repo from remote
-      const remoteInfo = this.git.parseRemoteUrl();
+      const remoteInfo = this.git!.parseRemoteUrl();
       if (!remoteInfo) {
+        const err = PRErrorMessages.REMOTE_PARSE_FAILED;
         return {
           success: false,
-          error: 'Could not parse GitHub owner/repo from remote URL',
+          error: `${err.message}. ${err.suggestion}`,
         };
       }
 
@@ -131,21 +177,14 @@ export class PRCreator extends EventEmitter {
       // Authenticate with GitHub
       const authResult = await this.github.authenticate();
       if (!authResult.authenticated) {
+        const err = PRErrorMessages.AUTH_FAILED;
         return {
           success: false,
-          error: `GitHub authentication failed: ${authResult.error}`,
+          error: `${err.message}: ${authResult.error}. ${err.suggestion}`,
         };
       }
 
-      // Initialize refactoring applier
-      this.applier = new RefactoringApplier({
-        repoPath: this.config.repoPath,
-        createBackups: this.config.createBackups,
-      });
-
-      // Store current branch for potential rollback
-      this.originalBranch = this.git.getCurrentBranch();
-
+      this.state = 'full';
       this.initialized = true;
       return { success: true };
     } catch (error) {
@@ -163,16 +202,53 @@ export class PRCreator extends EventEmitter {
     return this.initialized;
   }
 
+  /**
+   * Get current state
+   * @see DES-CG-v234-003
+   */
+  getState(): PRCreatorState {
+    return this.state;
+  }
+
   // ============================================================================
   // Main Operations
   // ============================================================================
 
   /**
+   * Generate PR preview without creating
+   * Works in both offline and full modes
+   *
+   * @see REQ-CG-v234-001
+   * @see DES-CG-v234-001
+   */
+  previewSuggestion(suggestion: RefactoringSuggestion): PRPreview {
+    this.ensureState('offline', 'full');
+
+    const branchName = generateBranchName(suggestion);
+    const commitMessage = generateCommitMessage(suggestion);
+    const title = this.templateGenerator.generateTitle(suggestion);
+    const diffs = this.applier!.preview(suggestion);
+    const body = this.templateGenerator.generate(suggestion, diffs);
+    const baseBranch = this.git!.getDefaultBranch();
+
+    return {
+      branchName,
+      baseBranch,
+      title,
+      body,
+      diffs,
+      commitMessage,
+    };
+  }
+
+  /**
    * Create a PR from a refactoring suggestion
+   * Requires full initialization (GitHub authentication)
+   *
    * @see REQ-CG-PR-002, REQ-CG-PR-003, REQ-CG-PR-004, REQ-CG-PR-005
    */
   async create(options: PRCreateOptions): Promise<PRCreateResult> {
-    this.ensureInitialized();
+    this.ensureState('full');
 
     const { suggestion, dryRun } = options;
     const warnings: string[] = [];
@@ -390,11 +466,27 @@ export class PRCreator extends EventEmitter {
   }
 
   /**
-   * Ensure initialized before operations
+   * Ensure initialized before operations (legacy)
+   * @deprecated Use ensureState() instead
    */
   private ensureInitialized(): void {
     if (!this.initialized) {
-      throw new Error('PRCreator not initialized. Call initialize() first.');
+      throw PRCreatorError.fromCode('NOT_INITIALIZED');
+    }
+  }
+
+  /**
+   * Ensure PRCreator is in one of the allowed states
+   * @see DES-CG-v234-003
+   */
+  private ensureState(...allowed: PRCreatorState[]): void {
+    if (!allowed.includes(this.state)) {
+      if (this.state === 'uninitialized') {
+        throw PRCreatorError.fromCode('NOT_INITIALIZED');
+      } else if (this.state === 'offline' && allowed.includes('full')) {
+        throw PRCreatorError.fromCode('OFFLINE_MODE');
+      }
+      throw PRCreatorError.fromCode('NOT_INITIALIZED');
     }
   }
 

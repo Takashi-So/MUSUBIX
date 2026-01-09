@@ -16,7 +16,15 @@ export {
   createPRCreator,
   createRefactoringPR,
   type PRCreatorConfig,
+  type PRCreatorState,
 } from './pr-creator.js';
+
+// Error Handling (v2.3.4 NEW)
+export {
+  PRCreatorError,
+  PRErrorMessages,
+  type PRErrorCode,
+} from './errors.js';
 
 // Git Operations
 export {
