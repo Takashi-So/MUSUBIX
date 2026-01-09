@@ -1,4 +1,4 @@
-# MUSUBIX: Neuro-Symbolic AI Coding システムによるエンタープライズアプリケーション開発
+# MUSUBIX: Neuro-Symbolic AI Coding システムによるエンタープライズアプリケーション開発入門
 
 :::note info
 **Version**: 2.2.0 | **Date**: 2026-01-09 | **Author**: MUSUBIX Development Team
@@ -439,7 +439,7 @@ MUSUBIXは、MCP（Model Context Protocol）に対応した様々なAIコーデ�
 **Claude Opus 4.5**を選ぶ理由：
 - 長いコンテキスト（200Kトークン）の理解に優れる
 - 複雑な推論タスクで高い精度
-- **出力コンテキストが上限を超える場合、GitHub Copilotが自動的により大きなコンテキストを扱える他のLLMに切り替え可能**
+- **出力コンテキストが上限を超える場合、大きなコンテキストを扱える他のLLMに切り替え可能**
 - コード生成の品質が高い
 
 **組み合わせのメリット:**
