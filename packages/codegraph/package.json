@@ -1,10 +1,14 @@
 {
   "name": "@nahisaho/musubix-codegraph",
-  "version": "2.3.2",
-  "description": "MUSUBIX CodeGraph - Multi-language Code Graph Analysis Engine supporting 16 programming languages",
+  "version": "2.3.3",
+  "description": "MUSUBIX CodeGraph - Multi-language Code Graph Analysis Engine supporting 16 programming languages with PR generation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "cg": "./dist/cli.js",
+    "musubix-codegraph": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -25,6 +29,10 @@
     "./graphrag": {
       "types": "./dist/graphrag/index.d.ts",
       "import": "./dist/graphrag/index.js"
+    },
+    "./pr": {
+      "types": "./dist/pr/index.d.ts",
+      "import": "./dist/pr/index.js"
     }
   },
   "files": [
@@ -63,6 +71,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "commander": "^12.0.0",
     "tree-sitter": "^0.21.1",
     "tree-sitter-typescript": "^0.21.2",
     "tree-sitter-javascript": "^0.21.4",

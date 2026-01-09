@@ -79,3 +79,31 @@ export {
   isSupportedLanguage,
   getLanguageFromExtension,
 } from './types.js';
+
+// PR Creation Module (v2.3.3 NEW!)
+export {
+  // Main factory
+  createPRCreator,
+
+  // Classes
+  PRCreator,
+  GitOperations,
+  GitHubAdapter,
+  RefactoringApplier,
+  PRTemplateGenerator,
+
+  // Types
+  type RefactoringSuggestion,
+  type CodeChange,
+  type PRCreateOptions,
+  type PRCreateResult,
+  type PRPreview,
+  type GitHubConfig,
+  type PRInfo,
+  type FileDiff,
+  type PRCreatorEvents,
+
+  // Utilities
+  generateBranchName,
+  generateCommitMessage,
+} from './pr/index.js';

@@ -5,6 +5,155 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.3] - 2026-01-12
+
+### 🔄 CodeGraph - Automatic PR Generation from Refactoring Suggestions
+
+MUSUBIX v2.3.3は、**自動リファクタリング提案のPull Request生成機能**を追加したアップデートです。静的解析やAIから生成されるリファクタリング提案を、ワンコマンドでGitHub Pull Requestに変換します。
+
+### Added
+
+#### PR生成モジュール (REQ-CG-PR-001〜009)
+
+**新規追加ファイル:**
+
+| ファイル | 説明 | 行数 |
+|----------|------|------|
+| `pr/types.ts` | 型定義・ユーティリティ | ~450行 |
+| `pr/git-operations.ts` | Git操作ラッパー | ~510行 |
+| `pr/github-adapter.ts` | GitHub API/CLI連携 | ~645行 |
+| `pr/refactoring-applier.ts` | コード変更適用 | ~520行 |
+| `pr/pr-template.ts` | PR本文生成 | ~400行 |
+| `pr/pr-creator.ts` | 統合オーケストレータ | ~477行 |
+| `pr/index.ts` | モジュールエクスポート | ~100行 |
+| `cli.ts` | CLIインターフェース | ~200行 |
+
+#### CLI コマンド
+
+```bash
+# PR作成
+cg pr create <suggestion.json> [options]
+  -b, --branch <name>        カスタムブランチ名
+  -t, --title <title>        カスタムPRタイトル
+  --base <branch>            ベースブランチ（デフォルト: main/master）
+  -l, --labels <labels>      ラベル（カンマ区切り）
+  -r, --reviewers <reviewers> レビュアー（カンマ区切り）
+  -a, --assignees <assignees> アサイニー（カンマ区切り）
+  --draft                    ドラフトPRとして作成
+  --dry-run                  変更プレビューのみ
+
+# プレビュー
+cg pr preview <suggestion.json>
+  --json                     JSON形式で出力
+
+# 検証
+cg pr validate <suggestion.json>
+```
+
+#### Programmatic API
+
+```typescript
+import {
+  createPRCreator,
+  PRCreator,
+  type RefactoringSuggestion,
+} from '@nahisaho/musubix-codegraph';
+
+// 提案の作成
+const suggestion: RefactoringSuggestion = {
+  id: 'extract-method-001',
+  type: 'extract-method',
+  title: 'Extract calculateTotal method',
+  description: 'Extract repeated calculation logic',
+  changes: [{
+    filePath: 'src/order.ts',
+    type: 'modify',
+    content: newCode,
+    originalContent: oldCode,
+  }],
+  confidence: 0.92,
+};
+
+// PRCreatorの使用
+const creator = createPRCreator('/path/to/repo');
+await creator.initialize();
+
+const result = await creator.create({
+  suggestion,
+  labels: ['refactoring', 'auto-generated'],
+  reviewers: ['team-lead'],
+  draft: true,
+});
+
+console.log(`PR created: ${result.pr?.url}`);
+```
+
+#### 認証方法
+
+| 方法 | 設定 | 優先度 |
+|------|------|--------|
+| 環境変数 | `GITHUB_TOKEN` | 1 |
+| gh CLI | `gh auth login` | 2 |
+
+#### イベント
+
+PRCreatorはEventEmitterを継承し、以下のイベントを発行:
+
+| イベント | データ | 説明 |
+|----------|--------|------|
+| `pr:start` | `{ suggestion }` | PR作成開始 |
+| `pr:branch` | `{ name }` | ブランチ作成 |
+| `pr:applying` | `{ file, changes }` | コード変更適用中 |
+| `pr:commit` | `{ hash, message }` | コミット完了 |
+| `pr:push` | `{ branch, remote }` | プッシュ完了 |
+| `pr:created` | `{ pr }` | PR作成完了 |
+| `pr:error` | `{ error }` | エラー発生 |
+
+### Changed
+
+- `package.json`: v2.3.2 → v2.3.3
+- `bin`: `cg` / `musubix-codegraph` コマンド追加
+- `exports`: `./pr` サブパスエクスポート追加
+- `dependencies`: `commander` ^12.0.0 追加
+
+### Technical Details
+
+**設計パターン:**
+- Adapter: GitHubAdapter（gh CLI / GITHUB_TOKEN切り替え）
+- EventEmitter: 非同期イベント通知
+- Factory: createPRCreator()、createGitOperations()等
+- Facade: PRCreatorによる統合インターフェース
+
+**ファイル構成:**
+```
+packages/codegraph/src/
+├── cli.ts                    # CLIエントリポイント
+├── index.ts                  # PRモジュールre-export追加
+└── pr/
+    ├── types.ts              # 型定義
+    ├── git-operations.ts     # Git操作
+    ├── github-adapter.ts     # GitHub API
+    ├── refactoring-applier.ts # コード変更適用
+    ├── pr-template.ts        # PR本文生成
+    ├── pr-creator.ts         # 統合オーケストレータ
+    ├── index.ts              # モジュールエクスポート
+    └── __tests__/            # テストファイル
+```
+
+### Related Requirements
+
+- REQ-CG-PR-001: 入力形式定義
+- REQ-CG-PR-002: コード変更適用
+- REQ-CG-PR-003: Git ブランチ作成
+- REQ-CG-PR-004: 自動コミット
+- REQ-CG-PR-005: PR 本文生成
+- REQ-CG-PR-006: GitHub API 連携
+- REQ-CG-PR-007: CLI コマンド
+- REQ-CG-PR-008: エラーハンドリング
+- REQ-CG-PR-009: ドライラン
+
+---
+
 ## [2.3.2] - 2026-01-12
 
 ### 🌐 CodeGraph - Full 16-Language Support

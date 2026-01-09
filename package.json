@@ -63,6 +63,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.25.1",
+    "@nahisaho/musubix-codegraph": "^2.3.2",
     "@nahisaho/musubix-core": "^2.1.0",
     "@nahisaho/musubix-dfg": "^2.1.0",
     "@nahisaho/musubix-formal-verify": "^2.1.0",
