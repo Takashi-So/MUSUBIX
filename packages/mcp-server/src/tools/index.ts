@@ -90,26 +90,44 @@ export {
   SYNTHESIS_TOOLS,
 } from './synthesis-tools.js';
 
+export {
+  codegraphIndexTool,
+  codegraphQueryTool,
+  codegraphFindDependenciesTool,
+  codegraphFindCallersTool,
+  codegraphFindCalleesTool,
+  codegraphGlobalSearchTool,
+  codegraphLocalSearchTool,
+  codegraphStatsTool,
+  codegraphTools,
+  getCodeGraphTools,
+  handleCodeGraphTool,
+  resetCodeGraph,
+} from './codegraph-tools.js';
+
+import { getSddTools as _getSddTools } from './sdd-tools.js';
+import { getSymbolicTools as _getSymbolicTools } from './symbolic-tools.js';
+import { getPatternIntegrationTools as _getPatternIntegrationTools } from './pattern-tools.js';
+import { getOntologyTools as _getOntologyTools } from './ontology-tools.js';
+import { getYataTools as _getYataTools } from './yata-tools.js';
+import { kgprTools as _kgprTools } from './kgpr-tools.js';
+import { getFormalVerifyTools as _getFormalVerifyTools } from './formal-verify-tools.js';
+import { SYNTHESIS_TOOLS as _SYNTHESIS_TOOLS } from './synthesis-tools.js';
+import { getCodeGraphTools as _getCodeGraphTools } from './codegraph-tools.js';
+
 /**
  * Get all available tools
  */
 export function getAllTools() {
-  const { getSddTools } = require('./sdd-tools.js');
-  const { getSymbolicTools } = require('./symbolic-tools.js');
-  const { getPatternIntegrationTools } = require('./pattern-tools.js');
-  const { getOntologyTools } = require('./ontology-tools.js');
-  const { getYataTools } = require('./yata-tools.js');
-  const { kgprTools } = require('./kgpr-tools.js');
-  const { getFormalVerifyTools } = require('./formal-verify-tools.js');
-  const { SYNTHESIS_TOOLS } = require('./synthesis-tools.js');
   return [
-    ...getSddTools(),
-    ...getSymbolicTools(),
-    ...getPatternIntegrationTools(),
-    ...getOntologyTools(),
-    ...getYataTools(),
-    ...kgprTools,
-    ...getFormalVerifyTools(),
-    ...SYNTHESIS_TOOLS,
+    ..._getSddTools(),
+    ..._getSymbolicTools(),
+    ..._getPatternIntegrationTools(),
+    ..._getOntologyTools(),
+    ..._getYataTools(),
+    ..._kgprTools,
+    ..._getFormalVerifyTools(),
+    ..._SYNTHESIS_TOOLS,
+    ..._getCodeGraphTools(),
   ];
 }

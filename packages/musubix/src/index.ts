@@ -40,3 +40,6 @@ export * as lean from '@nahisaho/musubix-lean';
 export * as libraryLearner from '@nahisaho/musubix-library-learner';
 export * as neuralSearch from '@nahisaho/musubix-neural-search';
 export * as synthesis from '@nahisaho/musubix-synthesis';
+
+// v2.3.0 Code Knowledge Graph
+export * as codeGraph from '@nahisaho/musubix-codegraph';

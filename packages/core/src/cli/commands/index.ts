@@ -27,6 +27,7 @@ import { registerKgprCommands } from './kgpr.js';
 import { registerTasksCommand } from './tasks.js';
 import { registerScaffoldCommand } from './scaffold.js';
 import { registerSynthesisCommands } from './synthesis.js';
+import { registerCodeGraphCommand } from './codegraph.js';
 
 /**
  * Register all CLI commands
@@ -70,6 +71,9 @@ export function registerCommands(program: Command): void {
   
   // Synthesis commands (REQ-SY-v2.2.0)
   registerSynthesisCommands(program);
+  
+  // CodeGraph commands (REQ-CG-001)
+  registerCodeGraphCommand(program);
 }
 
 // Core command exports
@@ -108,3 +112,6 @@ export { registerScaffoldCommand } from './scaffold.js';
 
 // Synthesis command export (REQ-SY-v2.2.0)
 export { registerSynthesisCommands } from './synthesis.js';
+
+// CodeGraph command export (REQ-CG-001)
+export { registerCodeGraphCommand } from './codegraph.js';

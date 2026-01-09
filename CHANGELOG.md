@@ -5,6 +5,88 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-01-09
+
+### 🔍 CodeGraph - Code Knowledge Graph Release
+
+MUSUBIX v2.3.0は、**コード知識グラフ**機能を追加するメジャーアップデートです。GraphRAGベースのセマンティック検索とコード構造分析を提供します。
+
+### Added
+
+#### 新パッケージ: @nahisaho/musubix-codegraph
+
+**コード知識グラフライブラリ**
+
+```typescript
+import { createCodeGraph } from '@nahisaho/musubix-codegraph';
+
+// インデックス作成
+const codeGraph = await createCodeGraph({ storage: 'memory' });
+await codeGraph.index('/path/to/project');
+
+// クエリ
+const result = await codeGraph.query({ textSearch: 'authentication' });
+
+// 依存関係分析
+const deps = await codeGraph.findDependencies('UserService');
+
+// 呼び出しグラフ
+const callers = await codeGraph.findCallers('authenticate');
+const callees = await codeGraph.findCallees('processRequest');
+
+// GraphRAGセマンティック検索
+const results = await codeGraph.globalSearch('user authentication flow');
+const local = await codeGraph.localSearch('validation', { radius: 2 });
+```
+
+**主要機能:**
+- 多言語AST解析（TypeScript, Python, Rust, Go, Java等16言語対応）
+- エンティティ・リレーション管理
+- 依存関係・呼び出しグラフ分析
+- GraphRAGベースのコミュニティ検出
+- グローバル/ローカルセマンティック検索
+- プラグイン可能なストレージ（Memory / SQLite）
+
+#### MCP統合 (TSK-CG-060)
+
+8つの新しいMCPツールを追加：
+
+| ツール名 | 説明 |
+|---------|------|
+| `codegraph_index` | リポジトリ/ディレクトリをインデックス |
+| `codegraph_query` | エンティティをクエリ |
+| `codegraph_find_dependencies` | 依存関係を検索 |
+| `codegraph_find_callers` | 関数の呼び出し元を検索 |
+| `codegraph_find_callees` | 関数の呼び出し先を検索 |
+| `codegraph_global_search` | GraphRAGセマンティック検索 |
+| `codegraph_local_search` | ローカルコンテキスト検索 |
+| `codegraph_stats` | グラフ統計を取得 |
+
+#### CLI統合 (TSK-CG-070)
+
+新しいCLIコマンドを追加：
+
+```bash
+musubix cg index <path>       # ディレクトリをインデックス
+musubix cg query [name]       # エンティティをクエリ
+musubix cg deps <name>        # 依存関係を検索
+musubix cg callers <name>     # 呼び出し元を検索
+musubix cg callees <name>     # 呼び出し先を検索
+musubix cg search <query>     # セマンティック検索
+musubix cg stats              # グラフ統計を表示
+```
+
+### Changed
+
+- **MCP Server**: CodeGraphツール8個追加（合計53ツール）
+- **Core CLI**: `cg` / `codegraph` コマンドグループ追加
+
+### Tests
+
+- CodeGraphパッケージ: 43テスト追加
+- 統合テスト: 6テスト追加
+- E2Eテスト: 82テスト全パス確認
+
 ## [2.2.1] - 2026-01-09
 
 ### Fixed

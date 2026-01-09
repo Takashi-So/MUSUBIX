@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.1",
+    "@nahisaho/musubix-codegraph": "*",
     "zod": "^3.22.0"
   },
   "devDependencies": {

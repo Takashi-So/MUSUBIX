@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "MUSUBIX - Neuro-Symbolic AI Integration System for Software Development",
   "keywords": [
     "ai",
@@ -11,7 +11,8 @@
     "code-generation",
     "ears",
     "requirements",
-    "design-patterns"
+    "design-patterns",
+    "codegraph"
   ],
   "author": "nahisaho",
   "license": "MIT",
@@ -37,6 +38,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@nahisaho/musubix-codegraph": "^2.3.0",
     "@nahisaho/musubix-core": "^2.2.0",
     "@nahisaho/musubix-mcp-server": "^2.2.0",
     "@nahisaho/musubix-security": "^2.2.0",
