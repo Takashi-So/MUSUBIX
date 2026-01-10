@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.6] - 2026-01-10
+
+### 📝 Technical Writing Skill
+
+MUSUBIX v2.3.6は、**技術ドキュメント作成スキル（musubix-technical-writing）**を追加したリリースです。
+
+### Added
+
+- **新Agent Skill: `musubix-technical-writing`** (10番目のスキル)
+  - README.md作成ガイド（バッジ、Features、Quick Start構成）
+  - INSTALL-GUIDE.md作成（前提条件表、複数インストール方法、トラブルシューティング）
+  - USER-GUIDE.md作成（TOC、コマンド構文、オプション表）
+  - API-REFERENCE.md作成（クラス/メソッド/インターフェース/型の構造化ドキュメント）
+  - CHANGELOG.md作成（Keep a Changelog形式）
+  - CONTRIBUTING.md作成（開発セットアップ、PRプロセス、コミットメッセージ形式）
+  - 対象読者別の書き分けガイドライン（トーン・技術レベル）
+  - 多言語対応（`.ja.md` 命名規則）
+  - トレーサビリティタグ（`@requirement`, `@design`）
+  - ドキュメント品質チェックリスト
+
+### Changed
+
+- **Agent Skills**: 9 → 10 スキルに増加
+- `docs/evolution-from-musubi-to-musubix.md`: スキル一覧更新
+- `packages/core/scripts/postinstall.js`: スキルリスト・出力メッセージ更新
+- `packages/core/src/cli/commands/init.ts`: スキル一覧更新
+
+### Documentation
+
+- `.github/skills/musubix-technical-writing/SKILL.md`: 新スキルファイル追加
+
+---
+
 ## [2.3.5] - 2026-01-12
 
 ### 🔧 CodeGraph - CLI pr preview Fix

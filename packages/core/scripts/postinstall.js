@@ -5,7 +5,7 @@
  * Copies .github/ (prompts, skills) and AGENTS.md to the project root after npm install.
  * This enables GitHub Copilot and Claude Code to use MUSUBIX SDD prompts and Agent Skills.
  * 
- * Installed skills (9 total):
+ * Installed skills (10 total):
  * - musubix-sdd-workflow: SDD development workflow guide
  * - musubix-ears-validation: EARS format validation
  * - musubix-code-generation: Design-to-code generation
@@ -15,6 +15,7 @@
  * - musubix-adr-generation: Architecture Decision Records
  * - musubix-best-practices: 17 best practices guide
  * - musubix-domain-inference: 62 domain detection
+ * - musubix-technical-writing: Technical documentation (README, guides, API reference)
  */
 
 import { existsSync, cpSync, copyFileSync, mkdirSync, readdirSync, readFileSync } from 'fs';
@@ -188,12 +189,12 @@ if (copiedItems.length > 0) {
   console.log('║  ✅ GitHub Copilot: .github/skills/ + .github/prompts/       ║');
   console.log('║  ✅ Claude Code:    .claude/skills/ + .claude/prompts/       ║');
   console.log('║                                                              ║');
-  console.log('║  9 Agent Skills installed:                                   ║');
+  console.log('║  10 Agent Skills installed:                                  ║');
   console.log('║    • musubix-sdd-workflow      • musubix-traceability        ║');
   console.log('║    • musubix-ears-validation   • musubix-test-generation     ║');
   console.log('║    • musubix-code-generation   • musubix-adr-generation      ║');
   console.log('║    • musubix-c4-design         • musubix-best-practices      ║');
-  console.log('║    • musubix-domain-inference                                ║');
+  console.log('║    • musubix-domain-inference  • musubix-technical-writing   ║');
   console.log('║                                                              ║');
   console.log('║  📚 Docs: https://github.com/nahisaho/MUSUBIX                ║');
   console.log('╚══════════════════════════════════════════════════════════════╝');

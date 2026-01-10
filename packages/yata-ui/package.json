@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-ui",
-  "version": "2.2.0",
+  "version": "2.3.6",
   "description": "YATA Knowledge Graph Web UI - Interactive visualization and management",
   "type": "module",
   "main": "dist/index.js",

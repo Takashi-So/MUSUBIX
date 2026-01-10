@@ -8,7 +8,7 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 2.2.0 (Advanced Learning Enhancement) |
+| **バージョン** | 2.3.6 (Technical Writing Skill) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
@@ -16,7 +16,7 @@
 | **テストフレームワーク** | Vitest |
 | **テスト数** | 2100+ (全合格) |
 | **パッケージ数** | 19 |
-| **Agent Skills** | 12 (Claude Code対応) |
+| **Agent Skills** | 13 (Claude Code対応) |
 
 ---
 

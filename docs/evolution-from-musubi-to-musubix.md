@@ -77,7 +77,7 @@ MUSUBIは以下の7つの主要AIコーディングエージェントで動作�
 
 MUSUBIXは**GitHub Copilot**と**Claude Code**の両方のAgent Skillsに対応しています。v1.1.13から、`.github/skills/`と`.claude/skills/`の両方にスキルをコピーします。
 
-現在、**9つのスキル**が利用可能です。
+現在、**10のスキル**が利用可能です。
 
 | スキル名 | 説明 |
 |---------|------|
@@ -90,6 +90,7 @@ MUSUBIXは**GitHub Copilot**と**Claude Code**の両方のAgent Skillsに対応�
 | `musubix-adr-generation` | Architecture Decision Records作成 |
 | `musubix-best-practices` | 17種のベストプラクティス適用 |
 | `musubix-domain-inference` | 62ドメイン検出・コンポーネント推論 |
+| `musubix-technical-writing` | 技術ドキュメント作成（README, ガイド, API参照等） |
 
 スキルファイルの配置:
 ```
@@ -103,7 +104,8 @@ MUSUBIXは**GitHub Copilot**と**Claude Code**の両方のAgent Skillsに対応�
 ├── musubix-test-generation/SKILL.md   # テスト生成
 ├── musubix-adr-generation/SKILL.md    # ADR生成
 ├── musubix-best-practices/SKILL.md    # ベストプラクティス
-└── musubix-domain-inference/SKILL.md  # ドメイン推論
+├── musubix-domain-inference/SKILL.md  # ドメイン推論
+└── musubix-technical-writing/SKILL.md # 技術ドキュメント
 
 # Claude Code用 (同一内容のコピー)
 .claude/skills/

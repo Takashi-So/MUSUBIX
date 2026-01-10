@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-yata-client",
-  "version": "2.2.0",
+  "version": "2.3.6",
   "description": "MUSUBIX YATA Client - Knowledge Graph Client Library",
   "type": "module",
   "main": "./dist/index.js",

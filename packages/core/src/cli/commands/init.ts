@@ -601,7 +601,7 @@ async function createDefaultClaudeSettings(
 
 ## 🛠️ Agent Skills
 
-\`.github/skills/\` に9つのMUSUBIX Agent Skillsが配置されています:
+\`.github/skills/\` に10のMUSUBIX Agent Skillsが配置されています:
 
 - \`musubix-sdd-workflow\` - SDD開発ワークフロー
 - \`musubix-ears-validation\` - EARS形式検証
@@ -612,6 +612,7 @@ async function createDefaultClaudeSettings(
 - \`musubix-adr-generation\` - ADR生成
 - \`musubix-best-practices\` - ベストプラクティス
 - \`musubix-domain-inference\` - ドメイン推論
+- \`musubix-technical-writing\` - 技術ドキュメント作成
 
 ## 📝 CLIコマンド
 
