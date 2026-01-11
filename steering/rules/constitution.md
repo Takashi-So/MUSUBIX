@@ -315,6 +315,83 @@ This document defines the 9 Constitutional Articles that govern all development 
 
 ---
 
+## Article X: Implementation Prerequisites (v3.0.9)
+
+**Statement**: Implementation SHALL NOT begin without approved requirements, design, and task breakdown documents.
+
+### Requirements
+
+- **要件定義書 (Phase 1)** MUST exist and be approved before implementation
+- **設計書 (Phase 2)** MUST exist and be approved before implementation
+- **タスク分解 (Phase 3)** MUST exist and be approved before implementation
+- Direct transition from design to implementation is **ABSOLUTELY FORBIDDEN**
+- Each phase MUST have at least one artifact (document)
+- All previous phases MUST be in 'approved' status
+
+### Critical Rule
+
+```
+⛔ FORBIDDEN: Phase 2 (設計) → Phase 4 (実装)
+✅ REQUIRED:  Phase 2 (設計) → Phase 3 (タスク分解) → Phase 4 (実装)
+```
+
+### Prerequisite Checks
+
+Before starting implementation, `workflow-engine` validates:
+
+1. ✅ Phase 1 (requirements) is approved with artifacts
+2. ✅ Phase 2 (design) is approved with artifacts  
+3. ✅ Phase 3 (task-breakdown) is approved with artifacts
+
+If ANY check fails, implementation is BLOCKED with detailed error message.
+
+### Rationale
+
+- Prevents ad-hoc implementation without planning
+- Ensures traceability chain: REQ → DES → TSK → CODE
+- Reduces rework and technical debt
+- Enforces disciplined software development
+- Supports audit and compliance requirements
+
+### Validation Checklist
+
+- [ ] Requirements document exists in storage/specs/
+- [ ] Design document exists in storage/design/
+- [ ] Task breakdown exists in storage/tasks/
+- [ ] All three phases show 'approved' status
+- [ ] Traceability links verified (REQ-* → DES-* → TSK-*)
+
+### Enforcement
+
+```typescript
+// workflow-engine/PhaseController.ts
+if (targetPhase === 'implementation') {
+  const prereqCheck = checkImplementationPrerequisites(workflow);
+  if (!prereqCheck.canProceed) {
+    return {
+      success: false,
+      error: 'Prerequisites not met',
+      message: prereqCheck.message,
+    };
+  }
+}
+```
+
+### Error Messages
+
+When prerequisites are not met:
+
+```
+⛔ 実装を開始できません。以下が不足しています:
+  - 要件定義書 (Phase 1が未承認)
+  - 設計書 (Phase 2が未承認)
+  - タスク分解 (Phase 3が未承認)
+```
+
+**Powered by**: `@nahisaho/musubix-workflow-engine` v3.0.9+
+
+---
+
 ## Phase -1 Gates
 
 **Phase -1 Gates** are validation checkpoints that occur BEFORE implementation begins. They enforce constitutional compliance.
@@ -390,6 +467,7 @@ The `constitution-enforcer` skill automatically validates compliance:
 **Version History**:
 
 - v1.0 (Initial) - 9 Articles established
+- v1.1 (2026-01-12) - Article X: Implementation Prerequisites added
 
 ---
 
@@ -406,6 +484,7 @@ The `constitution-enforcer` skill automatically validates compliance:
 | VII     | Simplicity Gate     | `constitution-enforcer` (Phase -1)              |
 | VIII    | Anti-Abstraction    | `constitution-enforcer` (Phase -1)              |
 | IX      | Integration Testing | `test-engineer`                                 |
+| **X**   | **Implementation Prerequisites** | `workflow-engine`, `PhaseController` |
 
 ---
 

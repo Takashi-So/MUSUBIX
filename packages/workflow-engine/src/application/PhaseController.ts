@@ -14,6 +14,7 @@ import {
   type Workflow,
   type ReviewResult,
   type ReviewCheckpoint,
+  type PrerequisiteCheckResult,
   createWorkflow,
   startWorkflow,
   updatePhase,
@@ -25,6 +26,7 @@ import {
   parseApprovalFromInput,
   getPhaseMetadata,
   generateWorkflowId,
+  checkImplementationPrerequisites,
 } from '../domain/index.js';
 
 /**
@@ -254,6 +256,18 @@ export class PhaseController {
         };
       }
       
+      // CRITICAL: Check implementation prerequisites
+      if (targetPhase === 'implementation') {
+        const prereqCheck = checkImplementationPrerequisites(workflow);
+        if (!prereqCheck.canProceed) {
+          return {
+            success: false,
+            error: 'Prerequisites not met',
+            message: prereqCheck.message,
+          };
+        }
+      }
+      
       const updatedWorkflow = transitionToPhase(workflow, targetPhase);
       this.workflows.set(workflowId, updatedWorkflow);
       
@@ -269,6 +283,30 @@ export class PhaseController {
         message: 'Failed to transition phase',
       };
     }
+  }
+
+  /**
+   * Check if implementation can start
+   * 
+   * @param workflowId - Workflow ID
+   * @returns PrerequisiteCheckResult
+   */
+  checkImplementationPrerequisites(workflowId: string): PhaseControllerResult<PrerequisiteCheckResult> {
+    const workflow = this.workflows.get(workflowId);
+    if (!workflow) {
+      return {
+        success: false,
+        error: 'Workflow not found',
+        message: `Workflow ${workflowId} not found`,
+      };
+    }
+    
+    const result = checkImplementationPrerequisites(workflow);
+    return {
+      success: true,
+      data: result,
+      message: result.message,
+    };
   }
 
   /**

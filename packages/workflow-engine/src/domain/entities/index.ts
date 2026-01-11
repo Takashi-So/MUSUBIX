@@ -38,6 +38,8 @@ export {
 export {
   type WorkflowStatus,
   type Workflow,
+  type RequiredArtifacts,
+  type PrerequisiteCheckResult,
   createWorkflow,
   startWorkflow,
   updatePhase,
@@ -46,4 +48,5 @@ export {
   getWorkflowProgress,
   generateWorkflowId,
   canProceedToImplementation,
+  checkImplementationPrerequisites,
 } from './Workflow.js';

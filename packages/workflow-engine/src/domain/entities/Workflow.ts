@@ -231,3 +231,71 @@ export function canProceedToImplementation(workflow: Workflow): boolean {
   const taskBreakdownPhase = workflow.phases.get('task-breakdown');
   return taskBreakdownPhase?.status === 'approved';
 }
+
+/**
+ * Required artifacts for implementation phase
+ */
+export interface RequiredArtifacts {
+  readonly requirementsDocument: boolean;
+  readonly designDocument: boolean;
+  readonly taskBreakdown: boolean;
+}
+
+/**
+ * Implementation Prerequisites Check Result
+ */
+export interface PrerequisiteCheckResult {
+  readonly canProceed: boolean;
+  readonly missingArtifacts: string[];
+  readonly message: string;
+}
+
+/**
+ * Check if all prerequisites for implementation are met
+ * 
+ * This is a CRITICAL check that enforces:
+ * - Requirements document must exist (Phase 1)
+ * - Design document must exist (Phase 2)
+ * - Task breakdown must exist (Phase 3)
+ * - All previous phases must be approved
+ * 
+ * @param workflow - Workflow to check
+ * @returns PrerequisiteCheckResult
+ */
+export function checkImplementationPrerequisites(workflow: Workflow): PrerequisiteCheckResult {
+  const missingArtifacts: string[] = [];
+  
+  // Check Phase 1: Requirements
+  const requirementsPhase = workflow.phases.get('requirements');
+  if (!requirementsPhase || requirementsPhase.status !== 'approved') {
+    missingArtifacts.push('要件定義書 (Phase 1が未承認)');
+  } else if (requirementsPhase.artifacts.length === 0) {
+    missingArtifacts.push('要件定義書 (成果物なし)');
+  }
+  
+  // Check Phase 2: Design
+  const designPhase = workflow.phases.get('design');
+  if (!designPhase || designPhase.status !== 'approved') {
+    missingArtifacts.push('設計書 (Phase 2が未承認)');
+  } else if (designPhase.artifacts.length === 0) {
+    missingArtifacts.push('設計書 (成果物なし)');
+  }
+  
+  // Check Phase 3: Task Breakdown
+  const taskPhase = workflow.phases.get('task-breakdown');
+  if (!taskPhase || taskPhase.status !== 'approved') {
+    missingArtifacts.push('タスク分解 (Phase 3が未承認)');
+  } else if (taskPhase.artifacts.length === 0) {
+    missingArtifacts.push('タスク分解 (成果物なし)');
+  }
+  
+  const canProceed = missingArtifacts.length === 0;
+  
+  return {
+    canProceed,
+    missingArtifacts,
+    message: canProceed
+      ? '✅ 全ての前提条件を満たしています。実装を開始できます。'
+      : `⛔ 実装を開始できません。以下が不足しています:\n${missingArtifacts.map(a => `  - ${a}`).join('\n')}`,
+  };
+}

@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`@nahisaho/musubix-workflow-engine`: Article X - Implementation Prerequisites を実装**
+  - **実装フェーズへの遷移時に前提条件を自動検証**
+    - Phase 1 (要件定義) が承認済みかつ成果物あり
+    - Phase 2 (設計) が承認済みかつ成果物あり
+    - Phase 3 (タスク分解) が承認済みかつ成果物あり
+  - **`checkImplementationPrerequisites()` 関数を追加**
+    - 不足している成果物を詳細にレポート
+    - 日本語のエラーメッセージでブロック理由を表示
+  - **`PrerequisiteCheckResult` 型を追加**
+    - `canProceed`: boolean - 実装開始可能か
+    - `missingArtifacts`: string[] - 不足している成果物リスト
+    - `message`: string - ユーザー向けメッセージ
+
+- **`steering/rules/constitution.md`: Article X を追加**
+  - **Implementation Prerequisites 条項**
+  - 要件定義書・設計書・タスク分解なしでの実装を明示的に禁止
+  - `workflow-engine` による自動検証を規定
+  - 憲法条項が9条項から10条項に拡大
+
+- **`AGENTS.md`: 10憲法条項に更新**
+  - Article X の詳細説明を追加
+  - ワークフロー図にPhase 3必須の注意書きを強化
+
 - **`@nahisaho/musubix-security`: Python/PHP脆弱性スキャナーを追加**
   - **PythonScanner**: 14個のセキュリティルール
     - PY-SEC-001: SQL Injection (CWE-89) - cursor.execute() + f-string/format()

@@ -63,7 +63,7 @@ packages/
 | `packages/lean/` | `@nahisaho/musubix-lean` | **Lean 4統合** - 定理証明・EARS変換 |
 | `packages/library-learner/` | `@nahisaho/musubix-library-learner` | **ライブラリ学習** - APIパターン抽出、メトリクスエクスポート |
 | `packages/knowledge/` | `@musubix/knowledge` | **知識ストア (v3.0.0 NEW!)** - Git-friendly JSON知識グラフ |
-| `packages/policy/` | `@musubix/policy` | **ポリシーエンジン (v3.0.0 NEW!)** - 9憲法条項検証 |
+| `packages/policy/` | `@musubix/policy` | **ポリシーエンジン (v3.0.0 NEW!)** - 10憲法条項検証 |
 | `packages/decisions/` | `@musubix/decisions` | **ADRマネージャー (v3.0.0 NEW!)** - Architecture Decision Records |
 | `packages/neural-search/` | `@nahisaho/musubix-neural-search` | **ニューラル検索** - 意味的コード検索、軌跡ロギング |
 | `packages/synthesis/` | `@nahisaho/musubix-synthesis` | **プログラム合成** - ニューラル誘導合成、説明生成 |
@@ -217,7 +217,7 @@ npx musubix-mcp --transport stdio
 | `sdd_create_design` | C4モデル設計ドキュメント作成 |
 | `sdd_validate_design` | 設計の要件トレーサビリティ検証 |
 | `sdd_create_tasks` | 設計から実装タスク生成 |
-| `sdd_validate_constitution` | 9憲法条項への準拠検証 |
+| `sdd_validate_constitution` | 10憲法条項への準拠検証 |
 | `sdd_validate_traceability` | 要件↔設計↔タスクのトレーサビリティ検証 |
 
 #### パターン統合ツール（7ツール）- v1.3.0 NEW!
@@ -324,7 +324,7 @@ npx musubix-mcp --transport stdio
 
 ---
 
-## 📋 9憲法条項（Constitutional Articles）
+## 📋 10憲法条項（Constitutional Articles）
 
 すべての開発活動を統治する不変のルールです。
 
@@ -339,6 +339,21 @@ npx musubix-mcp --transport stdio
 | **VII** | Design Patterns | 設計パターン適用の文書化 |
 | **VIII** | Decision Records | すべての決定をADRで記録 |
 | **IX** | Quality Gates | フェーズ移行前の品質検証 |
+| **X** | **Implementation Prerequisites** | **要件・設計・タスクなしの実装禁止** |
+
+### ⛔ Article X: Implementation Prerequisites (v3.0.9)
+
+**絶対ルール**: 要件定義書・設計書・タスク分解が承認されていない限り、実装を開始してはならない。
+
+```
+⛔ 禁止: Phase 2 (設計) → Phase 4 (実装) の直接遷移
+✅ 必須: Phase 1 → Phase 2 → Phase 3 → Phase 4 の順序遵守
+```
+
+実装開始前に`workflow-engine`が自動検証:
+- ✅ Phase 1 (要件定義) が承認済みかつ成果物あり
+- ✅ Phase 2 (設計) が承認済みかつ成果物あり
+- ✅ Phase 3 (タスク分解) が承認済みかつ成果物あり
 
 **詳細**: [steering/rules/constitution.md](steering/rules/constitution.md)
 
@@ -353,7 +368,7 @@ AIエージェントは決定前に必ずこれらのファイルを参照して
 | `steering/structure.ja.md` | アーキテクチャパターン、レイヤー構造 |
 | `steering/tech.ja.md` | 技術スタック（TypeScript, Node.js 20+） |
 | `steering/product.ja.md` | プロダクトコンテキスト |
-| `steering/rules/constitution.md` | 9憲法条項 |
+| `steering/rules/constitution.md` | 10憲法条項 |
 | `steering/project.yml` | プロジェクト設定 |
 
 ---
@@ -527,7 +542,7 @@ const related = await store.traverse('requirement:REQ-001', {
 ```
 
 **関連パッケージ**:
-- `@musubix/policy`: 9憲法条項の自動検証
+- `@musubix/policy`: 10憲法条項の自動検証
 - `@musubix/decisions`: Architecture Decision Records管理
 
 **ドキュメント**: [docs/packages/knowledge.md](docs/packages/knowledge.md)

@@ -18,11 +18,14 @@ import {
   generateWorkflowId,
   canProceedToImplementation,
   updatePhase,
+  checkImplementationPrerequisites,
 } from '../../src/domain/entities/Workflow.js';
 import {
   type Phase,
   approvePhase,
   setReview,
+  addArtifact,
+  createArtifact,
 } from '../../src/domain/entities/Phase.js';
 
 describe('Workflow Entity', () => {
@@ -220,6 +223,147 @@ describe('Workflow Entity', () => {
     it('should return false when task-breakdown is not approved', () => {
       const workflow = createWorkflow('WFL-001', 'Test');
       expect(canProceedToImplementation(workflow)).toBe(false);
+    });
+  });
+
+  describe('checkImplementationPrerequisites', () => {
+    it('should fail when requirements phase is not approved', () => {
+      const workflow = startWorkflow(createWorkflow('WFL-001', 'Test'));
+      const result = checkImplementationPrerequisites(workflow);
+      
+      expect(result.canProceed).toBe(false);
+      expect(result.missingArtifacts.length).toBeGreaterThan(0);
+      expect(result.message).toContain('実装を開始できません');
+    });
+
+    it('should fail when design phase is not approved', () => {
+      let workflow = createWorkflow('WFL-001', 'Test');
+      workflow = startWorkflow(workflow);
+      
+      // Complete and approve requirements with artifact
+      let reqPhase = workflow.phases.get('requirements')!;
+      reqPhase = addArtifact(reqPhase, createArtifact('requirements', 'storage/specs/REQ-001.md'));
+      reqPhase = setReview(reqPhase, {
+        id: 'REV-001',
+        phase: 'requirements',
+        checkpoints: [{ name: 'Complete', status: '✅', details: 'OK' }],
+        overall: 'pass',
+        timestamp: new Date(),
+      });
+      reqPhase = approvePhase(reqPhase, 'user');
+      workflow = updatePhase(workflow, reqPhase);
+      
+      const result = checkImplementationPrerequisites(workflow);
+      expect(result.canProceed).toBe(false);
+      expect(result.missingArtifacts.some(m => m.includes('設計書'))).toBe(true);
+    });
+
+    it('should fail when task-breakdown phase is not approved', () => {
+      let workflow = createWorkflow('WFL-001', 'Test');
+      workflow = startWorkflow(workflow);
+      
+      // Complete requirements
+      let reqPhase = workflow.phases.get('requirements')!;
+      reqPhase = addArtifact(reqPhase, createArtifact('requirements', 'storage/specs/REQ-001.md'));
+      reqPhase = setReview(reqPhase, {
+        id: 'REV-001',
+        phase: 'requirements',
+        checkpoints: [{ name: 'Complete', status: '✅', details: 'OK' }],
+        overall: 'pass',
+        timestamp: new Date(),
+      });
+      reqPhase = approvePhase(reqPhase, 'user');
+      workflow = updatePhase(workflow, reqPhase);
+      
+      // Transition to design and complete
+      workflow = transitionToPhase(workflow, 'design');
+      let designPhase = workflow.phases.get('design')!;
+      designPhase = addArtifact(designPhase, createArtifact('design', 'storage/design/DES-001.md'));
+      designPhase = setReview(designPhase, {
+        id: 'REV-002',
+        phase: 'design',
+        checkpoints: [{ name: 'Complete', status: '✅', details: 'OK' }],
+        overall: 'pass',
+        timestamp: new Date(),
+      });
+      designPhase = approvePhase(designPhase, 'user');
+      workflow = updatePhase(workflow, designPhase);
+      
+      const result = checkImplementationPrerequisites(workflow);
+      expect(result.canProceed).toBe(false);
+      expect(result.missingArtifacts.some(m => m.includes('タスク分解'))).toBe(true);
+    });
+
+    it('should fail when artifacts are missing', () => {
+      let workflow = createWorkflow('WFL-001', 'Test');
+      workflow = startWorkflow(workflow);
+      
+      // Complete requirements WITHOUT artifact
+      let reqPhase = workflow.phases.get('requirements')!;
+      reqPhase = setReview(reqPhase, {
+        id: 'REV-001',
+        phase: 'requirements',
+        checkpoints: [{ name: 'Complete', status: '✅', details: 'OK' }],
+        overall: 'pass',
+        timestamp: new Date(),
+      });
+      reqPhase = approvePhase(reqPhase, 'user');
+      workflow = updatePhase(workflow, reqPhase);
+      
+      const result = checkImplementationPrerequisites(workflow);
+      expect(result.canProceed).toBe(false);
+      expect(result.missingArtifacts.some(m => m.includes('成果物なし'))).toBe(true);
+    });
+
+    it('should pass when all prerequisites are met', () => {
+      let workflow = createWorkflow('WFL-001', 'Test');
+      workflow = startWorkflow(workflow);
+      
+      // Complete requirements with artifact
+      let reqPhase = workflow.phases.get('requirements')!;
+      reqPhase = addArtifact(reqPhase, createArtifact('requirements', 'storage/specs/REQ-001.md'));
+      reqPhase = setReview(reqPhase, {
+        id: 'REV-001',
+        phase: 'requirements',
+        checkpoints: [{ name: 'Complete', status: '✅', details: 'OK' }],
+        overall: 'pass',
+        timestamp: new Date(),
+      });
+      reqPhase = approvePhase(reqPhase, 'user');
+      workflow = updatePhase(workflow, reqPhase);
+      
+      // Transition to design and complete with artifact
+      workflow = transitionToPhase(workflow, 'design');
+      let designPhase = workflow.phases.get('design')!;
+      designPhase = addArtifact(designPhase, createArtifact('design', 'storage/design/DES-001.md'));
+      designPhase = setReview(designPhase, {
+        id: 'REV-002',
+        phase: 'design',
+        checkpoints: [{ name: 'Complete', status: '✅', details: 'OK' }],
+        overall: 'pass',
+        timestamp: new Date(),
+      });
+      designPhase = approvePhase(designPhase, 'user');
+      workflow = updatePhase(workflow, designPhase);
+      
+      // Transition to task-breakdown and complete with artifact
+      workflow = transitionToPhase(workflow, 'task-breakdown');
+      let taskPhase = workflow.phases.get('task-breakdown')!;
+      taskPhase = addArtifact(taskPhase, createArtifact('task-breakdown', 'storage/tasks/TSK-001.md'));
+      taskPhase = setReview(taskPhase, {
+        id: 'REV-003',
+        phase: 'task-breakdown',
+        checkpoints: [{ name: 'Complete', status: '✅', details: 'OK' }],
+        overall: 'pass',
+        timestamp: new Date(),
+      });
+      taskPhase = approvePhase(taskPhase, 'user');
+      workflow = updatePhase(workflow, taskPhase);
+      
+      const result = checkImplementationPrerequisites(workflow);
+      expect(result.canProceed).toBe(true);
+      expect(result.missingArtifacts.length).toBe(0);
+      expect(result.message).toContain('全ての前提条件を満たしています');
     });
   });
 });
