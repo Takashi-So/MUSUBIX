@@ -43,7 +43,7 @@
     "@musubix/knowledge": "^3.0.0",
     "@musubix/policy": "^3.0.0",
     "@nahisaho/musubix-codegraph": "^2.3.0",
-    "@nahisaho/musubix-core": "^2.2.0",
+    "@nahisaho/musubix-core": "^3.0.0",
     "@nahisaho/musubix-dfg": "^2.2.0",
     "@nahisaho/musubix-formal-verify": "^2.2.0",
     "@nahisaho/musubix-lean": "^2.2.0",

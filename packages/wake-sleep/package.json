@@ -40,7 +40,7 @@
     "vitest": "^4.0.16"
   },
   "peerDependencies": {
-    "@nahisaho/musubix-core": "^2.0.0",
+    "@nahisaho/musubix-core": "^3.0.0",
     "@nahisaho/musubix-pattern-mcp": "^2.0.0",
     "@nahisaho/musubix-ontology-mcp": "^2.0.0"
   }

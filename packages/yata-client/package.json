@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
-    "@nahisaho/musubix-core": "^2.0.0",
+    "@nahisaho/musubix-core": "^3.0.0",
     "zod": "^3.22.0"
   },
   "devDependencies": {

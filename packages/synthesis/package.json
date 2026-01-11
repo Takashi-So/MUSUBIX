@@ -39,7 +39,7 @@
     "directory": "packages/synthesis"
   },
   "dependencies": {
-    "@nahisaho/musubix-core": "^2.0.0",
+    "@nahisaho/musubix-core": "^3.0.0",
     "@nahisaho/musubix-neural-search": "^2.0.0"
   },
   "devDependencies": {
