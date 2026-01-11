@@ -1008,6 +1008,342 @@ const result = await store.traverse('REQ-001', { direction: 'incoming' });
 
 ---
 
+## 自然言語による操作（MCP統合）
+
+MUSUBIX v3.0は、MCP（Model Context Protocol）サーバーを通じてAIエージェント（GitHub Copilot、Claude、Cursor等）から**自然言語で操作**できます。
+
+### セットアップ
+
+#### VS Code / GitHub Copilot での設定
+
+`.vscode/mcp.json` を作成:
+
+```json
+{
+  "mcpServers": {
+    "musubix": {
+      "command": "npx",
+      "args": ["@nahisaho/musubix-mcp-server"]
+    }
+  }
+}
+```
+
+#### Claude Desktop での設定
+
+`claude_desktop_config.json` に追加:
+
+```json
+{
+  "mcpServers": {
+    "musubix": {
+      "command": "npx",
+      "args": ["@nahisaho/musubix-mcp-server"]
+    }
+  }
+}
+```
+
+---
+
+### Knowledge Store（知識グラフ）の自然言語操作
+
+#### 利用可能なMCPツール
+
+| ツール | 説明 |
+|--------|------|
+| `knowledge_put_entity` | エンティティの作成・更新 |
+| `knowledge_get_entity` | エンティティの取得 |
+| `knowledge_delete_entity` | エンティティの削除 |
+| `knowledge_add_relation` | リレーションの追加 |
+| `knowledge_query` | フィルタ検索 |
+| `knowledge_traverse` | グラフ走査 |
+
+#### 自然言語での使用例
+
+**エンティティを作成したい場合:**
+
+```
+「ユーザー認証」という要件を知識グラフに追加して。
+IDはREQ-AUTH-001、タグはsecurityとauthで。
+EARS形式は「WHEN user submits credentials, THE system SHALL authenticate the user」
+```
+
+AIエージェントは `knowledge_put_entity` ツールを使用して：
+```json
+{
+  "id": "REQ-AUTH-001",
+  "type": "requirement",
+  "name": "ユーザー認証",
+  "properties": {
+    "ears": "WHEN user submits credentials, THE system SHALL authenticate the user"
+  },
+  "tags": ["security", "auth"]
+}
+```
+
+**リレーションを作成したい場合:**
+
+```
+DES-AUTH-001がREQ-AUTH-001を実装していることを記録して
+```
+
+AIエージェントは `knowledge_add_relation` ツールを使用して：
+```json
+{
+  "source": "DES-AUTH-001",
+  "target": "REQ-AUTH-001",
+  "type": "implements"
+}
+```
+
+**検索したい場合:**
+
+```
+securityタグが付いた要件を全部見せて
+```
+
+AIエージェントは `knowledge_query` ツールを使用して：
+```json
+{
+  "type": "requirement",
+  "tags": ["security"]
+}
+```
+
+**トレーサビリティを確認したい場合:**
+
+```
+REQ-AUTH-001から辿れる設計とタスクを全部表示して
+```
+
+AIエージェントは `knowledge_traverse` ツールを使用して：
+```json
+{
+  "startId": "REQ-AUTH-001",
+  "direction": "in",
+  "depth": 5
+}
+```
+
+---
+
+### Policy Engine（ポリシー検証）の自然言語操作
+
+#### 利用可能なMCPツール
+
+| ツール | 説明 |
+|--------|------|
+| `policy_validate` | プロジェクト全体の検証 |
+| `policy_list` | ポリシー一覧取得 |
+| `policy_get` | ポリシー詳細取得 |
+| `policy_check_file` | 単一ファイル検証 |
+
+#### 自然言語での使用例
+
+**プロジェクトを検証したい場合:**
+
+```
+このプロジェクトが9憲法条項に準拠しているかチェックして
+```
+
+AIエージェントは `policy_validate` ツールを使用して：
+```json
+{
+  "projectPath": "."
+}
+```
+
+**特定のポリシーを確認したい場合:**
+
+```
+Library-Firstポリシー（CONST-001）の詳細を教えて
+```
+
+AIエージェントは `policy_get` ツールを使用して：
+```json
+{
+  "id": "CONST-001"
+}
+```
+
+**要件ファイルを検証したい場合:**
+
+```
+storage/specs/REQ-001.mdがEARS形式になっているか確認して
+```
+
+AIエージェントは `policy_check_file` ツールを使用して：
+```json
+{
+  "filePath": "storage/specs/REQ-001.md"
+}
+```
+
+**全ポリシーを確認したい場合:**
+
+```
+登録されているポリシーを一覧で見せて
+```
+
+AIエージェントは `policy_list` ツールを使用して：
+```json
+{
+  "category": "constitution"
+}
+```
+
+---
+
+### Decision Records（ADR管理）の自然言語操作
+
+#### 利用可能なMCPツール
+
+| ツール | 説明 |
+|--------|------|
+| `decision_create` | ADRの作成 |
+| `decision_list` | ADR一覧取得 |
+| `decision_get` | ADR詳細取得 |
+| `decision_accept` | ADRの承認 |
+| `decision_deprecate` | ADRの非推奨化 |
+| `decision_search` | キーワード検索 |
+| `decision_find_by_requirement` | 要件からADR検索 |
+| `decision_generate_index` | インデックス生成 |
+
+#### 自然言語での使用例
+
+**ADRを作成したい場合:**
+
+```
+「JWT認証の採用」というADRを作成して。
+
+コンテキスト: ユーザー認証の仕組みが必要。セッション管理のオーバーヘッドを避けたい。
+決定: JWTトークンベースの認証を採用する。
+理由: ステートレスでスケーラブル。マイクロサービス間でも利用可能。
+代替案: セッションベース認証、OAuth2のみ
+影響: トークン失効の仕組みが必要、トークンサイズに注意
+関連要件: REQ-AUTH-001
+決定者: Tech Lead
+```
+
+AIエージェントは `decision_create` ツールを使用して：
+```json
+{
+  "title": "JWT認証の採用",
+  "context": "ユーザー認証の仕組みが必要。セッション管理のオーバーヘッドを避けたい。",
+  "decision": "JWTトークンベースの認証を採用する。",
+  "rationale": "ステートレスでスケーラブル。マイクロサービス間でも利用可能。",
+  "alternatives": ["セッションベース認証", "OAuth2のみ"],
+  "consequences": ["トークン失効の仕組みが必要", "トークンサイズに注意"],
+  "relatedRequirements": ["REQ-AUTH-001"],
+  "decider": "Tech Lead"
+}
+```
+
+**ADRを承認したい場合:**
+
+```
+ADR-0001を承認して
+```
+
+AIエージェントは `decision_accept` ツールを使用して：
+```json
+{
+  "id": "0001"
+}
+```
+
+**ADRを検索したい場合:**
+
+```
+認証に関するADRを探して
+```
+
+AIエージェントは `decision_search` ツールを使用して：
+```json
+{
+  "query": "認証"
+}
+```
+
+**要件に関連するADRを探したい場合:**
+
+```
+REQ-AUTH-001に関連するアーキテクチャ決定を見せて
+```
+
+AIエージェントは `decision_find_by_requirement` ツールを使用して：
+```json
+{
+  "requirementId": "REQ-AUTH-001"
+}
+```
+
+**インデックスを更新したい場合:**
+
+```
+ADRのインデックスを再生成して
+```
+
+AIエージェントは `decision_generate_index` ツールを使用して：
+```json
+{}
+```
+
+---
+
+### 統合的な自然言語ワークフロー
+
+#### 例1: 要件からタスクまでの一連の作業
+
+```
+1. 「支払い機能」の要件を追加して（REQ-PAY-001）
+2. その設計を作成して（DES-PAY-001、Strategyパターンを使用）
+3. 設計から実装タスクを3つ作成して
+4. それぞれのトレーサビリティを設定して
+5. 最後にトレーサビリティチェーンを確認して
+```
+
+#### 例2: アーキテクチャ決定の記録と検証
+
+```
+1. TypeScript採用についてADRを作成して
+2. 作成したADRを承認して
+3. プロジェクトがCONST-008（Decision Records）に準拠しているか確認して
+```
+
+#### 例3: コードレビュー前のチェック
+
+```
+1. 9憲法条項への準拠をチェックして
+2. 違反があれば詳細を教えて
+3. 修正が必要な箇所を提案して
+```
+
+---
+
+### プロンプトテンプレート
+
+MUSUBIX MCPサーバーには以下のプロンプトテンプレートも用意されています：
+
+| プロンプト名 | 説明 |
+|-------------|------|
+| `sdd_requirements_analysis` | 機能説明からEARS形式要件を生成 |
+| `sdd_requirements_review` | 要件の完全性・憲法準拠レビュー |
+| `sdd_design_generation` | 要件からC4モデル設計を生成 |
+| `synthesis_guidance` | プログラム合成のガイダンス |
+| `synthesis_explain_pattern` | パターンの説明生成 |
+
+#### プロンプトの使用例
+
+```
+sdd_requirements_analysisプロンプトを使って、
+「ユーザーがショッピングカートに商品を追加できる」
+という機能の要件を分析して
+```
+
+---
+
 ## 参考リンク
 
 - [MUSUBIX GitHub](https://github.com/nahisaho/MUSUBIX)
