@@ -62,7 +62,11 @@ npm install musubix
 
 ## 3. 基本的な使い方
 
+> **💡 ヒント**: 以下の操作はすべて**自然言語（MCP経由）**でも実行できます。各セクションでコード例と自然言語での操作例を併記しています。
+
 ### 3.1 知識ストアの初期化
+
+#### コードでの初期化
 
 ```typescript
 import { createKnowledgeStore } from '@musubix/knowledge';
@@ -74,9 +78,25 @@ const store = createKnowledgeStore('.knowledge');
 await store.load();
 ```
 
+#### 自然言語での初期化
+
+MCPサーバーが起動している場合、知識ストアは**自動的に初期化**されます。  
+特別な初期化操作は不要で、すぐにエンティティの作成・検索ができます。
+
+```
+👤 ユーザー:
+知識ベースにパターンを登録したい
+
+🤖 AIエージェント:
+了解しました。どのようなパターンを登録しますか？
+（MCPサーバーが自動的に .knowledge/graph.json を初期化・読み込みします）
+```
+
 ### 3.2 エンティティの作成
 
 #### ベストプラクティスの登録
+
+**コード例:**
 
 ```typescript
 // コーディングパターン
@@ -99,8 +119,30 @@ function createUser(input: CreateUserInput): User { ... }
   },
   tags: ['typescript', 'design-pattern', 'dto'],
 });
+```
 
-// 設計パターン
+**自然言語での登録:**
+
+```
+👤 ユーザー:
+「Entity Input DTO」というコーディングパターンを知識ベースに登録して。
+エンティティ作成時はInput DTOオブジェクトを使用するパターンで、
+信頼度95%、タグはtypescript, design-pattern, dtoで。
+コード例も付けて：
+interface CreateUserInput { name: string; email: string; }
+
+🤖 AIエージェント:
+ベストプラクティスを登録しました:
+- ID: pattern:BP-CODE-001
+- 名前: Entity Input DTO
+- カテゴリ: code
+- 信頼度: 95%
+- タグ: typescript, design-pattern, dto
+```
+
+**設計パターンの登録（コード例）:**
+
+```typescript
 await store.putEntity({
   id: 'pattern:BP-DESIGN-001',
   type: 'best-practice',
@@ -122,7 +164,21 @@ const validTransitions: Record<Status, Status[]> = {
 });
 ```
 
+**設計パターンの登録（自然言語）:**
+
+```
+👤 ユーザー:
+「Status Transition Map」パターンを登録して。
+有効なステータス遷移をMapで定義するパターン。
+カテゴリはdesign、信頼度95%、タグはstate-machine, design-pattern。
+
+🤖 AIエージェント:
+登録しました: pattern:BP-DESIGN-001 - Status Transition Map
+```
+
 #### 技術選定基準の登録
+
+**コード例:**
 
 ```typescript
 await store.putEntity({
@@ -148,10 +204,33 @@ await store.putEntity({
 });
 ```
 
+**自然言語での登録:**
+
+```
+👤 ユーザー:
+フロントエンドフレームワークの選定基準をガイドラインとして登録して。
+評価基準は：
+- チームスキル (30%)
+- エコシステム成熟度 (25%)
+- パフォーマンス (20%)
+- 学習コスト (15%)
+- コミュニティサポート (10%)
+
+推奨は、エンタープライズならReact、プロトタイプならVue、
+パフォーマンス重視ならSvelteで。
+
+🤖 AIエージェント:
+技術ガイドラインを登録しました:
+- ID: guideline:TECH-001
+- 名前: フロントエンドフレームワーク選定基準
+- 5つの評価基準と3つの推奨を含む
+```
+
 #### ドメイン知識の登録
 
+**コード例（ドメイン用語）:**
+
 ```typescript
-// ECサイトのドメイン用語
 await store.putEntity({
   id: 'domain:EC-TERM-001',
   type: 'domain-term',
@@ -164,8 +243,29 @@ await store.putEntity({
   },
   tags: ['e-commerce', 'inventory', 'terminology'],
 });
+```
 
-// ビジネスルール
+**自然言語での登録（ドメイン用語）:**
+
+```
+👤 ユーザー:
+ECサイトのドメイン用語「SKU」を登録して。
+Stock Keeping Unitの略で、在庫管理単位のこと。
+商品の色・サイズの組み合わせごとにコードが付く。
+例：SHIRT-RED-M, SHIRT-RED-L, SHIRT-BLUE-M
+関連用語はJAN、UPC、商品コード。
+
+🤖 AIエージェント:
+ドメイン用語を登録しました:
+- ID: domain:EC-TERM-001
+- 名前: SKU (Stock Keeping Unit)
+- ドメイン: e-commerce
+- タグ: e-commerce, inventory, terminology
+```
+
+**コード例（ビジネスルール）:**
+
+```typescript
 await store.putEntity({
   id: 'domain:EC-RULE-001',
   type: 'business-rule',
@@ -183,7 +283,26 @@ await store.putEntity({
 });
 ```
 
+**自然言語での登録（ビジネスルール）:**
+
+```
+👤 ユーザー:
+在庫引当のビジネスルールを登録して。
+ECサイトの在庫管理ルールで：
+1. 在庫は注文確定時に即座に引き当てる
+2. 30分以内に決済完了しない場合は引当解除
+3. 複数倉庫の場合は最寄り倉庫から優先
+
+🤖 AIエージェント:
+ビジネスルールを登録しました:
+- ID: domain:EC-RULE-001
+- 名前: 在庫引当ルール
+- 3つのルールを含む
+```
+
 #### セキュリティガイドラインの登録
+
+**コード例:**
 
 ```typescript
 await store.putEntity({
@@ -204,7 +323,25 @@ const hash = await bcrypt.hash(password, 12);
 });
 ```
 
+**自然言語での登録:**
+
+```
+👤 ユーザー:
+パスワードハッシュ化のセキュリティガイドラインを登録して。
+- 使用アルゴリズム: bcrypt
+- 最小コスト: 12
+- 禁止: MD5、SHA1、SHA256単独使用
+
+🤖 AIエージェント:
+セキュリティガイドラインを登録しました:
+- ID: guideline:SEC-001
+- 名前: パスワードハッシュ化ガイドライン
+- タグ: security, authentication, password
+```
+
 ### 3.3 エンティティの取得
+
+**コード例:**
 
 ```typescript
 const pattern = await store.getEntity('pattern:BP-CODE-001');
@@ -216,11 +353,41 @@ if (pattern) {
 }
 ```
 
+**自然言語での取得:**
+
+```
+👤 ユーザー:
+BP-CODE-001の詳細を見せて
+
+🤖 AIエージェント:
+**pattern:BP-CODE-001 - Entity Input DTO**
+- タイプ: best-practice
+- カテゴリ: code
+- 信頼度: 95%
+- 説明: エンティティ作成時はInput DTOオブジェクトを使用する
+- タグ: typescript, design-pattern, dto
+
+コード例:
+interface CreateUserInput { name: string; email: string; }
+```
+
 ### 3.4 エンティティの削除
+
+**コード例:**
 
 ```typescript
 const deleted = await store.deleteEntity('pattern:BP-CODE-001');
 console.log(deleted); // => true
+```
+
+**自然言語での削除:**
+
+```
+👤 ユーザー:
+BP-CODE-001を削除して
+
+🤖 AIエージェント:
+pattern:BP-CODE-001 (Entity Input DTO) を削除しました。
 ```
 
 ---
@@ -228,6 +395,8 @@ console.log(deleted); // => true
 ## 4. リレーション管理
 
 ### 4.1 リレーションの追加
+
+**コード例:**
 
 ```typescript
 // パターン間の関連
@@ -256,6 +425,19 @@ await store.addRelation({
   target: 'domain:EC-RULE-001',
   type: 'usedIn',
 });
+```
+
+**自然言語での関連付け:**
+
+```
+👤 ユーザー:
+BP-CODE-001とBP-TEST-004を関連付けて。
+Input DTOパターンを使う場合のテストパターンとして。
+
+🤖 AIエージェント:
+リレーションを追加しました:
+- pattern:BP-CODE-001 → pattern:BP-TEST-004 (relatedTo)
+- 説明: Input DTOパターンを使う場合のテストパターン
 ```
 
 ### 4.2 リレーションの取得
