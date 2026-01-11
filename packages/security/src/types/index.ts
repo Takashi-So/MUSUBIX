@@ -3,6 +3,15 @@
  * @module @nahisaho/musubix-security/types
  */
 
+// CodeDB types (v3.1.0 - CodeQL Enhancement)
+export * from './codedb.js';
+
+// MQL types (v3.1.0 - CodeQL Enhancement)
+export * from './mql.js';
+
+// Variant analysis types (v3.1.0 - CodeQL Enhancement)
+export * from './variant.js';
+
 // Vulnerability types
 export type {
   OWASPCategory,

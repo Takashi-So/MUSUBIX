@@ -5,6 +5,100 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.10] - 2026-01-13
+
+### Added
+
+- **`@nahisaho/musubix-security`: CodeQL相当のセキュリティ分析機能を追加**
+
+  #### Multi-Language Extractors (Tree-sitter)
+  - **BaseExtractor**: 言語抽象化レイヤー
+    - AST, CFG, DFG, シンボルテーブル抽出の統一インターフェース
+    - フレームワーク検出機能
+  - **GoExtractor**: Go言語対応
+    - net/http, Gin, database/sql, os/exec のフレームワークパターン検出
+    - 完全なAST/CFG/DFG/シンボルテーブル抽出
+  - **JavaExtractor**: Java言語対応
+    - Spring MVC, JDBC, JPA, Runtime, File I/O, XML, Serialization のフレームワークパターン検出
+    - アノテーション・修飾子抽出
+  - **対応言語**: Go, Java, TypeScript, JavaScript, Python, PHP, Ruby, Rust
+
+  #### CodeDB - In-Memory Code Database
+  - **CodeDB**: インメモリコードデータベース
+    - AST, DFG, CFG ストア
+    - コールグラフ、型ストア
+    - テイントパス追跡
+    - ループ検出
+    - 高速インデックス検索
+  - **CodeDBBuilder**: 並列/逐次ビルド
+    - プログレスコールバック
+    - クロスファイル参照構築
+  - **CodeDBSerializer**: JSON永続化 (Git-friendly)
+    - v1.0 スキーマ
+    - ADR-SEC-002 準拠
+
+  #### MQL - MUSUBIX Query Language
+  - **MQLLexer**: トークナイザー
+    - 40+ トークンタイプ
+    - キーワード、識別子、文字列、数値、正規表現、演算子、コメント対応
+  - **MQLParser**: 再帰下降パーサー
+    - SELECT, FROM, WHERE, ORDER BY, LIMIT 句
+    - 論理条件 (AND, OR, NOT)
+    - 比較演算子、IN, EXISTS, LIKE, MATCHES
+    - 組み込み述語 (isSource, isSink, isSanitizer, 等)
+  - **MQLPlanner**: クエリ最適化
+    - コスト推定
+    - インデックス利用判定
+    - フィルター順序最適化
+    - EXPLAIN 出力
+  - **MQLExecutor**: クエリ実行エンジン
+    - 複数データソース (functions, classes, calls, variables, dataflow, controlflow, ast, symbols)
+    - 組み込み関数 (count, length, lower, upper, concat, coalesce, 等)
+  - **MQLEngine**: 高レベルAPI
+    - parse, plan, execute, explain, validate
+
+  #### Variant Analysis
+  - **VulnerabilityModelManager**: 脆弱性モデル管理
+    - 組み込みモデル: SQL Injection, XSS, Command Injection, Path Traversal, XXE, SSRF, Hardcoded Credentials, Insecure Deserialization
+    - カスタムモデル登録/削除
+    - CWE データベース統合
+  - **VulnerabilityDetector**: テイント分析エンジン
+    - ソース/シンク/サニタイザー マッチング
+    - 手続き間テイント伝播
+    - 信頼度計算
+  - **SecurityScanner**: 高レベルスキャンAPI
+    - プログレスコールバック
+    - 言語自動検出
+    - 重複排除
+    - 重大度フィルタリング
+  - **SARIFGenerator**: SARIF 2.1.0 レポート生成
+    - CodeFlow (テイントパス可視化)
+    - GitHub/VS Code 連携対応
+
+  #### CLI Commands (新規追加)
+  - `musubix-security database build [target]` - CodeDB構築
+  - `musubix-security database export/import` - CodeDB永続化
+  - `musubix-security query <mql>` - MQLクエリ実行
+  - `musubix-security query --explain <mql>` - クエリプラン表示
+  - `musubix-security variant [target]` - Variant Analysis実行
+  - `musubix-security variant --list-models` - 脆弱性モデル一覧
+  - `musubix-security variant --format sarif` - SARIFエクスポート
+  - `musubix-security models list/show/enable/disable` - モデル管理
+
+### Changed
+
+- **パッケージバージョン**: 3.0.9 → 3.1.0
+- **index.ts**: CodeQL相当機能のエクスポートを追加
+- **package.json exports**: extractors, codedb, mql, variant を追加
+
+### Technical Details
+
+- **ADR-SEC-001**: Tree-sitter採用 (CodeQL QL言語相当)
+- **ADR-SEC-002**: JSON永続化 (Git-friendly, サーバーレス)
+- **要件ID**: REQ-SEC-CODEQL-001 〜 REQ-SEC-CODEQL-059
+- **設計ID**: DES-SEC-CODEQL-001
+- **タスクID**: TSK-SEC-CODEQL-001 (35タスク完了)
+
 ## [3.0.9] - 2026-01-12
 
 ### Added

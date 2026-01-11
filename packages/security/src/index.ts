@@ -1,9 +1,10 @@
 /**
  * @fileoverview MUSUBIX Security Package - Main Entry Point
  * @module @nahisaho/musubix-security
- * @version 1.8.0
+ * @version 3.0.10
  * 
  * Static analysis and vulnerability detection for TypeScript/JavaScript applications.
+ * Now with CodeQL-equivalent capabilities!
  * 
  * Features:
  * - Vulnerability scanning (SQL Injection, XSS, Command Injection, etc.)
@@ -12,6 +13,12 @@
  * - Dependency auditing (npm audit integration)
  * - Fix generation and verification
  * - Multiple report formats (JSON, SARIF, Markdown, HTML)
+ * 
+ * CodeQL-Equivalent Features (v3.1.0):
+ * - Multi-language extractors (Tree-sitter based): Go, Java, TypeScript, JavaScript, Python, PHP
+ * - CodeDB: In-memory code database with AST, CFG, DFG, and symbol tables
+ * - MQL: MUSUBIX Query Language for code analysis
+ * - Variant Analysis: Taint-based vulnerability detection with SARIF export
  * 
  * @example
  * ```typescript
@@ -31,6 +38,21 @@
  *   dependencies: true,
  *   generateFixes: true,
  * });
+ * 
+ * // CodeQL-style variant analysis (v3.1.0)
+ * import { createScanner, createMQLEngine, createCodeDBBuilder } from '@nahisaho/musubix-security';
+ * 
+ * // Build CodeDB
+ * const builder = createCodeDBBuilder();
+ * const { database } = await builder.build('./src');
+ * 
+ * // Run MQL queries
+ * const engine = createMQLEngine();
+ * const result = await engine.execute('FROM functions WHERE name LIKE "%sql%"', database);
+ * 
+ * // Run variant analysis
+ * const scanner = createScanner();
+ * const findings = await scanner.scan('./src');
  * ```
  */
 
@@ -472,3 +494,78 @@ export {
   type NVDClientOptions,
   type CVESearchResult,
 } from './cve/index.js';
+
+// ============================================================================
+// CodeQL-Equivalent Features (v3.1.0)
+// ============================================================================
+
+// Extractors - Multi-language AST/CFG/DFG extraction
+export {
+  type ExtractorResult,
+  type ExtractionOptions,
+  getExtractor,
+  getSupportedLanguages,
+} from './extractors/index.js';
+
+// CodeDB - In-memory code database
+export {
+  CodeDB,
+  createCodeDB,
+  CodeDBBuilder,
+  createCodeDBBuilder,
+  CodeDBSerializer,
+  type BuildProgress,
+  type BuildResult,
+  type BuildOptions,
+  type SerializedCodeDB,
+} from './codedb/index.js';
+
+// MQL - MUSUBIX Query Language
+export {
+  MQLEngine,
+  createMQLEngine,
+  query,
+  validate,
+  parse,
+  createPlan,
+  explainPlan,
+  execute,
+  MQLLexer,
+  MQLParser,
+  MQLPlanner,
+  MQLExecutor,
+  type MQLAst,
+  type ParseResult,
+  type QueryPlan,
+  type QueryResult,
+  type MQLOptions,
+} from './mql/index.js';
+
+// Variant Analysis - Vulnerability detection
+export {
+  VulnerabilityModelManager,
+  createModelManager,
+  VulnerabilityDetector,
+  createDetector,
+  SecurityScanner,
+  createScanner,
+  scan,
+  scanFile,
+  SARIFGenerator,
+  createSARIFGenerator,
+  generateSARIF,
+  exportSARIF,
+  VULNERABILITY_MODELS,
+  CWE_DATABASE,
+  type VulnerabilityModel,
+  type SourcePattern,
+  type SinkPattern,
+  type SanitizerPattern,
+  type VulnerabilityFinding,
+  type ScanConfig,
+  type ScanResult as VariantScanResult,
+  type ScanProgress,
+  type DetectorOptions,
+  type DetectorResult,
+  type SARIFReport,
+} from './variant/index.js';

@@ -444,6 +444,354 @@ export function createSecurityCLI(): Command {
       }
     });
 
+  // ============================================================================
+  // CodeQL-equivalent commands (v3.1.0)
+  // ============================================================================
+
+  // Database build command
+  program
+    .command('database <action> [target]')
+    .alias('db')
+    .description('CodeDB operations (build|export|import)')
+    .option('-o, --output <file>', 'Output file for export')
+    .option('-l, --language <lang>', 'Primary language (auto-detect if not specified)')
+    .option('--parallel', 'Enable parallel processing', true)
+    .action(async (action, target = '.', options) => {
+      try {
+        const { createCodeDBBuilder } = await import('../codedb/builder.js');
+        const { CodeDBSerializer } = await import('../codedb/serializer.js');
+        const targetPath = path.resolve(target);
+
+        switch (action) {
+          case 'build': {
+            console.log(`\n  Building CodeDB for ${targetPath}...\n`);
+            const builder = createCodeDBBuilder({ parallel: options.parallel });
+            
+            builder.onProgress((progress) => {
+              process.stdout.write(`\r  Progress: ${progress.filesProcessed}/${progress.totalFiles} files (${progress.progress.toFixed(1)}%)`);
+            });
+
+            const result = await builder.build(targetPath);
+            console.log('\n');
+            console.log(`  ✓ Database built successfully`);
+            console.log(`    Files processed: ${result.stats.filesSucceeded}`);
+            console.log(`    Errors: ${result.stats.filesFailed}`);
+            console.log(`    Duration: ${result.stats.duration}ms\n`);
+
+            if (options.output) {
+              const serializer = new CodeDBSerializer();
+              const serialized = serializer.serialize(result.database);
+              const fs = await import('node:fs/promises');
+              await fs.writeFile(options.output, serialized, 'utf-8');
+              console.log(`  Database exported to: ${options.output}\n`);
+            }
+            break;
+          }
+
+          case 'export': {
+            console.error('  Use: musubix-security database build --output <file>');
+            break;
+          }
+
+          case 'import': {
+            if (!target) {
+              console.error('  Error: Database file path required');
+              process.exitCode = 1;
+              return;
+            }
+            const { CodeDBSerializer } = await import('../codedb/serializer.js');
+            const fs = await import('node:fs/promises');
+            const content = await fs.readFile(target, 'utf-8');
+            const serializer = new CodeDBSerializer();
+            const db = serializer.deserialize(content);
+            console.log(`\n  ✓ Database imported successfully`);
+            console.log(`    AST nodes: ${db.getStats().astNodes}`);
+            console.log(`    DFG nodes: ${db.getStats().dfgNodes}`);
+            console.log(`    CFG nodes: ${db.getStats().cfgNodes}\n`);
+            break;
+          }
+
+          default:
+            console.error(`  Unknown action: ${action}`);
+            console.error('  Available actions: build, export, import');
+            process.exitCode = 1;
+        }
+      } catch (error: any) {
+        console.error(`Error: ${error.message}`);
+        process.exitCode = 1;
+      }
+    });
+
+  // MQL Query command
+  program
+    .command('query <mql>')
+    .alias('q')
+    .description('Execute MQL query against CodeDB')
+    .option('-d, --database <file>', 'CodeDB file (or build from target)')
+    .option('-t, --target <path>', 'Target directory to scan', '.')
+    .option('--explain', 'Show query plan')
+    .option('--json', 'Output JSON')
+    .option('-l, --limit <n>', 'Limit results', '100')
+    .action(async (mql, options) => {
+      try {
+        const { createMQLEngine } = await import('../mql/index.js');
+        const { createCodeDBBuilder } = await import('../codedb/builder.js');
+        const { CodeDBSerializer } = await import('../codedb/serializer.js');
+
+        let db;
+
+        if (options.database) {
+          // Load from file
+          const fs = await import('node:fs/promises');
+          const content = await fs.readFile(options.database, 'utf-8');
+          const serializer = new CodeDBSerializer();
+          db = serializer.deserialize(content);
+        } else {
+          // Build from target
+          const targetPath = path.resolve(options.target);
+          console.log(`  Building CodeDB from ${targetPath}...\n`);
+          const builder = createCodeDBBuilder();
+          const result = await builder.build(targetPath);
+          db = result.database;
+        }
+
+        const engine = createMQLEngine({ maxResults: parseInt(options.limit, 10) });
+
+        if (options.explain) {
+          const explanation = engine.explain(mql);
+          console.log(explanation);
+          return;
+        }
+
+        const result = await engine.execute(mql, db);
+
+        if (options.json) {
+          console.log(JSON.stringify(result, null, 2));
+          return;
+        }
+
+        console.log(`\n  Query Results: ${result.rows.length} rows (${result.metadata.executionTime}ms)\n`);
+        
+        if (result.rows.length === 0) {
+          console.log('  No results found.\n');
+          return;
+        }
+
+        // Display results as table
+        const columns = Object.keys(result.rows[0]).filter(k => !k.startsWith('_'));
+        console.log('  ' + columns.map(c => c.padEnd(20)).join(' | '));
+        console.log('  ' + columns.map(() => '-'.repeat(20)).join('-+-'));
+
+        for (const row of result.rows.slice(0, 20)) {
+          const values = columns.map(c => String(row[c] ?? '').substring(0, 20).padEnd(20));
+          console.log('  ' + values.join(' | '));
+        }
+
+        if (result.rows.length > 20) {
+          console.log(`\n  ... and ${result.rows.length - 20} more rows\n`);
+        }
+        console.log('');
+      } catch (error: any) {
+        console.error(`Error: ${error.message}`);
+        process.exitCode = 1;
+      }
+    });
+
+  // Variant analysis command
+  program
+    .command('variant [target]')
+    .description('Run variant analysis (CodeQL-style vulnerability detection)')
+    .option('-m, --model <ids...>', 'Vulnerability model IDs to check')
+    .option('-c, --category <cat>', 'Category filter (injection|secrets|crypto|auth)')
+    .option('-s, --severity <level>', 'Minimum severity (critical|high|medium|low|info)', 'info')
+    .option('-o, --output <file>', 'Output file')
+    .option('-f, --format <format>', 'Output format (json|sarif)', 'json')
+    .option('--list-models', 'List available vulnerability models')
+    .option('--json', 'Output JSON to stdout')
+    .action(async (target = '.', options) => {
+      try {
+        const { createScanner, createModelManager, exportSARIF } = await import('../variant/index.js');
+
+        if (options.listModels) {
+          const manager = createModelManager();
+          console.log('\n  Available Vulnerability Models:\n');
+          for (const model of manager.getAllModels()) {
+            const status = model.enabled ? '✓' : '○';
+            console.log(`  ${status} ${model.id.padEnd(25)} ${model.severity.padEnd(8)} ${model.cweId}`);
+            console.log(`    ${model.description}\n`);
+          }
+          return;
+        }
+
+        const targetPath = path.resolve(target);
+        console.log(`\n  Running variant analysis on ${targetPath}...\n`);
+
+        const scanner = createScanner({
+          severityThreshold: options.severity,
+          modelIds: options.model,
+        });
+
+        scanner.onProgress((progress) => {
+          process.stdout.write(`\r  ${progress.phase}: ${progress.message} (${progress.progress.toFixed(0)}%)`);
+        });
+
+        const result = await scanner.scan(targetPath);
+        console.log('\n');
+
+        if (options.json || options.format === 'json') {
+          if (options.output) {
+            const fs = await import('node:fs/promises');
+            await fs.writeFile(options.output, JSON.stringify(result, null, 2), 'utf-8');
+            console.log(`  Report saved to: ${options.output}\n`);
+          } else {
+            console.log(JSON.stringify(result, null, 2));
+          }
+          return;
+        }
+
+        if (options.format === 'sarif') {
+          const sarif = exportSARIF(result);
+          if (options.output) {
+            const fs = await import('node:fs/promises');
+            await fs.writeFile(options.output, sarif, 'utf-8');
+            console.log(`  SARIF report saved to: ${options.output}\n`);
+          } else {
+            console.log(sarif);
+          }
+          return;
+        }
+
+        // Display summary
+        console.log('  ═══════════════════════════════════════════════════════════════');
+        console.log('  🔍 Variant Analysis Results');
+        console.log('  ═══════════════════════════════════════════════════════════════\n');
+        console.log(`    Total Findings: ${result.summary.totalFindings}`);
+        console.log(`    Critical: ${result.summary.bySeverity.critical}`);
+        console.log(`    High: ${result.summary.bySeverity.high}`);
+        console.log(`    Medium: ${result.summary.bySeverity.medium}`);
+        console.log(`    Low: ${result.summary.bySeverity.low}`);
+        console.log(`    Info: ${result.summary.bySeverity.info}`);
+        console.log(`    Duration: ${result.metadata.executionTime}ms\n`);
+
+        if (result.findings.length > 0) {
+          console.log('  Findings:\n');
+          for (const finding of result.findings.slice(0, 10)) {
+            console.log(`  ${formatter.formatSeverity(finding.severity)} ${finding.modelName}`);
+            console.log(`           ${finding.location.file}:${finding.location.startLine}`);
+            console.log(`           ${finding.description}`);
+            console.log(`           ${finding.cweId} | Confidence: ${finding.confidence}\n`);
+          }
+          if (result.findings.length > 10) {
+            console.log(`  ... and ${result.findings.length - 10} more findings\n`);
+          }
+        }
+
+        // Exit code based on findings
+        if (result.summary.bySeverity.critical > 0 || result.summary.bySeverity.high > 0) {
+          process.exitCode = 1;
+        }
+      } catch (error: any) {
+        console.error(`Error: ${error.message}`);
+        process.exitCode = 1;
+      }
+    });
+
+  // Models management command
+  program
+    .command('models <action> [id]')
+    .description('Manage vulnerability models (list|show|enable|disable)')
+    .option('--json', 'Output JSON')
+    .action(async (action, id, options) => {
+      try {
+        const { createModelManager } = await import('../variant/index.js');
+        const manager = createModelManager();
+
+        switch (action) {
+          case 'list': {
+            const models = manager.getAllModels();
+            if (options.json) {
+              console.log(JSON.stringify(models, null, 2));
+              return;
+            }
+            console.log('\n  Vulnerability Models:\n');
+            for (const model of models) {
+              const status = model.enabled ? '✓' : '○';
+              console.log(`  ${status} ${model.id.padEnd(25)} ${model.severity.padEnd(8)} ${model.cweId}`);
+            }
+            console.log('');
+            break;
+          }
+
+          case 'show': {
+            if (!id) {
+              console.error('  Error: Model ID required');
+              process.exitCode = 1;
+              return;
+            }
+            const model = manager.getModel(id);
+            if (!model) {
+              console.error(`  Error: Model '${id}' not found`);
+              process.exitCode = 1;
+              return;
+            }
+            if (options.json) {
+              console.log(JSON.stringify(model, null, 2));
+              return;
+            }
+            console.log(`\n  Model: ${model.id}`);
+            console.log(`  Name: ${model.name}`);
+            console.log(`  CWE: ${model.cweId}`);
+            console.log(`  Severity: ${model.severity}`);
+            console.log(`  Category: ${model.category}`);
+            console.log(`  Description: ${model.description}`);
+            console.log(`  Enabled: ${model.enabled}`);
+            console.log(`  Sources: ${model.sources.length}`);
+            console.log(`  Sinks: ${model.sinks.length}`);
+            console.log(`  Sanitizers: ${model.sanitizers.length}\n`);
+            break;
+          }
+
+          case 'enable': {
+            if (!id) {
+              console.error('  Error: Model ID required');
+              process.exitCode = 1;
+              return;
+            }
+            if (manager.enableModel(id)) {
+              console.log(`  ✓ Model '${id}' enabled`);
+            } else {
+              console.error(`  Error: Model '${id}' not found`);
+              process.exitCode = 1;
+            }
+            break;
+          }
+
+          case 'disable': {
+            if (!id) {
+              console.error('  Error: Model ID required');
+              process.exitCode = 1;
+              return;
+            }
+            if (manager.disableModel(id)) {
+              console.log(`  ✓ Model '${id}' disabled`);
+            } else {
+              console.error(`  Error: Model '${id}' not found`);
+              process.exitCode = 1;
+            }
+            break;
+          }
+
+          default:
+            console.error(`  Unknown action: ${action}`);
+            console.error('  Available actions: list, show, enable, disable');
+            process.exitCode = 1;
+        }
+      } catch (error: any) {
+        console.error(`Error: ${error.message}`);
+        process.exitCode = 1;
+      }
+    });
+
   return program;
 }
 
