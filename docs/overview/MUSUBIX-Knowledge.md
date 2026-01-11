@@ -450,6 +450,28 @@ const outgoing = await store.getRelationsFrom('guideline:SEC-001');
 const incoming = await store.getRelationsTo('pattern:BP-CODE-005');
 ```
 
+**自然言語でのリレーション取得:**
+
+```
+👤 ユーザー:
+セキュリティガイドラインSEC-001が参照しているパターンは？
+
+🤖 AIエージェント:
+guideline:SEC-001 からのリレーション:
+- → pattern:BP-CODE-005 (references)
+  説明: セキュリティガイドラインでResult型の使用を推奨
+- → pattern:BP-DESIGN-005 (references)
+  説明: 監査ログ記録パターンの適用を推奨
+
+👤 ユーザー:
+BP-CODE-005を参照しているガイドラインは何がある？
+
+🤖 AIエージェント:
+pattern:BP-CODE-005 へのリレーション:
+- ← guideline:SEC-001 (references)
+- ← guideline:ERR-001 (references)
+```
+
 ### 4.3 リレーションの削除
 
 ```typescript
@@ -458,6 +480,26 @@ await store.removeRelation(
   'pattern:BP-TEST-004',
   'relatedTo'
 );
+```
+
+**自然言語でのリレーション削除:**
+
+```
+👤 ユーザー:
+BP-CODE-001とBP-TEST-004の関連付けを解除して
+
+🤖 AIエージェント:
+リレーションを削除しました:
+- pattern:BP-CODE-001 → pattern:BP-TEST-004 (relatedTo)
+
+👤 ユーザー:
+SEC-001からのすべての参照関係を削除して
+
+🤖 AIエージェント:
+以下のリレーションを削除しました:
+- guideline:SEC-001 → pattern:BP-CODE-005 (references)
+- guideline:SEC-001 → pattern:BP-DESIGN-005 (references)
+合計: 2件削除
 ```
 
 ---
@@ -475,6 +517,40 @@ const terms = await store.query({ type: 'domain-term' });
 
 // すべてのガイドラインを取得
 const guidelines = await store.query({ type: 'security-guideline' });
+```
+
+**自然言語でのタイプ検索:**
+
+```
+👤 ユーザー:
+ベストプラクティスの一覧を見せて
+
+🤖 AIエージェント:
+登録されているベストプラクティス（12件）:
+1. pattern:BP-CODE-001 - Entity Input DTO (95%)
+2. pattern:BP-CODE-002 - Date-based ID Format (90%)
+3. pattern:BP-CODE-003 - Value Objects (90%)
+...
+
+👤 ユーザー:
+ドメイン用語はいくつ登録されてる？
+
+🤖 AIエージェント:
+登録されているドメイン用語: 8件
+- domain:EC-TERM-001 - SKU
+- domain:EC-TERM-002 - 在庫引当
+- domain:MED-TERM-001 - SOAP記録
+...
+
+👤 ユーザー:
+ガイドラインは？
+
+🤖 AIエージェント:
+登録されているガイドライン: 5件
+- guideline:SEC-001 - パスワードハッシュ化ガイドライン
+- guideline:SEC-002 - API認証ガイドライン
+- guideline:PERF-001 - パフォーマンス最適化ガイドライン
+...
 ```
 
 ### 5.2 タグでフィルタリング
@@ -496,6 +572,51 @@ const ecKnowledge = await store.query({
 });
 ```
 
+**自然言語でのタグ検索:**
+
+```
+👤 ユーザー:
+TypeScript関連の知識を全部見せて
+
+🤖 AIエージェント:
+TypeScript関連の知識（8件）:
+
+**ベストプラクティス:**
+- pattern:BP-CODE-001 - Entity Input DTO
+- pattern:BP-CODE-004 - Function-based Value Objects
+- pattern:BP-CODE-005 - Result Type
+
+**ガイドライン:**
+- guideline:TS-001 - strictモード必須化
+- guideline:TS-002 - 型推論の活用
+
+👤 ユーザー:
+セキュリティ関連の知識は？
+
+🤖 AIエージェント:
+セキュリティ関連の知識（6件）:
+- guideline:SEC-001 - パスワードハッシュ化
+- guideline:SEC-002 - API認証
+- pattern:BP-DESIGN-005 - AuditService
+...
+
+👤 ユーザー:
+ECサイト開発に使える知識をピックアップして
+
+🤖 AIエージェント:
+ECサイト関連の知識:
+
+**ドメイン用語:**
+- domain:EC-TERM-001 - SKU（在庫管理単位）
+- domain:EC-TERM-002 - 在庫引当
+
+**ビジネスルール:**
+- domain:EC-RULE-001 - 在庫引当ルール
+
+**関連パターン:**
+- pattern:BP-DESIGN-004 - Optimistic Locking（在庫の同時更新対策）
+```
+
 ### 5.3 複合クエリ
 
 ```typescript
@@ -504,6 +625,31 @@ const codePatterns = await store.query({
   type: 'best-practice',
   tags: ['design-pattern'],
 });
+```
+
+**自然言語での複合検索:**
+
+```
+👤 ユーザー:
+設計パターンのベストプラクティスだけ見せて
+
+🤖 AIエージェント:
+設計パターン系ベストプラクティス（5件）:
+1. pattern:BP-DESIGN-001 - Status Transition Map (95%)
+2. pattern:BP-DESIGN-002 - Repository Async Pattern (85%)
+3. pattern:BP-DESIGN-003 - Service Layer with DI (90%)
+4. pattern:BP-DESIGN-004 - Optimistic Locking (90%)
+5. pattern:BP-DESIGN-005 - AuditService (85%)
+
+👤 ユーザー:
+信頼度90%以上のTypeScriptパターンは？
+
+🤖 AIエージェント:
+信頼度90%以上のTypeScriptパターン（4件）:
+1. pattern:BP-CODE-001 - Entity Input DTO (95%)
+2. pattern:BP-CODE-004 - Function-based Value Objects (95%)
+3. pattern:BP-CODE-005 - Result Type (95%)
+4. pattern:BP-DESIGN-001 - Status Transition Map (95%)
 ```
 
 ---
@@ -525,6 +671,51 @@ for (const entity of related) {
 }
 ```
 
+**自然言語でのグラフ走査:**
+
+```
+👤 ユーザー:
+セキュリティガイドラインSEC-001に関連する知識を教えて
+
+🤖 AIエージェント:
+guideline:SEC-001 から辿れる関連知識:
+
+**直接関連（深さ1）:**
+- pattern:BP-CODE-005 - Result Type
+- pattern:BP-DESIGN-005 - AuditService
+
+**間接関連（深さ2）:**
+- pattern:BP-TEST-004 - Result Type Test Pattern
+- guideline:ERR-001 - エラーハンドリングガイドライン
+
+👤 ユーザー:
+Result Typeパターンから関連を全部辿って
+
+🤖 AIエージェント:
+pattern:BP-CODE-005 から辿れる関連:
+
+**このパターンが参照されている:**
+← guideline:SEC-001 (references)
+← guideline:ERR-001 (references)
+
+**このパターンに関連:**
+→ pattern:BP-TEST-004 (relatedTo)
+→ domain:TERM-ERROR-001 (usedIn)
+
+👤 ユーザー:
+ドメイン用語「SKU」と関係のある知識は？
+
+🤖 AIエージェント:
+domain:EC-TERM-001 (SKU) の関連知識:
+
+**使われているルール:**
+→ domain:EC-RULE-001 - 在庫引当ルール
+
+**関連用語:**
+→ domain:EC-TERM-002 - 在庫引当
+→ domain:EC-TERM-003 - 発注点
+```
+
 ### 6.2 サブグラフの取得
 
 ```typescript
@@ -535,6 +726,50 @@ const subgraph = await store.getSubgraph('domain:EC-TERM-001', {
 
 console.log('エンティティ数:', subgraph.entities.length);
 console.log('リレーション数:', subgraph.relations.length);
+```
+
+**自然言語でのサブグラフ取得:**
+
+```
+👤 ユーザー:
+ECサイトの「SKU」を中心にした知識マップを作って
+
+🤖 AIエージェント:
+domain:EC-TERM-001 (SKU) を中心としたサブグラフ:
+
+**エンティティ:** 7件
+**リレーション:** 9件
+
+知識マップ:
+```
+       ┌─────────────────┐
+       │ domain:EC-TERM-001 │
+       │      (SKU)        │
+       └────────┬──────────┘
+                │ usedIn
+    ┌───────────┼───────────┐
+    ▼           ▼           ▼
+┌────────┐ ┌────────┐ ┌────────┐
+│EC-RULE │ │EC-TERM │ │EC-TERM │
+│  -001  │ │  -002  │ │  -003  │
+│在庫引当│ │在庫引当│ │ 発注点 │
+└────────┘ └────────┘ └────────┘
+```
+
+👤 ユーザー:
+セキュリティ関連の知識グラフを可視化して
+
+🤖 AIエージェント:
+セキュリティ関連のサブグラフ:
+
+**中心:** guideline:SEC-001, guideline:SEC-002
+**エンティティ:** 12件
+**リレーション:** 15件
+
+主な構造:
+- SEC-001 → BP-CODE-005, BP-DESIGN-005
+- SEC-002 → BP-AUTH-001, BP-API-001
+- 両方 → BP-TEST-SEC-001
 ```
 
 ---
@@ -548,11 +783,66 @@ console.log('リレーション数:', subgraph.relations.length);
 await store.save();
 ```
 
+**自然言語での保存:**
+
+```
+👤 ユーザー:
+知識ベースの変更を保存して
+
+🤖 AIエージェント:
+知識ベースを保存しました:
+- ファイル: .knowledge/graph.json
+- エンティティ: 25件
+- リレーション: 32件
+- 更新日時: 2026-01-12T10:30:00.000Z
+
+👤 ユーザー:
+今日追加した知識をコミットして
+
+🤖 AIエージェント:
+変更をGitにコミットしました:
+- git add .knowledge/graph.json
+- git commit -m "knowledge: add 3 new patterns and 2 guidelines"
+
+追加された知識:
+- pattern:BP-CODE-010 - Optimistic Locking
+- pattern:BP-CODE-011 - Entity Counter Reset
+- guideline:PERF-002 - キャッシュ戦略
+```
+
 ### 7.2 再読み込み
 
 ```typescript
 // ファイルから再読み込み
 await store.load();
+```
+
+**自然言語での再読み込み:**
+
+```
+👤 ユーザー:
+他のチームメンバーが追加した知識を読み込んで
+
+🤖 AIエージェント:
+最新の知識ベースを読み込みました:
+- git pull origin main
+- .knowledge/graph.json を再読み込み
+
+新規追加された知識（前回から）:
+- pattern:BP-API-001 - REST API設計パターン（田中さんが追加）
+- guideline:DOC-001 - ドキュメント規約（鈴木さんが追加）
+
+👤 ユーザー:
+知識ベースの現在の状態を確認して
+
+🤖 AIエージェント:
+知識ベースの状態:
+- ベストプラクティス: 15件
+- ガイドライン: 8件
+- ドメイン用語: 12件
+- ビジネスルール: 5件
+- リレーション: 45件
+- 最終更新: 2026-01-12T09:15:00.000Z
 ```
 
 ### 7.3 JSON形式
