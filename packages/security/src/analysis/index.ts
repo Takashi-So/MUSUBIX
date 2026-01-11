@@ -32,3 +32,23 @@ export {
   DependencyAuditor,
   createDependencyAuditor,
 } from './dependency-auditor.js';
+
+export {
+  PythonScanner,
+  createPythonScanner,
+  resetPythonVulnCounter,
+} from './python-scanner.js';
+
+export {
+  PhpScanner,
+  createPhpScanner,
+  resetPhpVulnCounter,
+} from './php-scanner.js';
+
+export {
+  MultiLanguageScanner,
+  createMultiLanguageScanner,
+  type SupportedLanguage,
+  type MultiLanguageScanOptions,
+  type MultiLanguageScanResult,
+} from './multi-language-scanner.js';

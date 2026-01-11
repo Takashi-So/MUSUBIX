@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.9] - 2026-01-12
+
+### Added
+
+- **`@nahisaho/musubix-security`: Python/PHP脆弱性スキャナーを追加**
+  - **PythonScanner**: 14個のセキュリティルール
+    - PY-SEC-001: SQL Injection (CWE-89) - cursor.execute() + f-string/format()
+    - PY-SEC-002: Command Injection (CWE-78) - os.system(), subprocess + shell=True, os.popen()
+    - PY-SEC-003: Code Injection (CWE-94) - eval(), exec(), compile()
+    - PY-SEC-004: Path Traversal (CWE-22) - open() + user input
+    - PY-SEC-005: Insecure Deserialization (CWE-502) - pickle.load(), yaml.load(), marshal
+    - PY-SEC-006: XXE (CWE-611) - xml.etree.ElementTree, lxml.etree
+    - PY-SEC-007: SSRF (CWE-918) - requests.get/post + dynamic URL, urllib
+    - PY-SEC-008: LDAP Injection (CWE-90) - ldap.search() + user input
+    - PY-SEC-009: Hardcoded Secrets (CWE-798) - password/api_key = "..."
+    - PY-SEC-010: Weak Cryptography (CWE-327) - hashlib.md5/sha1, weak ciphers
+    - PY-SEC-011: Debug Mode (CWE-489) - Flask debug=True
+    - PY-SEC-012: ReDoS (CWE-1333) - vulnerable regex patterns
+    - PY-SEC-013: Template Injection (CWE-1336) - render_template_string + f-string
+    - PY-SEC-014: Assert Validation (CWE-617) - assert for input validation
+
+  - **PhpScanner**: 16個のセキュリティルール
+    - PHP-SEC-001: SQL Injection (CWE-89) - mysql_query(), mysqli_query(), PDO
+    - PHP-SEC-002: XSS (CWE-79) - echo/print $_GET, short tags
+    - PHP-SEC-003: Command Injection (CWE-78) - exec(), system(), shell_exec(), backticks
+    - PHP-SEC-004: Code Injection (CWE-94) - eval(), create_function(), preg_replace /e
+    - PHP-SEC-005: File Inclusion (CWE-98) - include/require $_GET
+    - PHP-SEC-006: Path Traversal (CWE-22) - file_get_contents, unlink + user input
+    - PHP-SEC-007: Insecure Deserialization (CWE-502) - unserialize()
+    - PHP-SEC-008: SSRF (CWE-918) - file_get_contents URL, curl
+    - PHP-SEC-009: XXE (CWE-611) - simplexml_load_string, DOMDocument
+    - PHP-SEC-010: LDAP Injection (CWE-90) - ldap_search + user input
+    - PHP-SEC-011: Hardcoded Secrets (CWE-798)
+    - PHP-SEC-012: Weak Cryptography (CWE-327) - md5/sha1 for passwords
+    - PHP-SEC-013: Session Fixation (CWE-384) - session_id($_GET)
+    - PHP-SEC-014: Open Redirect (CWE-601) - header Location + user input
+    - PHP-SEC-015: Information Disclosure (CWE-209) - var_dump, print_r
+    - PHP-SEC-016: Insecure Cookie (CWE-614, CWE-1004) - setcookie without flags
+
+  - **MultiLanguageScanner**: 統合スキャナー
+    - TypeScript, JavaScript, Python, PHP を統一的にスキャン
+    - 言語自動検出（拡張子ベース）
+    - ディレクトリ一括スキャン対応
+    - 言語別サマリー出力
+    - **CWE カバレッジ: 25+ CWEs**
+
+### Enhanced
+
+- **セキュリティパッケージのルール総数: 42個**
+  - TypeScript/JavaScript: 12 rules
+  - Python: 14 rules
+  - PHP: 16 rules
+
 ## [3.0.8] - 2026-01-12
 
 ### Added
