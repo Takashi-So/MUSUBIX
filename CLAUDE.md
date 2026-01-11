@@ -4,18 +4,19 @@
 
 ## 🎯 プロジェクト概要
 
-**MUSUBIX**は、**Neural（LLM）** と **Symbolic（Knowledge Graph）** 推論を統合した次世代AIコーディングシステムです。MUSUBI SDD方法論とYATA知識グラフ推論を組み合わせ、高品質なソフトウェア開発を支援します。
+**MUSUBIX**は、**Neural（LLM）** と **Symbolic（Knowledge Graph）** 推論を統合した次世代AIコーディングシステムです。MUSUBI SDD方法論とオントロジー推論を組み合わせ、高品質なソフトウェア開発を支援します。
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 2.4.1 (Claude Code Integration) |
+| **バージョン** | 3.0.0 (Git-Native Knowledge System) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 2178+ (全合格) |
-| **パッケージ数** | 22 |
+| **テスト数** | 2249+ (全合格) |
+| **パッケージ数** | 25 |
+| **MCPツール数** | 61 |
 | **Agent Skills** | 13 (Claude Code対応) |
 
 ---
@@ -30,48 +31,60 @@ packages/
 ├── mcp-server/     # @nahisaho/musubix-mcp-server  
 ├── security/       # @nahisaho/musubix-security
 ├── formal-verify/  # @nahisaho/musubix-formal-verify
-├── yata-client/    # @nahisaho/musubix-yata-client
-├── yata-local/     # @nahisaho/yata-local
-├── yata-global/    # @nahisaho/yata-global
-├── yata-ui/        # @nahisaho/yata-ui
-├── yata-scale/     # @nahisaho/yata-scale (v2.0.0 NEW!)
 ├── pattern-mcp/    # @nahisaho/musubix-pattern-mcp
 ├── ontology-mcp/   # @nahisaho/musubix-ontology-mcp
 ├── wake-sleep/     # @nahisaho/musubix-wake-sleep
 ├── sdd-ontology/   # @nahisaho/musubix-sdd-ontology
-├── dfg/            # @nahisaho/musubix-dfg (v2.0.0 NEW!)
-├── lean/           # @nahisaho/musubix-lean (v2.0.0 NEW!)
-├── library-learner/# @nahisaho/musubix-library-learner (v2.0.0 NEW!)
-├── neural-search/  # @nahisaho/musubix-neural-search (v2.0.0 NEW!)
-├── synthesis/      # @nahisaho/musubix-synthesis (v2.0.0 NEW!)
-├── agent-orchestrator/ # @nahisaho/musubix-agent-orchestrator (v2.4.0 NEW!)
-├── workflow-engine/    # @nahisaho/musubix-workflow-engine (v2.4.0 NEW!)
-└── skill-manager/      # @nahisaho/musubix-skill-manager (v2.4.0 NEW!)
+├── dfg/            # @nahisaho/musubix-dfg
+├── lean/           # @nahisaho/musubix-lean
+├── library-learner/# @nahisaho/musubix-library-learner
+├── neural-search/  # @nahisaho/musubix-neural-search
+├── synthesis/      # @nahisaho/musubix-synthesis
+├── agent-orchestrator/ # @nahisaho/musubix-agent-orchestrator
+├── workflow-engine/    # @nahisaho/musubix-workflow-engine
+├── skill-manager/      # @nahisaho/musubix-skill-manager
+├── codegraph/          # @nahisaho/musubix-codegraph
+├── knowledge/          # @musubix/knowledge (v3.0.0 NEW!)
+├── policy/             # @musubix/policy (v3.0.0 NEW!)
+└── decisions/          # @musubix/decisions (v3.0.0 NEW!)
 ```
 
 | パッケージ | npm | 役割 |
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
-| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 44ツール、5プロンプト |
+| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 61ツール、5プロンプト |
 | `packages/security/` | `@nahisaho/musubix-security` | セキュリティ分析 - 脆弱性検出、シークレット検出、テイント解析 |
 | `packages/formal-verify/` | `@nahisaho/musubix-formal-verify` | 形式検証 - Z3統合、Hoare検証、EARS→SMT変換 |
-| `packages/yata-client/` | `@nahisaho/musubix-yata-client` | YATAクライアント - 知識グラフ連携 |
-| `packages/yata-local/` | `@nahisaho/yata-local` | YATA Local - SQLiteベースローカル知識グラフ、**自然言語クエリ対応** (v2.4.1 NEW!) |
-| `packages/yata-global/` | `@nahisaho/yata-global` | YATA Global - 分散型知識グラフプラットフォーム |
-| `packages/yata-ui/` | `@nahisaho/yata-ui` | YATA UI - Web可視化・管理インターフェース |
-| `packages/yata-scale/` | `@nahisaho/yata-scale` | **YATA Scale** - 分散シャーディング・キャッシュ (v2.0.0 NEW!) |
 | `packages/pattern-mcp/` | `@nahisaho/musubix-pattern-mcp` | パターン学習 - 抽出・圧縮・ライブラリ |
 | `packages/ontology-mcp/` | `@nahisaho/musubix-ontology-mcp` | オントロジー - N3Store・推論エンジン |
 | `packages/wake-sleep/` | `@nahisaho/musubix-wake-sleep` | Wake-Sleep学習サイクル |
 | `packages/sdd-ontology/` | `@nahisaho/musubix-sdd-ontology` | SDD方法論オントロジー |
-| `packages/dfg/` | `@nahisaho/musubix-dfg` | **DFG/CFG抽出** - データフロー・制御フロー解析 (v2.0.0 NEW!) |
-| `packages/lean/` | `@nahisaho/musubix-lean` | **Lean 4統合** - 定理証明・EARS変換 (v2.0.0 NEW!) |
-| `packages/library-learner/` | `@nahisaho/musubix-library-learner` | **ライブラリ学習** - APIパターン抽出、メトリクスエクスポート (v2.2.0 Enhanced!) |
-| `packages/neural-search/` | `@nahisaho/musubix-neural-search` | **ニューラル検索** - 意味的コード検索、軌跡ロギング (v2.2.0 Enhanced!) |
-| `packages/synthesis/` | `@nahisaho/musubix-synthesis` | **プログラム合成** - ニューラル誘導合成、説明生成 (v2.2.0 Enhanced!) |
-| `packages/agent-orchestrator/` | `@nahisaho/musubix-agent-orchestrator` | **エージェント調整** - サブエージェント分散・複雑度分析 (v2.4.0 NEW!) |
-| `packages/workflow-engine/` | `@nahisaho/musubix-workflow-engine` | **ワークフロー制御** - 5フェーズ制御・品質ゲート (v2.4.0 NEW!) |
-| `packages/skill-manager/` | `@nahisaho/musubix-skill-manager` | **スキル管理** - スキル登録・実行・検証 (v2.4.0 NEW!) |
+| `packages/dfg/` | `@nahisaho/musubix-dfg` | **DFG/CFG抽出** - データフロー・制御フロー解析 |
+| `packages/lean/` | `@nahisaho/musubix-lean` | **Lean 4統合** - 定理証明・EARS変換 |
+| `packages/library-learner/` | `@nahisaho/musubix-library-learner` | **ライブラリ学習** - APIパターン抽出、メトリクスエクスポート |
+| `packages/knowledge/` | `@musubix/knowledge` | **知識ストア (v3.0.0 NEW!)** - Git-friendly JSON知識グラフ |
+| `packages/policy/` | `@musubix/policy` | **ポリシーエンジン (v3.0.0 NEW!)** - 9憲法条項検証 |
+| `packages/decisions/` | `@musubix/decisions` | **ADRマネージャー (v3.0.0 NEW!)** - Architecture Decision Records |
+| `packages/neural-search/` | `@nahisaho/musubix-neural-search` | **ニューラル検索** - 意味的コード検索、軌跡ロギング |
+| `packages/synthesis/` | `@nahisaho/musubix-synthesis` | **プログラム合成** - ニューラル誘導合成、説明生成 |
+| `packages/agent-orchestrator/` | `@nahisaho/musubix-agent-orchestrator` | **エージェント調整** - サブエージェント分散・複雑度分析 |
+| `packages/workflow-engine/` | `@nahisaho/musubix-workflow-engine` | **ワークフロー制御** - 5フェーズ制御・品質ゲート |
+| `packages/skill-manager/` | `@nahisaho/musubix-skill-manager` | **スキル管理** - スキル登録・実行・検証 |
+| `packages/codegraph/` | `@nahisaho/musubix-codegraph` | **コードグラフ** - コード構造解析・依存関係追跡 |
+
+### 非推奨パッケージ（Deprecated） ⚠️
+
+以下のYATA関連パッケージはv3.0.0で非推奨となりました。`@musubix/knowledge`へ移行してください。
+
+| パッケージ | 状態 | 移行先 |
+|-----------|------|--------|
+| `packages/yata-client/` | ⚠️ Deprecated | `@musubix/knowledge` |
+| `packages/yata-global/` | ⚠️ Deprecated | `@musubix/knowledge` |
+| `packages/yata-local/` | ⚠️ Deprecated | `@musubix/knowledge` |
+| `packages/yata-scale/` | ⚠️ Deprecated | `@musubix/knowledge` |
+| `packages/yata-ui/` | ⚠️ Deprecated | `@musubix/knowledge` |
+
+**移行ガイド**: [docs/MIGRATION-v3.0.md](docs/MIGRATION-v3.0.md)
 
 ### Core パッケージモジュール
 
@@ -157,14 +170,8 @@ npx musubix repl                           # 対話的シェルを起動
 npx musubix repl --history <file>          # カスタム履歴ファイル
 npx musubix repl --no-color                # 色なしモード
 
-# KGPR - Knowledge Graph Pull Request (v1.6.4 NEW!)
-npx musubix kgpr create -t "title"         # KGPR作成
-npx musubix kgpr diff                      # 差分プレビュー
-npx musubix kgpr list                      # KGPR一覧
-npx musubix kgpr submit <id>               # KGPR送信
-npx musubix kgpr show <id>                 # KGPR詳細表示
-npx musubix kgpr close <id>                # KGPRクローズ
-  # オプション: --namespace <ns>, --entity-types <types>, --privacy <strict|moderate|none>
+# KGPR - Knowledge Graph Pull Request (v1.6.4 - DEPRECATED)
+# KGPRは廃止されました。通常のGit PRワークフローを使用してください。
 
 # SDDプロジェクトスキャフォールド (v1.6.7 NEW!)
 npx musubix scaffold domain-model <name>   # DDDプロジェクト生成
@@ -199,9 +206,9 @@ npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
-### ツール一覧（44ツール）
+### ツール一覧（61ツール）
 
-#### SDD基本ツール（10ツール）
+#### SDD基本ツール（7ツール）
 
 | ツール名 | 説明 |
 |---------|------|
@@ -210,9 +217,6 @@ npx musubix-mcp --transport stdio
 | `sdd_create_design` | C4モデル設計ドキュメント作成 |
 | `sdd_validate_design` | 設計の要件トレーサビリティ検証 |
 | `sdd_create_tasks` | 設計から実装タスク生成 |
-| `sdd_query_knowledge` | YATA知識グラフへのクエリ |
-| `sdd_ask_knowledge` | **自然言語でYATA知識グラフに質問（日英対応）** (v2.4.1 NEW!) |
-| `sdd_update_knowledge` | 知識グラフの更新 |
 | `sdd_validate_constitution` | 9憲法条項への準拠検証 |
 | `sdd_validate_traceability` | 要件↔設計↔タスクのトレーサビリティ検証 |
 
@@ -235,16 +239,6 @@ npx musubix-mcp --transport stdio
 | `consistency_validate` | 知識グラフの整合性検証 |
 | `validate_triple` | 単一トリプルの事前検証 |
 | `check_circular` | 循環依存の検出 |
-
-#### KGPRツール（5ツール）- v1.6.4 NEW!
-
-| ツール名 | 説明 |
-|---------|------|
-| `kgpr_create` | KGPR作成（ローカルKGからドラフト作成） |
-| `kgpr_diff` | 差分プレビュー |
-| `kgpr_list` | KGPR一覧表示 |
-| `kgpr_submit` | KGPR送信（レビュー用） |
-| `kgpr_review` | KGPRレビュー（approve/changes_requested/commented） |
 
 #### Synthesisツール（5ツール）- v2.2.0 NEW!
 
@@ -284,6 +278,39 @@ npx musubix-mcp --transport stdio
 | `skill_list` | 登録済みスキル一覧の取得 |
 | `skill_get_info` | スキル詳細情報の取得 |
 | `skill_validate` | スキル定義の検証 |
+
+#### Knowledge Storeツール（6ツール）- v3.0.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `knowledge_put_entity` | エンティティの作成・更新 |
+| `knowledge_get_entity` | エンティティの取得 |
+| `knowledge_delete_entity` | エンティティの削除 |
+| `knowledge_add_relation` | リレーションの追加 |
+| `knowledge_query` | グラフクエリによる検索 |
+| `knowledge_traverse` | グラフ走査による関連エンティティ探索 |
+
+#### Policy Engineツール（4ツール）- v3.0.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `policy_validate` | プロジェクトのポリシー検証 |
+| `policy_list` | 登録済みポリシー一覧 |
+| `policy_get` | ポリシー詳細取得 |
+| `policy_check_file` | 単一ファイルのポリシー検証 |
+
+#### Decision Recordsツール（8ツール）- v3.0.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `decision_create` | ADRの作成 |
+| `decision_list` | ADR一覧取得 |
+| `decision_get` | ADR詳細取得 |
+| `decision_accept` | ADRの承認 |
+| `decision_deprecate` | ADRの廃止 |
+| `decision_search` | ADRのキーワード検索 |
+| `decision_find_by_requirement` | 要件からADR検索 |
+| `decision_generate_index` | ADRインデックス生成 |
 
 ### プロンプト一覧（5プロンプト）
 
@@ -374,7 +401,7 @@ npm run clean
 
 ### 1. Neuro-Symbolic統合（REQ-INT-001〜003準拠）
 - **Neural（LLM）**: 創造的なコード生成、自然言語理解
-- **Symbolic（YATA）**: 知識グラフによる精密な推論、一貫性検証
+- **Symbolic（Ontology）**: オントロジーによる精密な推論、一貫性検証
 - **信頼度評価ルール** (REQ-INT-002):
   | シンボリック結果 | ニューラル信頼度 | 最終決定 |
   |-----------------|-----------------|---------|
@@ -447,7 +474,65 @@ Sleep Phase: consolidate() → compress() → optimize()
 - `PatternOntologyBridge`: パターン↔オントロジー相互変換
 - `N3Store`: RDF/OWLベースの知識グラフストレージ
 
-### 7. Advanced Learning Enhancement（v2.2.0 NEW!）
+### 7. Git-Native Knowledge System（v3.0.0 NEW!）
+
+サーバーレス・Git-friendlyな知識グラフシステム：
+
+| 特徴 | 説明 |
+|------|------|
+| **サーバーレス** | データベース不要、JSONファイルで完結 |
+| **Git-friendly** | diff/merge/PR対応、バージョン管理可能 |
+| **軽量** | ゼロ依存（外部ライブラリ不要） |
+| **階層型ID** | `requirement:REQ-001`、`design:DES-001` |
+
+```
+.knowledge/
+└── graph.json      # 全エンティティ・リレーション
+```
+
+**主要API**:
+```typescript
+import { createKnowledgeStore } from '@musubix/knowledge';
+
+const store = createKnowledgeStore('.knowledge');
+
+// エンティティ操作
+await store.putEntity({
+  id: 'requirement:REQ-001',
+  type: 'requirement',
+  name: 'User Authentication',
+  properties: { ears: 'WHEN user logs in...' },
+  tags: ['security', 'auth'],
+});
+
+const req = await store.getEntity('requirement:REQ-001');
+
+// リレーション追加
+await store.addRelation({
+  source: 'requirement:REQ-001',
+  target: 'design:DES-001',
+  type: 'tracesTo',
+  properties: { confidence: 0.95 },
+});
+
+// クエリ
+const entities = await store.query({ type: 'requirement', tags: ['security'] });
+
+// グラフ走査
+const related = await store.traverse('requirement:REQ-001', {
+  direction: 'outgoing',
+  relationTypes: ['tracesTo'],
+  maxDepth: 2,
+});
+```
+
+**関連パッケージ**:
+- `@musubix/policy`: 9憲法条項の自動検証
+- `@musubix/decisions`: Architecture Decision Records管理
+
+**ドキュメント**: [docs/packages/knowledge.md](docs/packages/knowledge.md)
+
+### 8. Advanced Learning Enhancement（v2.2.0 NEW!）
 
 3パッケージに高度な学習機能を追加：
 
@@ -491,38 +576,6 @@ const explanation = explainer.generate(program);
 const summary = explainer.summarize(program);
 // "Converts to uppercase"
 ```
-
-### 8. 自然言語クエリ（v2.4.1 NEW!）
-
-YATA Localで日本語・英語の自然言語によるクエリが可能になりました：
-
-```typescript
-import { createYataLocal } from '@nahisaho/yata-local';
-
-const yata = createYataLocal({ path: './knowledge.db' });
-await yata.open();
-
-// 日本語でクエリ
-const result1 = await yata.ask('UserServiceを呼び出している関数は？');
-
-// 英語でクエリ
-const result2 = await yata.ask('What functions call UserService?');
-
-console.log(result1.entities);      // マッチしたエンティティ
-console.log(result1.explanation);   // 結果の説明
-```
-
-**対応インテント**:
-| インテント | 自然言語例 | 等価API |
-|-----------|-----------|---------|
-| `find_callers` | 「〜を呼び出している関数」 | `getRelationships(id, 'in')` |
-| `find_callees` | 「〜は何を呼び出していますか」 | `getRelationships(id, 'out')` |
-| `find_implementations` | 「〜の実装を表示」 | `getRelationships(id, 'in', {types: ['implements']})` |
-| `find_dependencies` | 「〜の依存関係」 | `traverse(id, ['depends-on'], 'forward')` |
-| `find_entity` | 「〜を探して」 | `search()`, `getEntityByName()` |
-| `find_related` | 「〜に関連するもの」 | `getNeighbors(id, {direction: 'both'})` |
-
-**MCPツール**: `sdd_ask_knowledge` で MCP経由でも利用可能
 
 ---
 
@@ -801,5 +854,5 @@ npx musubix learn best-practices --format markdown
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-09
-**Version**: 2.2.1
+**Last Updated**: 2026-01-11
+**Version**: 3.0.0
