@@ -393,7 +393,137 @@ async function analyzeImpact(requirementId: string) {
 
 ---
 
-## 10. 関連パッケージ
+## 10. 自然言語での利用（MCP / AI Agent）
+
+`@musubix/knowledge` は、MCP（Model Context Protocol）サーバー経由でAIエージェント（GitHub Copilot、Claude、ChatGPT等）から自然言語で操作できます。
+
+### 10.1 MCP設定
+
+Claude Desktop または VS Code に以下の設定を追加:
+
+```json
+{
+  "mcpServers": {
+    "musubix": {
+      "command": "npx",
+      "args": ["@nahisaho/musubix-mcp-server"]
+    }
+  }
+}
+```
+
+### 10.2 自然言語での操作例
+
+#### エンティティの作成
+
+```
+「ユーザー認証」という要件をREQ-001として登録して。
+EARS形式は「WHEN user submits credentials, THE system SHALL authenticate the user」、
+優先度はP0、タグはsecurityとauthで。
+```
+
+AIエージェントが `knowledge_put_entity` ツールを呼び出します。
+
+#### エンティティの検索
+
+```
+セキュリティ関連の要件を全部見せて
+```
+
+AIエージェントが `knowledge_query` ツールを呼び出し、`tags: ['security']` でフィルタリングします。
+
+#### リレーションの作成
+
+```
+REQ-001をDES-001に紐付けて。トレーサビリティのため。
+```
+
+AIエージェントが `knowledge_add_relation` ツールを呼び出します。
+
+#### 影響分析
+
+```
+REQ-001を変更したら、どこに影響がある？
+```
+
+AIエージェントが `knowledge_traverse` ツールを呼び出し、関連するエンティティを探索します。
+
+### 10.3 MCPツール一覧
+
+| ツール名 | 説明 | 自然言語例 |
+|---------|------|-----------|
+| `knowledge_put_entity` | エンティティ作成/更新 | 「〜を登録して」「〜を追加して」 |
+| `knowledge_get_entity` | エンティティ取得 | 「REQ-001の詳細を見せて」 |
+| `knowledge_delete_entity` | エンティティ削除 | 「TSK-003を削除して」 |
+| `knowledge_add_relation` | リレーション追加 | 「〜を〜に紐付けて」 |
+| `knowledge_query` | 検索 | 「〜の一覧」「〜を探して」 |
+| `knowledge_traverse` | グラフ走査 | 「〜に関連するものは？」「影響範囲は？」 |
+
+### 10.4 実践的な会話例
+
+#### シナリオ: 新機能の知識グラフ構築
+
+```
+👤 ユーザー:
+「商品検索機能」の要件を作成して。
+- ID: REQ-SEARCH-001
+- EARS: WHEN user enters search query, THE system SHALL return matching products within 500ms
+- 優先度: P0
+- タグ: search, performance
+
+🤖 AIエージェント:
+要件エンティティを作成しました:
+- ID: requirement:REQ-SEARCH-001
+- 名前: 商品検索機能
+- EARS形式で記述済み
+- タグ: search, performance
+
+👤 ユーザー:
+この要件に対応する設計DES-SEARCH-001も作って。
+Elasticsearchを使った全文検索の設計で。
+
+🤖 AIエージェント:
+設計エンティティを作成し、要件とのリレーションを追加しました:
+- design:DES-SEARCH-001 → requirement:REQ-SEARCH-001 (tracesTo)
+
+👤 ユーザー:
+検索関連のエンティティを全部見せて
+
+🤖 AIエージェント:
+「search」タグを持つエンティティ:
+1. requirement:REQ-SEARCH-001 - 商品検索機能
+2. design:DES-SEARCH-001 - Elasticsearch全文検索設計
+
+👤 ユーザー:
+REQ-SEARCH-001の影響範囲を教えて
+
+🤖 AIエージェント:
+REQ-SEARCH-001から到達可能なエンティティ:
+- 設計: DES-SEARCH-001
+- タスク: (まだなし)
+- テスト: (まだなし)
+
+次のステップとして、実装タスクとテストケースの作成をお勧めします。
+```
+
+### 10.5 GitHub Copilot / Claude Code での利用
+
+MCPを設定しなくても、AGENTS.md や Claude Code Skills 経由で利用可能:
+
+```
+👤 ユーザー:
+@musubix/knowledge を使って、このプロジェクトの
+要件・設計・タスクの関係を知識グラフとして構築するコードを書いて
+
+🤖 AIエージェント:
+// AGENTS.md / Skills から学習した知識に基づいてコード生成
+import { createKnowledgeStore } from '@musubix/knowledge';
+// ...
+```
+
+---
+
+## 11. 関連パッケージ
 
 | パッケージ | 説明 |
 |------------|------|
@@ -403,7 +533,7 @@ async function analyzeImpact(requirementId: string) {
 
 ---
 
-## 11. 参照
+## 12. 参照
 
 - [MUSUBIX v3.0 User Guide](../MUSUBIX-v3.0-User-Guide.md)
 - [Migration Guide from YATA](../MIGRATION-v3.0.md)
