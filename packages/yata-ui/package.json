@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-ui",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "[DEPRECATED] YATA UI - Use @musubix/knowledge CLI instead",
   "deprecated": "This package is deprecated. Please use @musubix/knowledge from MUSUBIX v3.0.0+",
   "type": "module",

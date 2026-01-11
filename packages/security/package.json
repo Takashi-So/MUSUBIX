@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-security",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "Security analysis and vulnerability detection for MUSUBIX - Neuro-Symbolic AI Integration",
   "type": "module",
   "main": "./dist/index.js",
@@ -69,9 +69,6 @@
     "ts-morph": "^22.0.0",
     "yaml": "^2.4.0",
     "zod": "^3.23.0"
-  },
-  "optionalDependencies": {
-    "@nahisaho/yata-local": "^2.0.0"
   },
   "peerDependencies": {
     "vscode": "^1.85.0"

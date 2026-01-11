@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubi",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "MUSUBI SDD Framework - Alias for @nahisaho/musubix-core",
   "type": "module",
   "main": "./dist/index.js",

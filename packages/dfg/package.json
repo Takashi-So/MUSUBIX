@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-dfg",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "MUSUBIX Data Flow Graph and Control Flow Graph analysis for neuro-symbolic code understanding",
   "type": "module",
   "main": "dist/index.js",
@@ -17,10 +17,6 @@
     "./graph": {
       "types": "./dist/graph/index.d.ts",
       "import": "./dist/graph/index.js"
-    },
-    "./yata": {
-      "types": "./dist/yata/index.d.ts",
-      "import": "./dist/yata/index.js"
     }
   },
   "bin": {

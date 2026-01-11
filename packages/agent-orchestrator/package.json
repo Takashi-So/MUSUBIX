@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-agent-orchestrator",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "MUSUBIX Agent Orchestrator - Subagent Management and Task Decomposition",
   "type": "module",
   "main": "./dist/index.js",
@@ -40,8 +40,7 @@
   "author": "nahisaho",
   "license": "MIT",
   "dependencies": {
-    "@nahisaho/musubix-core": "*",
-    "@nahisaho/musubix-yata-client": "*"
+    "@nahisaho/musubix-core": "*"
   },
   "devDependencies": {
     "rimraf": "^5.0.5",
