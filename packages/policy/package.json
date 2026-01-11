@@ -1,6 +1,6 @@
 {
   "name": "@musubix/policy",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "Executable Policy Engine for MUSUBIX - TypeScript-based policy validation",
   "type": "module",
   "main": "dist/index.js",

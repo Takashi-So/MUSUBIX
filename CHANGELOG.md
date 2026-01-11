@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.8] - 2026-01-12
+
+### Added
+
+- **`@nahisaho/musubix-security`: 6つの新しい脆弱性検出器を追加**
+  - **CWE-918 (SSRF)**: Server-Side Request Forgery検出
+    - fetch, axios, got, request等のHTTPクライアント呼び出しで動的URLを検出
+    - ユーザー入力がURLに含まれる可能性を警告
+  - **CWE-502 (Insecure Deserialization)**: 安全でないデシリアライゼーション検出
+    - js-yaml `load()`, `loadAll()`, `decode()` の危険な使用を検出
+    - JSON.parse, unserialize, deserialize等のパターン検出
+  - **CWE-611 (XXE)**: XML External Entity攻撃検出
+    - xml2js, libxmljs, DOMParser等のXMLパーサー使用を検出
+    - 外部エンティティ処理の無効化オプションが設定されていない場合に警告
+  - **CWE-90 (LDAP Injection)**: LDAPインジェクション検出
+    - ldapjs, activedirectory等のLDAPクライアント操作を検出
+    - テンプレートリテラルや文字列連結によるLDAPフィルター構築を警告
+  - **CWE-1333 (ReDoS)**: 正規表現DoS攻撃検出
+    - `(.*)+`, `(.+)+`, `(a+)+` 等の破滅的バックトラッキングパターンを検出
+    - ネストした量指定子のパターンを検出
+  - **CWE-362 (Race Condition)**: 競合状態検出
+    - TOCTOU (Time-of-check to time-of-use) パターンを検出
+    - async/await内でのグローバル状態変更を検出
+    - Promise.all()内の並行ファイル操作を検出
+
+### Enhanced
+
+- **セキュリティルール数が6→12に倍増**
+  - SEC-001: SQL Injection
+  - SEC-002: Command Injection
+  - SEC-003: Path Traversal
+  - SEC-004: XSS
+  - SEC-005: Eval/Code Injection
+  - SEC-006: Prototype Pollution
+  - SEC-007: SSRF (NEW)
+  - SEC-008: Insecure Deserialization (NEW)
+  - SEC-009: XXE (NEW)
+  - SEC-010: LDAP Injection (NEW)
+  - SEC-011: ReDoS (NEW)
+  - SEC-012: Race Condition (NEW)
+
+- **VulnerabilityType型を拡張**
+  - `'ssrf'`, `'insecure-deserialization'`, `'ldap-injection'`, `'redos'`, `'race-condition'` を追加
+
+### Tests
+
+- 新規脆弱性検出器のテストケースを追加（12テスト）
+- 全テスト合格を確認
+
 ## [3.0.7] - 2026-01-12
 
 ### Fixed

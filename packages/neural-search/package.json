@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-neural-search",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "Neural search engine with embedding-based scoring and learning-based pruning",
   "type": "module",
   "main": "dist/index.js",
