@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2026-01-12
+
+### Added
+
+- **Claude Code Skills (13スキル)**
+  - `musubix-knowledge-graph`: @musubix/knowledge の知識グラフ操作スキル
+  - `musubix-policy-engine`: @musubix/policy のポリシー検証スキル
+  - `musubix-decision-records`: @musubix/decisions のADR管理スキル
+
+### Documentation
+
+- **MUSUBIX v3.0 User Guide** (`docs/MUSUBIX-v3.0-User-Guide.md`)
+  - @musubix/knowledge, @musubix/policy, @musubix/decisions の包括的ドキュメント
+  - MCP自然言語利用セクション追加
+  - 統合ユースケース・トラブルシューティング
+
+- **MCP-free Usage Support**
+  - CLAUDE.md / .github/AGENTS.md をv3.0.0に同期
+  - GitHub Copilot / Claude CodeでMCPなしで利用可能に
+
 ## [3.0.0] - 2026-01-14
 
 ### 🎉 Git-Native Knowledge System
