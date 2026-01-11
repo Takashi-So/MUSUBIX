@@ -16,11 +16,10 @@ export * as security from '@nahisaho/musubix-security';
 // Formal verification
 export * as formalVerify from '@nahisaho/musubix-formal-verify';
 
-// YATA Knowledge Graph
-export * as yataClient from '@nahisaho/musubix-yata-client';
-export * as yataLocal from '@nahisaho/yata-local';
-export * as yataGlobal from '@nahisaho/yata-global';
-export * as yataScale from '@nahisaho/yata-scale';
+// v3.0.0 Git-Native Knowledge System
+export * as knowledge from '@musubix/knowledge';
+export * as policy from '@musubix/policy';
+export * as decisions from '@musubix/decisions';
 
 // Pattern and Ontology MCP
 export * as patternMcp from '@nahisaho/musubix-pattern-mcp';

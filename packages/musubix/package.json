@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "2.4.3",
+  "version": "3.0.0",
   "description": "MUSUBIX - Neuro-Symbolic AI Integration System for Software Development",
   "keywords": [
     "ai",
@@ -12,7 +12,8 @@
     "ears",
     "requirements",
     "design-patterns",
-    "codegraph"
+    "codegraph",
+    "git-native"
   ],
   "author": "nahisaho",
   "license": "MIT",
@@ -38,6 +39,9 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@musubix/decisions": "^3.0.0",
+    "@musubix/knowledge": "^3.0.0",
+    "@musubix/policy": "^3.0.0",
     "@nahisaho/musubix-codegraph": "^2.3.0",
     "@nahisaho/musubix-core": "^2.2.0",
     "@nahisaho/musubix-dfg": "^2.2.0",
@@ -51,11 +55,7 @@
     "@nahisaho/musubix-sdd-ontology": "^2.2.0",
     "@nahisaho/musubix-security": "^2.2.0",
     "@nahisaho/musubix-synthesis": "^2.2.0",
-    "@nahisaho/musubix-wake-sleep": "^2.2.0",
-    "@nahisaho/musubix-yata-client": "^2.2.0",
-    "@nahisaho/yata-global": "^2.2.0",
-    "@nahisaho/yata-local": "^2.2.0",
-    "@nahisaho/yata-scale": "^2.2.0"
+    "@nahisaho/musubix-wake-sleep": "^2.2.0"
   },
   "devDependencies": {
     "typescript": "^5.3.3"
