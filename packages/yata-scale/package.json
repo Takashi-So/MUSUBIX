@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-scale",
-  "version": "2.4.2",
+  "version": "3.0.4",
   "description": "[DEPRECATED] YATA Scale - Use @musubix/knowledge instead",
   "deprecated": "This package is deprecated. Please use @musubix/knowledge from MUSUBIX v3.0.0+",
   "type": "module",

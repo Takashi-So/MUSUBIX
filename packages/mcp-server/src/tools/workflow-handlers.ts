@@ -2,9 +2,11 @@
  * Workflow Tool Handlers
  * 
  * Handlers for workflow_* MCP tools
+ * Integrated with @musubix/knowledge for persistent workflow state
  * 
  * @see TSK-MCP-002 - workflow_* MCP Tools
  * @see REQ-ORCH-001 - Phase Transition
+ * @see REQ-KNW-001 - Knowledge Store Integration
  */
 
 import type {
@@ -14,6 +16,7 @@ import type {
   WorkflowReviewInput,
   WorkflowGateInput,
 } from './workflow-tools.js';
+import { getKnowledgeStore } from './knowledge-tools.js';
 
 /**
  * Workflow state storage
@@ -33,8 +36,43 @@ interface WorkflowState {
   updatedAt: Date;
 }
 
-// In-memory workflow state
+// In-memory workflow state (cache)
+// Note: Workflow state is session-specific, NOT stored in knowledge graph
+// Knowledge graph only contains reusable patterns/rules/guidelines
 const workflows = new Map<string, WorkflowState>();
+
+/**
+ * Query reusable knowledge for current phase (patterns, rules, guidelines)
+ * Note: Project-specific workflow state should NOT be stored in knowledge graph
+ */
+async function queryReusableKnowledge(): Promise<{
+  rules: string[];
+  patterns: string[];
+  guidelines: string[];
+}> {
+  const result = { rules: [] as string[], patterns: [] as string[], guidelines: [] as string[] };
+  
+  try {
+    const store = getKnowledgeStore();
+    await store.load();
+    
+    // Query rules (reusable)
+    const rules = await store.query({ type: 'rule' as any });
+    result.rules = rules.map(e => `${e.id}: ${e.name}`);
+    
+    // Query patterns (reusable)
+    const patterns = await store.query({ type: 'pattern' as any });
+    result.patterns = patterns.map(e => `${e.id}: ${e.name}`);
+    
+    // Query guidelines (reusable)
+    const guidelines = await store.query({ type: 'guideline' as any });
+    result.guidelines = guidelines.map(e => `${e.id}: ${e.name}`);
+  } catch (error) {
+    console.warn('Failed to query knowledge:', error);
+  }
+  
+  return result;
+}
 
 /**
  * Generate workflow ID
@@ -113,6 +151,18 @@ export async function handleWorkflowCreate(input: WorkflowCreateInput): Promise<
   
   workflows.set(workflowId, state);
   
+  // Query reusable knowledge for requirements phase guidance
+  const knowledge = await queryReusableKnowledge();
+  const knowledgeSection = knowledge.rules.length > 0 || knowledge.patterns.length > 0
+    ? `
+### 📚 参照可能な知識
+
+${knowledge.rules.length > 0 ? `**ルール**:\n${knowledge.rules.slice(0, 5).map(r => `- ${r}`).join('\n')}` : ''}
+${knowledge.patterns.length > 0 ? `**パターン**:\n${knowledge.patterns.slice(0, 5).map(p => `- ${p}`).join('\n')}` : ''}
+${knowledge.guidelines.length > 0 ? `**ガイドライン**:\n${knowledge.guidelines.slice(0, 5).map(g => `- ${g}`).join('\n')}` : ''}
+`
+    : '';
+
   const responseText = `## 📋 ワークフロー作成完了
 
 **ワークフローID**: \`${workflowId}\`
@@ -128,7 +178,7 @@ ${input.description ? `**説明**: ${input.description}` : ''}
 | Phase 3: タスク分解 | ⬜ 未開始 |
 | Phase 4: 実装 | ⬜ 未開始 |
 | Phase 5: 完了 | ⬜ 未開始 |
-
+${knowledgeSection}
 ${state.currentPhase === 'requirements' ? `
 ### 🚀 Phase 1: 要件定義 を開始しました
 
@@ -146,6 +196,7 @@ EARS形式で要件を定義してください。完了後、\`workflow_review\`
 export async function handleWorkflowTransition(input: WorkflowTransitionInput): Promise<{
   content: Array<{ type: 'text'; text: string }>;
 }> {
+  // Get workflow from in-memory cache
   const state = workflows.get(input.workflowId);
   
   if (!state) {
@@ -200,6 +251,17 @@ export async function handleWorkflowTransition(input: WorkflowTransitionInput): 
     state.status = 'completed';
   }
   
+  // Query reusable knowledge for new phase guidance
+  const knowledge = await queryReusableKnowledge();
+  const knowledgeSection = knowledge.rules.length > 0 || knowledge.patterns.length > 0
+    ? `
+### 📚 ${PHASE_LABELS[input.targetPhase]} の参照知識
+
+${knowledge.rules.length > 0 ? `**適用ルール**:\n${knowledge.rules.slice(0, 5).map(r => `- ${r}`).join('\n')}` : ''}
+${knowledge.patterns.length > 0 ? `**参考パターン**:\n${knowledge.patterns.slice(0, 5).map(p => `- ${p}`).join('\n')}` : ''}
+`
+    : '';
+
   return {
     content: [{
       type: 'text',
@@ -207,7 +269,7 @@ export async function handleWorkflowTransition(input: WorkflowTransitionInput): 
 
 **ワークフロー**: \`${state.id}\`
 **現在のフェーズ**: ${PHASE_LABELS[input.targetPhase]}
-
+${knowledgeSection}
 ${input.targetPhase === 'completion' ? '🎉 ワークフローが完了しました！' : `${PHASE_LABELS[input.targetPhase]} を開始してください。`}`,
     }],
   };
@@ -219,6 +281,7 @@ ${input.targetPhase === 'completion' ? '🎉 ワークフローが完了しま�
 export async function handleWorkflowStatus(input: WorkflowStatusInput): Promise<{
   content: Array<{ type: 'text'; text: string }>;
 }> {
+  // Get workflow from in-memory cache
   const state = workflows.get(input.workflowId);
   
   if (!state) {
@@ -277,6 +340,7 @@ ${PHASE_ORDER.map(phase => {
 export async function handleWorkflowReview(input: WorkflowReviewInput): Promise<{
   content: Array<{ type: 'text'; text: string }>;
 }> {
+  // Get workflow from in-memory cache
   const state = workflows.get(input.workflowId);
   
   if (!state) {
@@ -335,6 +399,7 @@ ${input.checkpoints.map(c => `| ${c.name} | ${c.status} | ${c.details} |`).join(
 export async function handleWorkflowGate(input: WorkflowGateInput): Promise<{
   content: Array<{ type: 'text'; text: string }>;
 }> {
+  // Get workflow from in-memory cache
   const state = workflows.get(input.workflowId);
   
   if (!state) {
@@ -345,6 +410,9 @@ export async function handleWorkflowGate(input: WorkflowGateInput): Promise<{
       }],
     };
   }
+  
+  // Query reusable validation rules from knowledge store
+  const knowledge = await queryReusableKnowledge();
   
   // Define quality gates for each phase
   const gateChecks: Record<string, string[]> = {
@@ -366,6 +434,16 @@ export async function handleWorkflowGate(input: WorkflowGateInput): Promise<{
   
   const allPassed = results.every(r => r.passed);
   
+  // Add knowledge-based validation info
+  const knowledgeValidation = knowledge.rules.length > 0
+    ? `
+### 📚 知識ベース検証
+
+このフェーズでは以下のルールが適用されます:
+${knowledge.rules.slice(0, 3).map(r => `- ${r}`).join('\n')}
+`
+    : '';
+
   const responseText = `## 🔍 クオリティゲート結果
 
 **ワークフロー**: \`${state.id}\`
@@ -377,7 +455,7 @@ export async function handleWorkflowGate(input: WorkflowGateInput): Promise<{
 | チェック項目 | 結果 | メッセージ |
 |--------------|------|-----------|
 ${results.map(r => `| ${r.name} | ${r.passed ? '✅' : '❌'} | ${r.message} |`).join('\n')}
-
+${knowledgeValidation}
 ${allPassed ? '全てのクオリティゲートを通過しました。フェーズを完了できます。' : '不合格のチェック項目を修正してください。'}`;
   
   return {

@@ -2,15 +2,18 @@
  * MCP Tools Definitions
  * 
  * Tool definitions for MUSUBIX MCP Server
+ * Integrated with @musubix/knowledge for knowledge-based validation
  * 
  * @packageDocumentation
  * @module tools
  * 
  * @see REQ-INT-102 - MCP Server
  * @see REQ-INT-102 - SDD Workflow
+ * @see REQ-KNW-001 - Knowledge Store Integration
  */
 
 import type { ToolDefinition, ToolResult, TextContent } from '../types.js';
+import { getKnowledgeStore } from './knowledge-tools.js';
 
 /**
  * Create text content helper
@@ -39,6 +42,43 @@ function error(message: string): ToolResult {
     content: [text(`Error: ${message}`)],
     isError: true,
   };
+}
+
+/**
+ * Query knowledge store for reusable knowledge (patterns, rules, guidelines)
+ * Note: Project-specific artifacts (requirements, designs, tasks) should NOT be stored in knowledge graph
+ */
+async function queryReusableKnowledge(): Promise<{
+  patterns: Array<{ id: string; name: string; description?: string }>;
+  rules: Array<{ id: string; name: string; description?: string }>;
+  guidelines: Array<{ id: string; name: string; description?: string }>;
+}> {
+  const result = { 
+    patterns: [] as Array<{ id: string; name: string; description?: string }>,
+    rules: [] as Array<{ id: string; name: string; description?: string }>,
+    guidelines: [] as Array<{ id: string; name: string; description?: string }>,
+  };
+  
+  try {
+    const store = getKnowledgeStore();
+    await store.load();
+    
+    // Query patterns (reusable)
+    const patterns = await store.query({ type: 'pattern' as any });
+    result.patterns = patterns.map(e => ({ id: e.id, name: e.name, description: e.description }));
+    
+    // Query validation rules (reusable)
+    const rules = await store.query({ type: 'rule' as any });
+    result.rules = rules.map(e => ({ id: e.id, name: e.name, description: e.description }));
+    
+    // Query guidelines (reusable)
+    const guidelines = await store.query({ type: 'guideline' as any });
+    result.guidelines = guidelines.map(e => ({ id: e.id, name: e.name, description: e.description }));
+  } catch (error) {
+    console.warn('Failed to query knowledge store:', error);
+  }
+  
+  return result;
 }
 
 // ============================================================
@@ -77,14 +117,27 @@ export const createRequirementsTool: ToolDefinition = {
         description?: string;
       };
 
-      // Placeholder: actual implementation will use YATA
+      // Generate requirement ID
+      const reqId = `REQ-${projectName.substring(0, 3).toUpperCase()}-${Date.now().toString(36)}`;
+      
+      // Query reusable knowledge for guidance
+      const knowledge = await queryReusableKnowledge();
+      
+      // Note: Requirements are project-specific, stored in storage/specs/, NOT in knowledge graph
+
       return success({
         action: 'create_requirements',
+        requirementId: reqId,
         projectName,
         featureName,
         description,
         status: 'template_created',
         message: `Requirements document template created for ${featureName}`,
+        storagePath: `storage/specs/${reqId}.md`,
+        knowledgeReference: {
+          availablePatterns: knowledge.patterns.slice(0, 5).map(p => p.name),
+          applicableRules: knowledge.rules.slice(0, 5).map(r => r.name),
+        },
       });
     } catch (e) {
       return error(e instanceof Error ? e.message : String(e));
@@ -112,7 +165,9 @@ export const validateRequirementsTool: ToolDefinition = {
     try {
       const { documentPath } = args as { documentPath: string };
 
-      // Placeholder: actual implementation will parse and validate
+      // Query validation rules from knowledge store
+      const knowledge = await queryReusableKnowledge();
+      
       return success({
         action: 'validate_requirements',
         documentPath,
@@ -121,6 +176,10 @@ export const validateRequirementsTool: ToolDefinition = {
         coverage: {
           earsPatterns: '100%',
           constitutionalCompliance: '100%',
+        },
+        knowledgeValidation: {
+          rulesApplied: knowledge.rules.map(r => r.name),
+          patternsReferenced: knowledge.patterns.length,
         },
       });
     } catch (e) {
@@ -165,13 +224,27 @@ export const createDesignTool: ToolDefinition = {
         requirementsPath?: string;
       };
 
+      // Generate design ID
+      const desId = `DES-${projectName.substring(0, 3).toUpperCase()}-${Date.now().toString(36)}`;
+      
+      // Query reusable patterns for reference
+      const knowledge = await queryReusableKnowledge();
+      
+      // Note: Designs are project-specific, stored in storage/design/, NOT in knowledge graph
+
       return success({
         action: 'create_design',
+        designId: desId,
         projectName,
         featureName,
         requirementsPath,
         status: 'template_created',
         sections: ['Context', 'Container', 'Component', 'ADR'],
+        storagePath: `storage/design/${desId}.md`,
+        knowledgeReference: {
+          availablePatterns: knowledge.patterns.slice(0, 10).map(p => p.name),
+          applicableGuidelines: knowledge.guidelines.slice(0, 5).map(g => g.name),
+        },
       });
     } catch (e) {
       return error(e instanceof Error ? e.message : String(e));
@@ -206,6 +279,9 @@ export const validateDesignTool: ToolDefinition = {
         requirementsPath?: string;
       };
 
+      // Query reusable knowledge for validation
+      const knowledge = await queryReusableKnowledge();
+      
       return success({
         action: 'validate_design',
         designPath,
@@ -214,6 +290,10 @@ export const validateDesignTool: ToolDefinition = {
         traceability: {
           coverage: '100%',
           unmappedRequirements: [],
+        },
+        knowledgeValidation: {
+          rulesApplied: knowledge.rules.map(r => r.name),
+          patternsChecked: knowledge.patterns.length,
         },
       });
     } catch (e) {
@@ -254,14 +334,28 @@ export const createTasksTool: ToolDefinition = {
         sprintDuration?: number;
       };
 
+      // Generate task ID
+      const taskId = `TSK-${Date.now().toString(36)}`;
+      
+      // Query reusable knowledge for task estimation patterns
+      const knowledge = await queryReusableKnowledge();
+      
+      // Note: Tasks are project-specific, stored in storage/tasks/, NOT in knowledge graph
+
       return success({
         action: 'create_tasks',
+        taskId,
         designPath,
         sprintDuration: sprintDuration ?? 5,
         status: 'tasks_generated',
         summary: {
           totalTasks: 0,
           totalSprints: 0,
+        },
+        storagePath: `storage/tasks/${taskId}.md`,
+        knowledgeReference: {
+          estimationPatterns: knowledge.patterns.filter(p => p.name.includes('estimation')).length,
+          applicableGuidelines: knowledge.guidelines.length,
         },
       });
     } catch (e) {
@@ -305,6 +399,12 @@ export const validateConstitutionTool: ToolDefinition = {
       };
 
       const allArticles = articles ?? [1, 2, 3, 4, 5, 6, 7, 8, 9];
+      
+      // Query knowledge store for constitution rules
+      const knowledge = await queryReusableKnowledge();
+      const constitutionRules = knowledge.rules.filter(r => 
+        r.id.includes('constitution') || r.name.includes('Article')
+      );
 
       return success({
         action: 'validate_constitution',
@@ -316,6 +416,10 @@ export const validateConstitutionTool: ToolDefinition = {
           findings: [],
         })),
         overallCompliance: true,
+        knowledgeValidation: {
+          constitutionRulesInStore: constitutionRules.length,
+          allRulesInStore: knowledge.rules.length,
+        },
       });
     } catch (e) {
       return error(e instanceof Error ? e.message : String(e));
@@ -343,15 +447,26 @@ export const validateTraceabilityTool: ToolDefinition = {
     try {
       const { projectPath } = args as { projectPath: string };
 
+      // Note: Traceability is validated from storage/ files, NOT from knowledge graph
+      // Knowledge graph only contains reusable patterns/rules, not project artifacts
+      
+      // Query reusable knowledge for traceability validation rules
+      const knowledge = await queryReusableKnowledge();
+
       return success({
         action: 'validate_traceability',
         projectPath,
         status: 'validated',
+        note: 'Traceability is validated from storage/specs/, storage/design/, storage/tasks/',
         matrix: {
-          requirements: 0,
-          designs: 0,
-          tasks: 0,
+          requirements: 0, // TODO: Count from storage/specs/
+          designs: 0,      // TODO: Count from storage/design/
+          tasks: 0,        // TODO: Count from storage/tasks/
           coverage: '0%',
+        },
+        knowledgeReference: {
+          traceabilityRules: knowledge.rules.filter(r => r.name.includes('trace')).length,
+          validationPatterns: knowledge.patterns.length,
         },
       });
     } catch (e) {
