@@ -590,6 +590,7 @@ export class ASTParser {
 
   /**
    * Fallback regex-based parsing
+   * Enhanced in v3.0.7 to support all 16 languages
    */
   private parseWithRegex(
     content: string,
@@ -611,101 +612,56 @@ export class ASTParser {
       endLine: lineCount,
     }));
 
-    if (language === 'typescript' || language === 'javascript') {
-      const classRegex = /^\s*(export\s+)?(abstract\s+)?class\s+(\w+)/gm;
-      let match;
-      while ((match = classRegex.exec(content)) !== null) {
-        const lineNum = content.substring(0, match.index).split('\n').length;
-        entities.push(this.createEntity({
-          type: 'class',
-          name: match[3],
-          language,
-          filePath,
-          startLine: lineNum,
-          endLine: lineNum,
-        }));
-      }
+    // Helper to get line number from index
+    const getLineNum = (index: number): number =>
+      content.substring(0, index).split('\n').length;
 
-      const funcRegex = /^\s*(export\s+)?(async\s+)?function\s+(\w+)/gm;
-      while ((match = funcRegex.exec(content)) !== null) {
-        const lineNum = content.substring(0, match.index).split('\n').length;
-        entities.push(this.createEntity({
-          type: 'function',
-          name: match[3],
-          language,
-          filePath,
-          startLine: lineNum,
-          endLine: lineNum,
-        }));
-      }
-
-      const interfaceRegex = /^\s*(export\s+)?interface\s+(\w+)/gm;
-      while ((match = interfaceRegex.exec(content)) !== null) {
-        const lineNum = content.substring(0, match.index).split('\n').length;
-        entities.push(this.createEntity({
-          type: 'interface',
-          name: match[2],
-          language,
-          filePath,
-          startLine: lineNum,
-          endLine: lineNum,
-        }));
-      }
-
-      const typeRegex = /^\s*(export\s+)?type\s+(\w+)/gm;
-      while ((match = typeRegex.exec(content)) !== null) {
-        const lineNum = content.substring(0, match.index).split('\n').length;
-        entities.push(this.createEntity({
-          type: 'type',
-          name: match[2],
-          language,
-          filePath,
-          startLine: lineNum,
-          endLine: lineNum,
-        }));
-      }
-
-      const enumRegex = /^\s*(export\s+)?enum\s+(\w+)/gm;
-      while ((match = enumRegex.exec(content)) !== null) {
-        const lineNum = content.substring(0, match.index).split('\n').length;
-        entities.push(this.createEntity({
-          type: 'enum',
-          name: match[2],
-          language,
-          filePath,
-          startLine: lineNum,
-          endLine: lineNum,
-        }));
-      }
-    }
-
-    if (language === 'python') {
-      const classRegex = /^class\s+(\w+)/gm;
-      let match;
-      while ((match = classRegex.exec(content)) !== null) {
-        const lineNum = content.substring(0, match.index).split('\n').length;
-        entities.push(this.createEntity({
-          type: 'class',
-          name: match[1],
-          language,
-          filePath,
-          startLine: lineNum,
-          endLine: lineNum,
-        }));
-      }
-
-      const funcRegex = /^def\s+(\w+)/gm;
-      while ((match = funcRegex.exec(content)) !== null) {
-        const lineNum = content.substring(0, match.index).split('\n').length;
-        entities.push(this.createEntity({
-          type: 'function',
-          name: match[1],
-          language,
-          filePath,
-          startLine: lineNum,
-          endLine: lineNum,
-        }));
-      }
+    // Language-specific extraction
+    switch (language) {
+      case 'typescript':
+      case 'javascript':
+        this.extractTypeScriptEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'python':
+        this.extractPythonEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'c':
+      case 'cpp':
+        this.extractCEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'rust':
+        this.extractRustEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'go':
+        this.extractGoEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'java':
+        this.extractJavaEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'csharp':
+        this.extractCSharpEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'php':
+        this.extractPhpEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'ruby':
+        this.extractRubyEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'kotlin':
+        this.extractKotlinEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'swift':
+        this.extractSwiftEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'scala':
+        this.extractScalaEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'lua':
+        this.extractLuaEntities(content, language, filePath, entities, getLineNum);
+        break;
+      case 'hcl':
+        this.extractHclEntities(content, language, filePath, entities, getLineNum);
+        break;
     }
 
     return {
@@ -717,6 +673,903 @@ export class ASTParser {
         parseTimeMs: Date.now() - startTime,
       },
     };
+  }
+
+  /**
+   * Extract TypeScript/JavaScript entities (v3.0.7)
+   */
+  private extractTypeScriptEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^\s*(export\s+)?(abstract\s+)?class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Functions
+    const funcRegex = /^\s*(export\s+)?(async\s+)?function\s+(\w+)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Arrow functions with const
+    const arrowRegex = /^\s*(export\s+)?const\s+(\w+)\s*=\s*(async\s+)?\([^)]*\)\s*(:\s*[^=]+)?\s*=>/gm;
+    while ((match = arrowRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Interfaces
+    const interfaceRegex = /^\s*(export\s+)?interface\s+(\w+)/gm;
+    while ((match = interfaceRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'interface', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Types
+    const typeRegex = /^\s*(export\s+)?type\s+(\w+)/gm;
+    while ((match = typeRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'type', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Enums
+    const enumRegex = /^\s*(export\s+)?enum\s+(\w+)/gm;
+    while ((match = enumRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'enum', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract Python entities (v3.0.7)
+   */
+  private extractPythonEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Functions (including async)
+    const funcRegex = /^(async\s+)?def\s+(\w+)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract C/C++ entities (v3.0.7)
+   */
+  private extractCEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Function definitions (return_type function_name(params) {)
+    const funcRegex = /^(?!(?:if|for|while|switch)\s*\()(\w[\w\s\*]+?)\s+(\w+)\s*\([^)]*\)\s*\{/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      const name = match[2];
+      // Skip common keywords
+      if (!['if', 'for', 'while', 'switch', 'return'].includes(name)) {
+        entities.push(this.createEntity({
+          type: 'function', name, language, filePath,
+          startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+        }));
+      }
+    }
+
+    // Structs
+    const structRegex = /\bstruct\s+(\w+)\s*\{/gm;
+    while ((match = structRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'struct', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Unions
+    const unionRegex = /\bunion\s+(\w+)\s*\{/gm;
+    while ((match = unionRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'union', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Enums
+    const enumRegex = /\benum\s+(\w+)\s*\{/gm;
+    while ((match = enumRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'enum', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Typedefs
+    const typedefRegex = /\btypedef\s+(?:struct\s+)?(?:\w+\s+)*(\w+)\s*;/gm;
+    while ((match = typedefRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'typedef', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Macros
+    const macroRegex = /^#define\s+(\w+)/gm;
+    while ((match = macroRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'macro', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // C++ classes (for cpp language)
+    if (language === 'cpp') {
+      const classRegex = /\bclass\s+(\w+)(?:\s*:\s*(?:public|private|protected)\s+\w+)?\s*\{/gm;
+      while ((match = classRegex.exec(content)) !== null) {
+        entities.push(this.createEntity({
+          type: 'class', name: match[1], language, filePath,
+          startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+        }));
+      }
+
+      // C++ namespaces
+      const nsRegex = /\bnamespace\s+(\w+)\s*\{/gm;
+      while ((match = nsRegex.exec(content)) !== null) {
+        entities.push(this.createEntity({
+          type: 'namespace', name: match[1], language, filePath,
+          startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+        }));
+      }
+
+      // C++ templates
+      const templateRegex = /\btemplate\s*<[^>]+>\s*(?:class|struct)\s+(\w+)/gm;
+      while ((match = templateRegex.exec(content)) !== null) {
+        entities.push(this.createEntity({
+          type: 'class', name: match[1], language, filePath,
+          startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+        }));
+      }
+    }
+  }
+
+  /**
+   * Extract Rust entities (v3.0.7)
+   */
+  private extractRustEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Functions
+    const funcRegex = /^\s*(pub\s+)?(async\s+)?fn\s+(\w+)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Structs
+    const structRegex = /^\s*(pub\s+)?struct\s+(\w+)/gm;
+    while ((match = structRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'struct', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Enums
+    const enumRegex = /^\s*(pub\s+)?enum\s+(\w+)/gm;
+    while ((match = enumRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'enum', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Traits
+    const traitRegex = /^\s*(pub\s+)?trait\s+(\w+)/gm;
+    while ((match = traitRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'trait', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Impl blocks
+    const implRegex = /^\s*impl(?:<[^>]+>)?\s+(\w+)/gm;
+    while ((match = implRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'impl', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Modules
+    const modRegex = /^\s*(pub\s+)?mod\s+(\w+)/gm;
+    while ((match = modRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'module', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Type aliases
+    const typeRegex = /^\s*(pub\s+)?type\s+(\w+)/gm;
+    while ((match = typeRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'type', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Macros
+    const macroRegex = /^\s*macro_rules!\s+(\w+)/gm;
+    while ((match = macroRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'macro', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract Go entities (v3.0.7)
+   */
+  private extractGoEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Functions
+    const funcRegex = /^func\s+(?:\([^)]+\)\s+)?(\w+)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Structs
+    const structRegex = /^type\s+(\w+)\s+struct\b/gm;
+    while ((match = structRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'struct', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Interfaces
+    const interfaceRegex = /^type\s+(\w+)\s+interface\b/gm;
+    while ((match = interfaceRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'interface', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Type aliases
+    const typeRegex = /^type\s+(\w+)\s+(?!struct|interface)\w/gm;
+    while ((match = typeRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'type', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Constants
+    const constRegex = /^const\s+(\w+)\s*=/gm;
+    while ((match = constRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'constant', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Variables
+    const varRegex = /^var\s+(\w+)\s+/gm;
+    while ((match = varRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'variable', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract Java entities (v3.0.7)
+   */
+  private extractJavaEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^\s*(public|private|protected)?\s*(abstract|final)?\s*class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Interfaces
+    const interfaceRegex = /^\s*(public|private|protected)?\s*interface\s+(\w+)/gm;
+    while ((match = interfaceRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'interface', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Enums
+    const enumRegex = /^\s*(public|private|protected)?\s*enum\s+(\w+)/gm;
+    while ((match = enumRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'enum', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Methods
+    const methodRegex = /^\s*(public|private|protected)?\s*(static)?\s*(abstract)?\s*(?:<[\w,\s]+>\s*)?(\w+(?:<[^>]+>)?)\s+(\w+)\s*\([^)]*\)\s*(?:throws\s+[\w,\s]+)?\s*\{/gm;
+    while ((match = methodRegex.exec(content)) !== null) {
+      const name = match[5];
+      if (!['if', 'for', 'while', 'switch', 'try', 'catch'].includes(name)) {
+        entities.push(this.createEntity({
+          type: 'method', name, language, filePath,
+          startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+        }));
+      }
+    }
+
+    // Records (Java 14+)
+    const recordRegex = /^\s*(public|private|protected)?\s*record\s+(\w+)/gm;
+    while ((match = recordRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'record', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract C# entities (v3.0.7)
+   */
+  private extractCSharpEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^\s*(public|private|protected|internal)?\s*(abstract|sealed|static|partial)?\s*class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Interfaces
+    const interfaceRegex = /^\s*(public|private|protected|internal)?\s*interface\s+(\w+)/gm;
+    while ((match = interfaceRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'interface', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Structs
+    const structRegex = /^\s*(public|private|protected|internal)?\s*(readonly)?\s*struct\s+(\w+)/gm;
+    while ((match = structRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'struct', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Enums
+    const enumRegex = /^\s*(public|private|protected|internal)?\s*enum\s+(\w+)/gm;
+    while ((match = enumRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'enum', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Records
+    const recordRegex = /^\s*(public|private|protected|internal)?\s*record\s+(\w+)/gm;
+    while ((match = recordRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'record', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Namespaces
+    const nsRegex = /^\s*namespace\s+([\w.]+)/gm;
+    while ((match = nsRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'namespace', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Methods
+    const methodRegex = /^\s*(public|private|protected|internal)?\s*(static|virtual|override|abstract|async)?\s*(?:<[\w,\s]+>\s*)?(\w+(?:<[^>]+>)?)\s+(\w+)\s*\([^)]*\)/gm;
+    while ((match = methodRegex.exec(content)) !== null) {
+      const name = match[4];
+      if (!['if', 'for', 'while', 'switch', 'using', 'lock', 'try', 'catch'].includes(name)) {
+        entities.push(this.createEntity({
+          type: 'method', name, language, filePath,
+          startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+        }));
+      }
+    }
+  }
+
+  /**
+   * Extract PHP entities (v3.0.7)
+   */
+  private extractPhpEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^\s*(abstract|final)?\s*class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Interfaces
+    const interfaceRegex = /^\s*interface\s+(\w+)/gm;
+    while ((match = interfaceRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'interface', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Traits
+    const traitRegex = /^\s*trait\s+(\w+)/gm;
+    while ((match = traitRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'trait', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Enums (PHP 8.1+)
+    const enumRegex = /^\s*enum\s+(\w+)/gm;
+    while ((match = enumRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'enum', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Functions
+    const funcRegex = /^\s*function\s+(\w+)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Methods
+    const methodRegex = /^\s*(public|private|protected)?\s*(static)?\s*function\s+(\w+)/gm;
+    while ((match = methodRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'method', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract Ruby entities (v3.0.7)
+   */
+  private extractRubyEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^\s*class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Modules
+    const moduleRegex = /^\s*module\s+(\w+)/gm;
+    while ((match = moduleRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'module', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Methods (def)
+    const methodRegex = /^\s*def\s+(self\.)?(\w+[?!=]?)/gm;
+    while ((match = methodRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'method', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract Kotlin entities (v3.0.7)
+   */
+  private extractKotlinEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^\s*(open|abstract|sealed|data|inner)?\s*class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Objects
+    const objectRegex = /^\s*(companion\s+)?object\s+(\w+)?/gm;
+    while ((match = objectRegex.exec(content)) !== null) {
+      const name = match[2] || 'Companion';
+      entities.push(this.createEntity({
+        type: 'object', name, language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Interfaces
+    const interfaceRegex = /^\s*interface\s+(\w+)/gm;
+    while ((match = interfaceRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'interface', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Enums
+    const enumRegex = /^\s*enum\s+class\s+(\w+)/gm;
+    while ((match = enumRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'enum', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Functions
+    const funcRegex = /^\s*(suspend\s+)?(fun)\s+(?:<[\w,\s]+>\s*)?(\w+)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract Swift entities (v3.0.7)
+   */
+  private extractSwiftEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^\s*(open|public|internal|fileprivate|private)?\s*(final)?\s*class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Structs
+    const structRegex = /^\s*(public|internal|fileprivate|private)?\s*struct\s+(\w+)/gm;
+    while ((match = structRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'struct', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Protocols
+    const protocolRegex = /^\s*(public|internal|fileprivate|private)?\s*protocol\s+(\w+)/gm;
+    while ((match = protocolRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'protocol', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Enums
+    const enumRegex = /^\s*(public|internal|fileprivate|private)?\s*enum\s+(\w+)/gm;
+    while ((match = enumRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'enum', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Functions
+    const funcRegex = /^\s*(public|internal|fileprivate|private)?\s*(static|class|override)?\s*func\s+(\w+)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Extensions
+    const extRegex = /^\s*extension\s+(\w+)/gm;
+    while ((match = extRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'extension', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract Scala entities (v3.0.7)
+   */
+  private extractScalaEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Classes
+    const classRegex = /^\s*(abstract|sealed|final|case)?\s*class\s+(\w+)/gm;
+    while ((match = classRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'class', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Objects
+    const objectRegex = /^\s*(case\s+)?object\s+(\w+)/gm;
+    while ((match = objectRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'object', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Traits
+    const traitRegex = /^\s*(sealed)?\s*trait\s+(\w+)/gm;
+    while ((match = traitRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'trait', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Functions (def)
+    const funcRegex = /^\s*(override\s+)?(def)\s+(\w+)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[3], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Type aliases
+    const typeRegex = /^\s*type\s+(\w+)/gm;
+    while ((match = typeRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'type', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract Lua entities (v3.0.7)
+   */
+  private extractLuaEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Functions
+    const funcRegex = /^\s*(local\s+)?function\s+(\w+(?:\.\w+)*)/gm;
+    while ((match = funcRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Anonymous functions assigned to variables
+    const varFuncRegex = /^\s*(local\s+)?(\w+)\s*=\s*function\s*\(/gm;
+    while ((match = varFuncRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'function', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Tables (pseudo-classes)
+    const tableRegex = /^\s*(local\s+)?(\w+)\s*=\s*\{/gm;
+    while ((match = tableRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'table', name: match[2], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+  }
+
+  /**
+   * Extract HCL (Terraform) entities (v3.0.7)
+   */
+  private extractHclEntities(
+    content: string,
+    language: Language,
+    filePath: string | undefined,
+    entities: Entity[],
+    getLineNum: (index: number) => number
+  ): void {
+    let match;
+
+    // Resources
+    const resourceRegex = /^resource\s+"(\w+)"\s+"(\w+)"/gm;
+    while ((match = resourceRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'resource', name: `${match[1]}.${match[2]}`, language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Data sources
+    const dataRegex = /^data\s+"(\w+)"\s+"(\w+)"/gm;
+    while ((match = dataRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'data', name: `${match[1]}.${match[2]}`, language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Variables
+    const varRegex = /^variable\s+"(\w+)"/gm;
+    while ((match = varRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'variable', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Outputs
+    const outputRegex = /^output\s+"(\w+)"/gm;
+    while ((match = outputRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'output', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Modules
+    const moduleRegex = /^module\s+"(\w+)"/gm;
+    while ((match = moduleRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'module', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Locals
+    const localsRegex = /^locals\s*\{/gm;
+    while ((match = localsRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'locals', name: 'locals', language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
+
+    // Providers
+    const providerRegex = /^provider\s+"(\w+)"/gm;
+    while ((match = providerRegex.exec(content)) !== null) {
+      entities.push(this.createEntity({
+        type: 'provider', name: match[1], language, filePath,
+        startLine: getLineNum(match.index), endLine: getLineNum(match.index),
+      }));
+    }
   }
 
   /**

@@ -183,7 +183,8 @@ git pull origin main
 
 ```typescript:setup.ts
 // セットアップはこれだけ
-import { createKnowledgeStore } from '@musubix/knowledge';
+// npm install musubix
+import { createKnowledgeStore } from 'musubix';
 
 const store = createKnowledgeStore('.knowledge');
 // データベース接続不要、環境変数不要、Docker不要
@@ -277,7 +278,7 @@ MUSUBIX v2.x までは、YATA（Yet Another Turing Architecture）という分�
 
 ### 1.1 知識の断片化問題
 
-多くの企業では、開発に関する知識が以下のように断片化しています：
+多くの企業では、開発に関する知識が以下のように断片化しています。
 
 ```
 📁 現状の知識散在状況
@@ -313,7 +314,7 @@ Project C: さらに別の方式... → 3週間
 
 ### 1.3 AIエージェント時代の新たな課題
 
-GitHub Copilot、Claude、ChatGPT等のAIコーディングアシスタントの普及により、新たな課題が顕在化しています：
+GitHub Copilot、Claude、ChatGPT等のAIコーディングアシスタントの普及により、新たな課題が顕在化しています。
 
 | 課題 | 説明 |
 |------|------|
@@ -418,7 +419,7 @@ async function registerUser(
 
 ### 3.1 階層型ID体系
 
-知識を種類ごとに整理し、検索・参照を容易にします：
+知識を種類ごとに整理し、検索・参照を容易にします。
 
 ```
 pattern:BP-CODE-001     # ベストプラクティス
@@ -430,7 +431,7 @@ arch:ADR-001            # アーキテクチャ決定
 
 ### 3.2 リレーション管理
 
-知識間の関連を明示的に管理し、関連知識を辿ることができます：
+知識間の関連を明示的に管理し、関連知識を辿ることができます。
 
 ```
 guideline:SEC-004 (入力検証)
@@ -1016,7 +1017,7 @@ maintenance:
 
 ```bash
 # 1. musubixをインストール
-npm install @musubix/knowledge
+npm install musubix
 
 # 2. 知識ベースディレクトリを初期化
 mkdir -p .knowledge
@@ -1529,7 +1530,7 @@ function validateUserInput(input: unknown): Result<ValidUser, ValidationError> {
 完全削除ではなく、非推奨としてマークしたい。
 
 🤖 AIエージェント:
-非推奨としてマークする前に確認です：
+非推奨としてマークする前に確認です。
 
 ⚠️ pattern:BP-LEGACY-001「コールバックベースのエラーハンドリング」
 
@@ -1714,7 +1715,7 @@ domain:CRM-RULE-001 ──relatedTo──→ domain:CRM-TERM-001
 
 ```bash
 # インストール
-npm install @musubix/knowledge
+npm install musubix
 
 # サンプルを実行
 npx tsx examples/knowledge-sample.ts
@@ -1733,4 +1734,4 @@ npx tsx examples/knowledge-sample.ts
 
 **Author**: MUSUBIX Team  
 **Last Updated**: 2026-01-12  
-**Version**: 3.0.3
+**Version**: 3.0.6

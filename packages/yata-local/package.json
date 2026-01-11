@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-local",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "[DEPRECATED] YATA Local - Use @musubix/knowledge instead",
   "deprecated": "This package is deprecated. Please use @musubix/knowledge from MUSUBIX v3.0.0+",
   "type": "module",

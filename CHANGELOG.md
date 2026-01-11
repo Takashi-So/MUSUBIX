@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.7] - 2026-01-12
+
+### Fixed
+
+- **CodeGraph: すべてのプログラミング言語でのAST解析が動作するように修正**
+  - **問題**: tree-sitter のネイティブバイナリがプラットフォームによってビルドに失敗し、C/C++、Rust、Ruby等の言語でエンティティ抽出ができなかった
+  - **解決策**: 正規表現ベースのフォールバックパーサーを全16言語に拡張
+  - 新規対応言語: C, C++, Rust, Go, Java, C#, PHP, Ruby, Kotlin, Swift, Scala, Lua, HCL (Terraform)
+  - TypeScript/JavaScript, Python は既存サポートを強化
+
+### Enhanced
+
+- **`@nahisaho/musubix-codegraph` v3.0.7**
+  - `parseWithRegex()` メソッドを大幅に拡張
+  - 言語ごとに専用の抽出メソッドを追加:
+    - `extractCEntities()`: C/C++ (関数、構造体、共用体、enum、typedef、マクロ、名前空間、クラス)
+    - `extractRustEntities()`: Rust (関数、構造体、enum、trait、impl、モジュール、型エイリアス、マクロ)
+    - `extractGoEntities()`: Go (関数、構造体、インターフェース、型、定数、変数)
+    - `extractJavaEntities()`: Java (クラス、インターフェース、enum、メソッド、record)
+    - `extractCSharpEntities()`: C# (クラス、インターフェース、構造体、enum、record、名前空間、メソッド)
+    - `extractPhpEntities()`: PHP (クラス、インターフェース、trait、enum、関数、メソッド)
+    - `extractRubyEntities()`: Ruby (クラス、モジュール、メソッド)
+    - `extractKotlinEntities()`: Kotlin (クラス、オブジェクト、インターフェース、enum、関数)
+    - `extractSwiftEntities()`: Swift (クラス、構造体、プロトコル、enum、関数、extension)
+    - `extractScalaEntities()`: Scala (クラス、オブジェクト、trait、関数、型)
+    - `extractLuaEntities()`: Lua (関数、テーブル)
+    - `extractHclEntities()`: HCL/Terraform (resource、data、variable、output、module、locals、provider)
+  - Linuxカーネルコードでの実証: kernel/sched/core.c から429エンティティ抽出成功（関数403、構造体6、マクロ18）
+
+### Technical Details
+
+- tree-sitterが利用可能な場合は引き続きAST解析を優先
+- tree-sitterが利用不可の場合に正規表現フォールバックを自動的に使用
+- ネイティブ依存関係のインストールに失敗しても動作が保証される
+
 ## [3.0.3] - 2026-01-12
 
 ### Fixed
