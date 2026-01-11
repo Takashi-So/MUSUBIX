@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-scale",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "[DEPRECATED] YATA Scale - Use @musubix/knowledge instead",
   "deprecated": "This package is deprecated. Please use @musubix/knowledge from MUSUBIX v3.0.0+",
   "type": "module",
@@ -75,13 +75,5 @@
     "@types/node": "^22.13.14",
     "typescript": "^5.8.2",
     "vitest": "^4.0.16"
-  },
-  "peerDependencies": {
-    "@nahisaho/yata-local": "^2.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@nahisaho/yata-local": {
-      "optional": true
-    }
   }
 }

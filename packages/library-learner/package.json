@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-library-learner",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "DreamCoder-style hierarchical abstraction and library learning for MUSUBIX",
   "type": "module",
   "main": "dist/index.js",
@@ -56,7 +56,7 @@
     "vitest": "^4.0.16"
   },
   "peerDependencies": {
-    "@nahisaho/musubix-pattern-mcp": "^2.0.0"
+    "@nahisaho/musubix-pattern-mcp": "^3.0.0"
   },
   "peerDependenciesMeta": {
     "@nahisaho/musubix-pattern-mcp": {

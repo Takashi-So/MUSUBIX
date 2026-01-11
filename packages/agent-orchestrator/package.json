@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-agent-orchestrator",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "MUSUBIX Agent Orchestrator - Subagent Management and Task Decomposition",
   "type": "module",
   "main": "./dist/index.js",

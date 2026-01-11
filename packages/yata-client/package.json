@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-yata-client",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "[DEPRECATED] MUSUBIX YATA Client - Use @musubix/knowledge instead",
   "deprecated": "This package is deprecated. Please use @musubix/knowledge from MUSUBIX v3.0.0+",
   "type": "module",
