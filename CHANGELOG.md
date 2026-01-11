@@ -99,6 +99,15 @@ MUSUBIX v3.0.0は、**Git-Native Knowledge System**を導入したメジャー�
 - **テスト数**: 2178+ → 2249+テストに増加（新規71テスト）
 - **パッケージ数**: 22 → 25パッケージに増加
 
+### Deprecated
+
+- **YATAパッケージ群**: 以下のパッケージは非推奨となりました
+  - `@nahisaho/yata-client` → `@musubix/knowledge` を使用
+  - `@nahisaho/yata-global` → `@musubix/knowledge` を使用
+  - `@nahisaho/yata-local` → `@musubix/knowledge` を使用
+  - `@nahisaho/yata-scale` → `@musubix/knowledge` を使用
+  - `@nahisaho/yata-ui` → `@musubix/decisions` を使用
+
 ### Technical Details
 
 - Git-friendlyなJSON形式でナレッジグラフを保存（差分管理可能）
@@ -109,7 +118,16 @@ MUSUBIX v3.0.0は、**Git-Native Knowledge System**を導入したメジャー�
 ### Documentation
 
 - `AGENTS.md`: Git-Native Knowledge System情報追加
+- `docs/MIGRATION-v3.0.md`: v2.x → v3.0 マイグレーションガイド追加
 - 新パッケージAPIドキュメント追加
+
+### Tests
+
+- E2Eテスト追加: `packages/core/__tests__/e2e/git-native-knowledge.e2e.test.ts`
+  - Knowledge Store統合テスト
+  - Policy Engine統合テスト
+  - Decision Manager統合テスト
+  - Full Workflow統合テスト
 
 ---
 
