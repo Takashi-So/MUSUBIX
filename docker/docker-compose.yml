@@ -1,0 +1,73 @@
+# MUSUBIX + YATA Global Docker Compose
+# 
+# This setup creates two separate environments:
+# 1. musubix: Development environment with CLI and yata-local
+# 2. yata-global: Knowledge graph sharing server
+#
+# Usage:
+#   docker compose up -d
+#   docker compose exec musubix bash
+#   docker compose logs yata-global
+
+services:
+  # ============================================
+  # YATA Global Server
+  # ============================================
+  yata-global:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.yata-global
+    container_name: yata-global
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+    volumes:
+      - yata-global-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - musubix-network
+    restart: unless-stopped
+
+  # ============================================
+  # MUSUBIX Development Environment
+  # ============================================
+  musubix:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.musubix
+    container_name: musubix-dev
+    stdin_open: true
+    tty: true
+    environment:
+      - NODE_ENV=development
+      - YATA_LOCAL_DB=/root/.yata/local/knowledge.db
+      - YATA_GLOBAL_ENDPOINT=http://yata-global:3000
+    volumes:
+      - musubix-yata-local:/root/.yata
+      - musubix-projects:/workspace/projects
+    depends_on:
+      yata-global:
+        condition: service_healthy
+    networks:
+      - musubix-network
+    working_dir: /workspace/projects
+
+networks:
+  musubix-network:
+    driver: bridge
+
+volumes:
+  yata-global-data:
+    driver: local
+  musubix-yata-local:
+    driver: local
+  musubix-projects:
+    driver: local

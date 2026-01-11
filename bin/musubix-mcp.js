@@ -11,9 +11,5 @@
  *   musubix-mcp --transport stdio
  */
 
-import { main } from '@nahisaho/musubix-mcp-server';
-
-main().catch((error) => {
-  console.error('MUSUBIX MCP Server error:', error);
-  process.exit(1);
-});
+// Forward to the mcp-server package's CLI
+import '@nahisaho/musubix-mcp-server/bin/musubix-mcp.js';

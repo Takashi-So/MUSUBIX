@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-ontology-mcp",
-  "version": "2.3.6",
+  "version": "2.4.1",
   "description": "MUSUBIX Ontology Reasoning MCP - OWL 2 RL inference and SPARQL query",
   "type": "module",
   "main": "./dist/index.js",
@@ -36,13 +36,13 @@
     "directory": "packages/ontology-mcp"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "n3": "^1.26.0"
   },
   "devDependencies": {
     "@types/n3": "^1.26.1",
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.0.16"
   },
   "peerDependencies": {
     "@nahisaho/musubix-core": "^2.0.0"

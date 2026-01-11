@@ -8,7 +8,7 @@ This file defines AI agent configurations for MUSUBIX - Neuro-Symbolic AI Integr
 
 ## MCP Server Integration
 
-MUSUBIX provides an MCP Server (`@nahisaho/musubix-mcp-server`) with 9 tools and 3 prompts.
+MUSUBIX provides an MCP Server (`@nahisaho/musubix-mcp-server`) with 10 SDD tools and 3 prompts.
 
 ### Starting MCP Server
 
@@ -17,7 +17,7 @@ npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
-### MCP Tools (9 Tools)
+### MCP Tools (10 SDD Tools)
 
 | Tool Name | Description | Usage |
 |-----------|-------------|-------|
@@ -27,6 +27,7 @@ npx musubix-mcp --transport stdio
 | `sdd_validate_design` | Validate design traceability | Design validation |
 | `sdd_create_tasks` | Generate implementation tasks | Task breakdown |
 | `sdd_query_knowledge` | Query YATA knowledge graph | Knowledge retrieval |
+| `sdd_ask_knowledge` | **Natural language query to YATA (EN/JA)** | NL Knowledge query (v2.4.1 NEW!) |
 | `sdd_update_knowledge` | Update knowledge graph | Knowledge management |
 | `sdd_validate_constitution` | Validate against 9 Constitutional Articles | Compliance check |
 | `sdd_validate_traceability` | Validate requirement-design-task traceability | Traceability audit |

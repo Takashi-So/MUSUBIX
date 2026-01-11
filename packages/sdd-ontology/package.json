@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-sdd-ontology",
-  "version": "2.3.6",
+  "version": "2.4.1",
   "description": "MUSUBIX SDD Ontology - Turtle modules for EARS, C4, Traceability",
   "type": "module",
   "main": "./dist/index.js",
@@ -42,7 +42,7 @@
   "dependencies": {},
   "devDependencies": {
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.0.16"
   },
   "peerDependencies": {
     "@nahisaho/musubix-ontology-mcp": "^2.0.0"

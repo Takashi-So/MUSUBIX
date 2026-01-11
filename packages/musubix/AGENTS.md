@@ -205,6 +205,7 @@ npx musubix-mcp --transport stdio
 | `sdd_validate_design` | 設計の要件トレーサビリティ検証 |
 | `sdd_create_tasks` | 設計から実装タスク生成 |
 | `sdd_query_knowledge` | YATA知識グラフへのクエリ |
+| `sdd_ask_knowledge` | **自然言語でYATA知識グラフに質問（日英対応）** (v2.4.1 NEW!) |
 | `sdd_update_knowledge` | 知識グラフの更新 |
 | `sdd_validate_constitution` | 9憲法条項への準拠検証 |
 | `sdd_validate_traceability` | 要件↔設計↔タスクのトレーサビリティ検証 |

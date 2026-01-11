@@ -469,6 +469,135 @@ export const validateTraceabilityTool: ToolDefinition = {
   },
 };
 
+// ============================================================
+// Natural Language Query Tool (v2.4.0)
+// ============================================================
+
+/**
+ * Ask knowledge graph in natural language
+ * 
+ * @description Supports both English and Japanese natural language queries.
+ * Examples:
+ * - "What functions call UserService?"
+ * - "UserServiceを呼び出している関数は？"
+ * - "Show implementations of Repository pattern"
+ * - "Repositoryパターンの実装を見せて"
+ * 
+ * @see REQ-NLQ-001 - Natural Language Query Support
+ */
+export const askKnowledgeTool: ToolDefinition = {
+  name: 'sdd_ask_knowledge',
+  description: 'Query the YATA knowledge graph using natural language (supports English and Japanese). Ask questions like "What functions call UserService?" or "UserServiceを呼び出す関数は？"',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      question: {
+        type: 'string',
+        description: 'Natural language question about the codebase or knowledge graph',
+      },
+      context: {
+        type: 'object',
+        description: 'Optional context to help interpret the question',
+        properties: {
+          namespace: {
+            type: 'string',
+            description: 'Namespace to search within',
+          },
+          entityTypes: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Entity types to focus on (e.g., function, class, method)',
+          },
+        },
+      },
+      maxResults: {
+        type: 'number',
+        description: 'Maximum number of results to return',
+        default: 20,
+      },
+    },
+    required: ['question'],
+  },
+  handler: async (args) => {
+    try {
+      const { question, context, maxResults } = args as {
+        question: string;
+        context?: {
+          namespace?: string;
+          entityTypes?: string[];
+        };
+        maxResults?: number;
+      };
+
+      // Intent patterns for basic detection (full implementation in yata-local/nlq)
+      const intents = detectBasicIntent(question);
+
+      return success({
+        action: 'ask_knowledge',
+        question,
+        detectedLanguage: detectLanguage(question),
+        detectedIntent: intents,
+        context: context ?? {},
+        maxResults: maxResults ?? 20,
+        results: [],
+        message: 'Natural language query requires YATA connection. Use YataLocal.ask() for full functionality.',
+        hint: 'Connect to YATA Local with: const yata = new YataLocal(); await yata.open("./knowledge.db"); const result = await yata.ask(question);',
+      });
+    } catch (e) {
+      return error(e instanceof Error ? e.message : String(e));
+    }
+  },
+};
+
+/**
+ * Detect language from query text
+ */
+function detectLanguage(text: string): 'ja' | 'en' {
+  // Japanese character ranges
+  const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/.test(text);
+  return hasJapanese ? 'ja' : 'en';
+}
+
+/**
+ * Basic intent detection for preview (full implementation in yata-local/nlq)
+ */
+function detectBasicIntent(question: string): { type: string; confidence: number; entities: string[] } {
+  const lower = question.toLowerCase();
+  const entities: string[] = [];
+
+  // Extract potential entity names (capitalized words or Japanese katakana)
+  const matches = question.match(/[A-Z][a-zA-Z0-9]+|[\u30A0-\u30FF]+/g);
+  if (matches) {
+    entities.push(...matches);
+  }
+
+  // Simple intent detection
+  if (/call|呼び出|呼んで|使って/.test(lower)) {
+    if (/who|what|何が|誰が/.test(lower)) {
+      return { type: 'find_callers', confidence: 0.8, entities };
+    }
+    return { type: 'find_callees', confidence: 0.8, entities };
+  }
+
+  if (/implement|実装|継承/.test(lower)) {
+    return { type: 'find_implementations', confidence: 0.8, entities };
+  }
+
+  if (/depend|依存|import/.test(lower)) {
+    return { type: 'find_dependencies', confidence: 0.8, entities };
+  }
+
+  if (/relat|関連|関係/.test(lower)) {
+    return { type: 'find_related', confidence: 0.7, entities };
+  }
+
+  if (/explain|説明|なぜ|why/.test(lower)) {
+    return { type: 'explain_relationship', confidence: 0.7, entities };
+  }
+
+  return { type: 'general_search', confidence: 0.5, entities };
+}
+
 /**
  * All SDD tools
  */
@@ -483,6 +612,7 @@ export const sddTools: ToolDefinition[] = [
   createTasksTool,
   // Knowledge
   queryKnowledgeTool,
+  askKnowledgeTool,  // v2.4.0: Natural Language Query
   updateKnowledgeTool,
   // Validation
   validateConstitutionTool,

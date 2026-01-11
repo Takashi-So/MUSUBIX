@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-security",
-  "version": "2.3.6",
+  "version": "2.4.1",
   "description": "Security analysis and vulnerability detection for MUSUBIX - Neuro-Symbolic AI Integration",
   "type": "module",
   "main": "./dist/index.js",
@@ -60,7 +60,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "@nahisaho/musubix-core": "^2.0.0",
     "@nahisaho/musubix-formal-verify": "^2.0.0",
     "@nahisaho/yata-local": "^2.0.0",

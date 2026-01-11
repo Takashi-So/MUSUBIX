@@ -5,6 +5,118 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] - 2026-01-11
+
+### Fixed
+
+- セキュリティ脆弱性を修正（`npm audit fix`）
+- `workspace:*` 依存関係をnpm互換の `*` に変更
+- MCP Server binエクスポート修正
+
+## [2.4.0] - 2026-01-11
+
+### 🚀 Claude Code Integration Patterns
+
+MUSUBIX v2.4.0は、**Claude Code統合パターン**を追加した機能リリースです。Subagent-Driven Development、Parallel Agent Dispatching、Skills Architecture、Structured Workflow Orchestrationをサポートします。
+
+### Added
+
+- **新パッケージ: `@nahisaho/musubix-agent-orchestrator`**
+  - サブエージェント分散・調整機能
+  - `ComplexityAnalyzer`: タスク複雑度分析・分解推奨
+  - `DependencyAnalyzer`: タスク依存関係分析
+  - `ParallelExecutor`: 並列タスク実行
+  - `SubagentDispatcher`: サブエージェント分散
+
+- **新パッケージ: `@nahisaho/musubix-workflow-engine`**
+  - SDDワークフロー制御エンジン
+  - `PhaseController`: 5フェーズ制御（要件定義→設計→タスク分解→実装→完了）
+  - `StateTracker`: ワークフロー状態追跡
+  - `QualityGateRunner`: 品質ゲート検証
+  - **⚠️ Phase 2→Phase 4 直接遷移禁止**を強制
+
+- **新パッケージ: `@nahisaho/musubix-skill-manager`**
+  - スキル管理・実行フレームワーク
+  - `SkillRegistry`: スキル登録・検索
+  - `SkillValidator`: スキル入力検証
+  - 11種類のスキルタイプ対応
+
+- **新MCPツール: 14ツール追加**
+  - `agent_analyze`: タスク複雑度分析
+  - `agent_dispatch`: サブエージェント分散
+  - `agent_coordinate`: エージェント調整
+  - `agent_status`: エージェント状態確認
+  - `workflow_start`: ワークフロー開始
+  - `workflow_transition`: フェーズ遷移
+  - `workflow_approve`: フェーズ承認
+  - `workflow_status`: ワークフロー状態
+  - `workflow_progress`: 進捗確認
+  - `skill_list`: スキル一覧
+  - `skill_execute`: スキル実行
+  - `skill_validate`: スキル検証
+  - `skill_info`: スキル情報
+  - `skill_register`: スキル登録
+
+### Changed
+
+- **MCPツール数**: 29 → 43ツールに増加
+- **パッケージ数**: 19 → 22パッケージに増加
+- **テスト数**: 2100+ → 2178+テストに増加（新規78テスト）
+
+### Technical Details
+
+- Phase 2（設計）から Phase 4（実装）への直接遷移を禁止
+- 承認キーワード検出: `承認`, `approve`, `LGTM`, `OK`, `進める`, `実装`
+- ComplexityAnalyzerによる自動タスク分解推奨（閾値: 7/10）
+
+### Documentation
+
+- `AGENTS.md`: 新パッケージ・ツール情報追加
+
+---
+
+## [2.3.8] - 2026-01-10
+
+### 🔒 Security Update
+
+MUSUBIX v2.3.8は、**npm auditで検出されたセキュリティ脆弱性を修正**したセキュリティリリースです。
+
+### Security
+
+- **@modelcontextprotocol/sdk: 1.25.1 → ^1.25.2** (High → 修正済み)
+  - ReDoS脆弱性（GHSA-8r9q-7v3j-jr4g）を修正
+  - 全パッケージ（core, mcp-server, ontology-mcp, pattern-mcp, security, yata-client）で更新
+
+- **vitest: 全パッケージを ^4.0.16 に統一** (Moderate → 修正済み)
+  - esbuild/vite関連の脆弱性（GHSA-67mh-4wv8-2f99）を間接的に修正
+  - 対象パッケージ: dfg, ontology-mcp, pattern-mcp, sdd-ontology, wake-sleep, yata-scale
+
+### Changed
+
+- `package.json`: @modelcontextprotocol/sdk を ^1.25.2 に更新
+- 全19パッケージの依存関係を最新のセキュアバージョンに統一
+
+---
+
+## [2.3.7] - 2026-01-10
+
+### 🐛 CLI Entry Point Fix
+
+MUSUBIX v2.3.7は、**`npx musubix` CLIコマンドのエントリーポイント修正**を行ったホットフィックスリリースです。
+
+### Fixed
+
+- **CLI: `npx musubix -v` が正しくバージョンを表示するように修正**
+  - `bin/musubix.js`が`@nahisaho/musubix-core/dist/cli/index.js`（エクスポート専用）をインポートしていた問題を修正
+  - 正しいエントリーポイント`@nahisaho/musubix-core/bin/musubix.js`を使用するように変更
+  - CLIコマンド（`init`, `requirements`, `design`, `codegen`等）が正常に動作するようになった
+
+### Changed
+
+- `packages/musubix/bin/musubix.js`: エントリーポイントを修正
+
+---
+
 ## [2.3.6] - 2026-01-10
 
 ### 📝 Technical Writing Skill

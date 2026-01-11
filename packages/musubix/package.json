@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "2.3.6",
+  "version": "2.4.1",
   "description": "MUSUBIX - Neuro-Symbolic AI Integration System for Software Development",
   "keywords": [
     "ai",
@@ -55,8 +55,7 @@
     "@nahisaho/musubix-yata-client": "^2.2.0",
     "@nahisaho/yata-global": "^2.2.0",
     "@nahisaho/yata-local": "^2.2.0",
-    "@nahisaho/yata-scale": "^2.2.0",
-    "musubix": "^2.3.0"
+    "@nahisaho/yata-scale": "^2.2.0"
   },
   "devDependencies": {
     "typescript": "^5.3.3"

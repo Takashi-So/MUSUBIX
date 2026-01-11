@@ -20,7 +20,7 @@
  */
 
 // Version
-export const VERSION = '1.0.0';
+export const VERSION = '2.4.1';
 
 // Types
 export type {
@@ -86,6 +86,66 @@ export {
   validateTripleTool,
   checkCircularTool,
 } from './tools/index.js';
+
+// v2.4.0 NEW - Agent Orchestration Tools
+export {
+  agentTools,
+  agentDispatchTool,
+  agentStatusTool,
+  agentCancelTool,
+  agentAnalyzeTool,
+  handleAgentDispatch,
+  handleAgentStatus,
+  handleAgentCancel,
+  handleAgentAnalyze,
+  type AgentDispatchInput,
+  type AgentStatusInput,
+  type AgentCancelInput,
+  type AgentAnalyzeInput,
+} from './tools/index.js';
+
+// v2.4.0 NEW - Workflow Engine Tools
+export {
+  workflowTools,
+  workflowCreateTool,
+  workflowTransitionTool,
+  workflowStatusTool,
+  workflowReviewTool,
+  workflowGateTool,
+  handleWorkflowCreate,
+  handleWorkflowTransition,
+  handleWorkflowStatus,
+  handleWorkflowReview,
+  handleWorkflowGate,
+  type WorkflowCreateInput,
+  type WorkflowTransitionInput,
+  type WorkflowStatusInput,
+  type WorkflowReviewInput,
+  type WorkflowGateInput,
+} from './tools/index.js';
+
+// v2.4.0 NEW - Skill Manager Tools
+export {
+  skillTools,
+  skillListTool,
+  skillExecuteTool,
+  skillValidateTool,
+  skillInfoTool,
+  skillRegisterTool,
+  handleSkillList,
+  handleSkillExecute,
+  handleSkillValidate,
+  handleSkillInfo,
+  handleSkillRegister,
+  type SkillListInput,
+  type SkillExecuteInput,
+  type SkillValidateInput,
+  type SkillInfoInput,
+  type SkillRegisterInput,
+} from './tools/index.js';
+
+// v2.4.0 NEW - Tool Categories
+export { toolCategories } from './tools/index.js';
 
 // SDD Prompts
 export {
@@ -204,6 +264,24 @@ export async function startServer(options: StartServerOptions = {}): Promise<voi
 
   // Register ontology tools
   for (const tool of ontologyTools) {
+    server.registerTool(tool);
+  }
+  
+  // v2.4.0 NEW: Import and register agent, workflow, and skill tools
+  const { agentTools, workflowTools, skillTools } = await import('./tools/index.js');
+  
+  // Register agent tools
+  for (const tool of agentTools) {
+    server.registerTool(tool);
+  }
+  
+  // Register workflow tools
+  for (const tool of workflowTools) {
+    server.registerTool(tool);
+  }
+  
+  // Register skill tools
+  for (const tool of skillTools) {
     server.registerTool(tool);
   }
   

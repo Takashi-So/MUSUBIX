@@ -1,0 +1,56 @@
+{
+  "name": "@nahisaho/musubix-skill-manager",
+  "version": "2.4.1",
+  "description": "MUSUBIX Skill Manager - Skill Loading, Validation and Registry",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./domain": {
+      "import": "./dist/domain/index.js",
+      "types": "./dist/domain/index.d.ts"
+    },
+    "./application": {
+      "import": "./dist/application/index.js",
+      "types": "./dist/application/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "musubix",
+    "skill",
+    "manager",
+    "registry",
+    "loader"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "dependencies": {
+    "@nahisaho/musubix-core": "*"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.5",
+    "vitest": "^4.0.16"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-core",
-  "version": "2.3.6",
+  "version": "2.4.1",
   "description": "MUSUBIX Core Library - Neuro-Symbolic Integration Engine",
   "type": "module",
   "main": "./dist/index.js",
@@ -72,7 +72,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.25.1",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "@nahisaho/musubix-codegraph": "*",
     "@nahisaho/musubix-ontology-mcp": "^2.0.0",
     "chalk": "^5.3.0",

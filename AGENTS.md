@@ -8,14 +8,14 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 2.3.6 (Technical Writing Skill) |
+| **バージョン** | 2.4.1 (Claude Code Integration) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 2100+ (全合格) |
-| **パッケージ数** | 19 |
+| **テスト数** | 2178+ (全合格) |
+| **パッケージ数** | 22 |
 | **Agent Skills** | 13 (Claude Code対応) |
 
 ---
@@ -43,17 +43,20 @@ packages/
 ├── lean/           # @nahisaho/musubix-lean (v2.0.0 NEW!)
 ├── library-learner/# @nahisaho/musubix-library-learner (v2.0.0 NEW!)
 ├── neural-search/  # @nahisaho/musubix-neural-search (v2.0.0 NEW!)
-└── synthesis/      # @nahisaho/musubix-synthesis (v2.0.0 NEW!)
+├── synthesis/      # @nahisaho/musubix-synthesis (v2.0.0 NEW!)
+├── agent-orchestrator/ # @nahisaho/musubix-agent-orchestrator (v2.4.0 NEW!)
+├── workflow-engine/    # @nahisaho/musubix-workflow-engine (v2.4.0 NEW!)
+└── skill-manager/      # @nahisaho/musubix-skill-manager (v2.4.0 NEW!)
 ```
 
 | パッケージ | npm | 役割 |
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
-| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 19ツール、3プロンプト |
+| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 44ツール、5プロンプト |
 | `packages/security/` | `@nahisaho/musubix-security` | セキュリティ分析 - 脆弱性検出、シークレット検出、テイント解析 |
 | `packages/formal-verify/` | `@nahisaho/musubix-formal-verify` | 形式検証 - Z3統合、Hoare検証、EARS→SMT変換 |
 | `packages/yata-client/` | `@nahisaho/musubix-yata-client` | YATAクライアント - 知識グラフ連携 |
-| `packages/yata-local/` | `@nahisaho/yata-local` | YATA Local - SQLiteベースローカル知識グラフ |
+| `packages/yata-local/` | `@nahisaho/yata-local` | YATA Local - SQLiteベースローカル知識グラフ、**自然言語クエリ対応** (v2.4.1 NEW!) |
 | `packages/yata-global/` | `@nahisaho/yata-global` | YATA Global - 分散型知識グラフプラットフォーム |
 | `packages/yata-ui/` | `@nahisaho/yata-ui` | YATA UI - Web可視化・管理インターフェース |
 | `packages/yata-scale/` | `@nahisaho/yata-scale` | **YATA Scale** - 分散シャーディング・キャッシュ (v2.0.0 NEW!) |
@@ -66,6 +69,9 @@ packages/
 | `packages/library-learner/` | `@nahisaho/musubix-library-learner` | **ライブラリ学習** - APIパターン抽出、メトリクスエクスポート (v2.2.0 Enhanced!) |
 | `packages/neural-search/` | `@nahisaho/musubix-neural-search` | **ニューラル検索** - 意味的コード検索、軌跡ロギング (v2.2.0 Enhanced!) |
 | `packages/synthesis/` | `@nahisaho/musubix-synthesis` | **プログラム合成** - ニューラル誘導合成、説明生成 (v2.2.0 Enhanced!) |
+| `packages/agent-orchestrator/` | `@nahisaho/musubix-agent-orchestrator` | **エージェント調整** - サブエージェント分散・複雑度分析 (v2.4.0 NEW!) |
+| `packages/workflow-engine/` | `@nahisaho/musubix-workflow-engine` | **ワークフロー制御** - 5フェーズ制御・品質ゲート (v2.4.0 NEW!) |
+| `packages/skill-manager/` | `@nahisaho/musubix-skill-manager` | **スキル管理** - スキル登録・実行・検証 (v2.4.0 NEW!) |
 
 ### Core パッケージモジュール
 
@@ -193,9 +199,9 @@ npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
-### ツール一覧（29ツール）
+### ツール一覧（44ツール）
 
-#### SDD基本ツール（9ツール）
+#### SDD基本ツール（10ツール）
 
 | ツール名 | 説明 |
 |---------|------|
@@ -205,6 +211,7 @@ npx musubix-mcp --transport stdio
 | `sdd_validate_design` | 設計の要件トレーサビリティ検証 |
 | `sdd_create_tasks` | 設計から実装タスク生成 |
 | `sdd_query_knowledge` | YATA知識グラフへのクエリ |
+| `sdd_ask_knowledge` | **自然言語でYATA知識グラフに質問（日英対応）** (v2.4.1 NEW!) |
 | `sdd_update_knowledge` | 知識グラフの更新 |
 | `sdd_validate_constitution` | 9憲法条項への準拠検証 |
 | `sdd_validate_traceability` | 要件↔設計↔タスクのトレーサビリティ検証 |
@@ -248,6 +255,35 @@ npx musubix-mcp --transport stdio
 | `synthesis_learn_patterns` | パターン学習 |
 | `synthesis_query_patterns` | パターン検索 |
 | `synthesis_get_stats` | 統計取得 |
+
+#### Agent Orchestratorツール（4ツール）- v2.4.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `agent_analyze_complexity` | タスク複雑度分析・サブエージェント分散判定 |
+| `agent_dispatch` | サブエージェントへのタスクディスパッチ |
+| `agent_collect_results` | サブエージェント結果の収集・統合 |
+| `agent_get_status` | エージェント実行状態の取得 |
+
+#### Workflow Engineツール（5ツール）- v2.4.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `workflow_create` | 新規ワークフロー作成（5フェーズ制御） |
+| `workflow_advance_phase` | 次フェーズへの遷移（品質ゲート検証付き） |
+| `workflow_set_approval` | ユーザー承認状態の設定 |
+| `workflow_get_status` | ワークフロー現在状態の取得 |
+| `workflow_validate_transition` | フェーズ遷移の事前検証 |
+
+#### Skill Managerツール（5ツール）- v2.4.0 NEW!
+
+| ツール名 | 説明 |
+|---------|------|
+| `skill_register` | 新規スキルの登録 |
+| `skill_execute` | スキルの実行 |
+| `skill_list` | 登録済みスキル一覧の取得 |
+| `skill_get_info` | スキル詳細情報の取得 |
+| `skill_validate` | スキル定義の検証 |
 
 ### プロンプト一覧（5プロンプト）
 
@@ -455,6 +491,38 @@ const explanation = explainer.generate(program);
 const summary = explainer.summarize(program);
 // "Converts to uppercase"
 ```
+
+### 8. 自然言語クエリ（v2.4.1 NEW!）
+
+YATA Localで日本語・英語の自然言語によるクエリが可能になりました：
+
+```typescript
+import { createYataLocal } from '@nahisaho/yata-local';
+
+const yata = createYataLocal({ path: './knowledge.db' });
+await yata.open();
+
+// 日本語でクエリ
+const result1 = await yata.ask('UserServiceを呼び出している関数は？');
+
+// 英語でクエリ
+const result2 = await yata.ask('What functions call UserService?');
+
+console.log(result1.entities);      // マッチしたエンティティ
+console.log(result1.explanation);   // 結果の説明
+```
+
+**対応インテント**:
+| インテント | 自然言語例 | 等価API |
+|-----------|-----------|---------|
+| `find_callers` | 「〜を呼び出している関数」 | `getRelationships(id, 'in')` |
+| `find_callees` | 「〜は何を呼び出していますか」 | `getRelationships(id, 'out')` |
+| `find_implementations` | 「〜の実装を表示」 | `getRelationships(id, 'in', {types: ['implements']})` |
+| `find_dependencies` | 「〜の依存関係」 | `traverse(id, ['depends-on'], 'forward')` |
+| `find_entity` | 「〜を探して」 | `search()`, `getEntityByName()` |
+| `find_related` | 「〜に関連するもの」 | `getNeighbors(id, {direction: 'both'})` |
+
+**MCPツール**: `sdd_ask_knowledge` で MCP経由でも利用可能
 
 ---
 

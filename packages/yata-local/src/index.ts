@@ -57,6 +57,12 @@ import { YataDatabase } from './database.js';
 import { QueryEngine } from './query-engine.js';
 import { ReasoningEngine, type InferenceResult } from './reasoning.js';
 import { IoModule, type JsonExport, type RdfExportOptions } from './io.js';
+import {
+  NLQueryEngine,
+  createNLQueryEngine,
+  type NLQueryEngineConfig,
+  type NLQueryResult,
+} from './nlq/index.js';
 
 /**
  * YATA Local implementation
@@ -66,6 +72,7 @@ export class YataLocal {
   private queryEngine!: QueryEngine;
   private reasoningEngine!: ReasoningEngine;
   private ioModule!: IoModule;
+  private nlQueryEngine!: NLQueryEngine;
   private config: DatabaseConfig;
 
   constructor(config: Partial<DatabaseConfig> = {}) {
@@ -87,6 +94,7 @@ export class YataLocal {
     this.queryEngine = new QueryEngine(this.db);
     this.reasoningEngine = new ReasoningEngine(this.db, this.queryEngine);
     this.ioModule = new IoModule(this.db);
+    this.nlQueryEngine = createNLQueryEngine(this.db, this.queryEngine);
   }
 
   /**
@@ -402,6 +410,59 @@ export class YataLocal {
    */
   async search(text: string, limit?: number): Promise<Entity[]> {
     return this.db.searchEntities(text, limit);
+  }
+
+  // ============================================================
+  // Natural Language Query API (v2.5.0 NEW!)
+  // @see REQ-YL-NLQ-001
+  // ============================================================
+
+  /**
+   * Execute a natural language query against the knowledge graph
+   *
+   * Supports both English and Japanese queries. Automatically detects
+   * language and intent from the query.
+   *
+   * @param question - Natural language question
+   * @param config - Optional configuration
+   * @returns Query result with entities and explanation
+   *
+   * @example
+   * ```typescript
+   * // English queries
+   * const result1 = await yata.ask("What calls UserService?");
+   * const result2 = await yata.ask("Find all classes in app.services");
+   * const result3 = await yata.ask("Show dependencies of OrderService");
+   *
+   * // Japanese queries (日本語)
+   * const result4 = await yata.ask("UserServiceを呼び出しているメソッドは?");
+   * const result5 = await yata.ask("app.servicesの全てのクラス");
+   * const result6 = await yata.ask("OrderServiceの依存関係を表示");
+   * ```
+   *
+   * @see REQ-YL-NLQ-001
+   */
+  async ask(
+    question: string,
+    config?: NLQueryEngineConfig
+  ): Promise<NLQueryResult> {
+    if (config) {
+      const engine = createNLQueryEngine(this.db, this.queryEngine, config);
+      return engine.ask(question);
+    }
+    return this.nlQueryEngine.ask(question);
+  }
+
+  /**
+   * Alias for ask() - more explicit name
+   *
+   * @see ask
+   */
+  async naturalLanguageQuery(
+    question: string,
+    config?: NLQueryEngineConfig
+  ): Promise<NLQueryResult> {
+    return this.ask(question, config);
   }
 
   /**
@@ -747,3 +808,19 @@ export type {
   ChangeSet,
   SyncResponse,
 } from './sync.js';
+
+// Natural Language Query Module (v2.5.0 NEW!)
+// @see REQ-YL-NLQ-001
+export {
+  NLQueryEngine,
+  createNLQueryEngine,
+  NLQueryParser,
+  createNLQueryParser,
+} from './nlq/index.js';
+export type {
+  NLQueryEngineConfig,
+  NLQueryResult,
+  ParsedQuery,
+  QueryParserConfig,
+  QueryIntent,
+} from './nlq/index.js';

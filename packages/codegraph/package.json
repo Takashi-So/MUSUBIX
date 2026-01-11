@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-codegraph",
-  "version": "2.3.6",
+  "version": "2.4.1",
   "description": "MUSUBIX CodeGraph - Multi-language Code Graph Analysis Engine supporting 16 programming languages with PR generation",
   "type": "module",
   "main": "dist/index.js",
@@ -96,7 +96,7 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.3.0",
-    "vitest": "^2.0.0"
+    "vitest": "^4.0.16"
   },
   "peerDependencies": {
     "@nahisaho/yata-local": ">=2.0.0"

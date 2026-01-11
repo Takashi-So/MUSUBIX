@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-wake-sleep",
-  "version": "2.3.6",
+  "version": "2.4.1",
   "description": "MUSUBIX Wake-Sleep Learning Engine - DreamCoder-style pattern consolidation",
   "type": "module",
   "main": "./dist/index.js",
@@ -37,7 +37,7 @@
   "dependencies": {},
   "devDependencies": {
     "typescript": "^5.7.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.0.16"
   },
   "peerDependencies": {
     "@nahisaho/musubix-core": "^2.0.0",
