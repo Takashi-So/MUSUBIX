@@ -1,7 +1,8 @@
 {
   "name": "@nahisaho/yata-local",
-  "version": "2.4.2",
-  "description": "YATA Local - Project-local Knowledge Graph Storage with SQLite",
+  "version": "2.4.6",
+  "description": "[DEPRECATED] YATA Local - Use @musubix/knowledge instead",
+  "deprecated": "This package is deprecated. Please use @musubix/knowledge from MUSUBIX v3.0.0+",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
