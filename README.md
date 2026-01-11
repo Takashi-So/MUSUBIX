@@ -11,36 +11,36 @@
 [![npm security](https://img.shields.io/npm/v/@nahisaho/musubix-security.svg?label=@nahisaho/musubix-security)](https://www.npmjs.com/package/@nahisaho/musubix-security)
 [![npm dfg](https://img.shields.io/npm/v/@nahisaho/musubix-dfg.svg?label=@nahisaho/musubix-dfg)](https://www.npmjs.com/package/@nahisaho/musubix-dfg)
 [![npm lean](https://img.shields.io/npm/v/@nahisaho/musubix-lean.svg?label=@nahisaho/musubix-lean)](https://www.npmjs.com/package/@nahisaho/musubix-lean)
-[![npm yata-scale](https://img.shields.io/npm/v/@nahisaho/yata-scale.svg?label=@nahisaho/yata-scale)](https://www.npmjs.com/package/@nahisaho/yata-scale)
 [![npm synthesis](https://img.shields.io/npm/v/@nahisaho/musubix-synthesis.svg?label=@nahisaho/musubix-synthesis)](https://www.npmjs.com/package/@nahisaho/musubix-synthesis)
 [![npm library-learner](https://img.shields.io/npm/v/@nahisaho/musubix-library-learner.svg?label=@nahisaho/musubix-library-learner)](https://www.npmjs.com/package/@nahisaho/musubix-library-learner)
 [![npm neural-search](https://img.shields.io/npm/v/@nahisaho/musubix-neural-search.svg?label=@nahisaho/musubix-neural-search)](https://www.npmjs.com/package/@nahisaho/musubix-neural-search)
 
-> Next-generation AI Coding System powered by MUSUBI × YATA Integration
+> Next-generation AI Coding System powered by Git-Native Knowledge Integration
 >
-> **v2.0.0** - Deep Symbolic Integration & Advanced Learning Edition
+> **v3.0.0** - Git-Native Knowledge System
 
 **[日本語版 README](README.ja.md)**
 
 ## Overview
 
-MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and **Symbolic (Knowledge Graph)** reasoning. It combines MUSUBI SDD methodology with YATA knowledge graph reasoning to support high-quality software development.
+MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and **Symbolic (Knowledge Graph)** reasoning. It combines MUSUBI SDD methodology with Git-native knowledge management to support high-quality software development.
 
-### 🎉 v2.0.0 Highlights
+### 🎉 v3.0.0 Highlights
 
-- **Phase 1: Deep Symbolic Integration** - DFG/CFG analysis, Lean 4 theorem proving, distributed KG
-- **Phase 2: Advanced Learning** - DreamCoder-style library learning, neural search, program synthesis
-- **1600+ tests** passing across 19 packages
+- **Git-Native Knowledge** - File-based knowledge graph in `.knowledge/`
+- **Policy Engine** - Executable TypeScript policies in `.policies/`
+- **Decision Records** - ADR management in `docs/decisions/`
+- **2100+ tests** passing across 17 packages
 
 ### Features
 
-- 🧠 **Neuro-Symbolic Integration** - Fusion of LLM creativity and YATA knowledge graph precision
-- 📊 **DFG/CFG Analysis** - Data flow and control flow graph extraction for TypeScript/JavaScript *(v2.0.0)*
-- 🧮 **Lean 4 Integration** - Formal theorem proving with EARS-to-Lean conversion *(v2.0.0)*
-- 📈 **YATA Scale** - Distributed knowledge graph with sharding and multi-tier caching *(v2.0.0)*
-- 📚 **Library Learning** - DreamCoder-style hierarchical abstraction and pattern compression *(v2.0.0)*
-- 🔍 **Neural Search** - Neural-guided program synthesis with beam search *(v2.0.0)*
-- ⚗️ **Program Synthesis** - DSL-based PBE synthesis with witness functions *(v2.0.0)*
+- 🧠 **Neuro-Symbolic Integration** - Fusion of LLM creativity and knowledge graph precision
+- 📂 **Git-Native Knowledge** - File-based knowledge graph management *(v3.0.0)*
+- 📊 **DFG/CFG Analysis** - Data flow and control flow graph extraction for TypeScript/JavaScript
+- 🧮 **Lean 4 Integration** - Formal theorem proving with EARS-to-Lean conversion
+- 📚 **Library Learning** - DreamCoder-style hierarchical abstraction and pattern compression
+- 🔍 **Neural Search** - Neural-guided program synthesis with beam search
+- ⚗️ **Program Synthesis** - DSL-based PBE synthesis with witness functions
 - 🔒 **Symbolic Reasoning** - Formal verification, hallucination detection, constitution enforcement
 - 📝 **EARS Requirements Analysis** - Conversion and validation from natural language to formal requirements
 - 🎨 **Design Pattern Recommendations** - Context-based C4 model and ADR generation
@@ -55,23 +55,22 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 
 ```mermaid
 flowchart TB
-    subgraph MUSUBIX["MUSUBIX System"]
+    subgraph MUSUBIX["MUSUBIX System v3.0"]
         subgraph Packages["Packages"]
             Core["@nahisaho/musubix-core"]
             MCP["@nahisaho/musubix-mcp-server"]
-            YATA["@nahisaho/musubix-yata-client"]
+            Security["@nahisaho/musubix-security"]
         end
         
         Core <--> MCP
-        MCP <--> YATA
+        MCP <--> Security
         
         subgraph Integration["Neuro-Symbolic Integration"]
-            NSI["LLM Creativity + Knowledge Graph Precision"]
+            NSI["LLM Creativity + Git-Native Knowledge"]
         end
         
         Core --> Integration
         MCP --> Integration
-        YATA --> Integration
     end
 ```
 
@@ -93,22 +92,18 @@ flowchart TB
 | `packages/core/types/` | Type Definitions |
 | `packages/core/utils/` | Utilities |
 | `packages/core/validators/` | EARS Validation |
-| `packages/mcp-server/` | MCP Server (24 tools, 3 prompts) |
-| `packages/yata-client/` | YATA Client |
-| `packages/pattern-mcp/` | **Pattern Learning (NEW!)** |
-| `packages/ontology-mcp/` | **Ontology Engine (NEW!)** |
-| `packages/wake-sleep/` | **Wake-Sleep Learning (NEW!)** |
-| `packages/sdd-ontology/` | **SDD Ontology (NEW!)** |
-| `packages/yata-local/` | **YATA Local - SQLite Knowledge Graph** |
-| `packages/yata-global/` | **YATA Global - Distributed Knowledge Platform** |
-| `packages/security/` | **Security Analysis** |
-| `packages/formal-verify/` | **Formal Verification** |
-| `packages/dfg/` | **DFG/CFG Extraction - Data Flow Analysis (v2.0.0)** |
-| `packages/lean/` | **Lean 4 Integration - Theorem Proving (v2.0.0)** |
-| `packages/yata-scale/` | **YATA Scale - Distributed KG (v2.0.0)** |
-| `packages/library-learner/` | **Library Learning - DreamCoder-style (v2.0.0)** |
-| `packages/neural-search/` | **Neural Search - Guided Synthesis (v2.0.0)** |
-| `packages/synthesis/` | **Program Synthesis - DSL/PBE (v2.0.0)** |
+| `packages/mcp-server/` | MCP Server (35 tools, 5 prompts) |
+| `packages/pattern-mcp/` | Pattern Learning |
+| `packages/ontology-mcp/` | Ontology Engine |
+| `packages/wake-sleep/` | Wake-Sleep Learning |
+| `packages/sdd-ontology/` | SDD Ontology |
+| `packages/security/` | Security Analysis |
+| `packages/formal-verify/` | Formal Verification |
+| `packages/dfg/` | DFG/CFG Extraction - Data Flow Analysis |
+| `packages/lean/` | Lean 4 Integration - Theorem Proving |
+| `packages/library-learner/` | Library Learning - DreamCoder-style |
+| `packages/neural-search/` | Neural Search - Guided Synthesis |
+| `packages/synthesis/` | Program Synthesis - DSL/PBE |
 | `steering/` | Project Memory |
 | `storage/` | Specifications & Artifacts |
 | `templates/` | Templates |

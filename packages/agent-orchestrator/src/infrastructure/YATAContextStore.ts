@@ -1,7 +1,7 @@
 /**
- * YATAContextStore Infrastructure
+ * KnowledgeContextStore Infrastructure
  * 
- * Persists execution contexts to YATA knowledge graph
+ * Persists execution contexts to @musubix/knowledge store
  * 
  * @see REQ-SDD-003 - Context Sharing
  */
@@ -78,30 +78,34 @@ export function createInMemoryContextStore(): IContextStore {
 }
 
 /**
- * YATA-based context store
+ * Knowledge Store-based context store
  * 
  * Note: This is a placeholder. In production, this would integrate
- * with the YATA knowledge graph.
+ * with the @musubix/knowledge store.
+ * 
+ * @deprecated Use createKnowledgeContextStore instead
  */
-export function createYATAContextStore(_yataClient?: unknown): IContextStore {
-  // Fallback to in-memory store until YATA integration is complete
+export function createYATAContextStore(_knowledgeStore?: unknown): IContextStore {
+  // Fallback to in-memory store until @musubix/knowledge integration is complete
   const inMemoryStore = createInMemoryContextStore();
 
   return {
     async save(context: ExecutionContext): Promise<string> {
-      // In production, this would persist to YATA:
-      // await yataClient.createEntity({
-      //   type: 'ExecutionContext',
-      //   id: context.taskId,
+      // In production, this would persist to @musubix/knowledge:
+      // await knowledgeStore.putEntity({
+      //   id: `context:${context.taskId}`,
+      //   type: 'code',
+      //   name: `ExecutionContext-${context.taskId}`,
       //   properties: createContextSnapshot(context),
+      //   tags: ['execution-context'],
       // });
 
       return inMemoryStore.save(context);
     },
 
     async load(taskId: string): Promise<ExecutionContext | null> {
-      // In production, this would load from YATA:
-      // const entity = await yataClient.getEntity('ExecutionContext', taskId);
+      // In production, this would load from @musubix/knowledge:
+      // const entity = await knowledgeStore.getEntity(`context:${taskId}`);
       // if (!entity) return null;
       // return restoreContextFromSnapshot(entity.properties);
 
@@ -110,15 +114,15 @@ export function createYATAContextStore(_yataClient?: unknown): IContextStore {
 
     async delete(taskId: string): Promise<boolean> {
       // In production:
-      // await yataClient.deleteEntity('ExecutionContext', taskId);
+      // await knowledgeStore.deleteEntity(`context:${taskId}`);
 
       return inMemoryStore.delete(taskId);
     },
 
     async list(): Promise<string[]> {
       // In production:
-      // const entities = await yataClient.listEntities('ExecutionContext');
-      // return entities.map(e => e.id);
+      // const entities = await knowledgeStore.query({ type: 'code', tags: ['execution-context'] });
+      // return entities.map(e => e.id.replace('context:', ''));
 
       return inMemoryStore.list();
     },
@@ -126,14 +130,23 @@ export function createYATAContextStore(_yataClient?: unknown): IContextStore {
 }
 
 /**
+ * Knowledge Store-based context store (v3.0.0)
+ * 
+ * Uses @musubix/knowledge for context persistence
+ */
+export function createKnowledgeContextStore(_knowledgeStore?: unknown): IContextStore {
+  return createYATAContextStore(_knowledgeStore);
+}
+
+/**
  * Store factory
  */
 export function createContextStoreFactory(
-  useYATA: boolean = false,
-  yataClient?: unknown
+  useKnowledgeStore: boolean = false,
+  knowledgeStore?: unknown
 ): IContextStore {
-  if (useYATA && yataClient) {
-    return createYATAContextStore(yataClient);
+  if (useKnowledgeStore && knowledgeStore) {
+    return createKnowledgeContextStore(knowledgeStore);
   }
   return createInMemoryContextStore();
 }

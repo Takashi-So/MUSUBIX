@@ -168,35 +168,43 @@ export function createTestGenerationSkill(): Skill {
 /**
  * Create knowledge graph query skill
  * 
+ * Uses @musubix/knowledge for Git-native knowledge graph operations
+ * 
  * @returns Skill
  */
 export function createKnowledgeGraphQuerySkill(): Skill {
   const metadata = createSkillMetadata({
     id: 'SKILL-KG-QUERY-001',
     name: 'Knowledge Graph Query',
-    description: 'YATA知識グラフへのクエリ実行',
+    description: '@musubix/knowledge グラフクエリ実行',
     type: 'knowledge-graph',
     parameters: [
       createSkillParameter({
-        name: 'query',
-        type: 'string',
-        required: true,
-        description: 'SPARQLクエリまたは自然言語クエリ',
-      }),
-      createSkillParameter({
-        name: 'namespace',
+        name: 'type',
         type: 'string',
         required: false,
-        description: '検索対象の名前空間',
-        default: 'default',
+        description: 'エンティティタイプ (requirement, design, task, code, decision, pattern, constraint)',
+      }),
+      createSkillParameter({
+        name: 'tags',
+        type: 'array',
+        required: false,
+        description: 'フィルタするタグ配列',
+      }),
+      createSkillParameter({
+        name: 'text',
+        type: 'string',
+        required: false,
+        description: 'テキスト検索クエリ',
       }),
     ],
-    tags: ['yata', 'knowledge-graph', 'query'],
+    tags: ['knowledge', 'graph', 'query', 'musubix'],
   });
   
   const executor = async (context: SkillContext): Promise<SkillResult> => {
-    const query = context.parameters.query as string;
-    return createNoOpResult(`Queried knowledge graph: ${query.substring(0, 50)}...`);
+    const type = context.parameters.type as string | undefined;
+    const text = context.parameters.text as string | undefined;
+    return createNoOpResult(`Queried knowledge graph: type=${type ?? 'all'}, text=${text ?? 'none'}`);
   };
   
   return createSkill(metadata, executor);

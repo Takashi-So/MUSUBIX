@@ -9,17 +9,17 @@
 [![Tests](https://img.shields.io/badge/tests-1586%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 [![npm security](https://img.shields.io/npm/v/@nahisaho/musubix-security.svg?label=@nahisaho/musubix-security)](https://www.npmjs.com/package/@nahisaho/musubix-security)
 
-> MUSUBI × YATA 統合による次世代AIコーディングシステム
+> Git-Native知識統合による次世代AIコーディングシステム
 >
-> **v1.8.0** - セキュリティ分析エディション
+> **v3.0.0** - Git-Native Knowledge System
 
 ## 概要
 
-MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グラフ）** 推論を統合した革新的なAIコーディングシステムです。MUSUBI SDDの方法論とYATAの知識グラフ推論を組み合わせ、高品質なソフトウェア開発を支援します。
+MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グラフ）** 推論を統合した革新的なAIコーディングシステムです。MUSUBI SDDの方法論とGit-Native知識管理を組み合わせ、高品質なソフトウェア開発を支援します。
 
 ### 特徴
 
-- 🧠 **ニューロシンボリック統合** - LLMの創造性とYATA知識グラフの厳密性を融合
+- 🧠 **ニューロシンボリック統合** - LLMの創造性と知識グラフの厳密性を融合
 - � **シンボリック推論** - 形式検証、幻覚検出、憲法強制
 - 📝 **EARS形式要件分析** - 自然言語から正式な要件への変換・検証
 - 🎨 **設計パターン推奨** - コンテキストに基づくC4モデル・ADR生成
@@ -33,10 +33,7 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 - ⚙️ **品質ゲート** - フェーズ移行前の自動品質検証
 - 🔮 **高度推論** - OWL 2 RL推論とDatalog評価 *(v1.4.5)*
 - 🖥️ **対話的REPL** - コマンド補完、履歴管理、セッション変数 *(v1.6.0)*
-- 🗄️ **YATA Local** - SQLiteベースローカル知識グラフ (BFS/DFS、推論) *(v1.6.3)*
-- 🌐 **YATA Global** - オフライン同期対応分散型知識プラットフォーム *(v1.6.3)*
-- 📤 **KGPR** - 安全な知識共有のためのKnowledge Graph Pull Request *(v1.6.4)*
-- 🚀 **YATAプラットフォーム拡張** - インデックス最適化、拡張エクスポート、グローバル同期、コード生成、Web UI *(v1.7.0)*
+- � **Git-Native知識** - ファイルベースの知識グラフ管理 *(v3.0.0)*
 - 🔬 **形式検証** - Z3 SMTソルバー統合、Hoareトリプル検証、EARS→SMT変換 *(v1.7.5)*
 - 🛡️ **セキュリティ分析** - 脆弱性スキャン、シークレット検出、テイント解析、依存関係監査 *(v1.8.0)*
 
@@ -44,23 +41,22 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 
 ```mermaid
 flowchart TB
-    subgraph MUSUBIX["MUSUBIX System"]
+    subgraph MUSUBIX["MUSUBIX System v3.0"]
         subgraph Packages["Packages"]
             Core["@nahisaho/musubix-core"]
             MCP["@nahisaho/musubix-mcp-server"]
-            YATA["@nahisaho/musubix-yata-client"]
+            Security["@nahisaho/musubix-security"]
         end
         
         Core <--> MCP
-        MCP <--> YATA
+        MCP <--> Security
         
         subgraph Integration["Neuro-Symbolic Integration"]
-            NSI["LLM Creativity + Knowledge Graph Precision"]
+            NSI["LLM Creativity + Git-Native Knowledge"]
         end
         
         Core --> Integration
         MCP --> Integration
-        YATA --> Integration
     end
 ```
 
@@ -82,13 +78,12 @@ flowchart TB
 | `packages/core/types/` | 型定義 |
 | `packages/core/utils/` | ユーティリティ |
 | `packages/core/validators/` | EARS検証 |
-| `packages/mcp-server/` | MCPサーバー（24 tools, 3 prompts） |
-| `packages/yata-client/` | YATA クライアント |
-| `packages/pattern-mcp/` | **パターン学習（NEW!）** |
-| `packages/ontology-mcp/` | **オントロジーエンジン（NEW!）** |
-| `packages/wake-sleep/` | **Wake-Sleep学習（NEW!）** |
-| `packages/sdd-ontology/` | **SDDオントロジー（NEW!）** |
-| `packages/security/` | **セキュリティ分析（NEW!）** |
+| `packages/mcp-server/` | MCPサーバー（35 tools, 5 prompts） |
+| `packages/pattern-mcp/` | **パターン学習** |
+| `packages/ontology-mcp/` | **オントロジーエンジン** |
+| `packages/wake-sleep/` | **Wake-Sleep学習** |
+| `packages/sdd-ontology/` | **SDDオントロジー** |
+| `packages/security/` | **セキュリティ分析** |
 | `packages/formal-verify/` | **形式検証** |
 | `steering/` | プロジェクトメモリ |
 | `storage/` | 仕様書・成果物 |
@@ -124,7 +119,6 @@ npx musubix-mcp --transport stdio
 # 個別パッケージのインストール
 npm install @nahisaho/musubix-core
 npm install @nahisaho/musubix-mcp-server
-npm install @nahisaho/musubix-yata-client
 npm install @nahisaho/musubix-security
 npm install @nahisaho/musubix-formal-verify
 ```

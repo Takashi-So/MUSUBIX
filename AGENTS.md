@@ -72,6 +72,20 @@ packages/
 | `packages/skill-manager/` | `@nahisaho/musubix-skill-manager` | **スキル管理** - スキル登録・実行・検証 |
 | `packages/codegraph/` | `@nahisaho/musubix-codegraph` | **コードグラフ** - コード構造解析・依存関係追跡 |
 
+### 非推奨パッケージ（Deprecated） ⚠️
+
+以下のYATA関連パッケージはv3.0.0で非推奨となりました。`@musubix/knowledge`へ移行してください。
+
+| パッケージ | 状態 | 移行先 |
+|-----------|------|--------|
+| `packages/yata-client/` | ⚠️ Deprecated | `@musubix/knowledge` |
+| `packages/yata-global/` | ⚠️ Deprecated | `@musubix/knowledge` |
+| `packages/yata-local/` | ⚠️ Deprecated | `@musubix/knowledge` |
+| `packages/yata-scale/` | ⚠️ Deprecated | `@musubix/knowledge` |
+| `packages/yata-ui/` | ⚠️ Deprecated | `@musubix/knowledge` |
+
+**移行ガイド**: [docs/MIGRATION-v3.0.md](docs/MIGRATION-v3.0.md)
+
 ### Core パッケージモジュール
 
 ```
@@ -460,7 +474,65 @@ Sleep Phase: consolidate() → compress() → optimize()
 - `PatternOntologyBridge`: パターン↔オントロジー相互変換
 - `N3Store`: RDF/OWLベースの知識グラフストレージ
 
-### 7. Advanced Learning Enhancement（v2.2.0 NEW!）
+### 7. Git-Native Knowledge System（v3.0.0 NEW!）
+
+サーバーレス・Git-friendlyな知識グラフシステム：
+
+| 特徴 | 説明 |
+|------|------|
+| **サーバーレス** | データベース不要、JSONファイルで完結 |
+| **Git-friendly** | diff/merge/PR対応、バージョン管理可能 |
+| **軽量** | ゼロ依存（外部ライブラリ不要） |
+| **階層型ID** | `requirement:REQ-001`、`design:DES-001` |
+
+```
+.knowledge/
+└── graph.json      # 全エンティティ・リレーション
+```
+
+**主要API**:
+```typescript
+import { createKnowledgeStore } from '@musubix/knowledge';
+
+const store = createKnowledgeStore('.knowledge');
+
+// エンティティ操作
+await store.putEntity({
+  id: 'requirement:REQ-001',
+  type: 'requirement',
+  name: 'User Authentication',
+  properties: { ears: 'WHEN user logs in...' },
+  tags: ['security', 'auth'],
+});
+
+const req = await store.getEntity('requirement:REQ-001');
+
+// リレーション追加
+await store.addRelation({
+  source: 'requirement:REQ-001',
+  target: 'design:DES-001',
+  type: 'tracesTo',
+  properties: { confidence: 0.95 },
+});
+
+// クエリ
+const entities = await store.query({ type: 'requirement', tags: ['security'] });
+
+// グラフ走査
+const related = await store.traverse('requirement:REQ-001', {
+  direction: 'outgoing',
+  relationTypes: ['tracesTo'],
+  maxDepth: 2,
+});
+```
+
+**関連パッケージ**:
+- `@musubix/policy`: 9憲法条項の自動検証
+- `@musubix/decisions`: Architecture Decision Records管理
+
+**ドキュメント**: [docs/packages/knowledge.md](docs/packages/knowledge.md)
+
+### 8. Advanced Learning Enhancement（v2.2.0 NEW!）
 
 3パッケージに高度な学習機能を追加：
 

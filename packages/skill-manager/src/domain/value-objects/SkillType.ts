@@ -17,7 +17,7 @@ export type SkillType =
   | 'requirements'       // Requirements analysis (EARS)
   | 'design'             // Design generation (C4)
   | 'testing'            // Test generation
-  | 'knowledge-graph'    // YATA operations
+  | 'knowledge-graph'    // Knowledge Store operations (@musubix/knowledge)
   | 'orchestration'      // Agent orchestration
   | 'security'           // Security analysis
   | 'documentation'      // Documentation generation
@@ -76,7 +76,7 @@ export const SKILL_TYPES: ReadonlyMap<SkillType, SkillTypeMetadata> = new Map([
   ['knowledge-graph', {
     type: 'knowledge-graph',
     label: '知識グラフ',
-    description: 'YATA知識グラフ操作',
+    description: '@musubix/knowledge グラフ操作',
     icon: '🕸️',
   }],
   ['orchestration', {

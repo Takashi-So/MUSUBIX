@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-security",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "description": "Security analysis and vulnerability detection for MUSUBIX - Neuro-Symbolic AI Integration",
   "type": "module",
   "main": "./dist/index.js",

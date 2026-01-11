@@ -20,6 +20,14 @@ import type {
   KGPRComment,
 } from './kgpr/types.js';
 import { MergeEngine } from './kgpr/merge-engine.js';
+import {
+  getDashboardHTML,
+  getKGPRListHTML,
+  getKGPRDetailHTML,
+  getKGPRCreateHTML,
+  getProjectsListHTML,
+  getProjectDetailHTML,
+} from './web-ui.js';
 
 /**
  * Server configuration
@@ -89,6 +97,31 @@ interface ServerPattern {
 }
 
 /**
+ * Project for server
+ */
+interface ServerProject {
+  id: string;
+  name: string;
+  description: string;
+  namespace: string;
+  owner: { id: string; name: string };
+  entities: Array<{
+    id: string;
+    name: string;
+    type: string;
+    metadata?: Record<string, unknown>;
+  }>;
+  relationships: Array<{
+    sourceId: string;
+    targetId: string;
+    type: string;
+  }>;
+  kgprs: string[];  // KGPR IDs linked to this project
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
  * In-memory storage for demo/testing
  */
 interface Storage {
@@ -96,6 +129,7 @@ interface Storage {
   kgprs: Map<string, ServerKGPR>;
   patterns: Map<string, ServerPattern>;
   frameworks: Map<string, FrameworkKnowledge>;
+  projects: Map<string, ServerProject>;
   tokens: Map<string, { userId: string; expiresAt: Date }>;
 }
 
@@ -103,6 +137,7 @@ interface Storage {
  * Create in-memory storage
  */
 function createStorage(): Storage {
+  const now = new Date();
   return {
     users: new Map([
       ['user-1', { id: 'user-1', username: 'demo', email: 'demo@example.com' }],
@@ -110,6 +145,27 @@ function createStorage(): Storage {
     kgprs: new Map(),
     patterns: new Map(),
     frameworks: new Map(),
+    projects: new Map([
+      ['sample-project', {
+        id: 'sample-project',
+        name: 'Sample Project',
+        description: 'A sample project for demonstration',
+        namespace: 'sample.project',
+        owner: { id: 'user-1', name: 'demo' },
+        entities: [
+          { id: 'entity-1', name: 'UserService', type: 'class', metadata: { pattern: 'Service' } },
+          { id: 'entity-2', name: 'UserRepository', type: 'class', metadata: { pattern: 'Repository' } },
+          { id: 'entity-3', name: 'createUser', type: 'function', metadata: { returns: 'Promise<User>' } },
+        ],
+        relationships: [
+          { sourceId: 'entity-1', targetId: 'entity-2', type: 'uses' },
+          { sourceId: 'entity-3', targetId: 'entity-1', type: 'calls' },
+        ],
+        kgprs: [],
+        createdAt: now,
+        updatedAt: now,
+      }],
+    ]),
     tokens: new Map(),
   };
 }
@@ -216,6 +272,14 @@ export class YataGlobalServer {
   }
 
   /**
+   * Send HTML response
+   */
+  private sendHTML(res: ServerResponse, html: string): void {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    res.end(html);
+  }
+
+  /**
    * Main request handler
    */
   private async handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -240,7 +304,34 @@ export class YataGlobalServer {
     console.log(`[${new Date().toISOString()}] ${method} ${path}`);
 
     try {
-      // Route handling
+      // Web UI routes
+      if ((path === '/' || path === '/ui' || path === '/ui/') && method === 'GET') {
+        return this.sendHTML(res, getDashboardHTML());
+      }
+
+      if (path === '/ui/kgprs' && method === 'GET') {
+        return this.sendHTML(res, getKGPRListHTML());
+      }
+
+      if (path === '/ui/kgprs/new' && method === 'GET') {
+        return this.sendHTML(res, getKGPRCreateHTML());
+      }
+
+      if (path.match(/^\/ui\/kgprs\/[^/]+$/) && method === 'GET') {
+        const id = path.split('/')[3];
+        return this.sendHTML(res, getKGPRDetailHTML(id));
+      }
+
+      if (path === '/ui/projects' && method === 'GET') {
+        return this.sendHTML(res, getProjectsListHTML());
+      }
+
+      if (path.match(/^\/ui\/projects\/[^/]+$/) && method === 'GET') {
+        const id = path.split('/')[3];
+        return this.sendHTML(res, getProjectDetailHTML(id));
+      }
+
+      // API routes
       if (path === '/health' && method === 'GET') {
         return this.handleHealth(res);
       }
@@ -284,6 +375,36 @@ export class YataGlobalServer {
         return this.handleListFrameworks(res);
       }
 
+      // Project endpoints
+      if (path === '/api/v1/projects' && method === 'GET') {
+        return this.handleListProjects(res);
+      }
+
+      if (path === '/api/v1/projects' && method === 'POST') {
+        return await this.handleCreateProject(req, res);
+      }
+
+      if (path.match(/^\/api\/v1\/projects\/[^/]+$/) && method === 'GET') {
+        const id = path.split('/')[4];
+        return this.handleGetProject(id, res);
+      }
+
+      if (path.match(/^\/api\/v1\/projects\/[^/]+$/) && method === 'PUT') {
+        const id = path.split('/')[4];
+        return await this.handleUpdateProject(req, id, res);
+      }
+
+      if (path.match(/^\/api\/v1\/projects\/[^/]+$/) && method === 'DELETE') {
+        const id = path.split('/')[4];
+        return this.handleDeleteProject(id, res);
+      }
+
+      // Legacy /projects/:id route (for backward compatibility)
+      if (path.match(/^\/projects\/[^/]+$/) && method === 'GET') {
+        const id = path.split('/')[2];
+        return this.handleGetProject(id, res);
+      }
+
       // 404
       sendError(res, 404, 'Not found');
     } catch (error) {
@@ -300,7 +421,7 @@ export class YataGlobalServer {
       success: true,
       data: {
         status: 'healthy',
-        version: '2.4.1',
+        version: '2.4.2',
         timestamp: new Date().toISOString(),
         stats: {
           kgprs: this.storage.kgprs.size,
@@ -599,6 +720,111 @@ export class YataGlobalServer {
         total: this.storage.frameworks.size,
       },
     });
+  }
+
+  /**
+   * List projects
+   */
+  private handleListProjects(res: ServerResponse): void {
+    sendJson(res, 200, {
+      success: true,
+      data: {
+        items: Array.from(this.storage.projects.values()),
+        total: this.storage.projects.size,
+      },
+    });
+  }
+
+  /**
+   * Get single project
+   */
+  private handleGetProject(id: string, res: ServerResponse): void {
+    const project = this.storage.projects.get(id);
+
+    if (!project) {
+      sendError(res, 404, `Project not found: ${id}`);
+      return;
+    }
+
+    sendJson(res, 200, { success: true, data: project });
+  }
+
+  /**
+   * Create project
+   */
+  private async handleCreateProject(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    const body = await parseBody(req) as Partial<ServerProject>;
+
+    if (!body.name) {
+      sendError(res, 400, 'Project name is required');
+      return;
+    }
+
+    const id = body.id || `project-${Date.now().toString(36)}`;
+    const now = new Date();
+
+    const project: ServerProject = {
+      id,
+      name: body.name,
+      description: body.description || '',
+      namespace: body.namespace || id,
+      owner: { id: 'user-1', name: 'demo' },
+      entities: body.entities || [],
+      relationships: body.relationships || [],
+      kgprs: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.storage.projects.set(id, project);
+
+    console.log(`📁 Project created: ${id} - ${project.name}`);
+
+    sendJson(res, 201, { success: true, data: project });
+  }
+
+  /**
+   * Update project
+   */
+  private async handleUpdateProject(req: IncomingMessage, id: string, res: ServerResponse): Promise<void> {
+    const project = this.storage.projects.get(id);
+
+    if (!project) {
+      sendError(res, 404, `Project not found: ${id}`);
+      return;
+    }
+
+    const body = await parseBody(req) as Partial<ServerProject>;
+
+    // Update fields
+    if (body.name !== undefined) project.name = body.name;
+    if (body.description !== undefined) project.description = body.description;
+    if (body.namespace !== undefined) project.namespace = body.namespace;
+    if (body.entities !== undefined) project.entities = body.entities;
+    if (body.relationships !== undefined) project.relationships = body.relationships;
+    project.updatedAt = new Date();
+
+    console.log(`📝 Project updated: ${id}`);
+
+    sendJson(res, 200, { success: true, data: project });
+  }
+
+  /**
+   * Delete project
+   */
+  private handleDeleteProject(id: string, res: ServerResponse): void {
+    const project = this.storage.projects.get(id);
+
+    if (!project) {
+      sendError(res, 404, `Project not found: ${id}`);
+      return;
+    }
+
+    this.storage.projects.delete(id);
+
+    console.log(`🗑️ Project deleted: ${id}`);
+
+    sendJson(res, 200, { success: true, data: { deleted: true, id } });
   }
 }
 

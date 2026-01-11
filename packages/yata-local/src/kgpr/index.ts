@@ -12,6 +12,8 @@
 export { LocalKGPRManager, createLocalKGPRManager } from './kgpr-manager.js';
 export { LocalPrivacyFilter, createLocalPrivacyFilter } from './privacy-filter.js';
 export { LocalDiffEngine, createLocalDiffEngine } from './diff-engine.js';
+export { KGPRSyncManager, createKGPRSyncManager } from './sync-manager.js';
+export type { GlobalServerConfig, PushResult } from './sync-manager.js';
 export type {
   LocalKGPRInfo,
   LocalKGPRDiff,

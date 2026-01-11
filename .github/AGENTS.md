@@ -8,7 +8,7 @@ This file defines AI agent configurations for MUSUBIX - Neuro-Symbolic AI Integr
 
 ## MCP Server Integration
 
-MUSUBIX provides an MCP Server (`@nahisaho/musubix-mcp-server`) with 10 SDD tools and 3 prompts.
+MUSUBIX provides an MCP Server (`@nahisaho/musubix-mcp-server`) with 7 SDD tools and 3 prompts.
 
 ### Starting MCP Server
 
@@ -17,7 +17,7 @@ npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
-### MCP Tools (10 SDD Tools)
+### MCP Tools (7 SDD Tools)
 
 | Tool Name | Description | Usage |
 |-----------|-------------|-------|
@@ -26,9 +26,6 @@ npx musubix-mcp --transport stdio
 | `sdd_create_design` | Create C4 model design document | Design phase |
 | `sdd_validate_design` | Validate design traceability | Design validation |
 | `sdd_create_tasks` | Generate implementation tasks | Task breakdown |
-| `sdd_query_knowledge` | Query YATA knowledge graph | Knowledge retrieval |
-| `sdd_ask_knowledge` | **Natural language query to YATA (EN/JA)** | NL Knowledge query (v2.4.1 NEW!) |
-| `sdd_update_knowledge` | Update knowledge graph | Knowledge management |
 | `sdd_validate_constitution` | Validate against 9 Constitutional Articles | Compliance check |
 | `sdd_validate_traceability` | Validate requirement-design-task traceability | Traceability audit |
 
@@ -46,13 +43,15 @@ npx musubix-mcp --transport stdio
 
 ## Project Structure
 
-MUSUBIX is a monorepo with 3 packages:
+MUSUBIX is a monorepo with 17 packages:
 
 ```
 packages/
 ├── core/           # @nahisaho/musubix-core - CLI, validation, code generation
 ├── mcp-server/     # @nahisaho/musubix-mcp-server - MCP Server
-└── yata-client/    # @nahisaho/musubix-yata-client - Knowledge graph client
+├── pattern-mcp/    # @nahisaho/musubix-pattern-mcp - Pattern learning
+├── ontology-mcp/   # @nahisaho/musubix-ontology-mcp - Ontology reasoning
+└── ...             # See AGENTS.md for full list
 ```
 
 ---
@@ -238,6 +237,6 @@ npx musubix validate feature-name
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-02
-**Version**: 1.0.0
+**Last Updated**: 2026-01-11
+**Version**: 3.0.0
 **Repository**: https://github.com/nahisaho/MUSUBIX

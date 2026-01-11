@@ -725,7 +725,8 @@ export {
   type YataBridgeConfig,
 } from './yata-bridge.js';
 
-// KGPR Module (v1.6.5 NEW!)
+// KGPR Module (v1.6.5 NEW!, v2.4.5 SyncManager Added!)
+// @see REQ-YL-EXT-KGPR-001, REQ-YL-EXT-KGPR-002
 export {
   LocalKGPRManager,
   createLocalKGPRManager,
@@ -733,6 +734,8 @@ export {
   createLocalPrivacyFilter,
   LocalDiffEngine,
   createLocalDiffEngine,
+  KGPRSyncManager,
+  createKGPRSyncManager,
 } from './kgpr/index.js';
 export type {
   LocalKGPRInfo,
@@ -746,7 +749,9 @@ export type {
   LocalPrivacyFilterConfig,
   KGSnapshot,
   DiffOptions,
-} from './kgpr/types.js';
+  GlobalServerConfig,
+  PushResult,
+} from './kgpr/index.js';
 
 // Wake-Sleep Learning Module (v1.6.5 NEW!)
 export {

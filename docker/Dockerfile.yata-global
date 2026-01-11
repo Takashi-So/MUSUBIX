@@ -6,11 +6,13 @@ FROM node:20-alpine
 LABEL maintainer="nahisaho" \
       description="YATA Global - Distributed Knowledge Graph Server"
 
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
 WORKDIR /app
 
-# Copy built package
-COPY packages/yata-global/dist ./dist/
-COPY packages/yata-global/package.json ./
+# Install yata-global from npm
+RUN npm install @nahisaho/yata-global@2.4.4
 
 # Create data directory
 RUN mkdir -p /data
@@ -25,7 +27,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget -q --spider http://127.0.0.1:3000/health || exit 1
+  CMD curl -f http://127.0.0.1:3000/health || exit 1
 
 # Start server
-CMD ["node", "dist/bin/yata-global-server.js"]
+CMD ["node", "node_modules/@nahisaho/yata-global/dist/bin/yata-global-server.js"]

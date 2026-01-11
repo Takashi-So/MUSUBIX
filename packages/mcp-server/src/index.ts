@@ -61,10 +61,49 @@ export {
   createDesignTool,
   validateDesignTool,
   createTasksTool,
-  queryKnowledgeTool,
-  updateKnowledgeTool,
   validateConstitutionTool,
   validateTraceabilityTool,
+} from './tools/index.js';
+
+// v3.0.0 Knowledge Tools
+export {
+  knowledgeTools,
+  getKnowledgeTools,
+  handleKnowledgeTool,
+  knowledgePutEntityTool,
+  knowledgeGetEntityTool,
+  knowledgeDeleteEntityTool,
+  knowledgeAddRelationTool,
+  knowledgeQueryTool,
+  knowledgeTraverseTool,
+} from './tools/index.js';
+
+// v3.0.0 Policy Tools
+export {
+  policyTools,
+  getPolicyTools,
+  handlePolicyTool,
+  policyValidateTool,
+  policyListTool,
+  policyGetTool,
+  policyCheckFileTool,
+  constitutionPolicies,
+} from './tools/index.js';
+
+// v3.0.0 Decision Tools
+export {
+  decisionTools,
+  getDecisionTools,
+  handleDecisionTool,
+  decisionCreateTool,
+  decisionListTool,
+  decisionGetTool,
+  decisionAcceptTool,
+  decisionDeprecateTool,
+  decisionSearchTool,
+  decisionFindByRequirementTool,
+  decisionGenerateIndexTool,
+  ADR_TEMPLATE,
 } from './tools/index.js';
 
 // Symbolic Tools

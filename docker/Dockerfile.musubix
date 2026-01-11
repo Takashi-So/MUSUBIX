@@ -6,31 +6,16 @@ FROM node:20-alpine
 LABEL maintainer="nahisaho" \
       description="MUSUBIX - Neuro-Symbolic AI Integration System"
 
-# Install git and bash for development
-RUN apk add --no-cache git bash curl
+# Install git, bash, curl, jq for development
+RUN apk add --no-cache git bash curl jq
 
 # Set working directory
-WORKDIR /musubix
+WORKDIR /app
 
-# Copy package files for workspace setup
-COPY package.json ./
-COPY packages/core/package.json ./packages/core/
-COPY packages/core/dist ./packages/core/dist/
-COPY packages/yata-local/package.json ./packages/yata-local/
-COPY packages/yata-local/dist ./packages/yata-local/dist/
-COPY packages/yata-global/package.json ./packages/yata-global/
-COPY packages/yata-global/dist ./packages/yata-global/dist/
-COPY packages/security/package.json ./packages/security/
-COPY packages/security/dist ./packages/security/dist/
-COPY packages/formal-verify/package.json ./packages/formal-verify/
-COPY packages/formal-verify/dist ./packages/formal-verify/dist/
-COPY bin ./bin/
-
-# Install workspace dependencies
-RUN npm install --omit=dev 2>/dev/null || true
-
-# Create symlink for global CLI access
-RUN ln -sf /musubix/bin/musubix.js /usr/local/bin/musubix
+# Install musubix and related packages from npm
+RUN npm install -g musubix@2.4.2
+RUN npm install -g @nahisaho/musubix-mcp-server@2.4.2
+RUN npm install @nahisaho/yata-local@2.4.2
 
 # Create directory for YATA Local data
 RUN mkdir -p /root/.yata/local
