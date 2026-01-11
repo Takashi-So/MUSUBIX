@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-mcp-server",
-  "version": "2.4.2",
+  "version": "3.0.0",
   "description": "MUSUBIX MCP Server - Model Context Protocol Server for AI Platforms",
   "type": "module",
   "main": "./dist/index.js",
@@ -46,6 +46,9 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
+    "@musubix/decisions": "*",
+    "@musubix/knowledge": "*",
+    "@musubix/policy": "*",
     "@nahisaho/musubix-codegraph": "*",
     "zod": "^3.22.0"
   },

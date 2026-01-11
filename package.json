@@ -1,7 +1,7 @@
 {
   "name": "musubix",
-  "version": "2.4.1",
-  "description": "Neuro-Symbolic AI Coding System - MUSUBI × YATA Integration",
+  "version": "3.0.0",
+  "description": "Neuro-Symbolic AI Coding System - Git-Native Knowledge Integration",
   "type": "module",
   "workspaces": [
     "packages/*"
@@ -45,7 +45,8 @@
     "coding-assistant",
     "mcp",
     "musubi",
-    "yata"
+    "sdd",
+    "git-native"
   ],
   "author": "nahisaho",
   "license": "MIT",
@@ -53,6 +54,7 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^6.13.0",
     "@typescript-eslint/parser": "^6.13.0",
@@ -62,26 +64,6 @@
     "vitest": "^4.0.16"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.2",
-    "@nahisaho/musubix-codegraph": "^2.3.2",
-    "@nahisaho/musubix-core": "^2.1.0",
-    "@nahisaho/musubix-dfg": "^2.1.0",
-    "@nahisaho/musubix-formal-verify": "^2.1.0",
-    "@nahisaho/musubix-lean": "^2.1.0",
-    "@nahisaho/musubix-library-learner": "^2.1.0",
-    "@nahisaho/musubix-mcp-server": "^2.1.0",
-    "@nahisaho/musubix-neural-search": "^2.1.0",
-    "@nahisaho/musubix-ontology-mcp": "^2.1.0",
-    "@nahisaho/musubix-pattern-mcp": "^2.1.0",
-    "@nahisaho/musubix-sdd-ontology": "^2.1.0",
-    "@nahisaho/musubix-security": "^2.1.0",
-    "@nahisaho/musubix-synthesis": "^2.1.0",
-    "@nahisaho/musubix-wake-sleep": "^2.1.0",
-    "@nahisaho/musubix-yata-client": "^2.1.0",
-    "@nahisaho/yata-global": "^2.1.0",
-    "@nahisaho/yata-local": "^2.1.0",
-    "@nahisaho/yata-scale": "^2.1.0",
-    "@nahisaho/yata-ui": "^2.1.0",
-    "musubix": "^2.4.0"
+    "@modelcontextprotocol/sdk": "^1.25.2"
   }
 }

@@ -11,8 +11,6 @@ export {
   createDesignTool,
   validateDesignTool,
   createTasksTool,
-  queryKnowledgeTool,
-  updateKnowledgeTool,
   validateConstitutionTool,
   validateTraceabilityTool,
   sddTools,
@@ -52,24 +50,6 @@ export {
 } from './ontology-tools.js';
 
 export {
-  analyzeCodeTool,
-  updateKnowledgeFromCodeTool,
-  bulkUpdateKnowledgeTool,
-  queryKnowledgeGraphTool,
-  yataTools,
-  getYataTools,
-} from './yata-tools.js';
-
-export {
-  kgprCreateTool,
-  kgprDiffTool,
-  kgprListTool,
-  kgprSubmitTool,
-  kgprReviewTool,
-  kgprTools,
-} from './kgpr-tools.js';
-
-export {
   verifyPreconditionTool,
   verifyPostconditionTool,
   earsToSmtTool,
@@ -104,6 +84,53 @@ export {
   handleCodeGraphTool,
   resetCodeGraph,
 } from './codegraph-tools.js';
+
+// v3.0.0 NEW - Git-Native Knowledge Tools
+export {
+  knowledgePutEntityTool,
+  knowledgeGetEntityTool,
+  knowledgeDeleteEntityTool,
+  knowledgeAddRelationTool,
+  knowledgeQueryTool,
+  knowledgeTraverseTool,
+  knowledgeTools,
+  getKnowledgeTools,
+  handleKnowledgeTool,
+  getKnowledgeStore,
+  resetKnowledgeStore,
+} from './knowledge-tools.js';
+
+// v3.0.0 NEW - Policy Tools
+export {
+  policyValidateTool,
+  policyListTool,
+  policyGetTool,
+  policyCheckFileTool,
+  policyTools,
+  getPolicyTools,
+  handlePolicyTool,
+  getPolicyEngine,
+  resetPolicyEngine,
+  constitutionPolicies,
+} from './policy-tools.js';
+
+// v3.0.0 NEW - Decision Tools
+export {
+  decisionCreateTool,
+  decisionListTool,
+  decisionGetTool,
+  decisionAcceptTool,
+  decisionDeprecateTool,
+  decisionSearchTool,
+  decisionFindByRequirementTool,
+  decisionGenerateIndexTool,
+  decisionTools,
+  getDecisionTools,
+  handleDecisionTool,
+  getDecisionManager,
+  resetDecisionManager,
+  ADR_TEMPLATE,
+} from './decision-tools.js';
 
 // v2.4.0 NEW - Agent Orchestration Tools
 export {
@@ -172,11 +199,13 @@ import { getSddTools as _getSddTools } from './sdd-tools.js';
 import { getSymbolicTools as _getSymbolicTools } from './symbolic-tools.js';
 import { getPatternIntegrationTools as _getPatternIntegrationTools } from './pattern-tools.js';
 import { getOntologyTools as _getOntologyTools } from './ontology-tools.js';
-import { getYataTools as _getYataTools } from './yata-tools.js';
-import { kgprTools as _kgprTools } from './kgpr-tools.js';
 import { getFormalVerifyTools as _getFormalVerifyTools } from './formal-verify-tools.js';
 import { SYNTHESIS_TOOLS as _SYNTHESIS_TOOLS } from './synthesis-tools.js';
 import { getCodeGraphTools as _getCodeGraphTools } from './codegraph-tools.js';
+// v3.0.0 NEW - Git-Native Knowledge imports
+import { getKnowledgeTools as _getKnowledgeTools } from './knowledge-tools.js';
+import { getPolicyTools as _getPolicyTools } from './policy-tools.js';
+import { getDecisionTools as _getDecisionTools } from './decision-tools.js';
 import {
   agentDispatchTool as _agentDispatchTool,
   agentStatusTool as _agentStatusTool,
@@ -239,8 +268,6 @@ export function getAllTools() {
     ..._getSymbolicTools(),
     ..._getPatternIntegrationTools(),
     ..._getOntologyTools(),
-    ..._getYataTools(),
-    ..._kgprTools,
     ..._getFormalVerifyTools(),
     ..._SYNTHESIS_TOOLS,
     ..._getCodeGraphTools(),
@@ -248,6 +275,10 @@ export function getAllTools() {
     ...agentTools,
     ...workflowTools,
     ...skillTools,
+    // v3.0.0 NEW - Git-Native Knowledge
+    ..._getKnowledgeTools(),
+    ..._getPolicyTools(),
+    ..._getDecisionTools(),
   ];
 }
 
@@ -255,8 +286,12 @@ export function getAllTools() {
  * v2.4.0 Tool Categories
  */
 export const toolCategories = {
-  sdd: ['sdd_create_requirements', 'sdd_validate_requirements', 'sdd_create_design', 'sdd_validate_design', 'sdd_create_tasks', 'sdd_query_knowledge', 'sdd_ask_knowledge', 'sdd_update_knowledge', 'sdd_validate_constitution', 'sdd_validate_traceability'],
+  sdd: ['sdd_create_requirements', 'sdd_validate_requirements', 'sdd_create_design', 'sdd_validate_design', 'sdd_create_tasks', 'sdd_validate_constitution', 'sdd_validate_traceability'],
   agent: ['agent_dispatch', 'agent_status', 'agent_cancel', 'agent_analyze'],
   workflow: ['workflow_create', 'workflow_transition', 'workflow_status', 'workflow_review', 'workflow_gate'],
   skill: ['skill_list', 'skill_execute', 'skill_validate', 'skill_info', 'skill_register'],
+  // v3.0.0 NEW
+  knowledge: ['knowledge_put_entity', 'knowledge_get_entity', 'knowledge_delete_entity', 'knowledge_add_relation', 'knowledge_query', 'knowledge_traverse'],
+  policy: ['policy_validate', 'policy_list', 'policy_get', 'policy_check_file'],
+  decision: ['decision_create', 'decision_list', 'decision_get', 'decision_accept', 'decision_deprecate', 'decision_search', 'decision_find_by_requirement', 'decision_generate_index'],
 };

@@ -29,6 +29,11 @@ import { registerScaffoldCommand } from './scaffold.js';
 import { registerSynthesisCommands } from './synthesis.js';
 import { registerCodeGraphCommand } from './codegraph.js';
 
+// Git-Native Knowledge System commands (v3.0.0)
+import { registerKnowledgeCommands } from './knowledge.js';
+import { registerPolicyCommands } from './policy.js';
+import { registerDecisionCommands } from './decision.js';
+
 /**
  * Register all CLI commands
  * 
@@ -74,6 +79,11 @@ export function registerCommands(program: Command): void {
   
   // CodeGraph commands (REQ-CG-001)
   registerCodeGraphCommand(program);
+  
+  // Git-Native Knowledge System commands (v3.0.0)
+  registerKnowledgeCommands(program);
+  registerPolicyCommands(program);
+  registerDecisionCommands(program);
 }
 
 // Core command exports
@@ -115,3 +125,8 @@ export { registerSynthesisCommands } from './synthesis.js';
 
 // CodeGraph command export (REQ-CG-001)
 export { registerCodeGraphCommand } from './codegraph.js';
+
+// Git-Native Knowledge System command exports (v3.0.0)
+export { registerKnowledgeCommands } from './knowledge.js';
+export { registerPolicyCommands } from './policy.js';
+export { registerDecisionCommands } from './decision.js';

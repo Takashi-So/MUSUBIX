@@ -1,0 +1,44 @@
+{
+  "name": "@musubix/knowledge",
+  "version": "3.0.0",
+  "description": "Git-Native Knowledge Store for MUSUBIX - File-based knowledge graph management",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "musubix",
+    "knowledge-graph",
+    "git-native",
+    "file-based"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/knowledge"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "vitest": "^4.0.16"
+  }
+}

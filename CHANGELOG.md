@@ -5,6 +5,114 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-01-14
+
+### 🎉 Git-Native Knowledge System
+
+MUSUBIX v3.0.0は、**Git-Native Knowledge System**を導入したメジャーリリースです。YATA（Yet Another Temporal Architecture）を廃止し、Gitワークフローにネイティブに統合された知識管理システムを実装しました。
+
+### Breaking Changes
+
+- **YATA依存の廃止**: yata-client, yata-global, yata-local, yata-scale, yata-uiパッケージは非推奨に
+- **知識ストレージ形式変更**: `.yata/` → `.knowledge/` ディレクトリ構造に変更
+
+### Added
+
+- **新パッケージ: `@musubix/knowledge` (v3.0.0)**
+  - `FileKnowledgeStore`: Git-friendlyなJSONベース知識ストア
+  - Entity CRUD: `putEntity()`, `getEntity()`, `deleteEntity()`
+  - Relation管理: `addRelation()`, `removeRelation()`, `getRelationsFrom()`, `getRelationsTo()`
+  - グラフクエリ: `query()` によるフィルタリング検索
+  - グラフ走査: `traverse()`, `getSubgraph()` による関連エンティティ探索
+  - ストレージ: `.knowledge/graph.json`
+
+- **新パッケージ: `@musubix/policy` (v3.0.0)**
+  - `PolicyEngine`: 9憲法条項に基づくポリシー検証エンジン
+  - CONST-001: Library-First - 独立ライブラリ化の検証
+  - CONST-002: CLI Interface - CLI公開必須の検証
+  - CONST-003: Test-First - テスト先行の検証
+  - CONST-004: EARS Format - EARS形式準拠の検証
+  - CONST-005: Traceability - トレーサビリティの検証
+  - CONST-006: Project Memory - steering/参照の検証
+  - CONST-007: Design Patterns - 設計パターン適用の検証
+  - CONST-008: Decision Records - ADR記録の検証
+  - CONST-009: Quality Gates - 品質ゲートの検証
+  - ストレージ: `.policies/*.ts`
+
+- **新パッケージ: `@musubix/decisions` (v3.0.0)**
+  - `DecisionManager`: Architecture Decision Record (ADR) ライフサイクル管理
+  - ADR CRUD: `create()`, `get()`, `list()`, `update()`, `delete()`
+  - ステータス遷移: `accept()`, `deprecate()`, `supersede()`
+  - 検索: `search()`, `findByRequirement()`
+  - インデックス生成: `generateIndex()`
+  - ストレージ: `docs/decisions/*.md`
+
+- **新MCPツール: 18ツール追加**
+  - Knowledge Tools (6):
+    - `knowledge_put_entity`: エンティティ作成/更新
+    - `knowledge_get_entity`: エンティティ取得
+    - `knowledge_delete_entity`: エンティティ削除
+    - `knowledge_add_relation`: リレーション追加
+    - `knowledge_query`: グラフクエリ
+    - `knowledge_traverse`: グラフ走査
+  - Policy Tools (4):
+    - `policy_validate`: ポリシー検証
+    - `policy_list`: ポリシー一覧
+    - `policy_get`: ポリシー詳細
+    - `policy_check_file`: ファイル検証
+  - Decision Tools (8):
+    - `decision_create`: ADR作成
+    - `decision_list`: ADR一覧
+    - `decision_get`: ADR詳細
+    - `decision_accept`: ADR承認
+    - `decision_deprecate`: ADR廃止
+    - `decision_search`: ADR検索
+    - `decision_find_by_requirement`: 要件からADR検索
+    - `decision_generate_index`: インデックス生成
+
+- **新CLIコマンド: 3カテゴリ追加**
+  - `musubix knowledge` - 知識グラフ操作
+    - `knowledge put <id> <type> <name>` - エンティティ作成/更新
+    - `knowledge get <id>` - エンティティ取得
+    - `knowledge delete <id>` - エンティティ削除
+    - `knowledge link <from> <to> <type>` - リレーション追加
+    - `knowledge query [--type <type>]` - クエリ実行
+    - `knowledge traverse <id>` - グラフ走査
+  - `musubix policy` - ポリシー検証
+    - `policy validate [path]` - プロジェクト検証
+    - `policy list [--category <cat>]` - ポリシー一覧
+    - `policy check <file>` - ファイル検証
+    - `policy info <id>` - ポリシー詳細
+  - `musubix decision` / `musubix adr` - ADR管理
+    - `decision create <title>` - ADR作成
+    - `decision list [--status <status>]` - ADR一覧
+    - `decision get <id>` - ADR詳細
+    - `decision accept <id>` - ADR承認
+    - `decision deprecate <id>` - ADR廃止
+    - `decision search <query>` - ADR検索
+    - `decision index` - インデックス生成
+
+### Changed
+
+- **パッケージバージョン**: 全パッケージを3.0.0に統一
+- **MCPツール数**: 43 → 61ツールに増加
+- **テスト数**: 2178+ → 2249+テストに増加（新規71テスト）
+- **パッケージ数**: 22 → 25パッケージに増加
+
+### Technical Details
+
+- Git-friendlyなJSON形式でナレッジグラフを保存（差分管理可能）
+- 9憲法条項をプログラマブルなポリシーとして実装
+- ADRはMarkdown形式でdocs/decisions/に保存（人間可読性維持）
+- Commander.jsパターンでCLIコマンドを実装
+
+### Documentation
+
+- `AGENTS.md`: Git-Native Knowledge System情報追加
+- 新パッケージAPIドキュメント追加
+
+---
+
 ## [2.4.1] - 2026-01-11
 
 ### Fixed
