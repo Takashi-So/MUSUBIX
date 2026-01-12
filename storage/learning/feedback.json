@@ -1063,5 +1063,93 @@
       "tags": []
     },
     "reason": "Projects 07-08, 11-13 EARS validation and test generation successful: 167 test cases"
+  },
+  {
+    "id": "FB-DB86A3BF",
+    "timestamp": "2026-01-12T22:54:12.958Z",
+    "type": "reject",
+    "artifactType": "code",
+    "artifactId": "ANTI-PATTERN-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
+  },
+  {
+    "id": "FB-52C4DCB5",
+    "timestamp": "2026-01-12T22:54:14.253Z",
+    "type": "reject",
+    "artifactType": "design",
+    "artifactId": "ANTI-PATTERN-002",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
+  },
+  {
+    "id": "FB-CC48A505",
+    "timestamp": "2026-01-12T22:54:15.654Z",
+    "type": "modify",
+    "artifactType": "requirement",
+    "artifactId": "MODIFIED-REQ-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
+  },
+  {
+    "id": "FB-9B485CB0",
+    "timestamp": "2026-01-12T22:54:18.004Z",
+    "type": "reject",
+    "artifactType": "code",
+    "artifactId": "ANTI-PATTERN-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
+  },
+  {
+    "id": "FB-9895F968",
+    "timestamp": "2026-01-12T22:54:19.346Z",
+    "type": "reject",
+    "artifactType": "design",
+    "artifactId": "ANTI-PATTERN-002",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
+  },
+  {
+    "id": "FB-807DEAD0",
+    "timestamp": "2026-01-12T22:54:20.639Z",
+    "type": "modify",
+    "artifactType": "requirement",
+    "artifactId": "MODIFIED-REQ-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
+  },
+  {
+    "id": "FB-106E9897",
+    "timestamp": "2026-01-12T22:54:21.998Z",
+    "type": "modify",
+    "artifactType": "design",
+    "artifactId": "MODIFIED-DES-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
+  },
+  {
+    "id": "FB-9A1537D2",
+    "timestamp": "2026-01-12T23:12:41.056Z",
+    "type": "accept",
+    "artifactType": "test",
+    "artifactId": "TEST-FIX-001",
+    "context": {
+      "project": "MUSUBIX",
+      "tags": []
+    }
   }
 ]

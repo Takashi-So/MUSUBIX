@@ -5,9 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.14] - 2026-01-12
+## [3.0.15] - 2026-01-13
 
 ### Added
+
+- **v3.0.15: Developer Experience (DX) Enhancement Release**
+  - 22の新規MCPツールを追加（合計96ツール）
+  - 4つの新機能モジュール: Watch, CodeQL, Team, Spaces
+
+#### Watch Module - 自動Lint/Test実行 (REQ-WATCH-001〜008)
+- **watch_start**: ファイル監視開始（debounce対応）
+- **watch_stop**: ファイル監視停止
+- **watch_status**: 現在の監視状態取得
+- **watch_run_now**: 即座にタスク実行
+- **watch_report**: 実行結果レポート表示
+- 対応ランナー: Lint, Test, Security, EARS
+- 機能:
+  - 拡張子別フィルタリング (.ts, .js, .md等)
+  - Debounce設定（デフォルト300ms）
+  - JSON/ターミナル両形式の結果出力
+  - 問題検出時のサマリー生成
+
+#### CodeQL Module - GitHub CodeQL連携 (REQ-CODEQL-001〜010)
+- **codeql_parse_sarif**: SARIF 2.1.0形式のCodeQL結果解析
+- **codeql_aggregate**: 複数SARIFファイルの集計
+- **codeql_cwe_lookup**: CWE IDから脆弱性情報取得
+- **codeql_list_cwes**: 対応CWE一覧取得
+- **codeql_summary**: セキュリティサマリー生成
+- **codeql_fix_suggestions**: 脆弱性に対する修正提案
+- 対応CWE: 89(SQLi), 79(XSS), 78(CMDi), 22(PathTrav), 94(CodeInj), 200(InfoExpo), 798(HardcodedCred), 327(WeakCrypto), 611(XXE), 918(SSRF)
+- 重大度レベル: critical, high, medium, low, note, none
+
+#### Team Module - チーム共有機能 (REQ-TEAM-001〜010)
+- **team_share_pattern**: パターンをチームと共有
+- **team_list_patterns**: 共有パターン一覧取得
+- **team_sync**: リモートとの同期
+- **team_status**: チームステータス表示
+- **team_add_knowledge**: ナレッジベースへのエントリ追加
+- **team_query_knowledge**: ナレッジベース検索
+- Git-based共有:
+  - 専用ブランチ（musubix-team）での管理
+  - コンフリクト検出・警告
+  - 自動コミット/プッシュオプション
+- ナレッジタイプ: decision, lesson-learned, best-practice, warning, concept, convention, guideline, pitfall, faq
+
+#### Spaces Module - Copilot Spaces統合 (REQ-SPACES-001〜008)
+- **spaces_create**: 新規スペース作成
+- **spaces_load**: スペース読み込み
+- **spaces_save**: スペース保存
+- **spaces_status**: スペースステータス取得
+- **spaces_suggest**: コンテキスト提案
+- コンテキスト管理:
+  - 関連ファイル自動収集
+  - 要件・設計・タスク・テストの関連追跡
+  - 拡張子別のコンテキスト提案
+- 保存フォーマット: JSON形式、Git-friendly
+
+### Technical Details
+
+- 新規パッケージ・モジュール:
+  - `packages/core/src/watch/` - ファイル監視コア機能
+  - `packages/core/src/codeql/` - CodeQL解析機能
+  - `packages/core/src/team/` - チーム共有機能
+  - `packages/core/src/spaces/` - スペース管理機能
+  - `packages/mcp-server/src/tools/watch-tools.ts`
+  - `packages/mcp-server/src/tools/codeql-tools.ts`
+  - `packages/mcp-server/src/tools/team-tools.ts`
+  - `packages/mcp-server/src/tools/spaces-tools.ts`
+- TypeScript strict mode対応
+- ESM lazy import パターンによる循環参照回避
+- SARIF 2.1.0仕様準拠
+
+### Documentation
+
+- `storage/specs/REQ-DX-v3.1.0.md` - 要件定義書 (33要件)
+- `storage/design/DES-DX-v3.1.0.md` - 設計書 (22ツール、C4ダイアグラム)
+- `storage/tasks/TSK-DX-v3.1.0.md` - タスク分解書 (32タスク)
 
 - **`@nahisaho/musubix-security`: Go言語エクストラクタを追加 (REQ-SEC-GO-001〜008)**
 

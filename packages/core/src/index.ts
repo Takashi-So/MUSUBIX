@@ -151,6 +151,119 @@ export type {
 } from './synthesis/index.js';
 export { createSynthesisOrchestrator, DefaultSynthesisOrchestrator } from './synthesis/index.js';
 
+// Watch Module (v3.1.0 NEW!)
+export {
+  FileWatcher,
+  TaskScheduler,
+  ResultReporter,
+  LintRunner,
+  TestRunner,
+  SecurityRunner,
+  EARSRunner,
+  createWatchCommand,
+  createLintRunner,
+  createTestRunner,
+  createSecurityRunner,
+  createEARSRunner,
+} from './watch/index.js';
+export type {
+  WatchConfig,
+  FileChangeEvent,
+  ScheduledTask,
+  TaskResult,
+  TaskType,
+  ReportConfig,
+  WatchReport,
+  TaskRunner,
+  Issue,
+} from './watch/index.js';
+
+// CodeQL Module (v3.1.0 NEW!)
+export {
+  SARIFParser,
+  ResultAggregator,
+  createSARIFParser,
+  createResultAggregator,
+  parseSARIFFile,
+  parseSARIF,
+  mapCWE,
+  getAllCWEs,
+  getCWEsByCategory,
+  getCWEsBySeverity,
+  extractCWEIds,
+  isCWEKnown,
+  getCWESeverity,
+  getCWEExplanation,
+  CWE_CATEGORIES,
+} from './codeql/index.js';
+export type {
+  SARIFLog,
+  SARIFRun,
+  SARIFResult,
+  SARIFRule,
+  CodeQLFinding,
+  CodeQLScanResult,
+  CodeFlowStep,
+  CWEInfo,
+  CWECategory,
+  SARIFParserConfig,
+  AggregatedReport,
+  AggregatorConfig,
+} from './codeql/index.js';
+
+// Team Module (v3.1.0 NEW!)
+export {
+  GitClient,
+  PatternSharer,
+  TeamKnowledge,
+  createPatternSharer,
+  createTeamKnowledge,
+} from './team/index.js';
+export type {
+  TeamMember,
+  TeamConfig,
+  SharedPattern,
+  TeamKnowledgeEntry,
+  SyncStatus,
+  GitResult,
+  CommitInfo,
+  BranchInfo,
+  FileStatus,
+  PullResult,
+  PushResult,
+  PatternSharerConfig,
+  TeamKnowledgeConfig,
+  KnowledgeQueryOptions,
+  KnowledgeStats,
+} from './team/index.js';
+
+// Spaces Module (v3.1.0 NEW!)
+export {
+  ContextManager,
+  SpaceStorage,
+  SpaceContext_,
+  createContextManager,
+  createSpaceStorage,
+  createSpaceContext,
+} from './spaces/index.js';
+export type {
+  Space,
+  SpaceType,
+  SpaceContext,
+  SpaceSettings,
+  SpaceActivationResult,
+  CreateSpaceInput,
+  UpdateSpaceInput,
+  ContextQuery,
+  ContextSuggestion,
+  SpaceStats,
+  SpaceWatchSettings,
+  SpaceCodeQLSettings,
+  ContextManagerConfig,
+  SpaceStorageConfig,
+  SpaceContextConfig,
+} from './spaces/index.js';
+
 /**
  * Core Library Entry Point
  * 
@@ -162,3 +275,4 @@ export { createSynthesisOrchestrator, DefaultSynthesisOrchestrator } from './syn
  * console.log(`MUSUBIX Core v${VERSION}`);
  * ```
  */
+

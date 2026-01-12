@@ -34,6 +34,9 @@ import { registerKnowledgeCommands } from './knowledge.js';
 import { registerPolicyCommands } from './policy.js';
 import { registerDecisionCommands } from './decision.js';
 
+// DX Enhancement commands (v3.1.0)
+import { registerWatchCommand } from './watch.js';
+
 /**
  * Register all CLI commands
  * 
@@ -84,6 +87,9 @@ export function registerCommands(program: Command): void {
   registerKnowledgeCommands(program);
   registerPolicyCommands(program);
   registerDecisionCommands(program);
+  
+  // DX Enhancement commands (v3.1.0)
+  registerWatchCommand(program);
 }
 
 // Core command exports
@@ -130,3 +136,6 @@ export { registerCodeGraphCommand } from './codegraph.js';
 export { registerKnowledgeCommands } from './knowledge.js';
 export { registerPolicyCommands } from './policy.js';
 export { registerDecisionCommands } from './decision.js';
+
+// DX Enhancement command exports (v3.1.0)
+export { registerWatchCommand } from './watch.js';

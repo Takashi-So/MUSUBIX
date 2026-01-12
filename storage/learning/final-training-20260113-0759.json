@@ -1,0 +1,1619 @@
+{
+  "feedback": [
+    {
+      "id": "FB-23262916",
+      "timestamp": "2026-01-03T00:15:04.217Z",
+      "type": "modify",
+      "artifactType": "requirement",
+      "artifactId": "REQ-VALIDATE-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "複数行のEARS形式（WHEN+AND、WHILE+THE等）が個別の行として解析される。日本語の複合EARS文を正しく認識する改善が必要"
+    },
+    {
+      "id": "FB-109DAECC",
+      "timestamp": "2026-01-03T00:15:27.357Z",
+      "type": "modify",
+      "artifactType": "design",
+      "artifactId": "DES-GENERATE-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "C4設計生成でトレーサビリティが全てuserにマッピングされる。ReservationService, CancellationService, AuthService, NotificationService, ReportServiceなど要件ドメインに応じた適切なコンポーネントへのマッピングが必要"
+    },
+    {
+      "id": "FB-4C16D5CE",
+      "timestamp": "2026-01-03T00:15:41.590Z",
+      "type": "reject",
+      "artifactType": "code",
+      "artifactId": "CODE-GENERATE-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "codegen generateコマンドが成功メッセージを表示するが、実際のファイルが生成されない。TypeScriptのスケルトンコード（クラス、インターフェース、型定義）を出力する機能の実装が必要"
+    },
+    {
+      "id": "FB-6FDF95D3",
+      "timestamp": "2026-01-03T00:15:54.235Z",
+      "type": "reject",
+      "artifactType": "test",
+      "artifactId": "TEST-GENERATE-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "test generateコマンドが0テストケースを生成。EARS要件からテストケースを自動生成する機能が未実装。例: REQ-RBS-001の予約作成要件から予約作成の正常系・異常系テストを生成すべき"
+    },
+    {
+      "id": "FB-89222CE8",
+      "timestamp": "2026-01-03T00:15:58.441Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "DES-REVIEW-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "design generateのレビュー機能は優秀。SOLID原則分析、憲法準拠チェック、設計パターン検出が適切に動作している"
+    },
+    {
+      "id": "FB-218A0875",
+      "timestamp": "2026-01-03T00:16:04.684Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "CLI-OUTPUT-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "CLI出力のフォーマットが見やすい。絵文字、カラー、罫線を使った構造化出力が優秀"
+    },
+    {
+      "id": "FB-B41F6C00",
+      "timestamp": "2026-01-03T00:16:20.098Z",
+      "type": "reject",
+      "artifactType": "code",
+      "artifactId": "CODE-GENERATE-002",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "codegen generateでファイルが生成されない問題。コンポーネント定義からTypeScriptコードの実ファイル出力が必要"
+    },
+    {
+      "id": "FB-B2B4ED57",
+      "timestamp": "2026-01-03T00:16:21.200Z",
+      "type": "reject",
+      "artifactType": "code",
+      "artifactId": "CODE-GENERATE-003",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
+    },
+    {
+      "id": "FB-F4C6481A",
+      "timestamp": "2026-01-03T13:16:41.143Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "CODE-GENERATE-004",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "C4設計からコード生成が成功。インターフェース、クラス、ファクトリ関数を含むTypeScriptコードが正しく生成された"
+    },
+    {
+      "id": "FB-EC44A95E",
+      "timestamp": "2026-01-03T13:18:17.104Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "EARS-PARSE-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "日本語EARS形式の複数行パターン認識が改善。WHEN+AND THE、WHILE+THE等の複合パターンを正しく認識するようになった"
+    },
+    {
+      "id": "FB-3972A391",
+      "timestamp": "2026-01-03T13:38:00.700Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-SHOP-001",
+      "context": {
+        "project": "member-shopping",
+        "tags": []
+      },
+      "reason": "22 EARS requirements validated"
+    },
+    {
+      "id": "FB-B60AA914",
+      "timestamp": "2026-01-03T13:38:52.375Z",
+      "type": "modify",
+      "artifactType": "design",
+      "artifactId": "DES-SHOP-001",
+      "context": {
+        "project": "member-shopping",
+        "tags": []
+      },
+      "reason": "Traceability mapping needs improvement - all requirements mapped to user only"
+    },
+    {
+      "id": "FB-7B1F4A4E",
+      "timestamp": "2026-01-03T13:40:05.231Z",
+      "type": "reject",
+      "artifactType": "code",
+      "artifactId": "codegen-shop",
+      "context": {
+        "project": "member-shopping",
+        "tags": []
+      },
+      "reason": "codegen generate did not create any files from C4 design"
+    },
+    {
+      "id": "FB-4733108C",
+      "timestamp": "2026-01-03T13:41:53.212Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "codegen-shop-v2",
+      "context": {
+        "project": "member-shopping",
+        "tags": []
+      },
+      "reason": "C4 design code generation successful - 25 TypeScript files generated"
+    },
+    {
+      "id": "FB-5016B120",
+      "timestamp": "2026-01-03T13:42:06.613Z",
+      "type": "reject",
+      "artifactType": "test",
+      "artifactId": "test-gen-shop",
+      "context": {
+        "project": "member-shopping",
+        "tags": []
+      },
+      "reason": "test generate created 0 test cases"
+    },
+    {
+      "id": "FB-90560E2B",
+      "timestamp": "2026-01-03T14:16:40.272Z",
+      "type": "modify",
+      "artifactType": "code",
+      "artifactId": "batch-20-projects",
+      "context": {
+        "project": "musubix-learning",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "クラス名がBLOG_PLATFORMServiceのようにアンダースコア付き大文字になる。BlogPlatformServiceのようにPascalCaseが適切。"
+    },
+    {
+      "id": "FB-984C26A3",
+      "timestamp": "2026-01-03T14:16:40.376Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "batch-20-code-gen",
+      "context": {
+        "project": "musubix-learning",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "11ファイル生成は適切。Repository/Service/Validator/Entity等のパターン別メソッド生成は良好。"
+    },
+    {
+      "id": "FB-480BB6B8",
+      "timestamp": "2026-01-03T14:16:40.462Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "batch-20-test-gen",
+      "context": {
+        "project": "musubix-learning",
+        "tags": []
+      },
+      "reason": "17テストケース生成は適切。EARS要件からEvent-driven/Ubiquitous/Unwanted/State-drivenパターン別にテスト生成。"
+    },
+    {
+      "id": "FB-5F7E38DE",
+      "timestamp": "2026-01-03T14:16:40.541Z",
+      "type": "modify",
+      "artifactType": "code",
+      "artifactId": "file-naming",
+      "context": {
+        "project": "musubix-learning",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "ファイル名がblog-platformservice.tsのようにハイフン+小文字結合。blog-platform-service.tsのように区切りを維持すべき。"
+    },
+    {
+      "id": "FB-A7BB9282",
+      "timestamp": "2026-01-03T14:16:40.624Z",
+      "type": "modify",
+      "artifactType": "code",
+      "artifactId": "entity-naming",
+      "context": {
+        "project": "musubix-learning",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
+    },
+    {
+      "id": "FB-AA4E976E",
+      "timestamp": "2026-01-03T14:22:03.260Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "naming-fix",
+      "context": {
+        "project": "musubix-learning",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "クラス名の正規化を実装。BLOG_PLATFORMService → BlogPlatformService に正しく変換。toPascalCase関数を拡張してService/Entity/Repository等のサフィックスを保持。"
+    },
+    {
+      "id": "FB-2A2EA465",
+      "timestamp": "2026-01-03T14:27:44.057Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "batch-30-entity",
+      "context": {
+        "project": "musubix-learning",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
+    },
+    {
+      "id": "FB-C80577F9",
+      "timestamp": "2026-01-03T14:27:44.211Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "batch-30-repository",
+      "context": {
+        "project": "musubix-learning",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "Repositoryテンプレートをジェネリクス対応に改善。BaseEntity制約、QueryOptions、CRUD+count操作を実装。"
+    },
+    {
+      "id": "FB-14DD2AA2",
+      "timestamp": "2026-01-03T14:27:44.360Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "batch-30-service",
+      "context": {
+        "project": "musubix-learning",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "Serviceテンプレートを型安全に改善。CreateInput/UpdateInput/FilterOptions/Entity型を自動定義。検索・ソート・ページネーション実装済み。"
+    },
+    {
+      "id": "FB-A50317A9",
+      "timestamp": "2026-01-03T14:37:30.105Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "EARS-COMPLEX-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
+    },
+    {
+      "id": "FB-F0CA5EA3",
+      "timestamp": "2026-01-03T14:37:33.894Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "TRACEABILITY-KEYWORD-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Intelligent keyword-based requirement-to-element mapping instead of mapping all to first element"
+    },
+    {
+      "id": "FB-73D0801E",
+      "timestamp": "2026-01-03T14:37:40.980Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "TEMPLATE-ENTITY-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Entity template now includes DTO, proper properties (id/createdAt/updatedAt), update/validate/toJSON methods"
+    },
+    {
+      "id": "FB-46568690",
+      "timestamp": "2026-01-03T14:37:48.115Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "TEMPLATE-REPOSITORY-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Repository template now uses generics <T extends BaseEntity>, includes QueryOptions and proper CRUD+count methods"
+    },
+    {
+      "id": "FB-8AC85029",
+      "timestamp": "2026-01-03T14:37:54.008Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "TEMPLATE-SERVICE-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Service template now includes CreateInput/UpdateInput/FilterOptions/Entity type definitions"
+    },
+    {
+      "id": "FB-FFCB2955",
+      "timestamp": "2026-01-03T14:47:50.822Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-medical",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "6 files generated for medical system"
+    },
+    {
+      "id": "FB-97AF67B5",
+      "timestamp": "2026-01-03T14:47:50.946Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-logistics",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "6 files generated for logistics system"
+    },
+    {
+      "id": "FB-CFFF33E4",
+      "timestamp": "2026-01-03T14:47:51.068Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-education",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "5 files generated for education platform"
+    },
+    {
+      "id": "FB-34ECBDBC",
+      "timestamp": "2026-01-03T14:47:51.193Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-finance",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "4 files generated for financial trading"
+    },
+    {
+      "id": "FB-9935C2C8",
+      "timestamp": "2026-01-03T14:47:51.303Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-iot",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "5 files generated for IoT management"
+    },
+    {
+      "id": "FB-9AD9BCCC",
+      "timestamp": "2026-01-03T14:47:51.380Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-gaming",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "4 files generated for game server"
+    },
+    {
+      "id": "FB-BEA44723",
+      "timestamp": "2026-01-03T14:47:51.459Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-realestate",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "7 files generated for real estate"
+    },
+    {
+      "id": "FB-84237B30",
+      "timestamp": "2026-01-03T14:47:51.533Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-restaurant",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "9 files generated for POS system"
+    },
+    {
+      "id": "FB-CBEDDC42",
+      "timestamp": "2026-01-03T14:47:51.604Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-travel",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "10 files generated for travel booking"
+    },
+    {
+      "id": "FB-DC789208",
+      "timestamp": "2026-01-03T14:47:51.682Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-social",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "7 files generated for SNS platform"
+    },
+    {
+      "id": "FB-34AC2D01",
+      "timestamp": "2026-01-03T14:47:59.201Z",
+      "type": "modify",
+      "artifactType": "test",
+      "artifactId": "v2-test-format",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "test generate does not parse ## REQ-XXX + **Statement**: format - needs enhancement"
+    },
+    {
+      "id": "FB-8929D011",
+      "timestamp": "2026-01-03T14:47:59.326Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-diverse-domains",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Successfully processed 10 diverse domains: medical, logistics, education, finance, IoT, gaming, real-estate, restaurant, travel, social"
+    },
+    {
+      "id": "FB-AEA8CB67",
+      "timestamp": "2026-01-03T14:47:59.459Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "v2-total-files",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Total 63 TypeScript files generated across 10 projects"
+    },
+    {
+      "id": "FB-325C2D59",
+      "timestamp": "2026-01-03T14:48:17.754Z",
+      "type": "modify",
+      "artifactType": "code",
+      "artifactId": "v2-service-methods",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Service methods should be more specific: OrderService needs create/submit/cancel methods not just getAll/update"
+    },
+    {
+      "id": "FB-0CCDFBF0",
+      "timestamp": "2026-01-03T14:48:17.878Z",
+      "type": "modify",
+      "artifactType": "code",
+      "artifactId": "v2-type-safety",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Generated interfaces use unknown type - should generate proper domain-specific types"
+    },
+    {
+      "id": "FB-F722ED93",
+      "timestamp": "2026-01-03T14:48:18.006Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "v2-traceability",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Design elements correctly reference requirement IDs in JSDoc comments"
+    },
+    {
+      "id": "FB-8F51CFA7",
+      "timestamp": "2026-01-04T00:10:31.071Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-PET-001",
+      "context": {
+        "project": "project-01-pet-adoption",
+        "tags": []
+      },
+      "reason": "EARS要件10個すべてMUSUBIX検証で合格"
+    },
+    {
+      "id": "FB-F8AC3AAE",
+      "timestamp": "2026-01-04T00:26:26.514Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-BOARD-001",
+      "context": {
+        "project": "project-02-community-board",
+        "tags": []
+      },
+      "reason": "既読管理・アンケート機能を含む10要件すべてEARS形式で合格"
+    },
+    {
+      "id": "FB-7035109B",
+      "timestamp": "2026-01-04T00:26:27.861Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-INV-001",
+      "context": {
+        "project": "project-03-freelance-invoice",
+        "tags": []
+      },
+      "reason": "源泉徴収・消費税計算を含む請求書要件10個合格"
+    },
+    {
+      "id": "FB-6CD59EDD",
+      "timestamp": "2026-01-04T00:26:28.629Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-GARDEN-001",
+      "context": {
+        "project": "project-04-garden-iot",
+        "tags": []
+      },
+      "reason": "センサー閾値アラート・水やりスケジュール要件合格"
+    },
+    {
+      "id": "FB-102D11BB",
+      "timestamp": "2026-01-04T00:26:29.372Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-BOOK-001",
+      "context": {
+        "project": "project-05-book-club",
+        "tags": []
+      },
+      "reason": "ジャンル・曜日・場所マッチング要件合格"
+    },
+    {
+      "id": "FB-D989BE90",
+      "timestamp": "2026-01-04T00:26:31.795Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "REQ-FACTORY-001",
+      "context": {
+        "project": "project-06-factory-production",
+        "tags": []
+      },
+      "reason": "生産管理ワークフロー（作業指示→開始→記録→完了）の設計パターン合格"
+    },
+    {
+      "id": "FB-D817C4C2",
+      "timestamp": "2026-01-04T00:26:40.520Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "REQ-KITCHEN-001",
+      "context": {
+        "project": "project-07-shared-kitchen",
+        "tags": []
+      },
+      "reason": "時間枠予約・認証ユーザー制限パターン合格"
+    },
+    {
+      "id": "FB-23BAED25",
+      "timestamp": "2026-01-04T00:26:41.172Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "REQ-DISASTER-001",
+      "context": {
+        "project": "project-08-disaster-supplies",
+        "tags": []
+      },
+      "reason": "在庫閾値アラート・期限管理パターン合格"
+    },
+    {
+      "id": "FB-57207DF5",
+      "timestamp": "2026-01-04T00:26:42.357Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "REQ-TRANSPORT-001",
+      "context": {
+        "project": "project-09-kids-transport",
+        "tags": []
+      },
+      "reason": "ドライバー認証・マッチングワークフロー合格"
+    },
+    {
+      "id": "FB-FA357227",
+      "timestamp": "2026-01-04T00:26:43.106Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "REQ-INN-001",
+      "context": {
+        "project": "project-10-traditional-inn",
+        "tags": []
+      },
+      "reason": "季節料金・予約ワークフロー・稼働率計算パターン合格"
+    },
+    {
+      "id": "FB-A7981A04",
+      "timestamp": "2026-01-04T00:34:14.263Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "id-generator",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-289C7ED9",
+      "timestamp": "2026-01-04T00:34:21.334Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "status-workflow",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-81E59BDA",
+      "timestamp": "2026-01-04T02:02:10.428Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "virtual-project-sdd-workflow",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-2C020A85",
+      "timestamp": "2026-01-04T02:14:20.344Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "MUSUBIX-IMPROVE-001",
+      "context": {
+        "project": "MUSUBIX",
+        "language": "TypeScript",
+        "tags": []
+      },
+      "reason": "Added DomainDetector (62 domains) and ComponentInference (59 components) modules. Tests 411->439"
+    },
+    {
+      "id": "FB-72894D66",
+      "timestamp": "2026-01-04T03:19:34.797Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "project-04",
+      "context": {
+        "project": "food-delivery",
+        "language": "typescript",
+        "framework": "ddd",
+        "tags": []
+      },
+      "reason": "6スプリント完了:ドメインモデル、サービス、リポジトリ、アプリケーションサービス、イベント、REST_API(118テスト)"
+    },
+    {
+      "id": "FB-1750B0C8",
+      "timestamp": "2026-01-04T03:57:40.790Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "MUSUBIX-IMPROVE-002",
+      "context": {
+        "project": "MUSUBIX",
+        "language": "typescript",
+        "tags": []
+      },
+      "reason": "Fixed test generate 0 cases (FB-5016B120, FB-6FDF95D3), added domain-specific methods to Service templates (FB-325C2D59), improved C4 component parsing"
+    },
+    {
+      "id": "FB-1EA23326",
+      "timestamp": "2026-01-04T07:16:52.214Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "PAT-INPUT-DTO-001",
+      "context": {
+        "project": "project-07-medical-clinic",
+        "tags": []
+      },
+      "reason": "Entity Input DTOパターンで型安全性向上"
+    },
+    {
+      "id": "FB-2FF1F3A8",
+      "timestamp": "2026-01-04T07:16:58.890Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "PAT-REPO-ASYNC-001",
+      "context": {
+        "project": "project-08-property-rental",
+        "tags": []
+      },
+      "reason": "Repository層の非同期メソッド（async/await）パターンで将来のDB移行に対応"
+    },
+    {
+      "id": "FB-DEFAECE8",
+      "timestamp": "2026-01-04T07:17:06.326Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "PAT-COUNTER-RESET-001",
+      "context": {
+        "project": "project-07-medical-clinic",
+        "tags": []
+      },
+      "reason": "resetXxxCounter()関数でテスト間のID生成を独立化、テストの再現性向上"
+    },
+    {
+      "id": "FB-DA793895",
+      "timestamp": "2026-01-04T07:17:13.976Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "PAT-VALUE-OBJECT-001",
+      "context": {
+        "project": "project-08-property-rental",
+        "tags": []
+      },
+      "reason": "PersonName, ContactInfo, Money等のValue Objectでドメイン概念を明確化"
+    },
+    {
+      "id": "FB-86DD4882",
+      "timestamp": "2026-01-04T07:17:20.772Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "PAT-STATUS-TRANSITION-001",
+      "context": {
+        "project": "project-08-property-rental",
+        "tags": []
+      },
+      "reason": "validStatusTransitions Mapによるステータス遷移の厳密な制御"
+    },
+    {
+      "id": "FB-DC1EEFDD",
+      "timestamp": "2026-01-04T07:17:27.565Z",
+      "type": "accept",
+      "artifactType": "code",
+      "artifactId": "PAT-ID-FORMAT-001",
+      "context": {
+        "project": "project-07-medical-clinic",
+        "tags": []
+      },
+      "reason": "ID形式 PREFIX-YYYYMMDD-NNN でソート可能かつ一意性を保証"
+    },
+    {
+      "id": "FB-FFFF0045",
+      "timestamp": "2026-01-04T07:17:33.384Z",
+      "type": "reject",
+      "artifactType": "test",
+      "artifactId": "PAT-TEST-SIGNATURE-MISMATCH",
+      "context": {
+        "project": "project-08-property-rental",
+        "tags": []
+      },
+      "reason": "テスト作成時にEntity APIシグネチャを確認せず、誤った引数パターンでテストを書いた"
+    },
+    {
+      "id": "FB-697AAA01",
+      "timestamp": "2026-01-04T07:17:40.028Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "PAT-VITEST-ESM-001",
+      "context": {
+        "project": "project-07-medical-clinic",
+        "tags": []
+      },
+      "reason": "Vitest + TypeScript ESMモジュール構成でモダンなテスト環境を実現"
+    },
+    {
+      "id": "FB-61FAA7AB",
+      "timestamp": "2026-01-04T07:17:47.219Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "PAT-SERVICE-LAYER-001",
+      "context": {
+        "project": "project-08-property-rental",
+        "tags": []
+      },
+      "reason": "Service層でビジネスロジックを集約、Repository依存注入でテスタビリティ向上"
+    },
+    {
+      "id": "FB-FAF03E21",
+      "timestamp": "2026-01-05T13:10:13.591Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "EARS-TEST-GEN",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "EARSテストジェネレータ追加完了。BP-TEST-004, BP-TEST-005パターンを統合"
+    },
+    {
+      "id": "FB-FEF2ED10",
+      "timestamp": "2026-01-05T13:20:05.608Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "REQ-PETCLINIC-001",
+      "context": {
+        "project": "project-01-pet-clinic",
+        "tags": []
+      },
+      "reason": "EARS test generation successful - 22 test cases from requirements, all passed"
+    },
+    {
+      "id": "FB-A304482E",
+      "timestamp": "2026-01-05T13:27:19.234Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-PARKING-001",
+      "context": {
+        "project": "project-02-smart-parking",
+        "tags": []
+      },
+      "reason": "EARS requirements validated - 21 requirements, all valid"
+    },
+    {
+      "id": "FB-9ED03555",
+      "timestamp": "2026-01-05T13:27:20.292Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "DES-PARKING-001",
+      "context": {
+        "project": "project-02-smart-parking",
+        "tags": []
+      },
+      "reason": "C4 model design complete with Space, Entry, Fee, Payment services"
+    },
+    {
+      "id": "FB-7AF0B763",
+      "timestamp": "2026-01-05T13:27:21.693Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "TST-PARKING-001",
+      "context": {
+        "project": "project-02-smart-parking",
+        "tags": []
+      },
+      "reason": "55 tests passed including 21 EARS-generated tests"
+    },
+    {
+      "id": "FB-CF1C3B43",
+      "timestamp": "2026-01-05T13:28:06.466Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-LIBRARY-001",
+      "context": {
+        "project": "project-03-online-library",
+        "tags": []
+      },
+      "reason": "31 EARS requirements validated"
+    },
+    {
+      "id": "FB-E828D90A",
+      "timestamp": "2026-01-05T13:28:07.596Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "DES-LIBRARY-001",
+      "context": {
+        "project": "project-03-online-library",
+        "tags": []
+      },
+      "reason": "Library system design with Book, Member, Loan services"
+    },
+    {
+      "id": "FB-86EF7B11",
+      "timestamp": "2026-01-05T13:28:09.044Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "TST-LIBRARY-001",
+      "context": {
+        "project": "project-03-online-library",
+        "tags": []
+      },
+      "reason": "156 tests passed including 31 EARS-generated"
+    },
+    {
+      "id": "FB-7699931A",
+      "timestamp": "2026-01-05T13:28:56.906Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-DELIVERY-001",
+      "context": {
+        "project": "project-04-food-delivery",
+        "tags": []
+      },
+      "reason": "53 EARS requirements for restaurant, menu, order, customer, driver, payment"
+    },
+    {
+      "id": "FB-E3D1F97E",
+      "timestamp": "2026-01-05T13:28:58.492Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "DES-DELIVERY-001",
+      "context": {
+        "project": "project-04-food-delivery",
+        "tags": []
+      },
+      "reason": "DDD design with Restaurant, Order, Driver aggregates"
+    },
+    {
+      "id": "FB-DB85C895",
+      "timestamp": "2026-01-05T13:28:59.895Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "TST-DELIVERY-001",
+      "context": {
+        "project": "project-04-food-delivery",
+        "tags": []
+      },
+      "reason": "171 tests passed including 53 EARS-generated"
+    },
+    {
+      "id": "FB-156E16A5",
+      "timestamp": "2026-01-05T13:29:59.617Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-GYM-001",
+      "context": {
+        "project": "project-05-fitness-gym",
+        "tags": []
+      },
+      "reason": "25 EARS requirements for member, booking, trainer, facility"
+    },
+    {
+      "id": "FB-A97F88BC",
+      "timestamp": "2026-01-05T13:30:01.103Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "DES-GYM-001",
+      "context": {
+        "project": "project-05-fitness-gym",
+        "tags": []
+      },
+      "reason": "Gym system with Member, Booking, Trainer services"
+    },
+    {
+      "id": "FB-AB975B4B",
+      "timestamp": "2026-01-05T13:30:02.588Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "TST-GYM-001",
+      "context": {
+        "project": "project-05-fitness-gym",
+        "tags": []
+      },
+      "reason": "56 tests passed including 25 EARS-generated"
+    },
+    {
+      "id": "FB-3A55EB38",
+      "timestamp": "2026-01-05T13:30:47.211Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "REQ-EVENT-001",
+      "context": {
+        "project": "project-06-event-booking",
+        "tags": []
+      },
+      "reason": "39 EARS requirements for event, ticket, seat, checkin"
+    },
+    {
+      "id": "FB-B6A69642",
+      "timestamp": "2026-01-05T13:30:48.279Z",
+      "type": "accept",
+      "artifactType": "design",
+      "artifactId": "DES-EVENT-001",
+      "context": {
+        "project": "project-06-event-booking",
+        "tags": []
+      },
+      "reason": "Event booking system with Event, Ticket, Seat, Checkin services"
+    },
+    {
+      "id": "FB-CC4EA421",
+      "timestamp": "2026-01-05T13:30:49.345Z",
+      "type": "accept",
+      "artifactType": "test",
+      "artifactId": "TST-EVENT-001",
+      "context": {
+        "project": "project-06-event-booking",
+        "tags": []
+      },
+      "reason": "97 tests passed including 39 EARS-generated"
+    },
+    {
+      "id": "FB-F2A4ABA3",
+      "timestamp": "2026-01-05T13:41:18.181Z",
+      "type": "accept",
+      "artifactType": "requirement",
+      "artifactId": "SDD-CYCLE-P07-P13",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      },
+      "reason": "Projects 07-08, 11-13 EARS validation and test generation successful: 167 test cases"
+    },
+    {
+      "id": "FB-DB86A3BF",
+      "timestamp": "2026-01-12T22:54:12.958Z",
+      "type": "reject",
+      "artifactType": "code",
+      "artifactId": "ANTI-PATTERN-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-52C4DCB5",
+      "timestamp": "2026-01-12T22:54:14.253Z",
+      "type": "reject",
+      "artifactType": "design",
+      "artifactId": "ANTI-PATTERN-002",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-CC48A505",
+      "timestamp": "2026-01-12T22:54:15.654Z",
+      "type": "modify",
+      "artifactType": "requirement",
+      "artifactId": "MODIFIED-REQ-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-9B485CB0",
+      "timestamp": "2026-01-12T22:54:18.004Z",
+      "type": "reject",
+      "artifactType": "code",
+      "artifactId": "ANTI-PATTERN-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-9895F968",
+      "timestamp": "2026-01-12T22:54:19.346Z",
+      "type": "reject",
+      "artifactType": "design",
+      "artifactId": "ANTI-PATTERN-002",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-807DEAD0",
+      "timestamp": "2026-01-12T22:54:20.639Z",
+      "type": "modify",
+      "artifactType": "requirement",
+      "artifactId": "MODIFIED-REQ-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    },
+    {
+      "id": "FB-106E9897",
+      "timestamp": "2026-01-12T22:54:21.998Z",
+      "type": "modify",
+      "artifactType": "design",
+      "artifactId": "MODIFIED-DES-001",
+      "context": {
+        "project": "MUSUBIX",
+        "tags": []
+      }
+    }
+  ],
+  "patterns": [
+    {
+      "id": "PAT-CB21FC93",
+      "name": "Auto: code avoid",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "avoid",
+        "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
+      },
+      "confidence": 0.95,
+      "occurrences": 358,
+      "lastUsed": "2026-01-12T22:54:22.003Z",
+      "createdAt": "2026-01-03T00:16:21.203Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-FC49A670",
+      "name": "Auto: code prefer",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "C4 design code generation successful - 25 TypeScript files generated"
+      },
+      "confidence": 0.95,
+      "occurrences": 1385,
+      "lastUsed": "2026-01-12T22:54:22.003Z",
+      "createdAt": "2026-01-03T13:41:53.216Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-A92140DD",
+      "name": "Auto: code suggest",
+      "category": "code",
+      "trigger": {
+        "context": {
+          "language": "typescript"
+        },
+        "conditions": []
+      },
+      "action": {
+        "type": "suggest",
+        "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
+      },
+      "confidence": 0.95,
+      "occurrences": 228,
+      "lastUsed": "2026-01-12T22:54:22.004Z",
+      "createdAt": "2026-01-03T14:16:40.627Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-298803B3",
+      "name": "Auto: code prefer",
+      "category": "code",
+      "trigger": {
+        "context": {
+          "language": "typescript"
+        },
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
+      },
+      "confidence": 0.95,
+      "occurrences": 402,
+      "lastUsed": "2026-01-12T22:54:22.004Z",
+      "createdAt": "2026-01-03T14:27:44.066Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-86DEF551",
+      "name": "Auto: requirement prefer",
+      "category": "requirement",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
+      },
+      "confidence": 0.95,
+      "occurrences": 546,
+      "lastUsed": "2026-01-12T22:54:22.003Z",
+      "createdAt": "2026-01-03T14:37:30.109Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-E5AEFFBA",
+      "name": "Auto: design prefer",
+      "category": "design",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Design elements correctly reference requirement IDs in JSDoc comments"
+      },
+      "confidence": 0.95,
+      "occurrences": 537,
+      "lastUsed": "2026-01-12T22:54:22.003Z",
+      "createdAt": "2026-01-03T14:48:18.010Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-DC9778EE",
+      "name": "unique-id-counter",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Date.now()だけでなくカウンターを追加してID重複を防ぐ: `id = \\`PREFIX-${Date.now()}-${++counter}\\``"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T00:27:12.126Z",
+      "createdAt": "2026-01-04T00:27:12.126Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-EC48A36C",
+      "name": "status-workflow",
+      "category": "design",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "ステータスワークフロー: pending→confirmed→in_progress→completed"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T00:27:13.267Z",
+      "createdAt": "2026-01-04T00:27:13.267Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-4ABBA9EC",
+      "name": "map-storage",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "インメモリデータストアにはMap<string, T>を使用"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T00:27:14.354Z",
+      "createdAt": "2026-01-04T00:27:14.354Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-3A870C31",
+      "name": "unique-id-counter",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Date.now()とcounterでID重複防止"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T00:27:16.005Z",
+      "createdAt": "2026-01-04T00:27:16.005Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-9FF476D0",
+      "name": "status-workflow",
+      "category": "design",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "pending-confirmed-in_progress-completed workflow"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T00:27:22.580Z",
+      "createdAt": "2026-01-04T00:27:22.580Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-035B847E",
+      "name": "map-storage",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Use Map<string,T> for in-memory data store"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T00:27:23.721Z",
+      "createdAt": "2026-01-04T00:27:23.721Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-57C4813B",
+      "name": "threshold-alerts",
+      "category": "design",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Generate alerts when value exceeds threshold"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T00:27:24.842Z",
+      "createdAt": "2026-01-04T00:27:24.842Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-57F2B4E9",
+      "name": "availability-check",
+      "category": "design",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Check time overlap for reservation systems"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T00:27:31.668Z",
+      "createdAt": "2026-01-04T00:27:31.668Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-3D1B75F7",
+      "name": "repository-service-pattern",
+      "category": "design",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Use Repository pattern for data access and Service pattern for business logic in domain-driven projects"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T02:02:21.270Z",
+      "createdAt": "2026-01-04T02:02:21.270Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-6D2A8AF4",
+      "name": "type-safety-first",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Define TypeScript types and interfaces before implementation to ensure type safety and IDE support"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T02:02:26.826Z",
+      "createdAt": "2026-01-04T02:02:26.826Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-3AEDF2D0",
+      "name": "Auto: test avoid",
+      "category": "test",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "avoid",
+        "content": "テスト作成時にEntity APIシグネチャを確認せず、誤った引数パターンでテストを書いた"
+      },
+      "confidence": 0.95,
+      "occurrences": 84,
+      "lastUsed": "2026-01-12T22:54:22.003Z",
+      "createdAt": "2026-01-04T07:17:33.387Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-04A4B5BC",
+      "name": "Auto: test prefer",
+      "category": "test",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "Vitest + TypeScript ESMモジュール構成でモダンなテスト環境を実現"
+      },
+      "confidence": 0.95,
+      "occurrences": 205,
+      "lastUsed": "2026-01-12T22:54:22.003Z",
+      "createdAt": "2026-01-04T07:17:40.031Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-6F33631F",
+      "name": "Entity Input DTO",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "エンティティ作成関数にはInput DTOを使用する（例: createPatient(input: CreatePatientInput)）"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T07:18:00.448Z",
+      "createdAt": "2026-01-04T07:18:00.448Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-3B6098EE",
+      "name": "Date-based ID Format",
+      "category": "code",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "ID形式は PREFIX-YYYYMMDD-NNN を使用（例: PAT-20260104-001）でソート可能かつ一意性保証"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T07:18:06.774Z",
+      "createdAt": "2026-01-04T07:18:06.774Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-28397193",
+      "name": "Status Transition Map",
+      "category": "design",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "ステータス遷移はvalidStatusTransitions Mapで定義し、不正な遷移を防止する"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T07:18:13.015Z",
+      "createdAt": "2026-01-04T07:18:13.015Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-4D1693E8",
+      "name": "Test Counter Reset",
+      "category": "test",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "prefer",
+        "content": "テスト用にresetXxxCounter()関数を提供し、beforeEachでリセットしてテスト独立性を確保"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T07:18:19.110Z",
+      "createdAt": "2026-01-04T07:18:19.110Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-3CD72E0B",
+      "name": "Verify API Before Test",
+      "category": "test",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "suggest",
+        "content": "テスト作成前にエンティティのAPIシグネチャを確認し、正しい引数パターンでテストを書く"
+      },
+      "confidence": 0.5,
+      "occurrences": 1,
+      "lastUsed": "2026-01-04T07:18:25.522Z",
+      "createdAt": "2026-01-04T07:18:25.522Z",
+      "source": "manual"
+    },
+    {
+      "id": "PAT-64077952",
+      "name": "Requirement: Suggest modify requirement",
+      "category": "requirement",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "suggest",
+        "content": "modify requirement"
+      },
+      "confidence": 0.6000000000000001,
+      "occurrences": 6,
+      "lastUsed": "2026-01-12T22:54:22.003Z",
+      "createdAt": "2026-01-12T22:54:20.644Z",
+      "source": "auto"
+    },
+    {
+      "id": "PAT-2825549A",
+      "name": "Design: Suggest modify design",
+      "category": "design",
+      "trigger": {
+        "context": {},
+        "conditions": []
+      },
+      "action": {
+        "type": "suggest",
+        "content": "modify design"
+      },
+      "confidence": 0.3,
+      "occurrences": 3,
+      "lastUsed": "2026-01-12T22:54:22.003Z",
+      "createdAt": "2026-01-12T22:54:22.003Z",
+      "source": "auto"
+    }
+  ],
+  "stats": {
+    "totalFeedback": 95,
+    "feedbackByType": {
+      "accept": 72,
+      "reject": 11,
+      "modify": 12
+    },
+    "totalPatterns": 25,
+    "patternsByCategory": {
+      "code": 11,
+      "design": 8,
+      "requirement": 2,
+      "test": 4
+    },
+    "averageConfidence": 0.6399999999999999,
+    "lastUpdate": "2026-01-12T23:00:00.586Z"
+  }
+}

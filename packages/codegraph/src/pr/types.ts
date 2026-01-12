@@ -412,7 +412,7 @@ export const REFACTORING_TO_COMMIT_TYPE: Record<RefactoringType, ConventionalCom
  */
 export function generateBranchName(suggestion: RefactoringSuggestion): string {
   const type = suggestion.type.replace(/_/g, '-');
-  const entity = suggestion.entityId
+  const entity = (suggestion.entityId || 'unknown')
     .replace(/[^a-zA-Z0-9]/g, '-')
     .toLowerCase()
     .slice(0, 30);
@@ -426,7 +426,7 @@ export function generateBranchName(suggestion: RefactoringSuggestion): string {
  */
 export function generateCommitMessage(suggestion: RefactoringSuggestion): string {
   const commitType = REFACTORING_TO_COMMIT_TYPE[suggestion.type];
-  const scope = suggestion.entityId.split('.')[0] || 'core';
+  const scope = suggestion.entityId?.split('.')[0] || 'core';
   const subject = suggestion.title.toLowerCase().replace(/\.$/, '');
 
   let message = `${commitType}(${scope}): ${subject}`;
@@ -434,6 +434,12 @@ export function generateCommitMessage(suggestion: RefactoringSuggestion): string
   // Add body with details
   if (suggestion.reason) {
     message += `\n\n${suggestion.reason}`;
+  }
+
+  // Add files changed
+  if (suggestion.changes && suggestion.changes.length > 0) {
+    const files = suggestion.changes.map((c) => c.filePath).join(', ');
+    message += `\n\nFiles changed: ${files}`;
   }
 
   // Add footer with metadata

@@ -12,8 +12,8 @@
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
     "confidence": 0.95,
-    "occurrences": 319,
-    "lastUsed": "2026-01-05T13:41:18.184Z",
+    "occurrences": 364,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
     "source": "auto"
   },
@@ -30,8 +30,8 @@
       "content": "C4 design code generation successful - 25 TypeScript files generated"
     },
     "confidence": 0.95,
-    "occurrences": 1217,
-    "lastUsed": "2026-01-05T13:41:18.184Z",
+    "occurrences": 1409,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
     "createdAt": "2026-01-03T13:41:53.216Z",
     "source": "auto"
   },
@@ -50,8 +50,8 @@
       "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
     },
     "confidence": 0.95,
-    "occurrences": 207,
-    "lastUsed": "2026-01-05T13:41:18.184Z",
+    "occurrences": 231,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
     "createdAt": "2026-01-03T14:16:40.627Z",
     "source": "auto"
   },
@@ -70,8 +70,8 @@
       "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
     },
     "confidence": 0.95,
-    "occurrences": 360,
-    "lastUsed": "2026-01-05T13:41:18.184Z",
+    "occurrences": 408,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
     "createdAt": "2026-01-03T14:27:44.066Z",
     "source": "auto"
   },
@@ -88,8 +88,8 @@
       "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
     },
     "confidence": 0.95,
-    "occurrences": 448,
-    "lastUsed": "2026-01-05T13:41:18.184Z",
+    "occurrences": 560,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
     "createdAt": "2026-01-03T14:37:30.109Z",
     "source": "auto"
   },
@@ -106,8 +106,8 @@
       "content": "Design elements correctly reference requirement IDs in JSDoc comments"
     },
     "confidence": 0.95,
-    "occurrences": 425,
-    "lastUsed": "2026-01-05T13:41:18.184Z",
+    "occurrences": 553,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
     "createdAt": "2026-01-03T14:48:18.010Z",
     "source": "auto"
   },
@@ -304,8 +304,8 @@
       "content": "テスト作成時にEntity APIシグネチャを確認せず、誤った引数パターンでテストを書いた"
     },
     "confidence": 0.95,
-    "occurrences": 63,
-    "lastUsed": "2026-01-05T13:41:18.184Z",
+    "occurrences": 87,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
     "createdAt": "2026-01-04T07:17:33.387Z",
     "source": "auto"
   },
@@ -322,8 +322,8 @@
       "content": "Vitest + TypeScript ESMモジュール構成でモダンなテスト環境を実現"
     },
     "confidence": 0.95,
-    "occurrences": 135,
-    "lastUsed": "2026-01-05T13:41:18.184Z",
+    "occurrences": 216,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
     "createdAt": "2026-01-04T07:17:40.031Z",
     "source": "auto"
   },
@@ -416,5 +416,41 @@
     "lastUsed": "2026-01-04T07:18:25.522Z",
     "createdAt": "2026-01-04T07:18:25.522Z",
     "source": "manual"
+  },
+  {
+    "id": "PAT-64077952",
+    "name": "Requirement: Suggest modify requirement",
+    "category": "requirement",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "suggest",
+      "content": "modify requirement"
+    },
+    "confidence": 0.75,
+    "occurrences": 9,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "createdAt": "2026-01-12T22:54:20.644Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-2825549A",
+    "name": "Design: Suggest modify design",
+    "category": "design",
+    "trigger": {
+      "context": {},
+      "conditions": []
+    },
+    "action": {
+      "type": "suggest",
+      "content": "modify design"
+    },
+    "confidence": 0.6000000000000001,
+    "occurrences": 6,
+    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "createdAt": "2026-01-12T22:54:22.003Z",
+    "source": "auto"
   }
 ]

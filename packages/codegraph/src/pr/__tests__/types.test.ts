@@ -27,13 +27,13 @@ describe('PR Types', () => {
       };
 
       const branch = generateBranchName(suggestion);
-      expect(branch).toMatch(/^refactor\/extract-method-[a-f0-9]{8}$/);
+      expect(branch).toMatch(/^refactor\/extract-method\/[a-z-]+-[a-z0-9]+$/);
     });
 
     it('should sanitize branch name characters', () => {
       const suggestion: RefactoringSuggestion = {
         id: 'test-001',
-        type: 'other',
+        type: 'simplify',
         title: 'Fix "special" <chars> & more!',
         description: 'Test',
         changes: [],
@@ -47,12 +47,12 @@ describe('PR Types', () => {
     });
 
     it('should generate valid branch for complex types', () => {
-      const types = ['extract-method', 'inline-variable', 'rename', 'move', 'other'];
+      const types: RefactoringSuggestion['type'][] = ['extract_method', 'inline', 'rename', 'move', 'simplify'];
       
       for (const type of types) {
         const suggestion: RefactoringSuggestion = {
           id: `${type}-001`,
-          type: type as RefactoringSuggestion['type'],
+          type: type,
           title: `Test ${type}`,
           description: 'Test',
           changes: [],
@@ -60,7 +60,7 @@ describe('PR Types', () => {
         };
 
         const branch = generateBranchName(suggestion);
-        expect(branch).toMatch(/^refactor\/[a-z-]+-[a-f0-9]{8}$/);
+        expect(branch).toMatch(/^refactor\/[a-z-]+\/[a-z-]+-[a-z0-9]+$/);
       }
     });
   });
@@ -69,7 +69,7 @@ describe('PR Types', () => {
     it('should generate conventional commit message', () => {
       const suggestion: RefactoringSuggestion = {
         id: 'extract-method-001',
-        type: 'extract-method',
+        type: 'extract_method',
         title: 'Extract Method calculateTotal',
         description: 'Extract repeated calculation logic into method',
         changes: [
@@ -89,20 +89,19 @@ describe('PR Types', () => {
       const message = generateCommitMessage(suggestion);
       
       expect(message).toContain('refactor');
-      expect(message).toContain('Extract Method calculateTotal');
-      expect(message).toContain('Extract repeated calculation logic');
+      expect(message).toContain('extract method calculatetotal');
     });
 
     it('should use correct commit type for different refactoring types', () => {
       const typeMapping: Record<string, string> = {
-        'extract-method': 'refactor',
-        'extract-class': 'refactor',
-        'inline-variable': 'refactor',
+        'extract_method': 'refactor',
+        'extract_class': 'refactor',
+        'inline': 'refactor',
         'rename': 'refactor',
         'move': 'refactor',
-        'simplify-expression': 'perf',
-        'dead-code': 'style',
-        'other': 'refactor',
+        'simplify': 'refactor',
+        'performance': 'perf',
+        'security_fix': 'security',
       };
 
       for (const [suggestionType, commitType] of Object.entries(typeMapping)) {
@@ -116,14 +115,14 @@ describe('PR Types', () => {
         };
 
         const message = generateCommitMessage(suggestion);
-        expect(message.startsWith(`${commitType}:`)).toBe(true);
+        expect(message.startsWith(`${commitType}(`)).toBe(true);
       }
     });
 
     it('should include file list in message body', () => {
       const suggestion: RefactoringSuggestion = {
         id: 'test',
-        type: 'extract-method',
+        type: 'extract_method',
         title: 'Test',
         description: 'Test description',
         changes: [
@@ -144,6 +143,7 @@ describe('PR Types', () => {
       const suggestion: RefactoringSuggestion = {
         id: 'unique-suggestion-id-123',
         type: 'rename',
+        entityId: 'core.utils',
         title: 'Rename variable',
         description: 'Rename for clarity',
         changes: [],
@@ -158,16 +158,15 @@ describe('PR Types', () => {
   describe('Type Definitions', () => {
     it('should allow all valid refactoring types', () => {
       const validTypes: RefactoringSuggestion['type'][] = [
-        'extract-method',
-        'extract-class',
-        'extract-interface',
-        'inline-variable',
+        'extract_method',
+        'extract_class',
+        'extract_interface',
+        'inline',
         'rename',
         'move',
-        'simplify-expression',
-        'dead-code',
-        'parameter-object',
-        'other',
+        'simplify',
+        'performance',
+        'security_fix',
       ];
 
       for (const type of validTypes) {

@@ -195,6 +195,63 @@ export {
   handleSkillRegister,
 } from './skill-handlers.js';
 
+// v3.1.0 NEW - Watch Tools
+export {
+  watchStartTool,
+  watchStopTool,
+  watchStatusTool,
+  watchRunNowTool,
+  watchReportTool,
+  watchTools,
+  getWatchTools,
+  handleWatchTool,
+  handleWatchStart,
+  handleWatchStop,
+  handleWatchStatus,
+  handleWatchRunNow,
+  handleWatchReport,
+} from './watch-tools.js';
+
+// v3.1.0 NEW - CodeQL Tools
+export {
+  codeqlParseSarifTool,
+  codeqlAggregateTool,
+  codeqlCweLookupTool,
+  codeqlListCwesTool,
+  codeqlSummaryTool,
+  codeqlFixSuggestionsTool,
+  codeqlTools,
+  getCodeQLTools,
+  handleCodeQLTool,
+  handleCodeQLParseSarif,
+  handleCodeQLAggregate,
+  handleCodeQLCweLookup,
+  handleCodeQLListCwes,
+  handleCodeQLSummary,
+  handleCodeQLFixSuggestions,
+} from './codeql-tools.js';
+
+// v3.1.0 NEW - Team Tools
+export {
+  teamSharePatternTool,
+  teamListPatternsTool,
+  teamSyncTool,
+  teamStatusTool,
+  teamAddKnowledgeTool,
+  teamQueryKnowledgeTool,
+  teamTools,
+} from './team-tools.js';
+
+// v3.1.0 NEW - Spaces Tools
+export {
+  spacesCreateTool,
+  spacesActivateTool,
+  spacesListTool,
+  spacesStatusTool,
+  spacesSuggestTool,
+  spacesTools,
+} from './spaces-tools.js';
+
 import { getSddTools as _getSddTools } from './sdd-tools.js';
 import { getSymbolicTools as _getSymbolicTools } from './symbolic-tools.js';
 import { getPatternIntegrationTools as _getPatternIntegrationTools } from './pattern-tools.js';
@@ -226,6 +283,18 @@ import {
   skillInfoTool as _skillInfoTool,
   skillRegisterTool as _skillRegisterTool,
 } from './skill-tools.js';
+
+// v3.1.0 NEW - Watch Tools import
+import { getWatchTools as _getWatchTools } from './watch-tools.js';
+
+// v3.1.0 NEW - CodeQL Tools import
+import { getCodeQLTools as _getCodeQLTools } from './codeql-tools.js';
+
+// v3.1.0 NEW - Team Tools import
+import { teamTools as _teamTools } from './team-tools.js';
+
+// v3.1.0 NEW - Spaces Tools import
+import { spacesTools as _spacesTools } from './spaces-tools.js';
 
 /**
  * v2.4.0 Agent Orchestration Tools
@@ -279,6 +348,14 @@ export function getAllTools() {
     ..._getKnowledgeTools(),
     ..._getPolicyTools(),
     ..._getDecisionTools(),
+    // v3.1.0 NEW - Watch Tools
+    ..._getWatchTools(),
+    // v3.1.0 NEW - CodeQL Tools
+    ..._getCodeQLTools(),
+    // v3.1.0 NEW - Team Tools
+    ..._teamTools,
+    // v3.1.0 NEW - Spaces Tools
+    ..._spacesTools,
   ];
 }
 
@@ -294,4 +371,9 @@ export const toolCategories = {
   knowledge: ['knowledge_put_entity', 'knowledge_get_entity', 'knowledge_delete_entity', 'knowledge_add_relation', 'knowledge_query', 'knowledge_traverse'],
   policy: ['policy_validate', 'policy_list', 'policy_get', 'policy_check_file'],
   decision: ['decision_create', 'decision_list', 'decision_get', 'decision_accept', 'decision_deprecate', 'decision_search', 'decision_find_by_requirement', 'decision_generate_index'],
+  // v3.1.0 NEW
+  watch: ['watch_start', 'watch_stop', 'watch_status', 'watch_run_now', 'watch_report'],
+  codeql: ['codeql_parse_sarif', 'codeql_aggregate', 'codeql_cwe_lookup', 'codeql_list_cwes', 'codeql_summary', 'codeql_fix_suggestions'],
+  team: ['team_share_pattern', 'team_list_patterns', 'team_sync', 'team_status', 'team_add_knowledge', 'team_query_knowledge'],
+  spaces: ['spaces_create', 'spaces_activate', 'spaces_list', 'spaces_status', 'spaces_suggest'],
 };
