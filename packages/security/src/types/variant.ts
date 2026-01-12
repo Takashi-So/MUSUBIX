@@ -9,6 +9,23 @@
 // ============================================================================
 
 /**
+ * Vulnerability category
+ */
+export type VulnerabilityCategory =
+  | 'injection'
+  | 'xss'
+  | 'path-traversal'
+  | 'command-injection'
+  | 'xxe'
+  | 'ssrf'
+  | 'deserialization'
+  | 'hardcoded-credentials'
+  | 'crypto'
+  | 'auth'
+  | 'information-disclosure'
+  | 'other';
+
+/**
  * Vulnerability model definition
  */
 export interface VulnerabilityModel {
@@ -18,12 +35,16 @@ export interface VulnerabilityModel {
   name: string;
   /** Description */
   description: string;
-  /** CWE IDs */
+  /** CWE IDs (can be array or string) */
   cwe: number[];
+  /** Legacy CWE ID string (e.g., 'CWE-89') */
+  cweId?: string;
+  /** Category */
+  category?: VulnerabilityCategory;
   /** Severity */
   severity: VulnerabilitySeverity;
   /** Affected languages */
-  languages: string[];
+  languages?: string[];
   /** Source patterns */
   sources: SourcePattern[];
   /** Sink patterns */
@@ -32,10 +53,12 @@ export interface VulnerabilityModel {
   sanitizers: SanitizerPattern[];
   /** Propagation rules */
   propagators?: PropagatorPattern[];
+  /** Regex patterns for simple matching */
+  patterns?: RegExp[];
   /** Message template */
-  messageTemplate: string;
+  messageTemplate?: string;
   /** References */
-  references: Reference[];
+  references?: Reference[];
   /** Is enabled? */
   enabled: boolean;
   /** Custom tags */

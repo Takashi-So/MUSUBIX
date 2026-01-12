@@ -8,22 +8,24 @@
 export {
   VulnerabilityModelManager,
   createModelManager,
-  VULNERABILITY_MODELS,
+  defaultModelManager,
   CWE_DATABASE,
 } from './model.js';
 
 // Vulnerability detection
 export {
-  VulnerabilityDetector,
+  TaintDetector,
   createDetector,
+  type DetectorOptions,
+  type DetectorResult,
 } from './detector.js';
 
 // Security scanning
 export {
   SecurityScanner,
   createScanner,
-  scan,
-  scanFile,
+  type ScannerOptions,
+  type ScanProgress,
 } from './scanner.js';
 
 // SARIF reporting
@@ -31,8 +33,18 @@ export {
   SARIFGenerator,
   createSARIFGenerator,
   generateSARIF,
-  exportSARIF,
+  generateSARIFFromFindings,
 } from './sarif.js';
+
+import { generateSARIF as _generateSARIF } from './sarif.js';
+
+/**
+ * Export SARIF report as JSON string
+ */
+export function exportSARIF(scanResult: import('../types/variant.js').ScanResult): string {
+  const report = _generateSARIF(scanResult);
+  return JSON.stringify(report, null, 2);
+}
 
 // Re-export types
 export type {
@@ -41,17 +53,16 @@ export type {
   SinkPattern,
   SanitizerPattern,
   VulnerabilityCategory,
+  VulnerabilitySeverity,
   VulnerabilityFinding,
-  TaintFlow,
-  FlowStep,
+  TaintPathInfo,
+  TaintNode,
   ScanConfig,
   ScanResult,
-  ScanProgress,
-  ScanPhase,
-  DetectorOptions,
-  DetectorResult,
   SARIFReport,
   SARIFRun,
   SARIFResult,
   SARIFRule,
+  SARIFLocation,
+  SARIFCodeFlow,
 } from '../types/variant.js';

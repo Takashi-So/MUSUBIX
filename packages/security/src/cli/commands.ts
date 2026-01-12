@@ -448,153 +448,38 @@ export function createSecurityCLI(): Command {
   // CodeQL-equivalent commands (v3.1.0)
   // ============================================================================
 
-  // Database build command
+  // Database build command (disabled in v3.0.11 - CodeDB refactoring in progress)
   program
     .command('database <action> [target]')
     .alias('db')
-    .description('CodeDB operations (build|export|import)')
+    .description('CodeDB operations (build|export|import) [temporarily disabled]')
     .option('-o, --output <file>', 'Output file for export')
     .option('-l, --language <lang>', 'Primary language (auto-detect if not specified)')
     .option('--parallel', 'Enable parallel processing', true)
-    .action(async (action, target = '.', options) => {
-      try {
-        const { createCodeDBBuilder } = await import('../codedb/builder.js');
-        const { CodeDBSerializer } = await import('../codedb/serializer.js');
-        const targetPath = path.resolve(target);
-
-        switch (action) {
-          case 'build': {
-            console.log(`\n  Building CodeDB for ${targetPath}...\n`);
-            const builder = createCodeDBBuilder({ parallel: options.parallel });
-            
-            builder.onProgress((progress) => {
-              process.stdout.write(`\r  Progress: ${progress.filesProcessed}/${progress.totalFiles} files (${progress.progress.toFixed(1)}%)`);
-            });
-
-            const result = await builder.build(targetPath);
-            console.log('\n');
-            console.log(`  ✓ Database built successfully`);
-            console.log(`    Files processed: ${result.stats.filesSucceeded}`);
-            console.log(`    Errors: ${result.stats.filesFailed}`);
-            console.log(`    Duration: ${result.stats.duration}ms\n`);
-
-            if (options.output) {
-              const serializer = new CodeDBSerializer();
-              const serialized = serializer.serialize(result.database);
-              const fs = await import('node:fs/promises');
-              await fs.writeFile(options.output, serialized, 'utf-8');
-              console.log(`  Database exported to: ${options.output}\n`);
-            }
-            break;
-          }
-
-          case 'export': {
-            console.error('  Use: musubix-security database build --output <file>');
-            break;
-          }
-
-          case 'import': {
-            if (!target) {
-              console.error('  Error: Database file path required');
-              process.exitCode = 1;
-              return;
-            }
-            const { CodeDBSerializer } = await import('../codedb/serializer.js');
-            const fs = await import('node:fs/promises');
-            const content = await fs.readFile(target, 'utf-8');
-            const serializer = new CodeDBSerializer();
-            const db = serializer.deserialize(content);
-            console.log(`\n  ✓ Database imported successfully`);
-            console.log(`    AST nodes: ${db.getStats().astNodes}`);
-            console.log(`    DFG nodes: ${db.getStats().dfgNodes}`);
-            console.log(`    CFG nodes: ${db.getStats().cfgNodes}\n`);
-            break;
-          }
-
-          default:
-            console.error(`  Unknown action: ${action}`);
-            console.error('  Available actions: build, export, import');
-            process.exitCode = 1;
-        }
-      } catch (error: any) {
-        console.error(`Error: ${error.message}`);
-        process.exitCode = 1;
-      }
+    .action(async (_action, _target = '.', _options) => {
+      console.error('\n  ⚠️  CodeDB commands are temporarily disabled in v3.0.11');
+      console.error('     This feature is being refactored for improved stability.');
+      console.error('     Please use the variant analysis command instead:\n');
+      console.error('       musubix-security variant <target>\n');
+      process.exitCode = 1;
     });
 
-  // MQL Query command
+  // MQL Query command (disabled in v3.0.11 - MQL refactoring in progress)
   program
     .command('query <mql>')
     .alias('q')
-    .description('Execute MQL query against CodeDB')
+    .description('Execute MQL query against CodeDB [temporarily disabled]')
     .option('-d, --database <file>', 'CodeDB file (or build from target)')
     .option('-t, --target <path>', 'Target directory to scan', '.')
     .option('--explain', 'Show query plan')
     .option('--json', 'Output JSON')
     .option('-l, --limit <n>', 'Limit results', '100')
-    .action(async (mql, options) => {
-      try {
-        const { createMQLEngine } = await import('../mql/index.js');
-        const { createCodeDBBuilder } = await import('../codedb/builder.js');
-        const { CodeDBSerializer } = await import('../codedb/serializer.js');
-
-        let db;
-
-        if (options.database) {
-          // Load from file
-          const fs = await import('node:fs/promises');
-          const content = await fs.readFile(options.database, 'utf-8');
-          const serializer = new CodeDBSerializer();
-          db = serializer.deserialize(content);
-        } else {
-          // Build from target
-          const targetPath = path.resolve(options.target);
-          console.log(`  Building CodeDB from ${targetPath}...\n`);
-          const builder = createCodeDBBuilder();
-          const result = await builder.build(targetPath);
-          db = result.database;
-        }
-
-        const engine = createMQLEngine({ maxResults: parseInt(options.limit, 10) });
-
-        if (options.explain) {
-          const explanation = engine.explain(mql);
-          console.log(explanation);
-          return;
-        }
-
-        const result = await engine.execute(mql, db);
-
-        if (options.json) {
-          console.log(JSON.stringify(result, null, 2));
-          return;
-        }
-
-        console.log(`\n  Query Results: ${result.rows.length} rows (${result.metadata.executionTime}ms)\n`);
-        
-        if (result.rows.length === 0) {
-          console.log('  No results found.\n');
-          return;
-        }
-
-        // Display results as table
-        const columns = Object.keys(result.rows[0]).filter(k => !k.startsWith('_'));
-        console.log('  ' + columns.map(c => c.padEnd(20)).join(' | '));
-        console.log('  ' + columns.map(() => '-'.repeat(20)).join('-+-'));
-
-        for (const row of result.rows.slice(0, 20)) {
-          const values = columns.map(c => String(row[c] ?? '').substring(0, 20).padEnd(20));
-          console.log('  ' + values.join(' | '));
-        }
-
-        if (result.rows.length > 20) {
-          console.log(`\n  ... and ${result.rows.length - 20} more rows\n`);
-        }
-        console.log('');
-      } catch (error: any) {
-        console.error(`Error: ${error.message}`);
-        process.exitCode = 1;
-      }
+    .action(async (_mql, _options) => {
+      console.error('\n  ⚠️  MQL query commands are temporarily disabled in v3.0.11');
+      console.error('     This feature is being refactored for improved stability.');
+      console.error('     Please use the variant analysis command instead:\n');
+      console.error('       musubix-security variant <target>\n');
+      process.exitCode = 1;
     });
 
   // Variant analysis command
@@ -627,12 +512,13 @@ export function createSecurityCLI(): Command {
         console.log(`\n  Running variant analysis on ${targetPath}...\n`);
 
         const scanner = createScanner({
-          severityThreshold: options.severity,
-          modelIds: options.model,
-        });
-
-        scanner.onProgress((progress) => {
-          process.stdout.write(`\r  ${progress.phase}: ${progress.message} (${progress.progress.toFixed(0)}%)`);
+          config: {
+            minSeverity: options.severity as import('../types/variant.js').VulnerabilitySeverity,
+            enabledModels: options.model,
+          },
+          onProgress: (progress: import('../variant/scanner.js').ScanProgress) => {
+            process.stdout.write(`\r  ${progress.phase}: ${progress.message} (${progress.progress.toFixed(0)}%)`);
+          },
         });
 
         const result = await scanner.scan(targetPath);
@@ -665,21 +551,21 @@ export function createSecurityCLI(): Command {
         console.log('  ═══════════════════════════════════════════════════════════════');
         console.log('  🔍 Variant Analysis Results');
         console.log('  ═══════════════════════════════════════════════════════════════\n');
-        console.log(`    Total Findings: ${result.summary.totalFindings}`);
+        console.log(`    Total Findings: ${result.summary.total}`);
         console.log(`    Critical: ${result.summary.bySeverity.critical}`);
         console.log(`    High: ${result.summary.bySeverity.high}`);
         console.log(`    Medium: ${result.summary.bySeverity.medium}`);
         console.log(`    Low: ${result.summary.bySeverity.low}`);
         console.log(`    Info: ${result.summary.bySeverity.info}`);
-        console.log(`    Duration: ${result.metadata.executionTime}ms\n`);
+        console.log(`    Duration: ${result.duration}ms\n`);
 
         if (result.findings.length > 0) {
           console.log('  Findings:\n');
           for (const finding of result.findings.slice(0, 10)) {
-            console.log(`  ${formatter.formatSeverity(finding.severity)} ${finding.modelName}`);
+            console.log(`  ${formatter.formatSeverity(finding.severity)} ${finding.ruleName}`);
             console.log(`           ${finding.location.file}:${finding.location.startLine}`);
-            console.log(`           ${finding.description}`);
-            console.log(`           ${finding.cweId} | Confidence: ${finding.confidence}\n`);
+            console.log(`           ${finding.message}`);
+            console.log(`           CWE-${finding.cwe.join(', CWE-')} | Confidence: ${finding.confidence}\n`);
           }
           if (result.findings.length > 10) {
             console.log(`  ... and ${result.findings.length - 10} more findings\n`);

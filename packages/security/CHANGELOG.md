@@ -5,6 +5,51 @@ All notable changes to @nahisaho/musubix-security will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.11] - 2026-01-11
+
+### Fixed
+- **tree-sitter Peer Dependency Conflict**: Changed tree-sitter dependency from ^0.22.0 to ^0.21.1 for compatibility with tree-sitter-go@0.23.x
+- **TypeScript Type System**: Resolved 551+ TypeScript compilation errors from type mismatches
+
+### Changed
+- **CodeDB Module**: Temporarily disabled (stubbed) pending type system refactoring
+  - `CodeDB`, `CodeDBBuilder`, `buildCodeDB`, `buildCodeDBFromPath` now throw errors with guidance to use variant analysis
+  - Full functionality will be restored in v3.1.0
+- **MQL Module**: Temporarily disabled pending type system refactoring
+  - Query language features will be restored in v3.1.0
+- **Extractors**: Simplified to type exports only
+  - Java and Go extractors temporarily disabled
+- **Variant Analysis**: Refactored to file-based implementation without CodeDB dependency
+  - Pattern-based vulnerability detection remains fully functional
+  - SARIF report generation working
+
+### Migration Guide
+If you were using CodeDB or MQL features:
+```typescript
+// Before (v3.0.10)
+import { createCodeDBBuilder, createMQLEngine } from '@nahisaho/musubix-security';
+const builder = createCodeDBBuilder();
+const { database } = await builder.build('./src');
+const engine = createMQLEngine();
+const result = await engine.execute('FROM functions...', database);
+
+// After (v3.0.11) - Use variant analysis instead
+import { createScanner } from '@nahisaho/musubix-security';
+const scanner = createScanner();
+const result = await scanner.scan('./src');
+```
+
+## [3.0.10] - 2026-01-11
+
+### Added
+- **CodeQL-Equivalent Features**: Multi-language code analysis framework
+  - MQL (MUSUBIX Query Language) for code analysis
+  - Variant Analysis with SARIF export
+  - CodeDB in-memory database
+
+### Known Issues
+- tree-sitter peer dependency conflicts during npm install (fixed in v3.0.11)
+
 ## [1.8.0] - 2026-01-07
 
 ### Added

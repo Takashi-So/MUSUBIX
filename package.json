@@ -65,6 +65,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
+    "@nahisaho/musubix-security": "^3.0.10",
     "musubix": "^3.0.6"
   }
 }

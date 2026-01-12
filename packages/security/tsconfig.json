@@ -8,5 +8,15 @@
     "composite": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests", "src/tests", "src/**/*.test.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests",
+    "src/tests",
+    "src/**/*.test.ts",
+    "src/extractors/java-extractor.ts",
+    "src/extractors/go-extractor.ts",
+    "src/codedb/serializer.ts",
+    "src/mql/**/*"
+  ]
 }

@@ -6,13 +6,14 @@
 
 import type {
   VulnerabilityModel,
-  SourcePattern,
-  SinkPattern,
-  SanitizerPattern,
   VulnerabilityCategory,
-  BUILTIN_MODELS,
-  CWE_MAPPINGS,
+  VulnerabilitySeverity,
+  RegexMatcher,
 } from '../types/variant.js';
+
+// ============================================================================
+// CWE Database
+// ============================================================================
 
 /**
  * CWE ID to Name mappings
@@ -34,592 +35,627 @@ export const CWE_DATABASE: Record<string, { name: string; description: string }>
     name: 'Path Traversal',
     description: 'Improper Limitation of a Pathname to a Restricted Directory',
   },
-  'CWE-94': {
-    name: 'Code Injection',
-    description: 'Improper Control of Generation of Code',
-  },
   'CWE-611': {
     name: 'XXE (XML External Entity)',
     description: 'Improper Restriction of XML External Entity Reference',
-  },
-  'CWE-502': {
-    name: 'Deserialization of Untrusted Data',
-    description: 'Deserialization of Untrusted Data',
   },
   'CWE-918': {
     name: 'Server-Side Request Forgery (SSRF)',
     description: 'Server-Side Request Forgery',
   },
-  'CWE-327': {
-    name: 'Use of a Broken or Risky Cryptographic Algorithm',
-    description: 'Use of a Broken or Risky Cryptographic Algorithm',
-  },
-  'CWE-295': {
-    name: 'Improper Certificate Validation',
-    description: 'Improper Certificate Validation',
-  },
-  'CWE-200': {
-    name: 'Exposure of Sensitive Information',
-    description: 'Exposure of Sensitive Information to an Unauthorized Actor',
-  },
-  'CWE-532': {
-    name: 'Information Exposure Through Log Files',
-    description: 'Information Exposure Through Log Files',
-  },
-  'CWE-601': {
-    name: 'Open Redirect',
-    description: 'URL Redirection to Untrusted Site',
-  },
-  'CWE-352': {
-    name: 'Cross-Site Request Forgery (CSRF)',
-    description: 'Cross-Site Request Forgery',
-  },
-  'CWE-287': {
-    name: 'Improper Authentication',
-    description: 'Improper Authentication',
-  },
   'CWE-798': {
     name: 'Use of Hard-coded Credentials',
     description: 'Use of Hard-coded Credentials',
   },
-  'CWE-312': {
-    name: 'Cleartext Storage of Sensitive Information',
-    description: 'Cleartext Storage of Sensitive Information',
-  },
-  'CWE-319': {
-    name: 'Cleartext Transmission of Sensitive Information',
-    description: 'Cleartext Transmission of Sensitive Information',
+  'CWE-502': {
+    name: 'Deserialization of Untrusted Data',
+    description: 'Deserialization of Untrusted Data',
   },
 };
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
 /**
- * Built-in vulnerability models
+ * Create a regex matcher
+ */
+function regex(pattern: string, flags?: string): RegexMatcher {
+  return { type: 'regex', pattern, flags };
+}
+
+/**
+ * Generate unique ID
+ */
+let idCounter = 0;
+function genId(prefix: string): string {
+  return `${prefix}-${++idCounter}`;
+}
+
+// ============================================================================
+// Built-in Vulnerability Models
+// ============================================================================
+
+/**
+ * SQL Injection Model
+ */
+const SQL_INJECTION_MODEL: VulnerabilityModel = {
+  id: 'sql-injection',
+  name: 'SQL Injection',
+  description: 'Detection of SQL injection vulnerabilities where user input is used in SQL queries without proper sanitization',
+  cwe: [89],
+  cweId: 'CWE-89',
+  category: 'injection',
+  severity: 'critical',
+  languages: ['java', 'javascript', 'typescript', 'go', 'python', 'php'],
+  sources: [
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('request\\.getParameter|req\\.query|req\\.body|req\\.params'),
+      taintLabel: 'user-input',
+      description: 'HTTP request parameters',
+    },
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('r\\.URL\\.Query|c\\.Query|c\\.Param|FormValue'),
+      taintLabel: 'user-input',
+      description: 'Go HTTP request parameters',
+    },
+    {
+      id: genId('src'),
+      type: 'annotation',
+      matcher: regex('@RequestParam|@PathVariable|@RequestBody'),
+      taintLabel: 'user-input',
+      description: 'Spring MVC annotations',
+    },
+  ],
+  sinks: [
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('executeQuery|executeUpdate|execute\\(|prepareStatement.*\\+'),
+      vulnerableArgs: [0],
+      description: 'JDBC query execution',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('db\\.Query|db\\.Exec|db\\.QueryRow|tx\\.Query|tx\\.Exec'),
+      vulnerableArgs: [0],
+      description: 'Go database query execution',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('query\\(|raw\\(|knex\\.raw|sequelize\\.query'),
+      vulnerableArgs: [0],
+      description: 'Node.js database query execution',
+    },
+  ],
+  sanitizers: [
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('prepareStatement|setString|setInt|setParameter'),
+      description: 'Parameterized queries',
+    },
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('escape|sanitize|parameterize'),
+      description: 'Input escaping functions',
+    },
+  ],
+  messageTemplate: 'SQL Injection vulnerability: user input flows to SQL query without sanitization',
+  references: [
+    { type: 'cwe', value: '89', title: 'CWE-89: SQL Injection' },
+    { type: 'owasp', value: 'A03:2021', title: 'OWASP Top 10 - Injection' },
+  ],
+  enabled: true,
+  tags: ['injection', 'database', 'critical'],
+};
+
+/**
+ * XSS Model
+ */
+const XSS_MODEL: VulnerabilityModel = {
+  id: 'xss',
+  name: 'Cross-site Scripting (XSS)',
+  description: 'Detection of XSS vulnerabilities where user input is rendered in HTML without proper encoding',
+  cwe: [79],
+  cweId: 'CWE-79',
+  category: 'xss',
+  severity: 'high',
+  languages: ['javascript', 'typescript', 'java', 'go', 'php'],
+  sources: [
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('req\\.query|req\\.body|req\\.params|request\\.getParameter'),
+      taintLabel: 'user-input',
+      description: 'HTTP request parameters',
+    },
+    {
+      id: genId('src'),
+      type: 'property',
+      matcher: regex('location\\.search|location\\.hash|document\\.URL|document\\.referrer'),
+      taintLabel: 'user-input',
+      description: 'Browser DOM properties',
+    },
+  ],
+  sinks: [
+    {
+      id: genId('sink'),
+      type: 'property',
+      matcher: regex('innerHTML|outerHTML'),
+      description: 'DOM innerHTML assignment',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('document\\.write|document\\.writeln'),
+      description: 'Document write functions',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('res\\.send|res\\.write|c\\.HTML|c\\.String'),
+      vulnerableArgs: [0],
+      description: 'HTTP response output',
+    },
+    {
+      id: genId('sink'),
+      type: 'property',
+      matcher: regex('dangerouslySetInnerHTML|v-html'),
+      description: 'Framework unsafe HTML rendering',
+    },
+  ],
+  sanitizers: [
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('escapeHtml|htmlEscape|sanitize|encode|DOMPurify\\.sanitize'),
+      description: 'HTML encoding functions',
+    },
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('template\\.HTMLEscapeString|html\\.EscapeString'),
+      description: 'Go HTML escape functions',
+    },
+  ],
+  messageTemplate: 'XSS vulnerability: user input rendered in HTML without proper encoding',
+  references: [
+    { type: 'cwe', value: '79', title: 'CWE-79: Cross-site Scripting' },
+    { type: 'owasp', value: 'A03:2021', title: 'OWASP Top 10 - Injection' },
+  ],
+  enabled: true,
+  tags: ['xss', 'injection', 'web'],
+};
+
+/**
+ * Command Injection Model
+ */
+const COMMAND_INJECTION_MODEL: VulnerabilityModel = {
+  id: 'command-injection',
+  name: 'OS Command Injection',
+  description: 'Detection of command injection vulnerabilities where user input is used in OS commands',
+  cwe: [78, 77],
+  cweId: 'CWE-78',
+  category: 'command-injection',
+  severity: 'critical',
+  languages: ['java', 'javascript', 'typescript', 'go', 'python', 'php', 'ruby'],
+  sources: [
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('req\\.query|req\\.body|req\\.params|request\\.getParameter'),
+      taintLabel: 'user-input',
+      description: 'HTTP request parameters',
+    },
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('c\\.Query|c\\.Param|FormValue'),
+      taintLabel: 'user-input',
+      description: 'Go HTTP request parameters',
+    },
+  ],
+  sinks: [
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('Runtime\\.getRuntime\\(\\)\\.exec|ProcessBuilder'),
+      vulnerableArgs: [0],
+      description: 'Java process execution',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('exec\\(|spawn\\(|execSync\\(|spawnSync\\('),
+      vulnerableArgs: [0],
+      description: 'Node.js child process execution',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('exec\\.Command|os\\.exec'),
+      vulnerableArgs: [0],
+      description: 'Go command execution',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('os\\.system|subprocess\\.call|subprocess\\.run|subprocess\\.Popen'),
+      vulnerableArgs: [0],
+      description: 'Python command execution',
+    },
+  ],
+  sanitizers: [
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('shlex\\.quote|escapeshellarg|escapeshellcmd'),
+      description: 'Shell argument escaping',
+    },
+    {
+      id: genId('san'),
+      type: 'validation',
+      matcher: regex('whitelist|allowlist'),
+      description: 'Whitelist validation',
+    },
+  ],
+  messageTemplate: 'Command Injection vulnerability: user input used in OS command execution',
+  references: [
+    { type: 'cwe', value: '78', title: 'CWE-78: OS Command Injection' },
+    { type: 'owasp', value: 'A03:2021', title: 'OWASP Top 10 - Injection' },
+  ],
+  enabled: true,
+  tags: ['injection', 'command', 'critical'],
+};
+
+/**
+ * Path Traversal Model
+ */
+const PATH_TRAVERSAL_MODEL: VulnerabilityModel = {
+  id: 'path-traversal',
+  name: 'Path Traversal',
+  description: 'Detection of path traversal vulnerabilities where user input is used in file paths',
+  cwe: [22, 23],
+  cweId: 'CWE-22',
+  category: 'path-traversal',
+  severity: 'high',
+  languages: ['java', 'javascript', 'typescript', 'go', 'python', 'php'],
+  sources: [
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('req\\.query|req\\.body|req\\.params|request\\.getParameter'),
+      taintLabel: 'user-input',
+      description: 'HTTP request parameters',
+    },
+  ],
+  sinks: [
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('fs\\.readFile|fs\\.writeFile|fs\\.readFileSync|fs\\.writeFileSync'),
+      vulnerableArgs: [0],
+      description: 'Node.js file operations',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('new File\\(|FileInputStream|FileOutputStream|FileReader|FileWriter'),
+      vulnerableArgs: [0],
+      description: 'Java file operations',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('os\\.Open|ioutil\\.ReadFile|os\\.Create'),
+      vulnerableArgs: [0],
+      description: 'Go file operations',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('open\\(|file_get_contents|fopen'),
+      vulnerableArgs: [0],
+      description: 'PHP/Python file operations',
+    },
+  ],
+  sanitizers: [
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('path\\.normalize|path\\.resolve|filepath\\.Clean'),
+      description: 'Path normalization',
+    },
+    {
+      id: genId('san'),
+      type: 'validation',
+      matcher: regex('realpath|canonicalize'),
+      description: 'Canonical path validation',
+    },
+  ],
+  messageTemplate: 'Path Traversal vulnerability: user input used in file path without validation',
+  references: [
+    { type: 'cwe', value: '22', title: 'CWE-22: Path Traversal' },
+    { type: 'owasp', value: 'A01:2021', title: 'OWASP Top 10 - Broken Access Control' },
+  ],
+  enabled: true,
+  tags: ['path-traversal', 'file', 'access-control'],
+};
+
+/**
+ * XXE Model
+ */
+const XXE_MODEL: VulnerabilityModel = {
+  id: 'xxe',
+  name: 'XML External Entity (XXE)',
+  description: 'Detection of XXE vulnerabilities in XML parsers',
+  cwe: [611],
+  cweId: 'CWE-611',
+  category: 'xxe',
+  severity: 'high',
+  languages: ['java', 'python', 'php'],
+  sources: [
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('req\\.body|request\\.getInputStream'),
+      taintLabel: 'xml-input',
+      description: 'XML input from request',
+    },
+  ],
+  sinks: [
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('DocumentBuilder\\.parse|SAXParser\\.parse|XMLReader\\.parse'),
+      vulnerableArgs: [0],
+      description: 'Java XML parsing',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('etree\\.parse|etree\\.fromstring|minidom\\.parse'),
+      vulnerableArgs: [0],
+      description: 'Python XML parsing',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('simplexml_load_string|DOMDocument->loadXML'),
+      vulnerableArgs: [0],
+      description: 'PHP XML parsing',
+    },
+  ],
+  sanitizers: [
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('setFeature.*disallow-doctype-decl|FEATURE_SECURE_PROCESSING'),
+      description: 'Secure XML parser configuration',
+    },
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('defusedxml|libxml_disable_entity_loader'),
+      description: 'Secure XML libraries',
+    },
+  ],
+  messageTemplate: 'XXE vulnerability: XML parser accepts external entities',
+  references: [
+    { type: 'cwe', value: '611', title: 'CWE-611: XXE' },
+    { type: 'owasp', value: 'A05:2017', title: 'OWASP - XXE' },
+  ],
+  enabled: true,
+  tags: ['xxe', 'xml', 'injection'],
+};
+
+/**
+ * SSRF Model
+ */
+const SSRF_MODEL: VulnerabilityModel = {
+  id: 'ssrf',
+  name: 'Server-Side Request Forgery (SSRF)',
+  description: 'Detection of SSRF vulnerabilities where user input controls server-side HTTP requests',
+  cwe: [918],
+  cweId: 'CWE-918',
+  category: 'ssrf',
+  severity: 'high',
+  languages: ['java', 'javascript', 'typescript', 'go', 'python', 'php'],
+  sources: [
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('req\\.query|req\\.body|req\\.params|request\\.getParameter'),
+      taintLabel: 'user-url',
+      description: 'User-provided URL',
+    },
+  ],
+  sinks: [
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('fetch\\(|axios\\(|http\\.get|https\\.get|request\\('),
+      vulnerableArgs: [0],
+      description: 'Node.js HTTP requests',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('HttpURLConnection|HttpClient|RestTemplate'),
+      vulnerableArgs: [0],
+      description: 'Java HTTP requests',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('http\\.Get|http\\.Post|http\\.NewRequest'),
+      vulnerableArgs: [0],
+      description: 'Go HTTP requests',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('requests\\.get|urllib\\.request\\.urlopen|curl_exec'),
+      vulnerableArgs: [0],
+      description: 'Python/PHP HTTP requests',
+    },
+  ],
+  sanitizers: [
+    {
+      id: genId('san'),
+      type: 'validation',
+      matcher: regex('allowlist|whitelist|validateUrl'),
+      description: 'URL allowlist validation',
+    },
+  ],
+  messageTemplate: 'SSRF vulnerability: user input used in server-side HTTP request URL',
+  references: [
+    { type: 'cwe', value: '918', title: 'CWE-918: SSRF' },
+    { type: 'owasp', value: 'A10:2021', title: 'OWASP Top 10 - SSRF' },
+  ],
+  enabled: true,
+  tags: ['ssrf', 'network', 'injection'],
+};
+
+/**
+ * Hardcoded Credentials Model
+ */
+const HARDCODED_CREDENTIALS_MODEL: VulnerabilityModel = {
+  id: 'hardcoded-credentials',
+  name: 'Hardcoded Credentials',
+  description: 'Detection of hardcoded passwords, API keys, and secrets in source code',
+  cwe: [798],
+  cweId: 'CWE-798',
+  category: 'hardcoded-credentials',
+  severity: 'high',
+  languages: ['java', 'javascript', 'typescript', 'go', 'python', 'php', 'ruby', 'rust'],
+  sources: [],
+  sinks: [],
+  sanitizers: [],
+  patterns: [
+    /password\s*[=:]\s*['"][^'"]{4,}['"]/i,
+    /api[_-]?key\s*[=:]\s*['"][^'"]{8,}['"]/i,
+    /secret\s*[=:]\s*['"][^'"]{8,}['"]/i,
+    /token\s*[=:]\s*['"][^'"]{16,}['"]/i,
+    /AWS[_A-Za-z0-9]{16,}/,
+    /AKIA[0-9A-Z]{16}/,
+    /sk-[a-zA-Z0-9]{48}/,
+    /ghp_[a-zA-Z0-9]{36}/,
+    /-----BEGIN (RSA |EC )?PRIVATE KEY-----/,
+  ],
+  messageTemplate: 'Hardcoded credential detected in source code',
+  references: [
+    { type: 'cwe', value: '798', title: 'CWE-798: Hardcoded Credentials' },
+  ],
+  enabled: true,
+  tags: ['credentials', 'secrets', 'security'],
+};
+
+/**
+ * Insecure Deserialization Model
+ */
+const INSECURE_DESERIALIZATION_MODEL: VulnerabilityModel = {
+  id: 'insecure-deserialization',
+  name: 'Insecure Deserialization',
+  description: 'Detection of insecure deserialization vulnerabilities',
+  cwe: [502],
+  cweId: 'CWE-502',
+  category: 'deserialization',
+  severity: 'critical',
+  languages: ['java', 'python', 'php', 'ruby'],
+  sources: [
+    {
+      id: genId('src'),
+      type: 'function',
+      matcher: regex('req\\.body|request\\.getInputStream'),
+      taintLabel: 'untrusted-data',
+      description: 'Untrusted input data',
+    },
+  ],
+  sinks: [
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('ObjectInputStream\\.readObject|XMLDecoder\\.readObject'),
+      vulnerableArgs: [0],
+      description: 'Java deserialization',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('pickle\\.load|pickle\\.loads|yaml\\.load'),
+      vulnerableArgs: [0],
+      description: 'Python deserialization',
+    },
+    {
+      id: genId('sink'),
+      type: 'function',
+      matcher: regex('unserialize\\(|Marshal\\.load'),
+      vulnerableArgs: [0],
+      description: 'PHP/Ruby deserialization',
+    },
+  ],
+  sanitizers: [
+    {
+      id: genId('san'),
+      type: 'function',
+      matcher: regex('ObjectInputFilter|yaml\\.safe_load|json\\.loads'),
+      description: 'Safe deserialization methods',
+    },
+  ],
+  messageTemplate: 'Insecure deserialization vulnerability: untrusted data deserialized without validation',
+  references: [
+    { type: 'cwe', value: '502', title: 'CWE-502: Deserialization of Untrusted Data' },
+    { type: 'owasp', value: 'A08:2017', title: 'OWASP - Insecure Deserialization' },
+  ],
+  enabled: true,
+  tags: ['deserialization', 'injection', 'critical'],
+};
+
+// ============================================================================
+// Model Collection
+// ============================================================================
+
+/**
+ * All built-in vulnerability models
  */
 export const VULNERABILITY_MODELS: VulnerabilityModel[] = [
-  // SQL Injection
-  {
-    id: 'sql-injection',
-    name: 'SQL Injection',
-    description: 'Detection of SQL injection vulnerabilities',
-    cweId: 'CWE-89',
-    severity: 'critical',
-    category: 'injection',
-    sources: [
-      {
-        type: 'function_call',
-        patterns: [
-          /request\.getParameter/,
-          /request\.getQueryString/,
-          /req\.query/,
-          /req\.body/,
-          /req\.params/,
-          /r\.URL\.Query/,
-          /c\.Query/,
-          /c\.Param/,
-          /c\.PostForm/,
-          /FormValue/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-      },
-      {
-        type: 'parameter',
-        patterns: [/@RequestParam/, /@PathVariable/, /@RequestBody/],
-        languages: ['java'],
-      },
-    ],
-    sinks: [
-      {
-        type: 'function_call',
-        patterns: [
-          /executeQuery/,
-          /executeUpdate/,
-          /execute\(/,
-          /prepareStatement.*\+/,
-          /createQuery.*\+/,
-          /nativeQuery.*\+/,
-          /db\.Query\(/,
-          /db\.Exec\(/,
-          /db\.QueryRow\(/,
-          /tx\.Query\(/,
-          /tx\.Exec\(/,
-          /\.Raw\(/,
-          /\.Exec\(/,
-        ],
-        languages: ['java', 'go'],
-        parameterPosition: [0],
-      },
-      {
-        type: 'function_call',
-        patterns: [
-          /query\(/,
-          /execute\(/,
-          /raw\(/,
-          /knex\.raw/,
-          /sequelize\.query/,
-          /mongoose\..*\.find.*\{.*\$where/,
-        ],
-        languages: ['javascript', 'typescript'],
-        parameterPosition: [0],
-      },
-    ],
-    sanitizers: [
-      {
-        type: 'function_call',
-        patterns: [
-          /prepareStatement\(/,
-          /setString\(/,
-          /setInt\(/,
-          /setParameter\(/,
-          /createNativeQuery.*setParameter/,
-          /Stmt\.Exec/,
-          /Stmt\.Query/,
-          /sqlx\.Named/,
-        ],
-        effect: 'neutralize',
-      },
-      {
-        type: 'function_call',
-        patterns: [
-          /escape/i,
-          /sanitize/i,
-          /parameterize/i,
-          /bindValue/,
-          /bindParam/,
-        ],
-        effect: 'neutralize',
-      },
-    ],
-    enabled: true,
-  },
-
-  // XSS
-  {
-    id: 'xss',
-    name: 'Cross-site Scripting (XSS)',
-    description: 'Detection of XSS vulnerabilities',
-    cweId: 'CWE-79',
-    severity: 'high',
-    category: 'injection',
-    sources: [
-      {
-        type: 'function_call',
-        patterns: [
-          /request\.getParameter/,
-          /req\.query/,
-          /req\.body/,
-          /req\.params/,
-          /c\.Query/,
-          /c\.Param/,
-          /FormValue/,
-          /location\.search/,
-          /location\.hash/,
-          /document\.URL/,
-          /document\.referrer/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-      },
-    ],
-    sinks: [
-      {
-        type: 'property_access',
-        patterns: [/innerHTML/, /outerHTML/, /document\.write/, /document\.writeln/],
-        languages: ['javascript', 'typescript'],
-      },
-      {
-        type: 'function_call',
-        patterns: [
-          /res\.send\(/,
-          /res\.write\(/,
-          /response\.getWriter\(\)\.print/,
-          /out\.print/,
-          /c\.HTML\(/,
-          /c\.String\(/,
-          /w\.Write\(/,
-          /fmt\.Fprint.*w/,
-          /template\.HTML\(/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-      },
-      {
-        type: 'function_call',
-        patterns: [/dangerouslySetInnerHTML/, /v-html/, /\[innerHTML\]/],
-        languages: ['javascript', 'typescript'],
-      },
-    ],
-    sanitizers: [
-      {
-        type: 'function_call',
-        patterns: [
-          /escapeHtml/,
-          /htmlEncode/,
-          /sanitize/,
-          /DOMPurify\.sanitize/,
-          /xss\(/,
-          /html\.EscapeString/,
-          /template\.HTMLEscapeString/,
-          /StringEscapeUtils\.escapeHtml/,
-        ],
-        effect: 'neutralize',
-      },
-      {
-        type: 'function_call',
-        patterns: [
-          /textContent/,
-          /innerText/,
-          /createTextNode/,
-        ],
-        effect: 'neutralize',
-      },
-    ],
-    enabled: true,
-  },
-
-  // Command Injection
-  {
-    id: 'command-injection',
-    name: 'OS Command Injection',
-    description: 'Detection of OS command injection vulnerabilities',
-    cweId: 'CWE-78',
-    severity: 'critical',
-    category: 'injection',
-    sources: [
-      {
-        type: 'function_call',
-        patterns: [
-          /request\.getParameter/,
-          /req\.query/,
-          /req\.body/,
-          /req\.params/,
-          /c\.Query/,
-          /FormValue/,
-          /process\.argv/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-      },
-    ],
-    sinks: [
-      {
-        type: 'function_call',
-        patterns: [
-          /Runtime\.getRuntime\(\)\.exec/,
-          /ProcessBuilder/,
-          /child_process\.exec/,
-          /child_process\.spawn/,
-          /execSync/,
-          /spawnSync/,
-          /exec\.Command/,
-          /os\/exec\.Command/,
-          /syscall\.Exec/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-        parameterPosition: [0],
-      },
-      {
-        type: 'function_call',
-        patterns: [/eval\(/, /Function\(/, /setTimeout\(.*,.*\+/, /setInterval\(.*,.*\+/],
-        languages: ['javascript', 'typescript'],
-      },
-    ],
-    sanitizers: [
-      {
-        type: 'function_call',
-        patterns: [
-          /shellescape/i,
-          /escapeshellarg/i,
-          /escapeshellcmd/i,
-          /quote/i,
-        ],
-        effect: 'neutralize',
-      },
-    ],
-    enabled: true,
-  },
-
-  // Path Traversal
-  {
-    id: 'path-traversal',
-    name: 'Path Traversal',
-    description: 'Detection of path traversal vulnerabilities',
-    cweId: 'CWE-22',
-    severity: 'high',
-    category: 'injection',
-    sources: [
-      {
-        type: 'function_call',
-        patterns: [
-          /request\.getParameter/,
-          /req\.query/,
-          /req\.body/,
-          /req\.params/,
-          /c\.Query/,
-          /c\.Param/,
-          /FormValue/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-      },
-    ],
-    sinks: [
-      {
-        type: 'function_call',
-        patterns: [
-          /new File\(/,
-          /FileInputStream/,
-          /FileOutputStream/,
-          /Files\.read/,
-          /Files\.write/,
-          /fs\.readFile/,
-          /fs\.writeFile/,
-          /fs\.readFileSync/,
-          /fs\.writeFileSync/,
-          /os\.Open/,
-          /os\.Create/,
-          /ioutil\.ReadFile/,
-          /ioutil\.WriteFile/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-        parameterPosition: [0],
-      },
-    ],
-    sanitizers: [
-      {
-        type: 'function_call',
-        patterns: [
-          /path\.Clean/,
-          /filepath\.Clean/,
-          /filepath\.Base/,
-          /path\.normalize/,
-          /path\.basename/,
-          /getCanonicalPath/,
-          /toRealPath/,
-        ],
-        effect: 'neutralize',
-      },
-      {
-        type: 'validation',
-        patterns: [
-          /\.startsWith\(/,
-          /strings\.HasPrefix/,
-          /\.indexOf\(.*\.\.\//,
-        ],
-        effect: 'validate',
-      },
-    ],
-    enabled: true,
-  },
-
-  // XXE
-  {
-    id: 'xxe',
-    name: 'XML External Entity (XXE)',
-    description: 'Detection of XXE vulnerabilities',
-    cweId: 'CWE-611',
-    severity: 'high',
-    category: 'injection',
-    sources: [
-      {
-        type: 'function_call',
-        patterns: [
-          /request\.getInputStream/,
-          /request\.getReader/,
-          /req\.body/,
-          /r\.Body/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-      },
-    ],
-    sinks: [
-      {
-        type: 'function_call',
-        patterns: [
-          /DocumentBuilder.*parse/,
-          /SAXParser.*parse/,
-          /XMLReader.*parse/,
-          /Unmarshaller.*unmarshal/,
-          /TransformerFactory.*newTransformer/,
-          /xml\.Unmarshal/,
-          /xml\.NewDecoder/,
-        ],
-        languages: ['java', 'go'],
-      },
-      {
-        type: 'function_call',
-        patterns: [
-          /xml2js\.parseString/,
-          /DOMParser.*parseFromString/,
-          /\.parseXML/,
-        ],
-        languages: ['javascript', 'typescript'],
-      },
-    ],
-    sanitizers: [
-      {
-        type: 'configuration',
-        patterns: [
-          /setFeature.*XMLConstants\.FEATURE_SECURE_PROCESSING/,
-          /setFeature.*disallow-doctype-decl/,
-          /setFeature.*external-general-entities.*false/,
-          /setFeature.*external-parameter-entities.*false/,
-          /setExpandEntityReferences.*false/,
-        ],
-        effect: 'neutralize',
-      },
-    ],
-    enabled: true,
-  },
-
-  // SSRF
-  {
-    id: 'ssrf',
-    name: 'Server-Side Request Forgery (SSRF)',
-    description: 'Detection of SSRF vulnerabilities',
-    cweId: 'CWE-918',
-    severity: 'high',
-    category: 'injection',
-    sources: [
-      {
-        type: 'function_call',
-        patterns: [
-          /request\.getParameter/,
-          /req\.query/,
-          /req\.body/,
-          /c\.Query/,
-          /FormValue/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-      },
-    ],
-    sinks: [
-      {
-        type: 'function_call',
-        patterns: [
-          /URL\(/,
-          /HttpURLConnection/,
-          /HttpClient.*send/,
-          /RestTemplate.*getForObject/,
-          /WebClient.*get/,
-          /fetch\(/,
-          /axios\./,
-          /http\.request/,
-          /https\.request/,
-          /http\.Get/,
-          /http\.Post/,
-          /http\.NewRequest/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-        parameterPosition: [0],
-      },
-    ],
-    sanitizers: [
-      {
-        type: 'validation',
-        patterns: [
-          /URL\.getHost/,
-          /url\.parse.*hostname/,
-          /allowlist/i,
-          /whitelist/i,
-        ],
-        effect: 'validate',
-      },
-    ],
-    enabled: true,
-  },
-
-  // Hardcoded Credentials
-  {
-    id: 'hardcoded-credentials',
-    name: 'Hardcoded Credentials',
-    description: 'Detection of hardcoded passwords, API keys, and secrets',
-    cweId: 'CWE-798',
-    severity: 'high',
-    category: 'secrets',
-    sources: [], // Not taint-based
-    sinks: [],
-    sanitizers: [],
-    patterns: [
-      /password\s*[:=]\s*["'][^"']{8,}["']/i,
-      /api[_-]?key\s*[:=]\s*["'][^"']{16,}["']/i,
-      /secret\s*[:=]\s*["'][^"']{8,}["']/i,
-      /token\s*[:=]\s*["'][^"']{16,}["']/i,
-      /auth[_-]?token\s*[:=]\s*["'][^"']{16,}["']/i,
-      /private[_-]?key\s*[:=]\s*["']/i,
-      /aws[_-]?(access|secret)/i,
-      /-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/,
-      /ghp_[a-zA-Z0-9]{36}/,  // GitHub Personal Access Token
-      /gho_[a-zA-Z0-9]{36}/,  // GitHub OAuth Token
-      /sk-[a-zA-Z0-9]{48}/,   // OpenAI API Key
-      /AKIA[0-9A-Z]{16}/,     // AWS Access Key
-    ],
-    enabled: true,
-  },
-
-  // Insecure Deserialization
-  {
-    id: 'insecure-deserialization',
-    name: 'Insecure Deserialization',
-    description: 'Detection of insecure deserialization vulnerabilities',
-    cweId: 'CWE-502',
-    severity: 'critical',
-    category: 'injection',
-    sources: [
-      {
-        type: 'function_call',
-        patterns: [
-          /request\.getInputStream/,
-          /req\.body/,
-          /r\.Body/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'go'],
-      },
-    ],
-    sinks: [
-      {
-        type: 'function_call',
-        patterns: [
-          /ObjectInputStream.*readObject/,
-          /XMLDecoder.*readObject/,
-          /Yaml\.load/,
-          /SnakeYaml.*load/,
-          /JSON\.parse.*eval/,
-          /pickle\.load/,
-          /yaml\.load.*Loader/,
-          /unserialize/,
-          /gob\.NewDecoder/,
-        ],
-        languages: ['java', 'javascript', 'typescript', 'python', 'php', 'go'],
-      },
-    ],
-    sanitizers: [
-      {
-        type: 'validation',
-        patterns: [
-          /ObjectInputFilter/,
-          /serialVersionUID/,
-          /SafeConstructor/,
-        ],
-        effect: 'validate',
-      },
-    ],
-    enabled: true,
-  },
+  SQL_INJECTION_MODEL,
+  XSS_MODEL,
+  COMMAND_INJECTION_MODEL,
+  PATH_TRAVERSAL_MODEL,
+  XXE_MODEL,
+  SSRF_MODEL,
+  HARDCODED_CREDENTIALS_MODEL,
+  INSECURE_DESERIALIZATION_MODEL,
 ];
+
+// ============================================================================
+// Model Manager
+// ============================================================================
 
 /**
  * Vulnerability Model Manager
  */
 export class VulnerabilityModelManager {
   private models: Map<string, VulnerabilityModel> = new Map();
-  private customModels: Map<string, VulnerabilityModel> = new Map();
+  private enabledModels: Set<string> = new Set();
 
   constructor() {
-    this.loadBuiltinModels();
-  }
-
-  /**
-   * Load built-in vulnerability models
-   */
-  private loadBuiltinModels(): void {
+    // Register built-in models
     for (const model of VULNERABILITY_MODELS) {
       this.models.set(model.id, model);
+      if (model.enabled) {
+        this.enabledModels.add(model.id);
+      }
     }
   }
 
@@ -627,21 +663,56 @@ export class VulnerabilityModelManager {
    * Get all models
    */
   getAllModels(): VulnerabilityModel[] {
-    return [...this.models.values(), ...this.customModels.values()];
+    return Array.from(this.models.values());
   }
 
   /**
    * Get enabled models
    */
   getEnabledModels(): VulnerabilityModel[] {
-    return this.getAllModels().filter((m) => m.enabled);
+    return this.getAllModels().filter((m) => this.enabledModels.has(m.id));
   }
 
   /**
    * Get model by ID
    */
   getModel(id: string): VulnerabilityModel | undefined {
-    return this.models.get(id) ?? this.customModels.get(id);
+    return this.models.get(id);
+  }
+
+  /**
+   * Enable a model
+   */
+  enableModel(id: string): boolean {
+    if (this.models.has(id)) {
+      this.enabledModels.add(id);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Disable a model
+   */
+  disableModel(id: string): boolean {
+    return this.enabledModels.delete(id);
+  }
+
+  /**
+   * Check if model is enabled
+   */
+  isEnabled(id: string): boolean {
+    return this.enabledModels.has(id);
+  }
+
+  /**
+   * Register a custom model
+   */
+  registerModel(model: VulnerabilityModel): void {
+    this.models.set(model.id, model);
+    if (model.enabled) {
+      this.enabledModels.add(model.id);
+    }
   }
 
   /**
@@ -652,123 +723,37 @@ export class VulnerabilityModelManager {
   }
 
   /**
-   * Get models by CWE ID
+   * Get models by CWE
    */
-  getModelsByCWE(cweId: string): VulnerabilityModel[] {
-    return this.getAllModels().filter((m) => m.cweId === cweId);
+  getModelsByCWE(cweId: number): VulnerabilityModel[] {
+    return this.getAllModels().filter((m) => m.cwe.includes(cweId));
   }
 
   /**
    * Get models by severity
    */
-  getModelsBySeverity(
-    severity: 'critical' | 'high' | 'medium' | 'low' | 'info',
-  ): VulnerabilityModel[] {
+  getModelsBySeverity(severity: VulnerabilitySeverity): VulnerabilityModel[] {
     return this.getAllModels().filter((m) => m.severity === severity);
   }
 
   /**
-   * Get models for language
+   * Get models supporting a language
    */
-  getModelsForLanguage(language: string): VulnerabilityModel[] {
-    return this.getAllModels().filter((m) => {
-      // Check if any source/sink supports this language
-      const sourceSupports = m.sources.some(
-        (s) => !s.languages || s.languages.includes(language),
-      );
-      const sinkSupports = m.sinks.some(
-        (s) => !s.languages || s.languages.includes(language),
-      );
-      // Pattern-only models (like hardcoded credentials) apply to all
-      const isPatternOnly =
-        m.sources.length === 0 && m.sinks.length === 0 && m.patterns;
-      return sourceSupports || sinkSupports || isPatternOnly;
-    });
-  }
-
-  /**
-   * Register custom model
-   */
-  registerModel(model: VulnerabilityModel): void {
-    if (this.models.has(model.id)) {
-      throw new Error(`Model '${model.id}' already exists as builtin`);
-    }
-    this.customModels.set(model.id, model);
-  }
-
-  /**
-   * Unregister custom model
-   */
-  unregisterModel(id: string): boolean {
-    return this.customModels.delete(id);
-  }
-
-  /**
-   * Enable model
-   */
-  enableModel(id: string): boolean {
-    const model = this.getModel(id);
-    if (model) {
-      model.enabled = true;
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Disable model
-   */
-  disableModel(id: string): boolean {
-    const model = this.getModel(id);
-    if (model) {
-      model.enabled = false;
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * Get CWE info
-   */
-  getCWEInfo(cweId: string): { name: string; description: string } | undefined {
-    return CWE_DATABASE[cweId];
-  }
-
-  /**
-   * Export models as JSON
-   */
-  exportModels(): string {
-    return JSON.stringify(
-      {
-        builtin: [...this.models.values()],
-        custom: [...this.customModels.values()],
-      },
-      null,
-      2,
+  getModelsByLanguage(language: string): VulnerabilityModel[] {
+    return this.getAllModels().filter(
+      (m) => !m.languages || m.languages.includes(language)
     );
-  }
-
-  /**
-   * Import custom models from JSON
-   */
-  importModels(json: string): number {
-    const data = JSON.parse(json);
-    let count = 0;
-
-    if (data.custom && Array.isArray(data.custom)) {
-      for (const model of data.custom) {
-        this.customModels.set(model.id, model);
-        count++;
-      }
-    }
-
-    return count;
   }
 }
 
 /**
- * Create vulnerability model manager
+ * Create a new model manager
  */
 export function createModelManager(): VulnerabilityModelManager {
   return new VulnerabilityModelManager();
 }
+
+/**
+ * Default model manager instance
+ */
+export const defaultModelManager = new VulnerabilityModelManager();

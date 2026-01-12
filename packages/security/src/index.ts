@@ -1,7 +1,7 @@
 /**
  * @fileoverview MUSUBIX Security Package - Main Entry Point
  * @module @nahisaho/musubix-security
- * @version 3.0.10
+ * @version 3.0.11
  * 
  * Static analysis and vulnerability detection for TypeScript/JavaScript applications.
  * Now with CodeQL-equivalent capabilities!
@@ -500,62 +500,85 @@ export {
 // ============================================================================
 
 // Extractors - Multi-language AST/CFG/DFG extraction
+// Note: v3.0.11 - Temporarily exporting limited API due to type issues
 export {
-  type ExtractorResult,
-  type ExtractionOptions,
-  getExtractor,
+  detectLanguage,
   getSupportedLanguages,
 } from './extractors/index.js';
 
+export type { SupportedLanguage } from './extractors/index.js';
+
 // CodeDB - In-memory code database
+// Note: v3.0.11 - Temporarily disabled due to type system refactoring
+// CodeDB functionality will be restored in v3.1.0
+// For now, use variant analysis for security scanning
+
+// Stub exports for backward compatibility
 export {
   CodeDB,
-  createCodeDB,
   CodeDBBuilder,
+  createBuilder,
   createCodeDBBuilder,
-  CodeDBSerializer,
-  type BuildProgress,
-  type BuildResult,
-  type BuildOptions,
-  type SerializedCodeDB,
+  buildCodeDB,
+  buildCodeDBFromPath,
+} from './codedb/index.js';
+
+export type {
+  CodeDBOptions,
+  BuilderOptions,
+  BuildProgress,
+  BuildError,
+  BuildResult,
+  SourceFile,
+} from './codedb/index.js';
+
+// Type-only exports for backward compatibility
+export type {
+  CallGraphNode as CodeDBCallGraphNode,
+  CallGraphEdge,
+  TaintPath as CodeDBTaintPath,
+  TypeDefinition,
+  TypeHierarchyInfo,
 } from './codedb/index.js';
 
 // MQL - MUSUBIX Query Language
-export {
-  MQLEngine,
-  createMQLEngine,
-  query,
-  validate,
-  parse,
-  createPlan,
-  explainPlan,
-  execute,
-  MQLLexer,
-  MQLParser,
-  MQLPlanner,
-  MQLExecutor,
-  type MQLAst,
-  type ParseResult,
-  type QueryPlan,
-  type QueryResult,
-  type MQLOptions,
-} from './mql/index.js';
+// Note: v3.0.11 - Temporarily disabled due to type issues
+// export {
+//   MQLEngine,
+//   createMQLEngine,
+//   query,
+//   validate,
+//   parse,
+//   createPlan,
+//   explainPlan,
+//   execute,
+//   MQLLexer,
+//   MQLParser,
+//   MQLPlanner,
+//   MQLExecutor,
+//   type MQLAst,
+//   type ParseResult,
+//   type QueryPlan,
+//   type QueryResult,
+//   type MQLOptions,
+// } from './mql/index.js';
 
 // Variant Analysis - Vulnerability detection
 export {
   VulnerabilityModelManager,
   createModelManager,
-  VulnerabilityDetector,
+  // VulnerabilityDetector,  // Use TaintDetector instead
+  TaintDetector,
   createDetector,
   SecurityScanner,
   createScanner,
-  scan,
-  scanFile,
+  // scan,
+  // scanFile,
   SARIFGenerator,
   createSARIFGenerator,
   generateSARIF,
   exportSARIF,
-  VULNERABILITY_MODELS,
+  // VULNERABILITY_MODELS,  // Not exported
   CWE_DATABASE,
   type VulnerabilityModel,
   type SourcePattern,
@@ -564,8 +587,6 @@ export {
   type VulnerabilityFinding,
   type ScanConfig,
   type ScanResult as VariantScanResult,
-  type ScanProgress,
-  type DetectorOptions,
-  type DetectorResult,
+  type VulnerabilitySeverity,
   type SARIFReport,
 } from './variant/index.js';

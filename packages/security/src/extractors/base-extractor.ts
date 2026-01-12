@@ -87,6 +87,8 @@ export interface ASTNode {
   parent?: string;
   /** Raw text content */
   text?: string;
+  /** Additional metadata */
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -123,6 +125,14 @@ export interface DFGNode {
   location: SourceLocation;
   /** Additional properties */
   properties: Record<string, unknown>;
+  /** Variable name (optional) */
+  variable?: string;
+  /** Operation type (optional) */
+  operation?: 'read' | 'write' | 'call' | 'param' | 'return';
+  /** Predecessor node IDs */
+  predecessors?: string[];
+  /** Successor node IDs */
+  successors?: string[];
 }
 
 /**
@@ -137,6 +147,12 @@ export interface DFGEdge {
   edgeType: 'data' | 'control' | 'implicit';
   /** Edge properties */
   properties: Record<string, unknown>;
+  /** Legacy type field (alias for edgeType) */
+  type?: 'data' | 'control' | 'call' | 'return';
+  /** Variable name */
+  variable?: string;
+  /** Condition expression */
+  condition?: string;
 }
 
 /**
@@ -169,8 +185,8 @@ export interface BasicBlock {
   predecessors: string[];
   /** Successor block IDs */
   successors: string[];
-  /** Dominator block IDs */
-  dominators: string[];
+  /** Dominator block IDs (optional) */
+  dominators?: string[];
   /** Is this a loop header? */
   loopHeader?: boolean;
   /** Is this an entry block? */
@@ -191,6 +207,8 @@ export interface CFGEdge {
   edgeType: 'normal' | 'true' | 'false' | 'exception' | 'finally' | 'break' | 'continue';
   /** Condition expression (for conditional edges) */
   condition?: string;
+  /** Legacy type field (alias for edgeType) */
+  type?: 'sequential' | 'conditional' | 'back' | 'exception';
 }
 
 /**
@@ -205,6 +223,10 @@ export interface ControlFlowGraph {
   entryBlocks: string[];
   /** Exit block IDs */
   exitBlocks: string[];
+  /** Entry block ID (singular, for legacy compatibility) */
+  entry?: string;
+  /** Exit block ID (singular, for legacy compatibility) */
+  exit?: string;
 }
 
 // ============================================================================
@@ -282,7 +304,7 @@ export interface ParameterInfo {
 /**
  * Class symbol with additional info
  */
-export interface ClassSymbol extends Symbol {
+export interface ClassSymbol extends Omit<Symbol, 'properties'> {
   kind: 'class';
   /** Super class name */
   superClass?: string;
@@ -290,8 +312,10 @@ export interface ClassSymbol extends Symbol {
   implements?: string[];
   /** Methods */
   methods: string[];
-  /** Properties */
+  /** Class properties (method names) */
   properties: string[];
+  /** Additional metadata */
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -306,6 +330,10 @@ export interface SymbolTable {
   classes: Map<string, ClassSymbol>;
   /** Scopes */
   scopes: Map<string, ScopeInfo>;
+  /** Global symbols (for legacy compatibility) */
+  global?: Map<string, Symbol>;
+  /** Package name (optional) */
+  packageName?: string;
 }
 
 /**
@@ -379,6 +407,38 @@ export interface ExtractionResult {
   errors: ExtractionError[];
   /** Extraction metrics */
   metrics: ExtractionMetrics;
+  /** Taint paths (optional) */
+  taintPaths?: TaintPathInfo[];
+}
+
+/**
+ * Taint path info (from extraction)
+ */
+export interface TaintPathInfo {
+  /** Source node ID */
+  sourceId: string;
+  /** Sink node ID */
+  sinkId: string;
+  /** Intermediate node IDs */
+  path: string[];
+  /** Taint label */
+  label: string;
+}
+
+// ============================================================================
+// Extraction Options
+// ============================================================================
+
+/**
+ * Extraction progress
+ */
+export interface ExtractionProgress {
+  /** Current phase */
+  phase: 'parsing' | 'ast' | 'dfg' | 'cfg' | 'symbols' | 'done';
+  /** Progress percentage (0-100) */
+  percentage: number;
+  /** Current file */
+  file?: string;
 }
 
 // ============================================================================

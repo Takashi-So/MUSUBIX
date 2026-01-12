@@ -6,42 +6,33 @@
 
 import type {
   VulnerabilityFinding,
+  VulnerabilitySeverity,
   ScanResult,
   SARIFReport,
   SARIFRun,
-  SARIFResult,
   SARIFRule,
+  SARIFResult,
   SARIFLocation,
-  SARIFArtifactLocation,
-  SARIFPhysicalLocation,
-  SARIFRegion,
-  SARIFMessage,
   SARIFCodeFlow,
-  SARIFThreadFlow,
-  SARIFThreadFlowLocation,
 } from '../types/variant.js';
 import { CWE_DATABASE } from './model.js';
 
-/**
- * SARIF version
- */
-const SARIF_VERSION = '2.1.0';
+// ============================================================================
+// Constants
+// ============================================================================
 
-/**
- * SARIF schema URI
- */
-const SARIF_SCHEMA = 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json';
-
-/**
- * Tool information
- */
 const TOOL_INFO = {
   name: 'musubix-security',
-  fullName: 'MUSUBIX Security Scanner',
-  version: '3.0.10',
-  informationUri: 'https://github.com/nahisaho/musubix',
-  organization: 'MUSUBIX',
+  fullName: 'MUSUBIX Security Analyzer',
+  version: '3.0.11',
+  informationUri: 'https://github.com/nahisaho/MUSUBIX',
 };
+
+const SARIF_SCHEMA = 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json';
+
+// ============================================================================
+// SARIF Generator
+// ============================================================================
 
 /**
  * SARIF Report Generator
@@ -51,128 +42,145 @@ export class SARIFGenerator {
    * Generate SARIF report from scan result
    */
   generate(scanResult: ScanResult): SARIFReport {
-    const rules = this.generateRules(scanResult.findings);
-    const results = this.generateResults(scanResult.findings);
+    return {
+      version: '2.1.0',
+      $schema: SARIF_SCHEMA,
+      runs: [this.createRun(scanResult)],
+    };
+  }
 
-    const run: SARIFRun = {
+  /**
+   * Generate SARIF report from findings
+   */
+  generateFromFindings(findings: VulnerabilityFinding[]): SARIFReport {
+    return {
+      version: '2.1.0',
+      $schema: SARIF_SCHEMA,
+      runs: [this.createRunFromFindings(findings)],
+    };
+  }
+
+  /**
+   * Create SARIF run from scan result
+   */
+  private createRun(scanResult: ScanResult): SARIFRun {
+    const rules = this.createRules(scanResult.findings);
+    const results = this.createResults(scanResult.findings, rules);
+
+    return {
       tool: {
         driver: {
           name: TOOL_INFO.name,
-          fullName: TOOL_INFO.fullName,
           version: TOOL_INFO.version,
           informationUri: TOOL_INFO.informationUri,
-          organization: TOOL_INFO.organization,
           rules,
         },
       },
       results,
-      invocations: [
-        {
-          executionSuccessful: true,
-          startTimeUtc: scanResult.metadata.startTime,
-          endTimeUtc: scanResult.metadata.endTime,
-          workingDirectory: {
-            uri: this.toFileUri(scanResult.metadata.rootPath),
-          },
-        },
-      ],
-    };
-
-    return {
-      $schema: SARIF_SCHEMA,
-      version: SARIF_VERSION,
-      runs: [run],
     };
   }
 
   /**
-   * Generate SARIF rules from findings
+   * Create SARIF run from findings
    */
-  private generateRules(findings: VulnerabilityFinding[]): SARIFRule[] {
+  private createRunFromFindings(findings: VulnerabilityFinding[]): SARIFRun {
+    const rules = this.createRules(findings);
+    const results = this.createResults(findings, rules);
+
+    return {
+      tool: {
+        driver: {
+          name: TOOL_INFO.name,
+          version: TOOL_INFO.version,
+          informationUri: TOOL_INFO.informationUri,
+          rules,
+        },
+      },
+      results,
+    };
+  }
+
+  /**
+   * Create SARIF rules from findings
+   */
+  private createRules(findings: VulnerabilityFinding[]): SARIFRule[] {
     const ruleMap = new Map<string, SARIFRule>();
 
     for (const finding of findings) {
-      if (ruleMap.has(finding.modelId)) continue;
+      if (ruleMap.has(finding.ruleId)) continue;
 
-      const cweInfo = CWE_DATABASE[finding.cweId];
+      const cweId = finding.cwe[0];
+      const cweKey = `CWE-${cweId}`;
+      const cweInfo = CWE_DATABASE[cweKey];
 
       const rule: SARIFRule = {
-        id: finding.modelId,
-        name: finding.modelName,
+        id: finding.ruleId,
+        name: finding.ruleName,
         shortDescription: {
-          text: finding.modelName,
+          text: finding.ruleName,
         },
         fullDescription: {
-          text: cweInfo?.description ?? finding.description,
-        },
-        helpUri: `https://cwe.mitre.org/data/definitions/${finding.cweId.replace('CWE-', '')}.html`,
-        properties: {
-          tags: [finding.category, finding.cweId],
-          security: {
-            severity: this.mapSeverityToSecurityLevel(finding.severity),
-            cwe: finding.cweId,
-          },
+          text: cweInfo?.description ?? finding.message,
         },
         defaultConfiguration: {
-          level: this.mapSeverityToLevel(finding.severity),
+          level: this.severityToLevel(finding.severity),
+        },
+        help: {
+          text: `See CWE-${cweId} for more information.`,
+          markdown: `See [CWE-${cweId}](https://cwe.mitre.org/data/definitions/${cweId}.html) for more information.`,
+        },
+        properties: {
+          tags: [finding.ruleId, cweKey],
+          'security-severity': this.severityToScore(finding.severity).toString(),
         },
       };
 
-      ruleMap.set(finding.modelId, rule);
+      ruleMap.set(finding.ruleId, rule);
     }
 
-    return [...ruleMap.values()];
+    return Array.from(ruleMap.values());
   }
 
   /**
-   * Generate SARIF results from findings
+   * Create SARIF results from findings
    */
-  private generateResults(findings: VulnerabilityFinding[]): SARIFResult[] {
-    return findings.map((finding) => this.generateResult(finding));
+  private createResults(findings: VulnerabilityFinding[], rules: SARIFRule[]): SARIFResult[] {
+    const ruleIndex = new Map<string, number>();
+    rules.forEach((rule, index) => ruleIndex.set(rule.id, index));
+
+    return findings.map((finding) => {
+      const result: SARIFResult = {
+        ruleId: finding.ruleId,
+        ruleIndex: ruleIndex.get(finding.ruleId),
+        level: this.severityToLevel(finding.severity),
+        message: {
+          text: finding.message,
+        },
+        locations: [this.createLocation(finding)],
+      };
+
+      // Add code flows for taint paths
+      if (finding.taintPath) {
+        result.codeFlows = [this.createCodeFlow(finding)];
+      }
+
+      return result;
+    });
   }
 
   /**
-   * Generate single SARIF result
+   * Create SARIF location
    */
-  private generateResult(finding: VulnerabilityFinding): SARIFResult {
-    const result: SARIFResult = {
-      ruleId: finding.modelId,
-      level: this.mapSeverityToLevel(finding.severity),
-      message: {
-        text: finding.description,
-      },
-      locations: [this.generateLocation(finding)],
-      fingerprints: {
-        primaryLocationLineHash: `${finding.location.file}:${finding.location.startLine}`,
-      },
-      properties: {
-        confidence: finding.confidence,
-        detectionMethod: finding.detectionMethod,
-      },
-    };
-
-    // Add code flow for taint findings
-    if (finding.taintFlow) {
-      result.codeFlows = [this.generateCodeFlow(finding)];
-    }
-
-    return result;
-  }
-
-  /**
-   * Generate SARIF location
-   */
-  private generateLocation(finding: VulnerabilityFinding): SARIFLocation {
+  private createLocation(finding: VulnerabilityFinding): SARIFLocation {
     return {
       physicalLocation: {
         artifactLocation: {
-          uri: finding.location.file,
-          uriBaseId: '%SRCROOT%',
+          uri: this.toFileUri(finding.location.file),
         },
         region: {
           startLine: finding.location.startLine,
-          endLine: finding.location.endLine,
           startColumn: finding.location.startColumn,
+          endLine: finding.location.endLine,
           endColumn: finding.location.endColumn,
         },
       },
@@ -180,57 +188,50 @@ export class SARIFGenerator {
   }
 
   /**
-   * Generate code flow for taint analysis
+   * Create SARIF code flow from taint path
    */
-  private generateCodeFlow(finding: VulnerabilityFinding): SARIFCodeFlow {
-    if (!finding.taintFlow) {
+  private createCodeFlow(finding: VulnerabilityFinding): SARIFCodeFlow {
+    if (!finding.taintPath) {
       return { threadFlows: [] };
     }
 
-    const locations: SARIFThreadFlowLocation[] = [];
+    const locations: Array<{ location: SARIFLocation; message?: { text: string } }> = [];
 
     // Add source
     locations.push({
       location: {
         physicalLocation: {
           artifactLocation: {
-            uri: finding.taintFlow.source.location?.file ?? finding.location.file,
+            uri: this.toFileUri(finding.taintPath.source.location.file),
           },
           region: {
-            startLine: finding.taintFlow.source.location?.line ?? finding.location.startLine,
-            startColumn: finding.taintFlow.source.location?.column ?? 1,
+            startLine: finding.taintPath.source.location.startLine,
+            startColumn: finding.taintPath.source.location.startColumn,
           },
         },
-        message: {
-          text: `Source: ${finding.taintFlow.source.codeSnippet ?? 'user input'}`,
-        },
       },
-      kinds: ['source'],
-      nestingLevel: 0,
+      message: {
+        text: `Source: ${finding.taintPath.source.snippet || 'user input'}`,
+      },
     });
 
-    // Add intermediate steps
-    for (let i = 0; i < finding.taintFlow.steps.length; i++) {
-      const step = finding.taintFlow.steps[i];
-      if (step.kind === 'source' || step.kind === 'sink') continue;
-
+    // Add intermediate nodes
+    for (const node of finding.taintPath.path) {
       locations.push({
         location: {
           physicalLocation: {
             artifactLocation: {
-              uri: step.location?.file ?? finding.location.file,
+              uri: this.toFileUri(node.location.file),
             },
             region: {
-              startLine: step.location?.line ?? finding.location.startLine,
-              startColumn: step.location?.column ?? 1,
+              startLine: node.location.startLine,
+              startColumn: node.location.startColumn,
             },
           },
-          message: {
-            text: `Step ${i + 1}: ${step.codeSnippet ?? 'data flow'}`,
-          },
         },
-        kinds: ['pass-through'],
-        nestingLevel: 1,
+        message: {
+          text: node.description ?? 'Data flows through here',
+        },
       });
     }
 
@@ -239,39 +240,28 @@ export class SARIFGenerator {
       location: {
         physicalLocation: {
           artifactLocation: {
-            uri: finding.taintFlow.sink.location?.file ?? finding.location.file,
+            uri: this.toFileUri(finding.taintPath.sink.location.file),
           },
           region: {
-            startLine: finding.taintFlow.sink.location?.line ?? finding.location.startLine,
-            startColumn: finding.taintFlow.sink.location?.column ?? 1,
+            startLine: finding.taintPath.sink.location.startLine,
+            startColumn: finding.taintPath.sink.location.startColumn,
           },
         },
-        message: {
-          text: `Sink: ${finding.taintFlow.sink.codeSnippet ?? 'dangerous operation'}`,
-        },
       },
-      kinds: ['sink'],
-      nestingLevel: 0,
+      message: {
+        text: `Sink: ${finding.taintPath.sink.snippet || 'dangerous operation'}`,
+      },
     });
 
     return {
-      threadFlows: [
-        {
-          locations,
-        },
-      ],
-      message: {
-        text: `Data flows from source to sink in ${finding.taintFlow.pathLength} steps`,
-      },
+      threadFlows: [{ locations }],
     };
   }
 
   /**
-   * Map severity to SARIF level
+   * Convert severity to SARIF level
    */
-  private mapSeverityToLevel(
-    severity: 'critical' | 'high' | 'medium' | 'low' | 'info',
-  ): 'error' | 'warning' | 'note' | 'none' {
+  private severityToLevel(severity: VulnerabilitySeverity): 'error' | 'warning' | 'note' | 'none' {
     switch (severity) {
       case 'critical':
       case 'high':
@@ -287,28 +277,43 @@ export class SARIFGenerator {
   }
 
   /**
-   * Map severity to security level
+   * Convert severity to numeric score
    */
-  private mapSeverityToSecurityLevel(
-    severity: 'critical' | 'high' | 'medium' | 'low' | 'info',
-  ): string {
-    return severity.toUpperCase();
+  private severityToScore(severity: VulnerabilitySeverity): number {
+    switch (severity) {
+      case 'critical':
+        return 9.0;
+      case 'high':
+        return 7.0;
+      case 'medium':
+        return 5.0;
+      case 'low':
+        return 3.0;
+      case 'info':
+        return 1.0;
+      default:
+        return 0.0;
+    }
   }
 
   /**
-   * Convert path to file URI
+   * Convert file path to URI
    */
-  private toFileUri(path: string): string {
-    if (path.startsWith('file://')) return path;
-    return `file://${path}`;
-  }
+  private toFileUri(filePath: string): string {
+    // Normalize path separators
+    const normalized = filePath.replace(/\\/g, '/');
 
-  /**
-   * Export SARIF report to JSON string
-   */
-  export(scanResult: ScanResult): string {
-    const report = this.generate(scanResult);
-    return JSON.stringify(report, null, 2);
+    // If already a URI, return as-is
+    if (normalized.startsWith('file://')) {
+      return normalized;
+    }
+
+    // Make relative paths
+    if (normalized.startsWith('/')) {
+      return normalized.substring(1);
+    }
+
+    return normalized;
   }
 }
 
@@ -323,14 +328,12 @@ export function createSARIFGenerator(): SARIFGenerator {
  * Generate SARIF report
  */
 export function generateSARIF(scanResult: ScanResult): SARIFReport {
-  const generator = new SARIFGenerator();
-  return generator.generate(scanResult);
+  return new SARIFGenerator().generate(scanResult);
 }
 
 /**
- * Export SARIF report to JSON string
+ * Generate SARIF from findings
  */
-export function exportSARIF(scanResult: ScanResult): string {
-  const generator = new SARIFGenerator();
-  return generator.export(scanResult);
+export function generateSARIFFromFindings(findings: VulnerabilityFinding[]): SARIFReport {
+  return new SARIFGenerator().generateFromFindings(findings);
 }

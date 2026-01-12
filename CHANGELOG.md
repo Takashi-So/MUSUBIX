@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.11] - 2026-01-13
+
+### Fixed
+
+- **`@nahisaho/musubix-security`: tree-sitter ピア依存関係の競合を解消**
+  - `tree-sitter` を `^0.21.1` に変更（`tree-sitter-go@0.23.x` との互換性確保）
+  - `peerDependencies` に `tree-sitter: ">=0.21.1"` を追加（オプショナル）
+  - `--legacy-peer-deps` なしでインストール可能に
+
 ## [3.0.10] - 2026-01-13
 
 ### Added

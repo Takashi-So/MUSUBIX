@@ -15,6 +15,9 @@ import type {
   SupportedLanguage,
 } from '../extractors/base-extractor.js';
 
+// Re-export SupportedLanguage for convenience
+export type { SupportedLanguage } from '../extractors/base-extractor.js';
+
 // ============================================================================
 // CodeDB Core Types
 // ============================================================================
@@ -181,6 +184,8 @@ export interface CFGStore {
  * Loop information
  */
 export interface LoopInfo {
+  /** Loop ID (optional for backwards compatibility) */
+  id?: string;
   /** Loop header block ID */
   headerId: string;
   /** Back edge block IDs */
@@ -331,6 +336,18 @@ export interface TypeStore {
   interfaces: Map<string, InterfaceDefinition>;
   /** Class hierarchy */
   classHierarchy: Map<string, ClassHierarchy>;
+  /** Type hierarchy (for backwards compatibility) */
+  typeHierarchy?: Map<string, TypeHierarchyInfo>;
+}
+
+/**
+ * Type hierarchy info (legacy)
+ */
+export interface TypeHierarchyInfo {
+  /** Super types */
+  superTypes?: string[];
+  /** Sub types */
+  subTypes?: string[];
 }
 
 /**
@@ -353,6 +370,12 @@ export interface TypeDefinition {
   returnType?: string;
   /** Parameter types (for functions) */
   parameterTypes?: string[];
+  /** File where defined (optional) */
+  file?: string;
+  /** Members (for classes) */
+  members?: Array<{ name: string; type: string }>;
+  /** Supertypes (optional) */
+  supertypes?: string[];
 }
 
 /**

@@ -1,332 +1,404 @@
 /**
- * @fileoverview Security Scanner - High-level scanning API
+ * @fileoverview Security Scanner - High-level scan API
  * @module @nahisaho/musubix-security/variant/scanner
  * @trace TSK-025, REQ-SEC-VARIANT-003
+ * 
+ * NOTE: v3.0.11 - Simplified implementation without CodeDB dependency
  */
 
-import { CodeDB, createCodeDB } from '../codedb/database.js';
-import { CodeDBBuilder, createCodeDBBuilder } from '../codedb/builder.js';
-import { VulnerabilityDetector, createDetector } from './detector.js';
-import { VulnerabilityModelManager, createModelManager } from './model.js';
+import { TaintDetector, createDetector, type DetectorOptions } from './detector.js';
+import { VulnerabilityModelManager, defaultModelManager } from './model.js';
 import type {
   VulnerabilityFinding,
+  VulnerabilitySeverity,
   ScanConfig,
   ScanResult,
-  ScanProgress,
-  ScanPhase,
+  ScanSummary,
+  ScanError,
 } from '../types/variant.js';
-import type { BuildProgress } from '../codedb/builder.js';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+// ============================================================================
+// Types
+// ============================================================================
 
 /**
- * Default scan configuration
+ * Scanner options
  */
-const DEFAULT_SCAN_CONFIG: ScanConfig = {
-  includePaths: ['**/*.ts', '**/*.js', '**/*.java', '**/*.go', '**/*.py', '**/*.php'],
-  excludePaths: ['**/node_modules/**', '**/vendor/**', '**/dist/**', '**/build/**'],
-  languages: [],
-  modelIds: [],
-  severityThreshold: 'info',
-  maxFindings: 1000,
-  timeout: 300000, // 5 minutes
-  parallel: true,
-  incremental: false,
-};
+export interface ScannerOptions {
+  /** Scan configuration */
+  config?: Partial<ScanConfig>;
+  /** Detector options */
+  detectorOptions?: DetectorOptions;
+  /** Progress callback */
+  onProgress?: (progress: ScanProgress) => void;
+}
 
 /**
- * Progress callback type
+ * Scan progress
  */
-type ProgressCallback = (progress: ScanProgress) => void;
+export interface ScanProgress {
+  /** Current phase */
+  phase: 'init' | 'scan' | 'analyze' | 'report';
+  /** Progress percentage (0-100) */
+  progress: number;
+  /** Current file */
+  currentFile?: string;
+  /** Message */
+  message: string;
+}
+
+// ============================================================================
+// Scanner
+// ============================================================================
 
 /**
- * Security Scanner
+ * Security Scanner (v3.0.11 - File-based implementation)
  */
 export class SecurityScanner {
-  private readonly config: ScanConfig;
-  private readonly modelManager: VulnerabilityModelManager;
-  private readonly detector: VulnerabilityDetector;
-  private codeDB: CodeDB | null = null;
-  private progressCallback: ProgressCallback | null = null;
+  private config: ScanConfig;
+  private detector: TaintDetector;
+  private onProgress?: (progress: ScanProgress) => void;
+  
+  /** Model manager for vulnerability models (reserved for future use) */
+  readonly modelManager: VulnerabilityModelManager;
 
-  constructor(config?: Partial<ScanConfig>) {
-    this.config = { ...DEFAULT_SCAN_CONFIG, ...config };
-    this.modelManager = createModelManager();
-    this.detector = createDetector(this.modelManager, {
-      timeout: this.config.timeout,
-    });
+  constructor(options: ScannerOptions = {}) {
+    this.config = {
+      targets: options.config?.targets ?? ['.'],
+      include: options.config?.include ?? ['**/*.ts', '**/*.js', '**/*.java', '**/*.go', '**/*.py', '**/*.php'],
+      exclude: options.config?.exclude ?? ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**'],
+      enabledModels: options.config?.enabledModels,
+      disabledModels: options.config?.disabledModels,
+      minSeverity: options.config?.minSeverity ?? 'low',
+      incremental: options.config?.incremental ?? false,
+      maxFindingsPerRule: options.config?.maxFindingsPerRule ?? 100,
+      fileTimeout: options.config?.fileTimeout ?? 30000,
+    };
+    this.detector = createDetector(options.detectorOptions);
+    this.modelManager = options.detectorOptions?.modelManager ?? defaultModelManager;
+    this.onProgress = options.onProgress;
   }
 
   /**
-   * Set progress callback
+   * Run full scan
    */
-  onProgress(callback: ProgressCallback): void {
-    this.progressCallback = callback;
-  }
-
-  /**
-   * Scan directory for vulnerabilities
-   */
-  async scan(rootPath: string): Promise<ScanResult> {
+  async scan(targetPath: string): Promise<ScanResult> {
     const startTime = Date.now();
+    const errors: ScanError[] = [];
     let findings: VulnerabilityFinding[] = [];
-
-    this.reportProgress({
-      phase: 'initialization',
-      progress: 0,
-      message: 'Initializing scanner...',
-    });
+    let filesScanned = 0;
+    let linesScanned = 0;
 
     try {
-      // Phase 1: Build CodeDB
+      // Phase 1: Initialize
       this.reportProgress({
-        phase: 'parsing',
+        phase: 'init',
+        progress: 0,
+        message: 'Initializing scan...',
+      });
+
+      // Phase 2: Collect files
+      this.reportProgress({
+        phase: 'scan',
         progress: 10,
-        message: 'Building code database...',
+        message: 'Collecting files...',
       });
 
-      const builder = createCodeDBBuilder({
-        includePaths: this.config.includePaths,
-        excludePaths: this.config.excludePaths,
-        parallel: this.config.parallel,
-      });
+      const files = await this.collectFiles(targetPath);
+      const totalFiles = files.length;
 
-      // Connect builder progress to scanner progress
-      builder.onProgress((buildProgress: BuildProgress) => {
-        const overallProgress = 10 + (buildProgress.progress * 0.4);
-        this.reportProgress({
-          phase: 'parsing',
-          progress: overallProgress,
-          message: `Parsing: ${buildProgress.filesProcessed}/${buildProgress.totalFiles} files`,
-          currentFile: buildProgress.currentFile,
-        });
-      });
-
-      const buildResult = await builder.build(rootPath);
-      this.codeDB = buildResult.database;
-
-      if (buildResult.errors.length > 0) {
-        console.warn(`Build warnings: ${buildResult.errors.length} files had errors`);
-      }
-
-      // Phase 2: Detect vulnerabilities for each language
+      // Phase 3: Analyze files
       this.reportProgress({
-        phase: 'analysis',
-        progress: 50,
-        message: 'Analyzing code for vulnerabilities...',
+        phase: 'analyze',
+        progress: 20,
+        message: `Analyzing ${totalFiles} files...`,
       });
 
-      const languages = this.detectLanguages(buildResult);
-      const languageProgress = 40 / languages.length;
+      const fileContents: Array<{ path: string; content: string; lines: string[] }> = [];
 
-      for (let i = 0; i < languages.length; i++) {
-        const language = languages[i];
-
+      for (let i = 0; i < files.length; i++) {
+        const filePath = files[i];
+        const progress = 20 + (i / totalFiles) * 60;
+        
         this.reportProgress({
-          phase: 'analysis',
-          progress: 50 + (i * languageProgress),
-          message: `Analyzing ${language} code...`,
+          phase: 'analyze',
+          progress,
+          currentFile: filePath,
+          message: `Analyzing ${path.basename(filePath)}...`,
         });
 
-        const result = await this.detector.detect(this.codeDB, language);
-        findings.push(...result.findings);
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          const lines = content.split('\n');
+          fileContents.push({ path: filePath, content, lines });
+          filesScanned++;
+          linesScanned += lines.length;
+        } catch (error) {
+          errors.push({
+            file: filePath,
+            type: 'parse',
+            message: `Failed to read file: ${error}`,
+          });
+        }
       }
 
-      // Phase 3: Post-processing
-      this.reportProgress({
-        phase: 'reporting',
-        progress: 90,
-        message: 'Processing findings...',
-      });
+      // Run detection
+      const language = this.detectPrimaryLanguage(files);
+      const result = await this.detector.detectInFiles(fileContents, language);
+      findings = result.findings;
+      
+      if (result.errors.length > 0) {
+        for (const err of result.errors) {
+          errors.push({
+            file: '',
+            type: 'unknown',
+            message: err,
+          });
+        }
+      }
 
       // Filter by severity
-      findings = this.filterBySeverity(findings);
+      findings = this.filterBySeverity(findings, this.config.minSeverity ?? 'low');
 
-      // Limit findings
-      if (findings.length > this.config.maxFindings) {
-        findings = findings.slice(0, this.config.maxFindings);
+      // Limit findings per rule
+      if (this.config.maxFindingsPerRule) {
+        findings = this.limitFindingsPerRule(findings, this.config.maxFindingsPerRule);
       }
 
-      // Sort by severity
-      findings = this.sortBySeverity(findings);
-
-      // Deduplicate
-      findings = this.deduplicate(findings);
-
+      // Phase 4: Report
       this.reportProgress({
-        phase: 'complete',
-        progress: 100,
-        message: 'Scan complete',
+        phase: 'report',
+        progress: 90,
+        message: 'Generating report...',
       });
 
-      const executionTime = Date.now() - startTime;
-
-      return {
-        findings,
-        summary: this.generateSummary(findings),
-        metadata: {
-          scanId: this.generateScanId(),
-          startTime: new Date(startTime).toISOString(),
-          endTime: new Date().toISOString(),
-          executionTime,
-          rootPath,
-          config: this.config,
-          languagesScanned: languages,
-          filesScanned: buildResult.stats.filesSucceeded,
-        },
-      };
     } catch (error) {
-      this.reportProgress({
-        phase: 'complete',
-        progress: 100,
-        message: `Scan failed: ${error instanceof Error ? error.message : String(error)}`,
-        error: error instanceof Error ? error.message : String(error),
+      errors.push({
+        file: targetPath,
+        type: 'unknown',
+        message: `Scan failed: ${error}`,
       });
-
-      throw error;
     }
-  }
 
-  /**
-   * Scan single file
-   */
-  async scanFile(filePath: string): Promise<VulnerabilityFinding[]> {
-    const builder = createCodeDBBuilder({
-      includePaths: [filePath],
-      excludePaths: [],
-      parallel: false,
+    const duration = Date.now() - startTime;
+
+    this.reportProgress({
+      phase: 'report',
+      progress: 100,
+      message: 'Scan complete.',
     });
 
-    const buildResult = await builder.buildFromFiles([filePath]);
-    this.codeDB = buildResult.database;
-
-    const language = this.detectLanguageFromFile(filePath);
-    const result = await this.detector.detect(this.codeDB, language);
-
-    return result.findings;
+    return {
+      id: `scan-${Date.now()}`,
+      timestamp: new Date(),
+      duration,
+      filesScanned,
+      linesScanned,
+      findings,
+      summary: this.createSummary(findings),
+      errors: errors.length > 0 ? errors : undefined,
+      config: this.config,
+    };
   }
 
   /**
-   * Get model manager for customization
+   * Scan a single file
    */
-  getModelManager(): VulnerabilityModelManager {
-    return this.modelManager;
-  }
+  async scanFile(filePath: string): Promise<ScanResult> {
+    const startTime = Date.now();
+    const errors: ScanError[] = [];
+    let findings: VulnerabilityFinding[] = [];
+    let linesScanned = 0;
 
-  /**
-   * Get CodeDB for direct queries
-   */
-  getCodeDB(): CodeDB | null {
-    return this.codeDB;
-  }
+    try {
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const lines = content.split('\n');
+      linesScanned = lines.length;
 
-  /**
-   * Detect languages from build result
-   */
-  private detectLanguages(buildResult: { stats: { languageBreakdown?: Map<string, number> } }): string[] {
-    const configuredLanguages = this.config.languages;
-    if (configuredLanguages && configuredLanguages.length > 0) {
-      return configuredLanguages;
+      const language = this.detectLanguage(filePath);
+      const result = await this.detector.detectInFiles(
+        [{ path: filePath, content, lines }],
+        language
+      );
+      findings = result.findings;
+    } catch (error) {
+      errors.push({
+        file: filePath,
+        type: 'parse',
+        message: `Failed to scan file: ${error}`,
+      });
     }
 
-    // Auto-detect from build result
-    const languages: string[] = [];
-    if (buildResult.stats.languageBreakdown) {
-      for (const [lang] of buildResult.stats.languageBreakdown) {
-        languages.push(lang);
+    return {
+      id: `scan-${Date.now()}`,
+      timestamp: new Date(),
+      duration: Date.now() - startTime,
+      filesScanned: 1,
+      linesScanned,
+      findings,
+      summary: this.createSummary(findings),
+      errors: errors.length > 0 ? errors : undefined,
+      config: this.config,
+    };
+  }
+
+  /**
+   * Collect files to scan
+   */
+  private async collectFiles(targetPath: string): Promise<string[]> {
+    const files: string[] = [];
+    const stats = fs.statSync(targetPath);
+
+    if (stats.isFile()) {
+      if (this.shouldIncludeFile(targetPath)) {
+        files.push(targetPath);
+      }
+      return files;
+    }
+
+    const walk = (dir: string): void => {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        const relativePath = path.relative(targetPath, fullPath);
+
+        if (this.shouldExclude(relativePath)) {
+          continue;
+        }
+
+        if (entry.isDirectory()) {
+          walk(fullPath);
+        } else if (entry.isFile() && this.shouldIncludeFile(fullPath)) {
+          files.push(fullPath);
+        }
+      }
+    };
+
+    walk(targetPath);
+    return files;
+  }
+
+  /**
+   * Check if file should be included
+   */
+  private shouldIncludeFile(filePath: string): boolean {
+    const ext = path.extname(filePath).toLowerCase();
+    const supportedExtensions = ['.ts', '.js', '.tsx', '.jsx', '.java', '.go', '.py', '.php'];
+    return supportedExtensions.includes(ext);
+  }
+
+  /**
+   * Check if path should be excluded
+   */
+  private shouldExclude(relativePath: string): boolean {
+    const excludePatterns = this.config.exclude ?? [];
+    const normalizedPath = relativePath.replace(/\\/g, '/');
+
+    for (const pattern of excludePatterns) {
+      const regexPattern = pattern
+        .replace(/\*\*/g, '.*')
+        .replace(/\*/g, '[^/]*')
+        .replace(/\//g, '\\/');
+      
+      if (new RegExp(regexPattern).test(normalizedPath)) {
+        return true;
       }
     }
 
-    // Default languages if none detected
-    if (languages.length === 0) {
-      return ['typescript', 'javascript'];
-    }
-
-    return languages;
+    return false;
   }
 
   /**
-   * Detect language from file extension
+   * Detect primary language from files
    */
-  private detectLanguageFromFile(filePath: string): string {
-    const ext = filePath.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'ts':
-      case 'tsx':
-        return 'typescript';
-      case 'js':
-      case 'jsx':
-        return 'javascript';
-      case 'java':
-        return 'java';
-      case 'go':
-        return 'go';
-      case 'py':
-        return 'python';
-      case 'php':
-        return 'php';
-      case 'rb':
-        return 'ruby';
-      case 'rs':
-        return 'rust';
-      default:
-        return 'typescript';
+  private detectPrimaryLanguage(files: string[]): string | undefined {
+    const counts: Record<string, number> = {};
+
+    for (const file of files) {
+      const ext = path.extname(file).toLowerCase();
+      const lang = this.extToLanguage(ext);
+      if (lang) {
+        counts[lang] = (counts[lang] ?? 0) + 1;
+      }
     }
+
+    let maxCount = 0;
+    let primaryLang: string | undefined;
+
+    for (const [lang, count] of Object.entries(counts)) {
+      if (count > maxCount) {
+        maxCount = count;
+        primaryLang = lang;
+      }
+    }
+
+    return primaryLang;
   }
 
   /**
-   * Filter findings by severity threshold
+   * Detect language from file path
    */
-  private filterBySeverity(findings: VulnerabilityFinding[]): VulnerabilityFinding[] {
-    const severityOrder = ['critical', 'high', 'medium', 'low', 'info'];
-    const thresholdIndex = severityOrder.indexOf(this.config.severityThreshold);
+  private detectLanguage(filePath: string): string | undefined {
+    const ext = path.extname(filePath).toLowerCase();
+    return this.extToLanguage(ext);
+  }
+
+  /**
+   * Map extension to language
+   */
+  private extToLanguage(ext: string): string | undefined {
+    const mapping: Record<string, string> = {
+      '.ts': 'typescript',
+      '.tsx': 'typescript',
+      '.js': 'javascript',
+      '.jsx': 'javascript',
+      '.java': 'java',
+      '.go': 'go',
+      '.py': 'python',
+      '.php': 'php',
+    };
+    return mapping[ext];
+  }
+
+  /**
+   * Filter findings by minimum severity
+   */
+  private filterBySeverity(findings: VulnerabilityFinding[], minSeverity: VulnerabilitySeverity): VulnerabilityFinding[] {
+    const severityOrder: VulnerabilitySeverity[] = ['critical', 'high', 'medium', 'low', 'info'];
+    const minIndex = severityOrder.indexOf(minSeverity);
 
     return findings.filter((f) => {
-      const findingIndex = severityOrder.indexOf(f.severity);
-      return findingIndex <= thresholdIndex;
+      const index = severityOrder.indexOf(f.severity);
+      return index <= minIndex;
     });
   }
 
   /**
-   * Sort findings by severity (critical first)
+   * Limit findings per rule
    */
-  private sortBySeverity(findings: VulnerabilityFinding[]): VulnerabilityFinding[] {
-    const severityOrder = ['critical', 'high', 'medium', 'low', 'info'];
-
-    return [...findings].sort((a, b) => {
-      const aIndex = severityOrder.indexOf(a.severity);
-      const bIndex = severityOrder.indexOf(b.severity);
-      if (aIndex !== bIndex) return aIndex - bIndex;
-
-      // Secondary sort by confidence
-      const confidenceOrder = ['high', 'medium', 'low'];
-      const aConf = confidenceOrder.indexOf(a.confidence);
-      const bConf = confidenceOrder.indexOf(b.confidence);
-      return aConf - bConf;
-    });
-  }
-
-  /**
-   * Deduplicate findings
-   */
-  private deduplicate(findings: VulnerabilityFinding[]): VulnerabilityFinding[] {
-    const seen = new Set<string>();
-    const result: VulnerabilityFinding[] = [];
+  private limitFindingsPerRule(findings: VulnerabilityFinding[], limit: number): VulnerabilityFinding[] {
+    const byRule: Record<string, VulnerabilityFinding[]> = {};
 
     for (const finding of findings) {
-      const key = `${finding.modelId}:${finding.location.file}:${finding.location.startLine}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        result.push(finding);
+      if (!byRule[finding.ruleId]) {
+        byRule[finding.ruleId] = [];
+      }
+      if (byRule[finding.ruleId].length < limit) {
+        byRule[finding.ruleId].push(finding);
       }
     }
 
-    return result;
+    return Object.values(byRule).flat();
   }
 
   /**
-   * Generate scan summary
+   * Create scan summary
    */
-  private generateSummary(findings: VulnerabilityFinding[]): ScanResult['summary'] {
-    const bySeverity = {
+  private createSummary(findings: VulnerabilityFinding[]): ScanSummary {
+    const bySeverity: Record<VulnerabilitySeverity, number> = {
       critical: 0,
       high: 0,
       medium: 0,
@@ -334,75 +406,38 @@ export class SecurityScanner {
       info: 0,
     };
 
-    const byCategory = new Map<string, number>();
-    const byCWE = new Map<string, number>();
+    const byCWE: Record<number, number> = {};
+    const byFile: Record<string, number> = {};
 
     for (const finding of findings) {
       bySeverity[finding.severity]++;
 
-      const catCount = byCategory.get(finding.category) ?? 0;
-      byCategory.set(finding.category, catCount + 1);
+      for (const cwe of finding.cwe) {
+        byCWE[cwe] = (byCWE[cwe] ?? 0) + 1;
+      }
 
-      const cweCount = byCWE.get(finding.cweId) ?? 0;
-      byCWE.set(finding.cweId, cweCount + 1);
+      byFile[finding.location.file] = (byFile[finding.location.file] ?? 0) + 1;
     }
 
-    // Top CWEs
-    const topCWEs = [...byCWE.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([cweId, count]) => ({ cweId, count }));
-
     return {
-      totalFindings: findings.length,
+      total: findings.length,
       bySeverity,
-      byCategory: Object.fromEntries(byCategory),
-      topCWEs,
+      byCWE,
+      byFile,
     };
-  }
-
-  /**
-   * Generate scan ID
-   */
-  private generateScanId(): string {
-    return `scan-${Date.now()}-${Math.random().toString(36).substring(7)}`;
   }
 
   /**
    * Report progress
    */
   private reportProgress(progress: ScanProgress): void {
-    if (this.progressCallback) {
-      this.progressCallback(progress);
-    }
+    this.onProgress?.(progress);
   }
 }
 
 /**
- * Create security scanner
+ * Create a security scanner instance
  */
-export function createScanner(config?: Partial<ScanConfig>): SecurityScanner {
-  return new SecurityScanner(config);
-}
-
-/**
- * Quick scan function
- */
-export async function scan(
-  rootPath: string,
-  config?: Partial<ScanConfig>,
-): Promise<ScanResult> {
-  const scanner = createScanner(config);
-  return scanner.scan(rootPath);
-}
-
-/**
- * Quick scan single file
- */
-export async function scanFile(
-  filePath: string,
-  config?: Partial<ScanConfig>,
-): Promise<VulnerabilityFinding[]> {
-  const scanner = createScanner(config);
-  return scanner.scanFile(filePath);
+export function createScanner(options?: ScannerOptions): SecurityScanner {
+  return new SecurityScanner(options);
 }
