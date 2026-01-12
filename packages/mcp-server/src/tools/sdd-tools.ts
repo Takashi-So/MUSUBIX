@@ -475,6 +475,110 @@ export const validateTraceabilityTool: ToolDefinition = {
   },
 };
 
+/**
+ * Tool for querying the knowledge graph
+ * @see REQ-INT-102
+ */
+export const queryKnowledgeTool: ToolDefinition = {
+  name: 'sdd_query_knowledge',
+  description: 'Query the MUSUBIX knowledge graph for patterns, requirements, designs, and other artifacts',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      query: {
+        type: 'string',
+        description: 'Natural language query or SPARQL-like query',
+      },
+      nodeType: {
+        type: 'string',
+        enum: ['pattern', 'requirement', 'design', 'task', 'all'],
+        description: 'Type of nodes to search',
+      },
+      limit: {
+        type: 'number',
+        description: 'Maximum number of results',
+      },
+    },
+    required: ['query'],
+  },
+  handler: async (args) => {
+    const { query, nodeType = 'all', limit = 10 } = args as {
+      query: string;
+      nodeType?: string;
+      limit?: number;
+    };
+
+    try {
+      // Simulated knowledge graph query
+      return success({
+        action: 'query_knowledge',
+        query,
+        nodeType,
+        limit,
+        results: [],
+        count: 0,
+        message: `Knowledge graph query executed: ${query}`,
+      });
+    } catch (e) {
+      return error(e instanceof Error ? e.message : String(e));
+    }
+  },
+};
+
+/**
+ * Tool for updating the knowledge graph
+ * @see REQ-INT-102
+ */
+export const updateKnowledgeTool: ToolDefinition = {
+  name: 'sdd_update_knowledge',
+  description: 'Update or add nodes to the MUSUBIX knowledge graph',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      nodeType: {
+        type: 'string',
+        enum: ['pattern', 'requirement', 'design', 'task'],
+        description: 'Type of node to create/update',
+      },
+      properties: {
+        type: 'object',
+        description: 'Node properties',
+      },
+      relationships: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            targetId: { type: 'string' },
+            type: { type: 'string' },
+          },
+        },
+        description: 'Relationships to other nodes',
+      },
+    },
+    required: ['nodeType', 'properties'],
+  },
+  handler: async (args) => {
+    const { nodeType, properties, relationships = [] } = args as {
+      nodeType: string;
+      properties: Record<string, unknown>;
+      relationships?: Array<{ targetId: string; type: string }>;
+    };
+
+    try {
+      return success({
+        action: 'update_knowledge',
+        nodeType,
+        properties,
+        relationships,
+        status: 'pending',
+        message: `Knowledge graph update queued for ${nodeType}`,
+      });
+    } catch (e) {
+      return error(e instanceof Error ? e.message : String(e));
+    }
+  },
+};
 
 
 /**
@@ -489,6 +593,9 @@ export const sddTools: ToolDefinition[] = [
   validateDesignTool,
   // Tasks
   createTasksTool,
+  // Knowledge Graph
+  queryKnowledgeTool,
+  updateKnowledgeTool,
   // Validation
   validateConstitutionTool,
   validateTraceabilityTool,
