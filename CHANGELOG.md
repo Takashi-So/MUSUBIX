@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.13] - 2026-01-12
+
+### Added
+
+- **`@nahisaho/musubix-security`: Ruby/Rust 言語エクストラクタを追加**
+
+  #### RubyExtractor (TSK-023, TSK-024)
+  - **tree-sitter-ruby** 統合による完全なAST解析
+  - **AST/DFG/CFG/シンボルテーブル** 抽出機能
+  - **6つのフレームワークモデル**:
+    - Rails (params, render, redirect, sanitize)
+    - ActiveRecord (SQL injection検出)
+    - Ruby System (command injection: system, exec, backticks, IO.popen)
+    - Ruby File IO (path traversal: File.open, File.read)
+    - Ruby Deserialization (Marshal.load, YAML.load)
+    - Ruby Eval (eval, instance_eval, send)
+  - サポート拡張子: `.rb`, `.erb`, `.rake`
+
+  #### RustExtractor (TSK-025, TSK-026)
+  - **tree-sitter-rust** 統合による完全なAST解析
+  - **AST/DFG/CFG/シンボルテーブル** 抽出機能
+  - **10のフレームワークモデル**:
+    - Rust Unsafe (unsafe blocks, transmute, from_raw_parts)
+    - Rust Process (Command::new, env::args)
+    - Rust FS (File::open, fs::read, canonicalize)
+    - Actix-web (web::Query, web::Json, web::Path)
+    - Rocket (Form, Query, Json)
+    - SQLx (sqlx::query, .bind)
+    - Diesel (sql_query)
+    - Serde (serde_json::from_str)
+    - Rust Memory (Box::from_raw, mem::forget)
+    - Rust Panic (unwrap, expect, panic!)
+  - サポート拡張子: `.rs`
+  - `isUnsafe()` ヘルパーメソッド
+
+  #### テスト
+  - Ruby Extractor テスト: フレームワークモデル、AST抽出、ソース/シンク検出
+  - Rust Extractor テスト: フレームワークモデル、AST抽出、unsafe検出
+  - 全テスト: 1102 passed | 2 skipped
+
+### Changed
+
+- **extractors/index.ts**: Ruby/Rust エクスポート追加、`createExtractor()` ファクトリ関数更新
+
 ## [3.0.11] - 2026-01-13
 
 ### Fixed

@@ -1,10 +1,21 @@
 # タスク分解書: @nahisaho/musubix-security CodeQL同等機能強化
 
 **Document ID**: TSK-SEC-CODEQL-001  
-**Version**: 1.0.0  
+**Version**: 1.1.0  
 **Created**: 2026-01-12  
+**Updated**: 2026-01-12  
 **Author**: AI Agent (GitHub Copilot)  
-**Status**: Draft (レビュー待ち)
+**Status**: ✅ Completed (v3.0.13)
+
+---
+
+## 実装完了サマリー
+
+| 項目 | 状態 | リリース |
+|------|------|----------|
+| Ruby Extractor (TSK-023, TSK-024) | ✅ 完了 | v3.0.13 |
+| Rust Extractor (TSK-025, TSK-026) | ✅ 完了 | v3.0.13 |
+| テスト | ✅ 1102 passed | v3.0.13 |
 
 ---
 

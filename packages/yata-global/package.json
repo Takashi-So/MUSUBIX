@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/yata-global",
-  "version": "3.0.7",
+  "version": "3.0.13",
   "description": "[DEPRECATED] YATA Global - Use @musubix/knowledge instead",
   "deprecated": "This package is deprecated. Please use @musubix/knowledge from MUSUBIX v3.0.0+",
   "type": "module",
