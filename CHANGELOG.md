@@ -5,6 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.14] - 2026-01-12
+
+### Added
+
+- **`@nahisaho/musubix-security`: Go言語エクストラクタを追加 (REQ-SEC-GO-001〜008)**
+
+  #### GoExtractor (TSK-GO-001〜007)
+  - **tree-sitter-go** 統合による完全なAST解析（オプショナル依存、フォールバック対応）
+  - **AST/DFG/CFG/シンボルテーブル** 抽出機能
+  - **10のフレームワークモデル**:
+    - **net/http**: HTTP標準ライブラリ（6ソース、3シンク、2サニタイザー）
+      - ソース: r.URL.Query(), r.FormValue(), r.PostFormValue(), r.Header.Get(), r.Body, r.Cookies()
+      - シンク: fmt.Fprintf(w,), w.Write(), http.Redirect()
+      - サニタイザー: html.EscapeString(), template.HTMLEscapeString()
+    - **database/sql**: SQL標準ライブラリ（5シンク、2サニタイザー）
+      - シンク: db.Query(文字列連結), db.QueryRow(), db.Exec(), db.Prepare(), fmt.Sprintf(SELECT)
+      - サニタイザー: プレースホルダ使用クエリ
+    - **os/exec**: コマンド実行（2ソース、2シンク）
+      - ソース: os.Args, os.Getenv()
+      - シンク: exec.Command(), exec.CommandContext()
+    - **os**: ファイル操作（6シンク、2サニタイザー）
+      - シンク: os.Open(), os.OpenFile(), os.Create(), os.ReadFile(), os.WriteFile(), ioutil.ReadFile()
+      - サニタイザー: filepath.Clean(), filepath.Base()
+    - **encoding/xml**: XML処理（2シンク）
+      - シンク: xml.Unmarshal(), xml.NewDecoder() (XXE脆弱性)
+    - **Gin**: Webフレームワーク（6ソース、3シンク）
+      - ソース: c.Query(), c.Param(), c.PostForm(), c.ShouldBindJSON(), c.GetHeader(), c.Cookie()
+      - シンク: c.HTML(), c.String(), c.Redirect()
+    - **Echo**: Webフレームワーク（5ソース、3シンク）
+      - ソース: c.QueryParam(), c.Param(), c.FormValue(), c.Bind(), c.Request().Header.Get()
+      - シンク: c.HTML(), c.String(), c.Redirect()
+    - **Fiber**: Webフレームワーク（5ソース、2シンク）
+      - ソース: c.Query(), c.Params(), c.FormValue(), c.BodyParser(), c.Get()
+      - シンク: c.SendString(), c.Redirect()
+    - **GORM**: ORMフレームワーク（3シンク、1サニタイザー）
+      - シンク: db.Raw(), db.Exec(), db.Where(文字列連結)
+      - サニタイザー: プレースホルダ使用クエリ
+    - **Go SSRF**: SSRF脆弱性検出（4シンク、1サニタイザー）
+      - シンク: http.Get(), http.Post(), http.NewRequest(), client.Do()
+      - サニタイザー: url.Parse()
+  - **エクスポート判定**: `isExported()` ヘルパーメソッド（大文字開始=public）
+  - サポート拡張子: `.go`
+
+  #### テスト (40テスト)
+  - TEST-GO-001: GoExtractorインスタンス作成（4テスト）
+  - TEST-GO-002: フレームワークモデル検証（11テスト）
+  - TEST-GO-003: AST構築テスト（3テスト）
+  - TEST-GO-004: ソース検出テスト（3テスト）
+  - TEST-GO-005: シンク検出テスト（6テスト）
+  - TEST-GO-006: サニタイザー検出テスト（2テスト）
+  - TEST-GO-007: CFG構築テスト（2テスト）
+  - TEST-GO-008: シンボル抽出テスト（3テスト）
+  - TEST-GO-009: エクスポート判定テスト（3テスト）
+  - TEST-GO-010: 統合テスト（3テスト）
+
+### Changed
+
+- **extractors/index.ts**: GoExtractorエクスポート追加、`createExtractor()` ファクトリ関数更新
+- **tsconfig.json**: go-extractor.tsをexcludeから削除
+
+### Test Summary
+
+- 全テスト: 1142 passed | 2 skipped (前バージョン + 40テスト)
+
 ## [3.0.13] - 2026-01-12
 
 ### Added

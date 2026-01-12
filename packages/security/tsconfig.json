@@ -15,7 +15,6 @@
     "src/tests",
     "src/**/*.test.ts",
     "src/extractors/java-extractor.ts",
-    "src/extractors/go-extractor.ts",
     "src/codedb/serializer.ts",
     "src/mql/**/*"
   ]

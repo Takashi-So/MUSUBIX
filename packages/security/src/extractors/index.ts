@@ -1,7 +1,7 @@
 /**
  * @fileoverview Extractors barrel export
  * @module @nahisaho/musubix-security/extractors
- * @trace TSK-004, REQ-SEC-LANG-001, REQ-SEC-LANG-005, REQ-SEC-LANG-006
+ * @trace TSK-004, REQ-SEC-LANG-001, REQ-SEC-LANG-005, REQ-SEC-LANG-006, REQ-SEC-GO-001
  */
 
 // Base extractor and types
@@ -33,11 +33,13 @@ export {
 // Language-specific extractors
 export { RubyExtractor, createRubyExtractor } from './ruby-extractor.js';
 export { RustExtractor, createRustExtractor } from './rust-extractor.js';
+export { GoExtractor, createGoExtractor } from './go-extractor.js';
 
 // Extractor factory
 import type { SupportedLanguage } from './base-extractor.js';
 import { RubyExtractor } from './ruby-extractor.js';
 import { RustExtractor } from './rust-extractor.js';
+import { GoExtractor } from './go-extractor.js';
 
 /**
  * Get supported languages
@@ -49,16 +51,18 @@ export function getSupportedLanguages(): SupportedLanguage[] {
 
 /**
  * Create extractor for a language
- * @trace REQ-SEC-LANG-001
+ * @trace REQ-SEC-LANG-001, REQ-SEC-GO-001
  */
 export function createExtractor(
   language: SupportedLanguage
-): RubyExtractor | RustExtractor | null {
+): RubyExtractor | RustExtractor | GoExtractor | null {
   switch (language) {
     case 'ruby':
       return new RubyExtractor();
     case 'rust':
       return new RustExtractor();
+    case 'go':
+      return new GoExtractor();
     default:
       // Other languages not yet implemented
       return null;
