@@ -29,11 +29,12 @@
 21. [Library Learning](#library-learning) *(v2.0.0)*
 22. [Neural Search](#neural-search) *(v2.0.0)*
 23. [Program Synthesis](#program-synthesis) *(v2.0.0)*
-24. [Advanced Learning Enhancement](#advanced-learning-enhancement) *(v2.2.0 NEW!)*
-25. [MCP Server Integration](#mcp-server-integration)
-26. [YATA Integration](#yata-integration)
-27. [Best Practices](#best-practices)
-28. [Troubleshooting](#troubleshooting)
+24. [Advanced Learning Enhancement](#advanced-learning-enhancement) *(v2.2.0)*
+25. [Performance Optimization](#performance-optimization) *(v3.1.0 NEW!)*
+26. [MCP Server Integration](#mcp-server-integration)
+27. [YATA Integration](#yata-integration)
+28. [Best Practices](#best-practices)
+29. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -161,6 +162,53 @@ musubix --help
 
 # Version
 musubix --version
+```
+
+### Design Commands *(v3.1.0 NEW!)*
+
+```bash
+# Generate C4 design from requirements
+musubix design generate <file>
+
+# Validate design patterns
+musubix design validate <file>
+
+# REQ↔DES traceability validation
+musubix design traceability
+musubix design traceability --min-coverage 80   # Set coverage threshold
+musubix design traceability --require-full      # Require 100% coverage
+```
+
+### Code Generation Commands *(v3.1.0 NEW!)*
+
+```bash
+# Generate code from C4 design
+musubix codegen generate <file> --output src/
+
+# Generate status transition code from spec
+musubix codegen status <spec>                   # Union type (default)
+musubix codegen status <spec> --enum            # Enum type
+musubix codegen status <spec> --no-validator    # Skip validation functions
+musubix codegen status <spec> --no-helpers      # Skip helper functions
+```
+
+### Scaffold Commands *(v3.1.0 Enhanced!)*
+
+```bash
+# DDD project scaffolding
+musubix scaffold domain-model <name>
+
+# With entities
+musubix scaffold domain-model <name> -e "User,Order"
+
+# With Value Objects
+musubix scaffold domain-model <name> -v "Price,Email"
+
+# With status machines
+musubix scaffold domain-model <name> -s "Order,Task"
+
+# Combined options
+musubix scaffold domain-model myproject -e "User,Order" -v "Price,Email" -s "Order"
 ```
 
 ### musubix-mcp Command
@@ -2228,6 +2276,133 @@ npx musubix lib stats  # エイリアス
 | Synthesis | 6 | 108 |
 | Integration | 4 | 73 |
 | **Total** | **28** | **464** |
+
+---
+
+## Performance Optimization
+
+*(v3.1.0)*
+
+Performance utilities for CLI commands and pattern processing.
+
+### Performance Measurement
+
+```typescript
+import {
+  PerformanceTimer,
+  measureAsync,
+  measureSync,
+  PerformanceCollector,
+  createPerformanceCollector,
+  formatPerformanceReport,
+} from '@nahisaho/musubix-core/cli';
+
+// Measure async operation
+const { result, performance } = await measureAsync('api-call', async () => {
+  return await fetchData();
+});
+console.log(`Duration: ${performance.durationMs}ms`);
+
+// Create collector with default baselines
+const collector = createPerformanceCollector();
+collector.addResult(performance);
+
+// Generate and format report
+const report = collector.generateReport();
+console.log(formatPerformanceReport(report));
+// === Performance Report ===
+// Average: 150.25ms
+// Min: 100ms
+// Max: 200ms
+// ✅ cli:init: 300ms (target: 500ms, 60%)
+```
+
+### Lazy Loading
+
+```typescript
+import {
+  createLazyLoader,
+  LazyModuleRegistry,
+  globalLazyRegistry,
+  BatchLoader,
+} from '@nahisaho/musubix-core/cli';
+
+// Lazy module loading
+const heavyModule = createLazyLoader(() => import('./heavy-module'));
+const module = await heavyModule(); // Loads only on first access
+
+// Module registry for multiple lazy modules
+const registry = new LazyModuleRegistry();
+registry.register('parser', () => import('./parser'));
+registry.register('formatter', () => import('./formatter'));
+
+const parser = await registry.get('parser');
+await registry.preload(['parser', 'formatter']);
+
+// Batch loading with deduplication
+const loader = new BatchLoader(async (keys) => {
+  const results = await fetchMany(keys);
+  return new Map(keys.map((k, i) => [k, results[i]]));
+}, 10); // 10ms batch delay
+
+const [a, b, c] = await Promise.all([
+  loader.load('a'),
+  loader.load('b'),
+  loader.load('c'),
+]); // Single batch request
+```
+
+### Pattern Cache
+
+```typescript
+import {
+  LRUCache,
+  PatternCache,
+  globalPatternCache,
+  memoize,
+  memoizeAsync,
+} from '@nahisaho/musubix-core/learning';
+
+// LRU cache with TTL
+const cache = new LRUCache<string, Pattern>({
+  maxSize: 100,
+  ttlMs: 60000, // 1 minute TTL
+});
+cache.set('pattern-1', patternData);
+const pattern = cache.get('pattern-1');
+
+// Get cache statistics
+const stats = cache.getStats();
+// { size: 1, maxSize: 100, hits: 5, misses: 2, hitRatio: 0.71, evictions: 0 }
+
+// Category-based pattern cache
+const patternCache = new PatternCache({ maxSize: 50, ttlMs: 300000 });
+patternCache.set('design', 'singleton', { name: 'Singleton' });
+patternCache.set('code', 'factory', { name: 'Factory' });
+
+// Memoize expensive functions
+const expensiveFn = memoize((x: number) => {
+  // Heavy computation
+  return x * 2;
+});
+
+// Memoize async functions with concurrent call deduplication
+const fetchUser = memoizeAsync(async (id: string) => {
+  return await api.getUser(id);
+});
+```
+
+### Default Performance Baselines
+
+| Operation | Target (ms) | Max (ms) |
+|-----------|-------------|----------|
+| `cli:init` | 500 | 1000 |
+| `cli:validate` | 200 | 500 |
+| `cli:analyze` | 1000 | 2000 |
+| `cli:generate` | 500 | 1000 |
+| `pattern:query` | 100 | 300 |
+| `pattern:extract` | 500 | 1000 |
+| `learning:recommend` | 200 | 500 |
 
 ---
 

@@ -199,3 +199,38 @@ export {
   type TestFileDecoratorOptions,
   type DecorationResult,
 } from './test-file-decorator.js';
+
+// Value Object Generator (v3.1.0 NEW!)
+// @see REQ-VO-001, TSK-GEN-001
+export {
+  ValueObjectGenerator,
+  generateValueObject,
+  parseVOSpec,
+  type ValueObjectSpec,
+  type VOProperty,
+  type VOValidation,
+  type VOGeneratorOptions,
+  type VOGenerationResult,
+} from './value-object-generator.js';
+
+// Status Transition Generator (v3.1.0 NEW!)
+// @see BP-DESIGN-001, TSK-GEN-002
+export {
+  StatusTransitionGenerator,
+  generateStatusTransitions,
+  parseStatusMachineSpec,
+  type StatusTransition as StatusTransitionSpec, // Renamed to avoid conflict with utils
+  type StatusDefinition,
+  type StatusMachineSpec,
+  type StatusGeneratorOptions,
+  type StatusGenerationResult,
+} from './status-transition-generator.js';
+
+// Status Transition Test Generator (v3.1.0 NEW!)
+// @see BP-TEST-005, TSK-TST-001
+export {
+  StatusTransitionTestGenerator,
+  generateStatusTransitionTests,
+  type StatusTestGeneratorOptions,
+  type StatusTestGenerationResult,
+} from './status-transition-test-generator.js';

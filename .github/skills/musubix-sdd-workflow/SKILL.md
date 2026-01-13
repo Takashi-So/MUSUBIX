@@ -188,9 +188,16 @@ npx musubix requirements validate <file>
 # Design
 npx musubix design generate <file>
 npx musubix design patterns <context>
+npx musubix design traceability            # REQ↔DES traceability (v3.1.0)
 
 # Code Generation
 npx musubix codegen generate <file>
+npx musubix codegen status <spec>          # Status transition code (v3.1.0)
+
+# Scaffolding
+npx musubix scaffold domain-model <name>
+npx musubix scaffold domain-model <name> -v "Price,Email"  # Value Objects (v3.1.0)
+npx musubix scaffold domain-model <name> -s "Order,Task"   # Status machines (v3.1.0)
 
 # Traceability
 npx musubix trace matrix

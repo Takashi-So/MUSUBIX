@@ -166,3 +166,15 @@ export {
   type ProgressPhase,
   type ProgressReporterOptions,
 } from './inference/index.js';
+
+// Pattern Cache (v3.1.0)
+export {
+  LRUCache,
+  PatternCache,
+  globalPatternCache,
+  memoize,
+  memoizeAsync,
+  type CacheStats,
+  type CacheOptions,
+} from './pattern-cache.js';
+

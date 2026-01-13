@@ -429,6 +429,76 @@ export function registerCodegenCommand(program: Command): void {
         process.exit(ExitCode.GENERAL_ERROR);
       }
     });
+
+  // codegen status - Generate status transition code (BP-DESIGN-001)
+  codegen
+    .command('status <spec>')
+    .description('Generate status transition code from specification')
+    .option('-o, --output <dir>', 'Output directory', 'src/generated')
+    .option('--no-validator', 'Skip generating validator function')
+    .option('--no-helpers', 'Skip generating helper functions')
+    .option('--enum', 'Use enum instead of union type')
+    .option('--no-jsdoc', 'Skip JSDoc comments')
+    .action(async (spec: string, options: { output?: string; validator?: boolean; helpers?: boolean; enum?: boolean; jsdoc?: boolean }) => {
+      const globalOpts = getGlobalOptions(program);
+
+      try {
+        const specPath = resolve(process.cwd(), spec);
+        const content = await readFile(specPath, 'utf-8');
+
+        // Dynamic import to avoid circular dependency
+        const { StatusTransitionGenerator, parseStatusMachineSpec } = await import('../../codegen/status-transition-generator.js');
+
+        // Parse spec (support both JSON and text format)
+        let machineSpec;
+        if (spec.endsWith('.json')) {
+          machineSpec = JSON.parse(content);
+        } else {
+          machineSpec = parseStatusMachineSpec(content);
+        }
+
+        const generator = new StatusTransitionGenerator({
+          useUnionType: !options.enum,
+          generateValidator: options.validator !== false,
+          generateHelpers: options.helpers !== false,
+          includeJSDoc: options.jsdoc !== false,
+        });
+
+        const result = generator.generate(machineSpec);
+
+        const outputDir = resolve(process.cwd(), options.output ?? 'src/generated');
+        await mkdir(outputDir, { recursive: true });
+        const outputPath = resolve(outputDir, result.fileName);
+        await writeFile(outputPath, result.code, 'utf-8');
+
+        if (!globalOpts.quiet) {
+          console.log(`✅ Status transition code generated`);
+          console.log(`   📄 ${outputPath}`);
+          console.log(`   📊 ${result.statusCount} statuses, ${result.transitionCount} transitions`);
+          if (result.initialStatus) {
+            console.log(`   🚀 Initial: ${result.initialStatus}`);
+          }
+          if (result.terminalStatuses.length > 0) {
+            console.log(`   🏁 Terminal: ${result.terminalStatuses.join(', ')}`);
+          }
+        }
+
+        if (globalOpts.json) {
+          outputResult({
+            success: true,
+            file: outputPath,
+            ...result,
+          }, globalOpts);
+        }
+
+        process.exit(ExitCode.SUCCESS);
+      } catch (error) {
+        if (!globalOpts.quiet) {
+          console.error(`❌ Status code generation failed: ${(error as Error).message}`);
+        }
+        process.exit(ExitCode.GENERAL_ERROR);
+      }
+    });
 }
 
 /**

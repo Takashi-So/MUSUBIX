@@ -110,7 +110,8 @@ export function registerLearnCommand(program: Command): void {
     });
 
   // Feedback command
-  learn
+  // @see REQ-CLI-002 - Guidance for required options
+  const feedbackCmd = learn
     .command('feedback <artifactId>')
     .description('Record feedback for an artifact')
     .requiredOption('-t, --type <type>', 'Feedback type: accept, reject, modify')
@@ -119,6 +120,25 @@ export function registerLearnCommand(program: Command): void {
     .option('-p, --project <name>', 'Project name')
     .option('-l, --language <lang>', 'Programming language')
     .option('-f, --framework <fw>', 'Framework')
+    .addHelpText('after', `
+Examples:
+  $ musubix learn feedback REQ-001 -t accept -a requirement
+  $ musubix learn feedback DES-001 -t reject -a design -r "Missing traceability"
+  $ musubix learn feedback src/order.ts -t modify -a code -p my-project
+
+Required Options Explained:
+  -t, --type          How you evaluated the artifact:
+                        accept  - Artifact is correct, use as positive example
+                        reject  - Artifact has issues, learn from mistakes
+                        modify  - Artifact was changed, track improvement
+
+  -a, --artifact-type What kind of artifact you're providing feedback on:
+                        requirement - EARS format requirements
+                        design      - C4 model designs
+                        code        - Generated code
+                        test        - Generated tests
+`)
+    .showHelpAfterError('(Use "musubix learn feedback --help" for usage information)')
     .action(async (artifactId, options) => {
       const engine = new LearningEngine();
       

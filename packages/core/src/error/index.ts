@@ -55,3 +55,17 @@ export {
   // Constants
   DEFAULT_PERSISTENCE_CONFIG,
 } from './data-persistence.js';
+
+// Actionable Error System (v3.1.0 NEW!)
+// @see TSK-NFR-001
+export {
+  ActionableError,
+  ErrorFormatter,
+  ErrorCodes,
+  CommonErrors,
+  type ErrorSeverity,
+  type ErrorSuggestion,
+  type ErrorContext,
+  type ActionableErrorOptions,
+  type ErrorCode,
+} from './actionable-error.js';

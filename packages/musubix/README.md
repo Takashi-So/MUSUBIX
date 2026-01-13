@@ -37,6 +37,12 @@ npx musubix --help
 npx musubix init
 npx musubix requirements analyze <file>
 npx musubix design generate <file>
+npx musubix design traceability            # REQ↔DES traceability validation (v3.1.0)
+npx musubix codegen generate <file>
+npx musubix codegen status <spec>          # Status transition code generation (v3.1.0)
+npx musubix scaffold domain-model <name>   # DDD project scaffolding
+npx musubix scaffold domain-model <name> -v "Price,Email"  # With Value Objects (v3.1.0)
+npx musubix scaffold domain-model <name> -s "Order,Task"   # With status machines (v3.1.0)
 ```
 
 ### Library

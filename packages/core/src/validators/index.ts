@@ -24,4 +24,14 @@ export {
   type MarkdownEARSParserOptions,
 } from './markdown-ears-parser.js';
 
+export {
+  TraceabilityValidator,
+  validateTraceability,
+  type ArtifactRef,
+  type TraceLink as ValidatorTraceLink, // Renamed to avoid conflict with traceability/manager
+  type TraceabilityValidationResult,
+  type TraceabilityIssue,
+  type TraceabilityValidatorOptions,
+} from './traceability-validator.js';
+
 // Note: EARSComponents and EARSValidationResult are exported from types module

@@ -125,11 +125,15 @@ npx musubix design patterns <context>      # パターン検出
 npx musubix design validate <file>         # SOLID準拠検証
 npx musubix design c4 <file>               # C4ダイアグラム生成
 npx musubix design adr <decision>          # ADR生成
+npx musubix design traceability            # REQ↔DESトレーサビリティ検証 (v3.1.0 NEW!)
+npx musubix design traceability --min-coverage 80  # カバレッジ閾値指定
 
 # コード生成
 npx musubix codegen generate <file>        # 設計からコード生成
 npx musubix codegen analyze <file>         # 静的解析
 npx musubix codegen security <path>        # セキュリティスキャン
+npx musubix codegen status <spec>          # ステータス遷移コード生成 (v3.1.0 NEW!)
+npx musubix codegen status <spec> --enum   # enum型で生成
 
 # テスト
 npx musubix test generate <file>           # テスト生成
@@ -173,10 +177,12 @@ npx musubix repl --no-color                # 色なしモード
 # KGPR - Knowledge Graph Pull Request (v1.6.4 - DEPRECATED)
 # KGPRは廃止されました。通常のGit PRワークフローを使用してください。
 
-# SDDプロジェクトスキャフォールド (v1.6.7 NEW!)
+# SDDプロジェクトスキャフォールド (v1.6.7 NEW!, v3.1.0 Enhanced!)
 npx musubix scaffold domain-model <name>   # DDDプロジェクト生成
 npx musubix scaffold domain-model <name> -e "Entity1,Entity2"  # エンティティ指定
 npx musubix scaffold domain-model <name> -d DOMAIN  # ドメイン接頭辞指定
+npx musubix scaffold domain-model <name> -v "Price,Email"  # Value Object生成 (v3.1.0 NEW!)
+npx musubix scaffold domain-model <name> -s "Order,Task"   # ステータス遷移生成 (v3.1.0 NEW!)
 npx musubix scaffold minimal <name>        # 最小構成プロジェクト
 
 # プログラム合成 (v2.2.0 NEW!)
@@ -575,6 +581,89 @@ const explainer = createExplanationGenerator();
 const explanation = explainer.generate(program);
 const summary = explainer.summarize(program);
 // "Converts to uppercase"
+```
+
+### 9. Performance Optimization（v3.1.0 NEW!）
+
+CLI・パターン処理の性能最適化ユーティリティ：
+
+#### 性能計測
+```typescript
+import {
+  PerformanceTimer,
+  measureAsync,
+  measureSync,
+  PerformanceCollector,
+  createPerformanceCollector,
+  formatPerformanceReport,
+} from '@nahisaho/musubix-core/cli';
+
+// 非同期処理の計測
+const { result, performance } = await measureAsync('api-call', async () => {
+  return await fetchData();
+});
+console.log(`Duration: ${performance.durationMs}ms`);
+
+// 性能レポート生成
+const collector = createPerformanceCollector();
+collector.addResult(performance);
+const report = collector.generateReport();
+console.log(formatPerformanceReport(report));
+```
+
+#### 遅延読み込み
+```typescript
+import {
+  createLazyLoader,
+  LazyModuleRegistry,
+  globalLazyRegistry,
+  BatchLoader,
+} from '@nahisaho/musubix-core/cli';
+
+// モジュールの遅延読み込み
+const heavyModule = createLazyLoader(() => import('./heavy-module'));
+const module = await heavyModule(); // 初回アクセス時にのみ読み込み
+
+// バッチ読み込み
+const loader = new BatchLoader(async (keys) => {
+  const results = await fetchMany(keys);
+  return new Map(keys.map((k, i) => [k, results[i]]));
+});
+const [a, b, c] = await Promise.all([
+  loader.load('a'),
+  loader.load('b'),
+  loader.load('c'),
+]); // 1回のバッチリクエストで取得
+```
+
+#### パターンキャッシュ
+```typescript
+import {
+  LRUCache,
+  PatternCache,
+  globalPatternCache,
+  memoize,
+  memoizeAsync,
+} from '@nahisaho/musubix-core/learning';
+
+// LRUキャッシュ（TTL対応）
+const cache = new LRUCache<string, Pattern>({
+  maxSize: 100,
+  ttlMs: 60000, // 1分
+});
+cache.set('pattern-1', patternData);
+const pattern = cache.get('pattern-1');
+
+// 関数メモ化
+const expensiveFn = memoize((x: number) => {
+  // 重い計算
+  return x * 2;
+});
+
+// 非同期関数メモ化
+const fetchUser = memoizeAsync(async (id: string) => {
+  return await api.getUser(id);
+});
 ```
 
 ---

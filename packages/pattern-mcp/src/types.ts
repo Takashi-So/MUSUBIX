@@ -96,3 +96,50 @@ export interface PrivacyFilterResult {
   reason?: string;
   sanitizedPattern?: Pattern;
 }
+
+/**
+ * Design Pattern - Best practice pattern definition
+ */
+export interface DesignPattern {
+  /** Unique pattern ID (e.g., PAT-CONC-001, PAT-TIME-001) */
+  id: string;
+  /** Human-readable name */
+  name: string;
+  /** Pattern category (concurrency, temporal, etc.) */
+  category: string;
+  /** Applicable domains */
+  domain: string[];
+  /** Brief description */
+  description: string;
+  /** Problem this pattern solves */
+  problem: string;
+  /** Solution approach */
+  solution: string;
+  /** When to apply this pattern */
+  applicability: string[];
+  /** Trade-offs */
+  consequences: {
+    positive: string[];
+    negative: string[];
+  };
+  /** TypeScript implementation example */
+  implementation: string;
+  /** Related pattern IDs */
+  relatedPatterns?: string[];
+  /** Confidence score (0-1) */
+  confidence: number;
+}
+
+/**
+ * Pattern Example - Concrete usage example
+ */
+export interface PatternExample {
+  /** Pattern ID this example demonstrates */
+  patternId: string;
+  /** Scenario description */
+  scenario: string;
+  /** Example code */
+  code: string;
+  /** Domain this example applies to */
+  domain: string;
+}

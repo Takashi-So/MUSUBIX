@@ -301,7 +301,7 @@ describe('CLI Commands', () => {
   });
 
   describe('Design Command Structure', () => {
-    it('should register design with 5 subcommands', async () => {
+    it('should register design with 6 subcommands', async () => {
       const { registerDesignCommand } = await import('../../src/cli/commands/design.js');
       const program = new Command();
       registerDesignCommand(program);
@@ -309,9 +309,9 @@ describe('CLI Commands', () => {
       const designCmd = program.commands.find(c => c.name() === 'design');
       expect(designCmd).toBeDefined();
       
-      // 5 subcommands + help
+      // 6 subcommands (generate, patterns, validate, c4, adr, traceability) + help
       const subcommands = designCmd?.commands.filter(c => c.name() !== 'help');
-      expect(subcommands?.length).toBe(5);
+      expect(subcommands?.length).toBe(6);
     });
   });
 
@@ -324,9 +324,9 @@ describe('CLI Commands', () => {
       const codegenCmd = program.commands.find(c => c.name() === 'codegen');
       expect(codegenCmd).toBeDefined();
       
-      // 3 subcommands + help
+      // 4 subcommands (generate, analyze, security, status) + help
       const subcommands = codegenCmd?.commands.filter(c => c.name() !== 'help');
-      expect(subcommands?.length).toBe(3);
+      expect(subcommands?.length).toBe(4);
     });
   });
 

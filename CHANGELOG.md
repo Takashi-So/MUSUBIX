@@ -5,6 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-01-13
+
+### Added
+
+- **v3.1.0: Developer Experience Enhancement Release**
+  - 15の新機能・改善を実装（P0: 4、P1: 10、P2: 1）
+  - 270以上の新規テストを追加（合計4400+テスト）
+  - ドキュメント8ファイルを更新
+
+#### CLI機能強化
+
+- **musubix init**: 絶対パス・相対パスの正規化サポート (TSK-CLI-001)
+- **musubix learn feedback**: ガイダンスヘルプテキスト追加 (TSK-CLI-002)
+- **musubix scaffold domain-model**: Value Object(-v)とStatus machine(-s)オプション追加 (TSK-CLI-003)
+  - `-v "Price,Email"` - Value Object自動生成
+  - `-s "Order,Task"` - ステータス遷移コード自動生成
+- **musubix design traceability**: REQ↔DESトレーサビリティ検証コマンド追加 (TSK-VAL-002)
+  - `--min-coverage 80` - カバレッジ閾値指定
+  - `--require-full` - 100%カバレッジ必須モード
+- **musubix codegen status**: ステータス遷移コード生成コマンド追加 (TSK-GEN-002)
+  - `--enum` - enum型で生成
+  - `--no-validator` - バリデーション関数をスキップ
+  - `--no-helpers` - ヘルパー関数をスキップ
+
+#### パターン機能
+
+- **同時実行パターン** (TSK-PAT-001): Mutex, Semaphore, ReadWriteLock, Debounce, Throttle
+- **時間制約パターン** (TSK-PAT-002): Expiry, Scheduled, Interval, Streak, Cooldown
+- **PatternRecommender** (TSK-LRN-001): コンテキストベースのパターン推薦
+- **DomainPatternClassifier** (TSK-LRN-002): 10ドメイン固有パターン分類
+  - 対応ドメイン: ecommerce, healthcare, fintech, education, logistics, social, gaming, iot, media, enterprise
+
+#### コード生成
+
+- **ValueObjectGenerator** (TSK-GEN-001): VO仕様からTypeScriptコード自動生成
+- **StatusTransitionGenerator** (TSK-GEN-002): BP-DESIGN-001パターン準拠の状態遷移コード生成
+- **StatusTransitionTestGenerator** (TSK-TST-001): 状態遷移のテーブル駆動テスト生成
+
+#### 検証・品質
+
+- **TraceabilityValidator** (TSK-VAL-002): REQ↔DESのトレーサビリティ検証
+- **MarkdownEARSDetector** (TSK-VAL-001): Markdown内EARS形式自動検出
+- **TestCounterReset** (TSK-TST-002): テスト用IDカウンターリセット関数
+
+#### エラーハンドリング
+
+- **ActionableError** (TSK-NFR-001): 解決策付きエラークラス
+  - ErrorCodes: EARS_VALIDATION_FAILED, TRACEABILITY_MISSING, FILE_NOT_FOUND等
+  - ErrorFormatter: 構造化エラー出力
+  - CommonErrors: よく使うエラーのファクトリ関数
+
+#### 性能最適化 (TSK-NFR-002)
+
+- **PerformanceTimer/Collector**: 性能計測ユーティリティ
+- **LazyLoader**: モジュール遅延読み込み
+- **LRUCache**: TTL対応LRUキャッシュ
+- **PatternCache**: カテゴリ別パターンキャッシュ
+- **memoize/memoizeAsync**: 関数メモ化デコレータ
+- **BatchLoader**: バッチ読み込みとキャッシュ
+
+### Changed
+
+- CLI subcommand数を更新: design 5→6, codegen 3→4
+
+### Fixed
+
+- pattern-mcp/time: types.jsインポートパス修正
+
+---
+
 ## [3.0.15] - 2026-01-13
 
 ### Added

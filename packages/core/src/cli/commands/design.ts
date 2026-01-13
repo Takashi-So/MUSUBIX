@@ -471,6 +471,52 @@ export function registerDesignCommand(program: Command): void {
         process.exit(ExitCode.GENERAL_ERROR);
       }
     });
+
+  // design traceability
+  design
+    .command('traceability')
+    .description('Validate traceability between requirements and designs (Article V)')
+    .option('-p, --project <path>', 'Project root path', process.cwd())
+    .option('--specs-dir <dir>', 'Requirements directory', 'storage/specs')
+    .option('--design-dir <dir>', 'Design directory', 'storage/design')
+    .option('--min-coverage <percent>', 'Minimum coverage percentage', '80')
+    .option('--require-full', 'Require 100% coverage', false)
+    .action(async (options: {
+      project?: string;
+      specsDir?: string;
+      designDir?: string;
+      minCoverage?: string;
+      requireFull?: boolean;
+    }) => {
+      const globalOpts = getGlobalOptions(program);
+      const { TraceabilityValidator } = await import('../../validators/traceability-validator.js');
+
+      try {
+        const projectRoot = resolve(process.cwd(), options.project ?? '.');
+        const validator = new TraceabilityValidator({
+          specsDir: options.specsDir,
+          designDir: options.designDir,
+          minCoverage: parseInt(options.minCoverage ?? '80', 10),
+          requireFullCoverage: options.requireFull,
+        });
+
+        const result = await validator.validate(projectRoot);
+
+        if (globalOpts.json) {
+          outputResult(result, globalOpts);
+        } else {
+          const report = validator.generateReport(result);
+          console.log(report);
+        }
+
+        process.exit(result.valid ? ExitCode.SUCCESS : ExitCode.VALIDATION_ERROR);
+      } catch (error) {
+        if (!globalOpts.quiet) {
+          console.error(`❌ Traceability validation failed: ${(error as Error).message}`);
+        }
+        process.exit(ExitCode.GENERAL_ERROR);
+      }
+    });
 }
 
 /**

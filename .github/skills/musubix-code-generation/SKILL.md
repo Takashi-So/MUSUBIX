@@ -147,11 +147,19 @@ export class UserRepository implements Repository<User> {
 # Generate code from design
 npx musubix codegen generate <design-file>
 
+# Generate status transition code (v3.1.0)
+npx musubix codegen status <spec>
+npx musubix codegen status <spec> --enum   # Use enum type
+
 # Analyze existing code
 npx musubix codegen analyze <file>
 
 # Security scan
 npx musubix codegen security <path>
+
+# Scaffold with Value Objects and Status machines (v3.1.0)
+npx musubix scaffold domain-model <name> -v "Price,Email"
+npx musubix scaffold domain-model <name> -s "Order,Task"
 ```
 
 ## Quality Checks (Article IX)
