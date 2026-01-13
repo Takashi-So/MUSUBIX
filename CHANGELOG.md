@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.4] - 2026-01-14
+
+### Fixed
+
+- **tree-sitter Peer Dependency** - tree-sitterバージョンを^0.23.0に更新
+  - `@nahisaho/musubix-security`のtree-sitter依存を^0.22.1→^0.23.0に更新
+  - tree-sitter-*@0.23.xとの完全な互換性を確保
+  - npm install時の`ERESOLVE overriding peer dependency`警告を完全解消
+
 ## [3.3.3] - 2026-01-14
 
 ### Fixed
