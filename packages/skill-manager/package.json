@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-skill-manager",
-  "version": "3.0.15",
+  "version": "3.0.16",
   "description": "MUSUBIX Skill Manager - Skill Loading, Validation and Registry",
   "type": "module",
   "main": "./dist/index.js",
