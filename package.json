@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Neuro-Symbolic AI Coding System - Git-Native Knowledge Integration",
   "type": "module",
   "workspaces": [
