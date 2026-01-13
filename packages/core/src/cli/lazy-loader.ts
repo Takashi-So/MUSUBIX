@@ -214,7 +214,6 @@ export class BatchLoader<K, V> {
   private batchDelay: number;
   private batchKeys: K[] = [];
   private batchTimer: ReturnType<typeof setTimeout> | null = null;
-  private batchPromise: Promise<void> | null = null;
   private batchResolvers: Map<K, { resolve: (v: V) => void; reject: (e: Error) => void }> =
     new Map();
 

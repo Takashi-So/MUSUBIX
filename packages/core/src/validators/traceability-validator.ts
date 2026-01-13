@@ -114,7 +114,9 @@ const DEFAULT_OPTIONS: Required<TraceabilityValidatorOptions> = {
 // Regex patterns for artifact IDs
 const REQ_PATTERN = /\b(REQ-[A-Z0-9]+-?\d*)\b/g;
 const DES_PATTERN = /\b(DES-[A-Z0-9]+-?\d*)\b/g;
-const TSK_PATTERN = /\b(TSK-[A-Z0-9]+-?\d*)\b/g;
+// TSK_PATTERN is reserved for future task traceability features
+// Uncomment when task traceability is implemented:
+// const TSK_PATTERN = /\b(TSK-[A-Z0-9]+-?\d*)\b/g;
 
 /**
  * Traceability Validator
@@ -151,7 +153,6 @@ export class TraceabilityValidator {
       (r) => !coveredReqIds.has(r.id)
     );
 
-    const linkedReqIds = new Set(links.map((l) => l.target));
     const orphanDesigns = designs.filter((d) => {
       // A design is orphan if it doesn't link to any requirement
       const hasLink = links.some((l) => l.source === d.id);

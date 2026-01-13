@@ -10,7 +10,6 @@ import { join } from 'path';
 import {
   TraceabilityValidator,
   validateTraceability,
-  type TraceabilityValidatorOptions,
 } from './traceability-validator.js';
 
 const TEST_DIR = join(process.cwd(), 'tmp', 'traceability-test');

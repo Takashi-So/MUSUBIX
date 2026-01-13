@@ -8,13 +8,13 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 3.2.0 (Expert Delegation System) |
+| **バージョン** | 3.3.0 (Scaffold Enhancement & Pattern Learning Integration) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 4500+ (全合格) |
+| **テスト数** | 4633+ (全合格) |
 | **パッケージ数** | 26 |
 | **MCPツール数** | 107 |
 | **Agent Skills** | 13 (Claude Code対応) |
@@ -94,6 +94,7 @@ packages/
 packages/core/src/
 ├── auth/           # 認証・認可
 ├── cli/            # CLIインターフェース
+│   └── generators/ # スキャフォールドジェネレーター (v3.3.0 NEW!)
 ├── codegen/        # コード生成・解析
 ├── design/         # 設計パターン・C4モデル
 ├── error/          # エラーハンドリング
@@ -179,12 +180,13 @@ npx musubix repl --no-color                # 色なしモード
 # KGPR - Knowledge Graph Pull Request (v1.6.4 - DEPRECATED)
 # KGPRは廃止されました。通常のGit PRワークフローを使用してください。
 
-# SDDプロジェクトスキャフォールド (v1.6.7 NEW!, v3.1.0 Enhanced!)
+# SDDプロジェクトスキャフォールド (v1.6.7 NEW!, v3.3.0 Enhanced!)
 npx musubix scaffold domain-model <name>   # DDDプロジェクト生成
 npx musubix scaffold domain-model <name> -e "Entity1,Entity2"  # エンティティ指定
 npx musubix scaffold domain-model <name> -d DOMAIN  # ドメイン接頭辞指定
 npx musubix scaffold domain-model <name> -v "Price,Email"  # Value Object生成 (v3.1.0 NEW!)
 npx musubix scaffold domain-model <name> -s "Order,Task"   # ステータス遷移生成 (v3.1.0 NEW!)
+npx musubix scaffold domain-model <name> -s "Order=pending,Task=open"  # 初期状態指定 (v3.3.0 NEW!)
 npx musubix scaffold minimal <name>        # 最小構成プロジェクト
 
 # プログラム合成 (v2.2.0 NEW!)
@@ -681,6 +683,105 @@ const expensiveFn = memoize((x: number) => {
 const fetchUser = memoizeAsync(async (id: string) => {
   return await api.getUser(id);
 });
+```
+
+### 10. Scaffold Enhancement & Pattern Learning Integration（v3.3.0 NEW!）
+
+スキャフォールドコマンドとパターン学習システムの統合強化：
+
+#### Value Object Generator
+```typescript
+import {
+  generators,
+  type generators.ValueObjectSpec,
+} from '@nahisaho/musubix-core';
+
+const generator = generators.createValueObjectGenerator();
+const spec: generators.ValueObjectSpec = {
+  name: 'Price',
+  fields: [
+    { name: 'amount', type: 'number', validation: { min: 100, max: 1000000 } },
+    { name: 'currency', type: 'string', validation: { pattern: 'JPY|USD|EUR' } }
+  ],
+  domainPrefix: 'SHOP'
+};
+
+const files = generator.generate(spec);
+// → [{ path: 'price.ts', content: '...' }, { path: 'price.test.ts', content: '...' }]
+```
+
+#### Status Machine Generator
+```typescript
+import {
+  generators,
+  type generators.StatusMachineSpec,
+} from '@nahisaho/musubix-core';
+
+const generator = generators.createStatusMachineGenerator();
+const spec: generators.StatusMachineSpec = {
+  name: 'Order',
+  statuses: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
+  initialStatus: 'pending',  // v3.3.0: 初期状態を明示指定可能
+  transitions: [
+    { from: 'pending', to: 'confirmed' },
+    { from: 'pending', to: 'cancelled' },
+    { from: 'confirmed', to: 'shipped' },
+    // ...
+  ],
+  domainPrefix: 'SHOP'
+};
+
+const files = generator.generate(spec);
+// → [{ path: 'order-status.ts', content: '...' }, { path: 'order-status.test.ts', content: '...' }]
+```
+
+#### Pattern Learning Service（新規）
+```typescript
+import { generators } from '@nahisaho/musubix-core';
+
+// スキャフォールド生成結果からパターンを学習
+const service = generators.createPatternLearningService();
+
+// コードからパターン抽出
+await service.learnFromCode(generatedCode);
+
+// 学習したパターンを次回生成に活用
+const suggestions = await service.getSuggestions(context);
+// → [{ pattern: 'ValueObject+ResultType', confidence: 0.95 }]
+
+// 学習状況のサマリー
+const summary = await service.getSummary();
+// → { totalPatterns: 15, healthStatus: 'good' }
+```
+
+#### Expert Integration（AIエキスパート委譲統合）
+```typescript
+import { generators } from '@nahisaho/musubix-core';
+
+const expert = generators.createExpertIntegration({
+  ...generators.DEFAULT_EXPERT_CONFIG,
+  timeout: 30000,  // ADR-v3.3.0-002: 30秒タイムアウト
+  fallbackEnabled: true,  // タイムアウト時フォールバック有効
+});
+
+// スキャフォールド生成にAIエキスパートを活用
+const recommendation = await expert.consultForScaffold({
+  type: 'value-object',
+  spec: valueObjectSpec,
+  context: projectContext,
+});
+// → { validationRules: [...], suggestedPatterns: [...] }
+```
+
+#### CLI使用例（v3.3.0強化）
+```bash
+# 初期状態を明示指定してステータスマシンを生成
+npx musubix scaffold domain-model shop -s "Order=pending,Task=open"
+
+# 上記コマンドで生成されるファイル:
+# - order-status.ts (初期状態: 'pending')
+# - task-status.ts (初期状態: 'open')
+# - *.test.ts (対応テスト)
 ```
 
 ---

@@ -187,7 +187,7 @@ describe('LRUCache', () => {
     const memCache = new LRUCache<string, string>({
       maxSize: 100,
       maxMemorySize: 50,
-      sizeCalculator: (value) => value.length,
+      sizeCalculator: <V>(value: V) => String(value).length,
     });
 
     memCache.set('large', 'x'.repeat(40));

@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2026-01-14
+
+### Added
+
+- **v3.3.0: Scaffold Enhancement & Pattern Learning Integration**
+  - Value Object Generator - VOファイル自動生成
+  - Status Machine Generator - ステータス遷移マシン生成
+  - Pattern Auto Extractor - 生成コードからパターン自動抽出
+  - Pattern Merger - パターン重複排除・マージ
+  - Pattern Learning Service - 学習ライフサイクル管理
+  - Expert Integration - AI専門家との統合
+  - 133テスト追加（合計1455テスト全合格）
+
+#### 新規コンポーネント (packages/core/src/cli/generators/)
+
+| コンポーネント | 説明 |
+|---------------|------|
+| `ValueObjectGenerator` | Value Object TypeScript生成 |
+| `StatusMachineGenerator` | ステータス遷移マシン生成 |
+| `ResultAggregator` | 生成結果の集約・レポート |
+| `PatternAutoExtractor` | コードからパターン自動抽出 |
+| `PatternMerger` | パターン重複排除・統合 |
+| `PatternLearningService` | パターン学習ライフサイクル |
+| `ExpertIntegration` | AIエキスパート連携 |
+
+#### ADR決定
+
+- **ADR-v3.3.0-001**: Status option syntax `"Entity=status"` 形式採用
+- **ADR-v3.3.0-002**: Expert timeout 30秒 + フォールバック有効
+
+#### CLI強化
+
+```bash
+# Value Object生成 (強化版)
+npx musubix scaffold domain-model <name> -v "Price,Email"
+
+# Status Machine生成 (ADR-v3.3.0-001準拠)
+npx musubix scaffold domain-model <name> -s "Order=draft,Payment=pending"
+```
+
+#### テスト統計
+
+- 新規テスト: 133件
+- 全テスト: 1455件（全合格）
+- Generator テスト: 120件
+
+### Changed
+
+- `scaffold.ts` を Generator クラス使用に移行
+- Pattern Learning が PatternMerger.merge() API を使用
+
+### Fixed
+
+- PatternMerger の空配列処理
+- Pattern extraction confidence フィルタリング
+
+---
+
 ## [3.2.0] - 2026-01-14
 
 ### Added

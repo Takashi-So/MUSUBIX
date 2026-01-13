@@ -8,6 +8,7 @@
  *
  * @see REQ-SDD-SCAFFOLD-001 - SDD Project Scaffolding
  * @see IMP-SDD-001 - Improvement from project-08 development
+ * @see ADR-v3.3.0-001 - Status option syntax decision
  */
 
 import type { Command } from 'commander';
@@ -15,6 +16,10 @@ import { mkdir, writeFile, access } from 'fs/promises';
 import { resolve, join } from 'path';
 import { ExitCode, getGlobalOptions, outputResult } from '../base.js';
 import { VERSION } from '../../version.js';
+import {
+  ValueObjectGenerator,
+  StatusMachineGenerator,
+} from '../generators/index.js';
 
 /**
  * Scaffold options
@@ -65,7 +70,7 @@ export function registerScaffoldCommand(program: Command): void {
     .option('-d, --domain <name>', 'Domain prefix (e.g., RENTAL, CLINIC)', 'PROJECT')
     .option('-e, --entities <list>', 'Comma-separated entity names')
     .option('-v, --value-objects <list>', 'Comma-separated value object names (e.g., Price,Email)')
-    .option('-s, --statuses <list>', 'Comma-separated status machine names (e.g., Order,Task)')
+    .option('-s, --statuses <list>', 'Status machines: "Entity" or "Entity=status1,status2" (ADR-v3.3.0-001)')
     .option('-f, --force', 'Overwrite existing files', false)
     .action(async (name: string, options: ScaffoldOptions) => {
       const globalOpts = getGlobalOptions(program);
@@ -152,43 +157,65 @@ export function registerScaffoldCommand(program: Command): void {
 
         // Create value objects if specified
         const valueObjects = options.valueObjects
-          ? options.valueObjects.split(',').map((v: string) => v.trim())
+          ? options.valueObjects.split(',').map((v: string) => v.trim()).filter((v: string) => v.length > 0)
           : [];
 
         if (valueObjects.length > 0) {
-          await mkdir(join(projectPath, 'src/value-objects'), { recursive: true });
-          for (const vo of valueObjects) {
-            const voContent = generateValueObjectTemplate(domain, vo);
-            const voPath = join(projectPath, 'src/value-objects', `${toKebabCase(vo)}.ts`);
-            await writeFile(voPath, voContent, 'utf-8');
-            filesCreated.push(`src/value-objects/${toKebabCase(vo)}.ts`);
-
-            // Create VO test template
-            const voTestContent = generateValueObjectTestTemplate(domain, vo);
-            const voTestPath = join(projectPath, '__tests__', `${toKebabCase(vo)}.test.ts`);
-            await writeFile(voTestPath, voTestContent, 'utf-8');
-            filesCreated.push(`__tests__/${toKebabCase(vo)}.test.ts`);
+          // v3.3.0: Use ValueObjectGenerator (TSK-SCF-005)
+          const voGenerator = new ValueObjectGenerator({
+            domain,
+            outputDir: projectPath,
+            generateTests: true,
+          });
+          
+          const voSpecs = valueObjects.map((vo) => ({ name: vo }));
+          const voFiles = await voGenerator.generate(voSpecs);
+          const voTestFiles = await voGenerator.generateTests(voSpecs);
+          
+          await voGenerator.writeFiles([...voFiles, ...voTestFiles]);
+          
+          for (const file of voFiles) {
+            const relativePath = file.path.replace(projectPath + '/', '');
+            filesCreated.push(relativePath);
+          }
+          for (const file of voTestFiles) {
+            const relativePath = file.path.replace(projectPath + '/', '');
+            filesCreated.push(relativePath);
           }
         }
 
         // Create status machines if specified
-        const statuses = options.statuses
-          ? options.statuses.split(',').map((s: string) => s.trim())
-          : [];
+        // ADR-v3.3.0-001: Support "Entity" or "Entity=status1,status2" syntax
+        const statusOptionStr = options.statuses || '';
 
-        if (statuses.length > 0) {
-          await mkdir(join(projectPath, 'src/statuses'), { recursive: true });
-          for (const status of statuses) {
-            const statusContent = generateStatusTemplate(domain, status);
-            const statusPath = join(projectPath, 'src/statuses', `${toKebabCase(status)}-status.ts`);
-            await writeFile(statusPath, statusContent, 'utf-8');
-            filesCreated.push(`src/statuses/${toKebabCase(status)}-status.ts`);
-
-            // Create status test template
-            const statusTestContent = generateStatusTestTemplate(domain, status);
-            const statusTestPath = join(projectPath, '__tests__', `${toKebabCase(status)}-status.test.ts`);
-            await writeFile(statusTestPath, statusTestContent, 'utf-8');
-            filesCreated.push(`__tests__/${toKebabCase(status)}-status.test.ts`);
+        if (statusOptionStr.trim()) {
+          // v3.3.0: Use StatusMachineGenerator (TSK-SCF-005)
+          const statusGenerator = new StatusMachineGenerator({
+            domain,
+            outputDir: projectPath,
+            generateTests: true,
+          });
+          
+          // Parse status options using ADR-v3.3.0-001 syntax
+          const parsedMap = StatusMachineGenerator.parseStatusOption(statusOptionStr);
+          
+          const statusSpecs = Array.from(parsedMap.entries()).map(([entityName, initialStatus]) => ({
+            entityName,
+            initialStatus: initialStatus || 'draft',
+          }));
+          
+          const statusFiles = await statusGenerator.generate(statusSpecs);
+          const statusTestFiles = await statusGenerator.generateTests(statusSpecs);
+          
+          await statusGenerator.writeFiles([...statusFiles, ...statusTestFiles]);
+          
+          for (const file of statusFiles) {
+            const relativePath = file.path.replace(projectPath + '/', '');
+            filesCreated.push(relativePath);
+          }
+          for (const file of statusTestFiles) {
+            const relativePath = file.path.replace(projectPath + '/', '');
+            filesCreated.push(relativePath);
           }
         }
 
@@ -1020,280 +1047,12 @@ function generateKnowledgeConfig(domain: string): string {
 
 /**
  * Convert PascalCase to kebab-case
+ * @public Exported for use in generators and tests
  */
-function toKebabCase(str: string): string {
+export function toKebabCase(str: string): string {
   return str
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
     .toLowerCase();
 }
 
-/**
- * Generate Value Object template (BP-CODE-004 pattern)
- */
-function generateValueObjectTemplate(domain: string, voName: string): string {
-  const kebabName = toKebabCase(voName);
-  return `/**
- * ${voName} Value Object
- *
- * @pattern BP-CODE-004 Function-based Value Objects
- * @requirement REQ-${domain}-VO-${voName}
- */
-
-import { Result, ok, err } from '../types/common.js';
-import { ValidationError } from '../types/errors.js';
-
-/**
- * ${voName} interface
- */
-export interface ${voName} {
-  readonly value: string;
-}
-
-/**
- * ${voName} input
- */
-export interface ${voName}Input {
-  value: string;
-}
-
-/**
- * Create ${voName} with validation
- */
-export function create${voName}(input: ${voName}Input): Result<${voName}, ValidationError> {
-  const { value } = input;
-
-  // Add validation rules here
-  if (!value || value.trim().length === 0) {
-    return err(new ValidationError('${voName} value cannot be empty'));
-  }
-
-  return ok({
-    value: value.trim(),
-  });
-}
-
-/**
- * Check if two ${voName} values are equal
- */
-export function equals${voName}(a: ${voName}, b: ${voName}): boolean {
-  return a.value === b.value;
-}
-`;
-}
-
-/**
- * Generate Value Object test template
- */
-function generateValueObjectTestTemplate(domain: string, voName: string): string {
-  return `/**
- * ${voName} Value Object Tests
- *
- * @pattern BP-TEST-004 Result Type Test Pattern
- * @requirement REQ-${domain}-VO-${voName}
- */
-
-import { describe, it, expect } from 'vitest';
-import { create${voName}, equals${voName} } from '../src/value-objects/${toKebabCase(voName)}.js';
-
-describe('${voName}', () => {
-  describe('create${voName}', () => {
-    it('should create valid ${voName}', () => {
-      const result = create${voName}({ value: 'test' });
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value.value).toBe('test');
-      }
-    });
-
-    it('should reject empty value', () => {
-      const result = create${voName}({ value: '' });
-      expect(result.isErr()).toBe(true);
-      if (result.isErr()) {
-        expect(result.error.message).toContain('empty');
-      }
-    });
-
-    it('should trim whitespace', () => {
-      const result = create${voName}({ value: '  test  ' });
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value.value).toBe('test');
-      }
-    });
-  });
-
-  describe('equals${voName}', () => {
-    it('should return true for equal values', () => {
-      const result1 = create${voName}({ value: 'test' });
-      const result2 = create${voName}({ value: 'test' });
-      if (result1.isOk() && result2.isOk()) {
-        expect(equals${voName}(result1.value, result2.value)).toBe(true);
-      }
-    });
-
-    it('should return false for different values', () => {
-      const result1 = create${voName}({ value: 'test1' });
-      const result2 = create${voName}({ value: 'test2' });
-      if (result1.isOk() && result2.isOk()) {
-        expect(equals${voName}(result1.value, result2.value)).toBe(false);
-      }
-    });
-  });
-});
-`;
-}
-
-/**
- * Generate Status machine template (BP-DESIGN-001 pattern)
- */
-function generateStatusTemplate(domain: string, statusName: string): string {
-  return `/**
- * ${statusName} Status Transitions
- *
- * @pattern BP-DESIGN-001 Status Transition Map
- * @requirement REQ-${domain}-STATUS-${statusName}
- * @generated by MUSUBIX StatusTransitionGenerator
- */
-
-/**
- * ${statusName}Status - Valid status values
- */
-export type ${statusName}Status = 'draft' | 'active' | 'completed' | 'cancelled';
-
-/**
- * All valid ${statusName}Status values
- */
-export const ${statusName.toLowerCase()}StatusValues: readonly ${statusName}Status[] = ['draft', 'active', 'completed', 'cancelled'] as const;
-
-/**
- * Valid status transitions map
- *
- * @pattern BP-DESIGN-001 Status Transition Map
- */
-export const valid${statusName}Transitions: Record<${statusName}Status, ${statusName}Status[]> = {
-  'draft': ['active', 'cancelled'],
-  'active': ['completed', 'cancelled'],
-  'completed': [],
-  'cancelled': [],
-};
-
-/**
- * Check if a status transition is valid
- */
-export function canTransition${statusName}Status(from: ${statusName}Status, to: ${statusName}Status): boolean {
-  return valid${statusName}Transitions[from].includes(to);
-}
-
-/**
- * Get the initial status for ${statusName}
- */
-export function getInitial${statusName}Status(): ${statusName}Status {
-  return 'draft';
-}
-
-/**
- * Check if a status is terminal (no further transitions)
- */
-export function isTerminal${statusName}Status(status: ${statusName}Status): boolean {
-  const terminalStatuses: ${statusName}Status[] = ['completed', 'cancelled'];
-  return terminalStatuses.includes(status);
-}
-
-/**
- * Get all valid next statuses from the current status
- */
-export function getNext${statusName}Statuses(current: ${statusName}Status): ${statusName}Status[] {
-  return valid${statusName}Transitions[current];
-}
-
-/**
- * Assert that a status transition is valid
- * @throws Error if the transition is not valid
- */
-export function assertValid${statusName}Transition(from: ${statusName}Status, to: ${statusName}Status): void {
-  if (!canTransition${statusName}Status(from, to)) {
-    throw new Error(\`Invalid ${statusName} status transition: \${from} -> \${to}\`);
-  }
-}
-`;
-}
-
-/**
- * Generate Status test template (BP-TEST-005 pattern)
- */
-function generateStatusTestTemplate(domain: string, statusName: string): string {
-  const kebabName = toKebabCase(statusName);
-  return `/**
- * ${statusName} Status Transition Tests
- *
- * @pattern BP-TEST-005 Status Transition Testing
- * @requirement REQ-${domain}-STATUS-${statusName}
- */
-
-import { describe, it, expect } from 'vitest';
-import {
-  ${statusName}Status,
-  canTransition${statusName}Status,
-  valid${statusName}Transitions,
-  getNext${statusName}Statuses,
-  getInitial${statusName}Status,
-  isTerminal${statusName}Status,
-} from '../src/statuses/${kebabName}-status.js';
-
-describe('${statusName}Status Transitions', () => {
-  describe('valid transitions', () => {
-    const validCases: Array<{ from: ${statusName}Status; to: ${statusName}Status }> = [
-      { from: 'draft', to: 'active' },
-      { from: 'draft', to: 'cancelled' },
-      { from: 'active', to: 'completed' },
-      { from: 'active', to: 'cancelled' },
-    ];
-
-    it.each(validCases)('should allow transition from $from to $to', ({ from, to }) => {
-      expect(canTransition${statusName}Status(from, to)).toBe(true);
-    });
-  });
-
-  describe('invalid transitions', () => {
-    const invalidCases: Array<{ from: ${statusName}Status; to: ${statusName}Status }> = [
-      { from: 'draft', to: 'completed' },
-      { from: 'completed', to: 'draft' },
-      { from: 'cancelled', to: 'active' },
-    ];
-
-    it.each(invalidCases)('should reject transition from $from to $to', ({ from, to }) => {
-      expect(canTransition${statusName}Status(from, to)).toBe(false);
-    });
-  });
-
-  describe('edge cases', () => {
-    it('should reject self-transition', () => {
-      expect(canTransition${statusName}Status('draft', 'draft')).toBe(false);
-    });
-
-    it('should have no transitions from terminal status', () => {
-      const nextStatuses = getNext${statusName}Statuses('completed');
-      expect(nextStatuses).toHaveLength(0);
-    });
-
-    it('should return correct initial status', () => {
-      expect(getInitial${statusName}Status()).toBe('draft');
-    });
-
-    it('should identify terminal statuses', () => {
-      expect(isTerminal${statusName}Status('completed')).toBe(true);
-      expect(isTerminal${statusName}Status('cancelled')).toBe(true);
-      expect(isTerminal${statusName}Status('draft')).toBe(false);
-    });
-
-    it('should have transitions defined for all statuses', () => {
-      const statuses: ${statusName}Status[] = ['draft', 'active', 'completed', 'cancelled'];
-      for (const status of statuses) {
-        expect(valid${statusName}Transitions[status]).toBeDefined();
-      }
-    });
-  });
-});
-`;
-}

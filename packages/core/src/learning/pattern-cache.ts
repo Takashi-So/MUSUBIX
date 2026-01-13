@@ -321,9 +321,13 @@ export class PatternCache {
    */
   private getCache<V>(category: string): LRUCache<string, V> {
     if (!this.caches.has(category)) {
-      this.caches.set(category, new LRUCache<string, V>(this.defaultOptions));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const cache = new LRUCache<string, V>(this.defaultOptions as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.caches.set(category, cache as any);
     }
-    return this.caches.get(category) as LRUCache<string, V>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return this.caches.get(category) as any;
   }
 
   /**

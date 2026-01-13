@@ -4,7 +4,7 @@
  * @see REQ-NFR-002 - Command response performance
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   PerformanceTimer,
   measureAsync,

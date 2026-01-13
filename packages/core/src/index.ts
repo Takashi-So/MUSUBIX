@@ -38,7 +38,52 @@ export * from './codegen/index.js';
 export * from './explanation/index.js';
 
 // Export error recovery
-export * from './error/index.js';
+// Note: ErrorCode, ErrorSeverity are already exported from ./types/index.js
+// so we use selective re-exports to avoid conflicts
+export {
+  GracefulDegradation,
+  createGracefulDegradation,
+  retryWithBackoff,
+  CircuitBreaker,
+  MemoryCacheProvider,
+  MemoryQueueProvider,
+  DEFAULT_DEGRADATION_CONFIG,
+  DataPersistence,
+  createDataPersistence,
+  WriteAheadLog,
+  MemoryStorageAdapter,
+  FileStorageAdapter,
+  DEFAULT_PERSISTENCE_CONFIG,
+  ActionableError,
+  ErrorFormatter,
+  ErrorCodes,
+  CommonErrors,
+} from './error/index.js';
+export type {
+  DegradationLevel,
+  ServiceStatus,
+  FallbackStrategy,
+  HealthCheckResult,
+  ServiceConfig,
+  // FallbackAction - exported from symbolic/index.js
+  DegradationEvent,
+  DegradedResult,
+  GracefulDegradationConfig,
+  CacheProvider,
+  QueueProvider,
+  StorageBackend,
+  DataState,
+  Checkpoint,
+  Transaction,
+  TransactionOperation,
+  // RecoveryResult - exported from symbolic/index.js
+  PersistenceStatistics,
+  DataPersistenceConfig,
+  StorageAdapter,
+  ErrorSuggestion,
+  ErrorContext,
+  ActionableErrorOptions,
+} from './error/index.js';
 
 // Export learning system
 export * from './learning/index.js';
@@ -121,7 +166,44 @@ export type {
 export * from './testing/index.js';
 
 // Export performance utilities (REQ-PERF-v1.5.1)
-export * from './perf/index.js';
+// Note: Some types (CacheOptions, CacheStats, LRUCache, memoize, memoizeAsync) are already
+// exported from ./learning/index.js, so we use selective re-exports to avoid conflicts
+export {
+  LazyNotLoadedError,
+  lazyImport,
+  lazyLoad,
+  ensureLoaded,
+  isLoaded,
+  preloadModules,
+  clearModuleCache,
+  getModuleCacheStats,
+  createLazyModule,
+  MemoryMonitor,
+  getMemoryMonitor,
+  formatBytes,
+  formatMemoryStats,
+  formatMemoryReport,
+  measureMemory,
+  isMemoryHigh,
+  getMemoryUsagePercent,
+  parallelMap,
+  parallelFilter,
+  parallelRace,
+  parallelSettle,
+  chunk,
+  batchProcess,
+  ParallelExecutor,
+  throttle,
+  debounce,
+  benchmark,
+  benchmarkSuite,
+  measure,
+  time,
+  formatBenchmarkResult,
+  formatBenchmarkSuiteResult,
+  runStandardBenchmarks,
+} from './perf/index.js';
+export type { MemoryStats, MemoryReport, ParallelOptions, BenchmarkResult, BenchmarkSuiteResult, BenchmarkOptions } from './perf/index.js';
 
 // Pipeline Configuration (v2.2.0 NEW!)
 export type {

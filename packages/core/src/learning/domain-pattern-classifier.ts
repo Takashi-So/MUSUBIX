@@ -11,7 +11,9 @@
  * @see TSK-LRN-002 - ドメイン固有パターンタスク
  */
 
-import type { DesignPattern } from './pattern-recommender.js';
+// DesignPattern type imported for documentation purposes
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { DesignPattern as _DesignPattern } from './pattern-recommender.js';
 
 /**
  * Domain definition with keywords and typical patterns

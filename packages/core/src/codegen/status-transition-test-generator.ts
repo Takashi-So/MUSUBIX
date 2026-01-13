@@ -8,7 +8,7 @@
  * @since v3.1.0
  */
 
-import type { StatusMachineSpec, StatusDefinition, StatusTransition } from './status-transition-generator.js';
+import type { StatusMachineSpec, StatusTransition } from './status-transition-generator.js';
 
 /**
  * Test generation options
@@ -71,7 +71,8 @@ export class StatusTransitionTestGenerator {
   generate(spec: StatusMachineSpec): StatusTestGenerationResult {
     const lines: string[] = [];
     const name = spec.name;
-    const statusTypeName = `${name}Status`;
+    // statusTypeName reserved for future use in type-safe test generation
+    // const statusTypeName = `${name}Status`;
     const kebabName = this.toKebabCase(name);
 
     // Imports

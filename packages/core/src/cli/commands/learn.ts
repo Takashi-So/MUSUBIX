@@ -111,7 +111,7 @@ export function registerLearnCommand(program: Command): void {
 
   // Feedback command
   // @see REQ-CLI-002 - Guidance for required options
-  const feedbackCmd = learn
+  learn
     .command('feedback <artifactId>')
     .description('Record feedback for an artifact')
     .requiredOption('-t, --type <type>', 'Feedback type: accept, reject, modify')
