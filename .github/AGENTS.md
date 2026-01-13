@@ -8,15 +8,15 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 3.0.0 (Git-Native Knowledge System) |
+| **バージョン** | 3.2.0 (Expert Delegation System) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 2249+ (全合格) |
-| **パッケージ数** | 25 |
-| **MCPツール数** | 96 |
+| **テスト数** | 4500+ (全合格) |
+| **パッケージ数** | 26 |
+| **MCPツール数** | 107 |
 | **Agent Skills** | 13 (Claude Code対応) |
 
 ---
@@ -44,6 +44,7 @@ packages/
 ├── workflow-engine/    # @nahisaho/musubix-workflow-engine
 ├── skill-manager/      # @nahisaho/musubix-skill-manager
 ├── codegraph/          # @nahisaho/musubix-codegraph
+├── expert-delegation/  # @nahisaho/musubix-expert-delegation (v3.2.0 NEW!)
 ├── knowledge/          # @musubix/knowledge (v3.0.0 NEW!)
 ├── policy/             # @musubix/policy (v3.0.0 NEW!)
 └── decisions/          # @musubix/decisions (v3.0.0 NEW!)
@@ -71,6 +72,7 @@ packages/
 | `packages/workflow-engine/` | `@nahisaho/musubix-workflow-engine` | **ワークフロー制御** - 5フェーズ制御・品質ゲート |
 | `packages/skill-manager/` | `@nahisaho/musubix-skill-manager` | **スキル管理** - スキル登録・実行・検証 |
 | `packages/codegraph/` | `@nahisaho/musubix-codegraph` | **コードグラフ** - コード構造解析・依存関係追跡 |
+| `packages/expert-delegation/` | `@nahisaho/musubix-expert-delegation` | **エキスパート委譲 (v3.2.0 NEW!)** - 7種AI専門家・VS Code LM API統合 |
 
 ### 非推奨パッケージ（Deprecated） ⚠️
 

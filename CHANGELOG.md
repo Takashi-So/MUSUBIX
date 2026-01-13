@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-01-14
+
+### Added
+
+- **v3.2.0: Expert Delegation System**
+  - 7種類のAIエキスパートへの自動委譲システム
+  - VS Code Language Model API統合
+  - 11 MCPツール・4プロンプト
+  - 105テスト（全合格）
+
+#### 新パッケージ
+
+- **@nahisaho/musubix-expert-delegation** (packages/expert-delegation/)
+  - Expert Delegation System - AIエキスパートへのタスク自動委譲
+
+#### 7種類のAIエキスパート
+
+| エキスパート | 役割 | トリガーパターン |
+|-------------|------|-----------------|
+| Architect | アーキテクチャ設計・C4モデル | architecture, design, component |
+| Security Analyst | 脆弱性分析・脅威モデリング | security, vulnerability, secure |
+| Code Reviewer | コードレビュー・品質分析 | review, quality, refactor |
+| Plan Reviewer | 設計レビュー・憲法準拠チェック | plan, verify, constitution |
+| EARS Analyst | EARS形式要件分析・変換 | requirement, ears, spec |
+| Formal Verifier | 形式検証・SMT解析 | formal, prove, verify |
+| Ontology Reasoner | オントロジー推論・知識グラフ | ontology, reasoning, knowledge |
+
+#### 11 MCPツール
+
+- `expert_delegate` - 汎用エキスパート委譲
+- `expert_architect` - アーキテクト直接呼び出し
+- `expert_security` - セキュリティ分析直接呼び出し
+- `expert_review` - コードレビュー直接呼び出し
+- `expert_plan` - プランレビュー直接呼び出し
+- `expert_ears` - EARS分析直接呼び出し
+- `expert_formal` - 形式検証直接呼び出し
+- `expert_ontology` - オントロジー推論直接呼び出し
+- `trigger_detect` - トリガー検出
+- `delegation_retry` - リトライ・フォールバック
+- `provider_select` - モデルプロバイダー選択
+
+#### 4 MCPプロンプト
+
+- `expert_guidance` - エキスパートガイダンス生成
+- `delegation_analysis` - 委譲分析
+- `pattern_recommendation` - パターン推薦
+- `error_recovery` - エラー回復ガイダンス
+
+#### 機能
+
+- **セマンティックルーティング**: メッセージ内容からエキスパート自動選択
+- **信頼度スコアリング**: エキスパートマッチングの信頼度評価
+- **プロアクティブ検出**: SQLインジェクション等のセキュリティリスク自動検出
+- **憲法準拠チェック**: Article X (Implementation Prerequisites) 自動検証
+- **トレーサビリティ強制**: Article V 準拠のトレースリンク検証
+- **リトライ・フォールバック**: エラー時の自動リトライとフォールバック
+- **モデルプロバイダー抽象化**: VS Code Language Model API互換
+
 ## [3.1.0] - 2026-01-13
 
 ### Added
