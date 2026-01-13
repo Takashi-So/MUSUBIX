@@ -5,4 +5,5 @@
  * @module cli/middleware
  */
 
-export * from './auto-learn.js';
+// Auto-learn middleware removed in v3.1.0 (YATA deprecated)
+// Use @musubix/knowledge for knowledge graph operations

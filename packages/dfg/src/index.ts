@@ -37,6 +37,3 @@ export * from './graph/index.js';
 
 // Analyzers
 export * from './analyzers/index.js';
-
-// YATA integration
-export * from './yata/index.js';

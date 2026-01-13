@@ -333,7 +333,7 @@ export interface MuSubixConfig {
   storageDir: string;
   /** LLM configuration */
   llm?: LLMConfig;
-  /** YATA configuration */
+  /** @deprecated Use @musubix/knowledge instead */
   yata?: YataConfig;
   /** Integration configuration */
   integration?: IntegrationConfig;
@@ -356,7 +356,7 @@ export interface LLMConfig {
 }
 
 /**
- * YATA configuration
+ * @deprecated YATA configuration - Use @musubix/knowledge instead
  */
 export interface YataConfig {
   /** MCP transport */

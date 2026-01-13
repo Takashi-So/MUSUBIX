@@ -102,14 +102,14 @@ const builtInSkills: BuiltInSkill[] = [
   {
     id: 'SKILL-KG-QUERY-001',
     name: 'Knowledge Graph Query',
-    description: 'YATA知識グラフへのクエリ実行',
+    description: 'Knowledge Graph へのクエリ実行',
     type: 'knowledge-graph',
     enabled: true,
     parameters: [
-      { name: 'query', type: 'string', required: true, description: 'SPARQLクエリまたは自然言語クエリ' },
+      { name: 'query', type: 'string', required: true, description: 'クエリ文字列' },
       { name: 'namespace', type: 'string', required: false, description: '検索対象の名前空間' },
     ],
-    tags: ['yata', 'knowledge-graph', 'query'],
+    tags: ['knowledge-graph', 'query'],
   },
 ];
 

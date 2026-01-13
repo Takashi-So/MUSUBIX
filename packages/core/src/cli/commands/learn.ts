@@ -608,68 +608,19 @@ export function registerLearnCommand(program: Command): void {
   // Dashboard command - Interactive learning dashboard
   learn
     .command('dashboard')
-    .description('Display interactive learning dashboard with YATA Local stats')
-    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .description('Display interactive learning dashboard')
     .option('--json', 'Output as JSON')
-    .action(async (options: { db?: string; json?: boolean }) => {
+    .action(async (options: { json?: boolean }) => {
       try {
         // Learning Engine stats
         const engine = new LearningEngine();
         const learningStats = await engine.getStats();
         const patterns = await engine.getPatterns();
         
-        // YATA Local stats
-        let yataStats: {
-          entities: number;
-          relationships: number;
-          byType: Record<string, number>;
-          byKind: Record<string, number>;
-          namespaces: string[];
-        } | null = null;
-        
-        try {
-          const yataLocalModule = await import('@nahisaho/yata-local');
-          const { createYataLocal } = yataLocalModule;
-          const yata = createYataLocal({ path: options.db ?? './.yata-local.db' });
-          await yata.open();
-          
-          const stats = await yata.getStats();
-          // Use exportJson to get all entities
-          const exported = await yata.exportJson();
-          const entities = exported.entities;
-          
-          // Group by type
-          const byType: Record<string, number> = {};
-          const byKind: Record<string, number> = {};
-          const namespaces = new Set<string>();
-          
-          for (const entity of entities) {
-            byType[entity.type] = (byType[entity.type] ?? 0) + 1;
-            const kind = (entity.metadata as Record<string, unknown>)?.entityKind as string | undefined;
-            if (kind) {
-              byKind[kind] = (byKind[kind] ?? 0) + 1;
-            }
-            namespaces.add(entity.namespace);
-          }
-          
-          yataStats = {
-            entities: stats.entityCount,
-            relationships: stats.relationshipCount,
-            byType,
-            byKind,
-            namespaces: Array.from(namespaces),
-          };
-          
-          await yata.close();
-        } catch {
-          // YATA Local not available, continue without it
-        }
-        
         if (options.json) {
           console.log(JSON.stringify({
             learning: learningStats,
             patterns: patterns.length,
-            yataLocal: yataStats,
           }, null, 2));
           return;
         }
@@ -690,141 +641,9 @@ export function registerLearnCommand(program: Command): void {
           : 0;
         console.log(`║   Acceptance Rate: ${String((acceptRate * 100).toFixed(1) + '%').padEnd(43)}║`);
         
-        // YATA Local section
-        if (yataStats) {
-          console.log('╟────────────────────────────────────────────────────────────────╢');
-          console.log('║ 🗄️  YATA Local Knowledge Graph                                 ║');
-          console.log('╟────────────────────────────────────────────────────────────────╢');
-          console.log(`║   Entities: ${String(yataStats.entities).padEnd(50)}║`);
-          console.log(`║   Relationships: ${String(yataStats.relationships).padEnd(45)}║`);
-          console.log(`║   Namespaces: ${String(yataStats.namespaces.length).padEnd(48)}║`);
-          
-          // Top entity kinds
-          const sortedKinds = Object.entries(yataStats.byKind)
-            .sort(([,a], [,b]) => b - a)
-            .slice(0, 5);
-          if (sortedKinds.length > 0) {
-            console.log('║   Top Entity Kinds:                                            ║');
-            for (const [kind, count] of sortedKinds) {
-              console.log(`║     - ${kind}: ${String(count).padEnd(47)}║`);
-            }
-          }
-        } else {
-          console.log('╟────────────────────────────────────────────────────────────────╢');
-          console.log('║ 🗄️  YATA Local: Not available                                   ║');
-          console.log('║     Run commands with --auto-learn to populate                 ║');
-        }
-        
         console.log('╚════════════════════════════════════════════════════════════════╝\n');
       } catch (error) {
         console.error(`❌ Dashboard error: ${(error as Error).message}`);
-        process.exit(1);
-      }
-    });
-
-  // YATA Local export command
-  learn
-    .command('yata-export')
-    .description('Export YATA Local knowledge graph')
-    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
-    .option('-o, --output <file>', 'Output file path')
-    .option('-f, --format <format>', 'Export format: json, rdf', 'json')
-    .action(async (options: { db?: string; output?: string; format?: string }) => {
-      try {
-        const yataLocalModule = await import('@nahisaho/yata-local');
-        const { createYataLocal } = yataLocalModule;
-        const yata = createYataLocal({ path: options.db ?? './.yata-local.db' });
-        await yata.open();
-        
-        if (options.format === 'rdf') {
-          const rdfContent = await yata.exportRdf(options.output);
-          if (!options.output) {
-            console.log(rdfContent);
-          } else {
-            console.log(`✅ Exported to ${options.output}`);
-          }
-        } else {
-          const jsonExport = await yata.exportJson(options.output);
-          if (!options.output) {
-            console.log(JSON.stringify(jsonExport, null, 2));
-          } else {
-            console.log(`✅ Exported ${jsonExport.entities.length} entities, ${jsonExport.relationships.length} relationships to ${options.output}`);
-          }
-        }
-        
-        await yata.close();
-      } catch (error) {
-        console.error(`❌ Export failed: ${(error as Error).message}`);
-        process.exit(1);
-      }
-    });
-
-  // YATA Local Mermaid graph command
-  learn
-    .command('yata-graph')
-    .description('Generate Mermaid diagram from YATA Local')
-    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
-    .option('-o, --output <file>', 'Output file path')
-    .option('-n, --namespace <ns>', 'Filter by namespace')
-    .option('-k, --kind <kind>', 'Filter by entity kind')
-    .option('-t, --type <type>', 'Graph type: flowchart, er, class', 'flowchart')
-    .option('--max-nodes <n>', 'Maximum nodes to display', '50')
-    .action(async (options: { db?: string; output?: string; namespace?: string; kind?: string; type?: string; maxNodes?: string }) => {
-      try {
-        const yataLocalModule = await import('@nahisaho/yata-local');
-        const { createYataLocal } = yataLocalModule;
-        const yata = createYataLocal({ path: options.db ?? './.yata-local.db' });
-        await yata.open();
-        
-        // Get entities and relationships using exportJson
-        const exported = await yata.exportJson();
-        let entities: EntityForGraph[] = exported.entities;
-        const relationships: RelationshipForGraph[] = exported.relationships;
-        
-        // Apply filters
-        if (options.namespace) {
-          entities = entities.filter((e: EntityForGraph) => e.namespace === options.namespace);
-        }
-        if (options.kind) {
-          entities = entities.filter((e: EntityForGraph) => 
-            (e.metadata as Record<string, unknown>)?.entityKind === options.kind
-          );
-        }
-        
-        // Limit nodes
-        const maxNodes = parseInt(options.maxNodes ?? '50', 10);
-        if (entities.length > maxNodes) {
-          console.error(`⚠️ Limiting to ${maxNodes} nodes (use --max-nodes to increase)`);
-          entities = entities.slice(0, maxNodes);
-        }
-        
-        const entityIds = new Set(entities.map((e: EntityForGraph) => e.id));
-        const filteredRels = relationships.filter(
-          (r: RelationshipForGraph) => entityIds.has(r.sourceId) && entityIds.has(r.targetId)
-        );
-        
-        // Generate Mermaid
-        let mermaid = '';
-        
-        if (options.type === 'er') {
-          mermaid = generateERDiagram(entities, filteredRels);
-        } else if (options.type === 'class') {
-          mermaid = generateClassDiagram(entities, filteredRels);
-        } else {
-          mermaid = generateFlowchart(entities, filteredRels);
-        }
-        
-        if (options.output) {
-          const { writeFile } = await import('fs/promises');
-          await writeFile(options.output, mermaid, 'utf-8');
-          console.log(`✅ Generated Mermaid diagram: ${options.output}`);
-        } else {
-          console.log(mermaid);
-        }
-        
-        await yata.close();
-      } catch (error) {
-        console.error(`❌ Graph generation failed: ${(error as Error).message}`);
         process.exit(1);
       }
     });
@@ -839,9 +658,8 @@ export function registerLearnCommand(program: Command): void {
     .description('Run wake phase: extract patterns from code')
     .requiredOption('-t, --target <path>', 'Target directory or file to analyze')
     .option('--task-name <name>', 'Task name for tracking')
-    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
     .option('--json', 'Output as JSON')
-    .action(async (options: { target: string; taskName?: string; db?: string; json?: boolean }) => {
+    .action(async (options: { target: string; taskName?: string; json?: boolean }) => {
       try {
         let wakeSleepModule: typeof import('@nahisaho/musubix-wake-sleep') | null = null;
         
@@ -1114,102 +932,3 @@ export function registerLearnCommand(program: Command): void {
     });
 }
 
-// Helper functions for Mermaid generation
-
-interface EntityForGraph {
-  id: string;
-  name: string;
-  type: string;
-  namespace: string;
-  metadata?: Record<string, unknown>;
-}
-
-interface RelationshipForGraph {
-  sourceId: string;
-  targetId: string;
-  type: string;
-  metadata?: Record<string, unknown>;
-}
-
-function sanitizeId(id: string): string {
-  return id.replace(/[^a-zA-Z0-9]/g, '_');
-}
-
-function generateFlowchart(entities: EntityForGraph[], relationships: RelationshipForGraph[]): string {
-  const lines: string[] = ['flowchart TD'];
-  
-  // Group by namespace
-  const byNamespace = new Map<string, EntityForGraph[]>();
-  for (const entity of entities) {
-    const ns = entity.namespace;
-    if (!byNamespace.has(ns)) {
-      byNamespace.set(ns, []);
-    }
-    byNamespace.get(ns)!.push(entity);
-  }
-  
-  // Add subgraphs for each namespace
-  for (const [ns, nsEntities] of byNamespace) {
-    lines.push(`  subgraph ${sanitizeId(ns)}["${ns}"]`);
-    for (const entity of nsEntities) {
-      const kind = (entity.metadata as Record<string, unknown>)?.entityKind as string | undefined;
-      const label = kind ? `${entity.name}<br/><small>${kind}</small>` : entity.name;
-      lines.push(`    ${sanitizeId(entity.id)}["${label}"]`);
-    }
-    lines.push('  end');
-  }
-  
-  // Add relationships
-  for (const rel of relationships) {
-    const relLabel = (rel.metadata as Record<string, unknown>)?.relationKind as string ?? rel.type;
-    lines.push(`  ${sanitizeId(rel.sourceId)} -->|${relLabel}| ${sanitizeId(rel.targetId)}`);
-  }
-  
-  return lines.join('\n');
-}
-
-function generateERDiagram(entities: EntityForGraph[], relationships: RelationshipForGraph[]): string {
-  const lines: string[] = ['erDiagram'];
-  
-  // Add entities
-  for (const entity of entities) {
-    const kind = (entity.metadata as Record<string, unknown>)?.entityKind as string ?? entity.type;
-    lines.push(`  ${sanitizeId(entity.id)} {`);
-    lines.push(`    string name "${entity.name}"`);
-    lines.push(`    string kind "${kind}"`);
-    lines.push(`    string namespace "${entity.namespace}"`);
-    lines.push('  }');
-  }
-  
-  // Add relationships
-  for (const rel of relationships) {
-    const relLabel = (rel.metadata as Record<string, unknown>)?.relationKind as string ?? rel.type;
-    lines.push(`  ${sanitizeId(rel.sourceId)} ||--o| ${sanitizeId(rel.targetId)} : "${relLabel}"`);
-  }
-  
-  return lines.join('\n');
-}
-
-function generateClassDiagram(entities: EntityForGraph[], relationships: RelationshipForGraph[]): string {
-  const lines: string[] = ['classDiagram'];
-  
-  // Add classes
-  for (const entity of entities) {
-    const kind = (entity.metadata as Record<string, unknown>)?.entityKind as string ?? entity.type;
-    lines.push(`  class ${sanitizeId(entity.id)} {`);
-    lines.push(`    <<${kind}>>`);
-    lines.push(`    +name: ${entity.name}`);
-    lines.push(`    +namespace: ${entity.namespace}`);
-    lines.push('  }');
-  }
-  
-  // Add relationships
-  for (const rel of relationships) {
-    const arrow = rel.type === 'inherits' ? '<|--' : 
-                  rel.type === 'implements' ? '<|..' :
-                  rel.type === 'contains' ? '*--' : '-->';
-    lines.push(`  ${sanitizeId(rel.sourceId)} ${arrow} ${sanitizeId(rel.targetId)}`);
-  }
-  
-  return lines.join('\n');
-}
