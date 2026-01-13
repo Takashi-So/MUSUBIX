@@ -166,11 +166,11 @@ export function registerScaffoldCommand(program: Command): void {
         await writeFile(join(projectPath, 'vitest.config.ts'), vitestContent, 'utf-8');
         filesCreated.push('vitest.config.ts');
 
-        // Create .yata/config.json
-        await mkdir(join(projectPath, '.yata'), { recursive: true });
-        const yataConfig = generateYataConfig(domain);
-        await writeFile(join(projectPath, '.yata/config.json'), yataConfig, 'utf-8');
-        filesCreated.push('.yata/config.json');
+        // Create .knowledge/graph.json
+        await mkdir(join(projectPath, '.knowledge'), { recursive: true });
+        const knowledgeConfig = generateKnowledgeConfig(domain);
+        await writeFile(join(projectPath, '.knowledge/graph.json'), knowledgeConfig, 'utf-8');
+        filesCreated.push('.knowledge/graph.json');
 
         const result: ScaffoldResult = {
           success: true,
@@ -956,21 +956,16 @@ export default defineConfig({
 `;
 }
 
-function generateYataConfig(domain: string): string {
+function generateKnowledgeConfig(domain: string): string {
   return JSON.stringify(
     {
-      version: '1.0',
-      namespace: domain.toLowerCase(),
-      autoLearn: true,
-      storage: {
-        path: './.yata-local.db',
-        syncInterval: 300,
+      version: '1.0.0',
+      metadata: {
+        name: domain,
+        created: new Date().toISOString(),
       },
-      learning: {
-        enabled: true,
-        feedbackThreshold: 3,
-        patternConfidenceMin: 0.7,
-      },
+      entities: [],
+      relations: [],
     },
     null,
     2

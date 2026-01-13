@@ -7,4 +7,4 @@
 
 export { MemoryStorage } from './memory-storage.js';
 export { SQLiteStorage } from './sqlite-storage.js';
-// export { YataAdapter } from './yata-adapter.js'; // TODO: Implement
+// export { KnowledgeAdapter } from './knowledge-adapter.js'; // TODO: Implement @musubix/knowledge integration

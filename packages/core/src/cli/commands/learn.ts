@@ -747,7 +747,7 @@ export function registerLearnCommand(program: Command): void {
   learn
     .command('sleep')
     .description('Run sleep phase: consolidate and abstract patterns')
-    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('--db <path>', 'Knowledge store path', './.knowledge')
     .option('--json', 'Output as JSON')
     .action(async (options: { db?: string; json?: boolean }) => {
       try {
@@ -791,7 +791,7 @@ export function registerLearnCommand(program: Command): void {
     .description('Run complete wake-sleep learning cycle')
     .requiredOption('-t, --target <path>', 'Target directory or file to analyze')
     .option('--task-name <name>', 'Task name for tracking')
-    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('--db <path>', 'Knowledge store path', './.knowledge')
     .option('--json', 'Output as JSON')
     .action(async (options: { target: string; taskName?: string; db?: string; json?: boolean }) => {
       try {
@@ -883,7 +883,7 @@ export function registerLearnCommand(program: Command): void {
   learn
     .command('compress')
     .description('Compress and optimize pattern library (runs sleep phase)')
-    .option('--db <path>', 'YATA Local database path', './.yata-local.db')
+    .option('--db <path>', 'Knowledge store path', './.knowledge')
     .option('--min-frequency <n>', 'Minimum pattern frequency for consolidation', '2')
     .option('--mdl-threshold <n>', 'MDL threshold for abstraction (0-1)', '0.5')
     .option('--json', 'Output as JSON')

@@ -3,4 +3,4 @@
  */
 
 export * from './SubagentAdapter.js';
-export * from './YATAContextStore.js';
+export * from './KnowledgeContextStore.js';

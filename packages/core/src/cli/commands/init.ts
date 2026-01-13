@@ -50,10 +50,9 @@ const DEFAULT_CONFIG = {
     maxTokens: 4096,
     temperature: 0.7,
   },
-  yata: {
-    transport: 'stdio' as const,
-    server: 'yata-mcp',
-    timeout: 30000,
+  knowledge: {
+    storagePath: './.knowledge',
+    autoSave: true,
   },
   integration: {
     neuralThreshold: 0.7,

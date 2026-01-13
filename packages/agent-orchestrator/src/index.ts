@@ -38,4 +38,4 @@ export * from './application/ResultAggregator.js';
 
 // Infrastructure
 export * from './infrastructure/SubagentAdapter.js';
-export * from './infrastructure/YATAContextStore.js';
+export * from './infrastructure/KnowledgeContextStore.js';

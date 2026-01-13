@@ -103,7 +103,7 @@ export function registerTasksCommand(program: Command): void {
       }
     });
 
-  // tasks list - simplified without YATA
+  // tasks list - file-based implementation
   tasks
     .command('list')
     .description('List tasks from task document')

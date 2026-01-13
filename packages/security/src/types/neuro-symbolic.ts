@@ -13,7 +13,7 @@ import type { TaintPath } from './taint.js';
 export type EvidenceType = 
   | 'pattern-match'     // Pattern matched in knowledge graph
   | 'rule-inference'    // Inferred from security rules
-  | 'knowledge-graph'   // Retrieved from YATA
+  | 'knowledge-graph'   // Retrieved from knowledge store
   | 'static-analysis'   // AST analysis result
   | 'data-flow';        // Data flow analysis result
 

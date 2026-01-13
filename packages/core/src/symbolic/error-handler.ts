@@ -200,7 +200,7 @@ export class ErrorHandler {
         return 'apply_default_rules';
       case 'ConfidenceEstimator':
         return 'use_default_confidence';
-      case 'YataClient':
+      case 'KnowledgeStore':
         return 'use_cached_response';
       default:
         return classification.severity === 'degraded' ? 'use_cached_response' : 'none';

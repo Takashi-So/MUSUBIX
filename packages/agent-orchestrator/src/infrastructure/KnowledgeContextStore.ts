@@ -44,6 +44,38 @@ export interface IContextStore {
 }
 
 /**
+ * Knowledge store adapter interface
+ * Compatible with @musubix/knowledge KnowledgeStore
+ */
+export interface IKnowledgeStoreAdapter {
+  putEntity(entity: {
+    id: string;
+    type: string;
+    name: string;
+    properties: Record<string, unknown>;
+    tags: string[];
+  }): Promise<void>;
+
+  getEntity(id: string): Promise<{
+    id: string;
+    type: string;
+    name: string;
+    properties: Record<string, unknown>;
+    tags: string[];
+  } | null>;
+
+  deleteEntity(id: string): Promise<boolean>;
+
+  query(filter: { type?: string; tags?: string[] }): Promise<Array<{
+    id: string;
+    type: string;
+    name: string;
+    properties: Record<string, unknown>;
+    tags: string[];
+  }>>;
+}
+
+/**
  * In-memory context store (for testing)
  */
 export function createInMemoryContextStore(): IContextStore {
@@ -78,74 +110,71 @@ export function createInMemoryContextStore(): IContextStore {
 }
 
 /**
- * Knowledge Store-based context store
+ * Knowledge Store-based context store (v3.0.0)
  * 
- * Note: This is a placeholder. In production, this would integrate
- * with the @musubix/knowledge store.
- * 
- * @deprecated Use createKnowledgeContextStore instead
+ * Uses @musubix/knowledge for context persistence
  */
-export function createYATAContextStore(_knowledgeStore?: unknown): IContextStore {
-  // Fallback to in-memory store until @musubix/knowledge integration is complete
-  const inMemoryStore = createInMemoryContextStore();
+export function createKnowledgeContextStore(knowledgeStore: IKnowledgeStoreAdapter): IContextStore {
+  const ENTITY_TYPE = 'code';
+  const CONTEXT_TAG = 'execution-context';
 
   return {
     async save(context: ExecutionContext): Promise<string> {
-      // In production, this would persist to @musubix/knowledge:
-      // await knowledgeStore.putEntity({
-      //   id: `context:${context.taskId}`,
-      //   type: 'code',
-      //   name: `ExecutionContext-${context.taskId}`,
-      //   properties: createContextSnapshot(context),
-      //   tags: ['execution-context'],
-      // });
+      const snapshot = createContextSnapshot(context);
+      const entityId = `context:${context.taskId}`;
 
-      return inMemoryStore.save(context);
+      await knowledgeStore.putEntity({
+        id: entityId,
+        type: ENTITY_TYPE,
+        name: `ExecutionContext-${context.taskId}`,
+        properties: snapshot as unknown as Record<string, unknown>,
+        tags: [CONTEXT_TAG],
+      });
+
+      return context.taskId;
     },
 
     async load(taskId: string): Promise<ExecutionContext | null> {
-      // In production, this would load from @musubix/knowledge:
-      // const entity = await knowledgeStore.getEntity(`context:${taskId}`);
-      // if (!entity) return null;
-      // return restoreContextFromSnapshot(entity.properties);
+      const entityId = `context:${taskId}`;
+      const entity = await knowledgeStore.getEntity(entityId);
 
-      return inMemoryStore.load(taskId);
+      if (!entity) return null;
+
+      const snapshot = entity.properties as unknown as ContextSnapshot;
+
+      return createExecutionContext({
+        taskId: snapshot.taskId,
+        sharedKnowledge: new Map(Object.entries(snapshot.knowledge)),
+        metadata: snapshot.metadata,
+      });
     },
 
     async delete(taskId: string): Promise<boolean> {
-      // In production:
-      // await knowledgeStore.deleteEntity(`context:${taskId}`);
-
-      return inMemoryStore.delete(taskId);
+      const entityId = `context:${taskId}`;
+      return knowledgeStore.deleteEntity(entityId);
     },
 
     async list(): Promise<string[]> {
-      // In production:
-      // const entities = await knowledgeStore.query({ type: 'code', tags: ['execution-context'] });
-      // return entities.map(e => e.id.replace('context:', ''));
+      const entities = await knowledgeStore.query({
+        type: ENTITY_TYPE,
+        tags: [CONTEXT_TAG],
+      });
 
-      return inMemoryStore.list();
+      return entities.map(e => e.id.replace('context:', ''));
     },
   };
 }
 
 /**
- * Knowledge Store-based context store (v3.0.0)
- * 
- * Uses @musubix/knowledge for context persistence
- */
-export function createKnowledgeContextStore(_knowledgeStore?: unknown): IContextStore {
-  return createYATAContextStore(_knowledgeStore);
-}
-
-/**
  * Store factory
+ * 
+ * @param knowledgeStore - Optional knowledge store adapter. If provided, uses persistent storage.
+ * @returns Context store instance
  */
 export function createContextStoreFactory(
-  useKnowledgeStore: boolean = false,
-  knowledgeStore?: unknown
+  knowledgeStore?: IKnowledgeStoreAdapter
 ): IContextStore {
-  if (useKnowledgeStore && knowledgeStore) {
+  if (knowledgeStore) {
     return createKnowledgeContextStore(knowledgeStore);
   }
   return createInMemoryContextStore();

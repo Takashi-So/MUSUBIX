@@ -125,7 +125,7 @@ export const skillListTool: ToolDefinition = {
 - requirements: 要件分析 (EARS)
 - design: 設計 (C4)
 - testing: テスト
-- knowledge-graph: YATA知識グラフ
+- knowledge-graph: 知識グラフ
 - orchestration: エージェントオーケストレーション
 - security: セキュリティ
 - documentation: ドキュメント

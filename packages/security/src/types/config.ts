@@ -65,7 +65,7 @@ export interface KnowledgeGraphConfig {
   mode: KnowledgeGraphMode;
   /** Local KG database path */
   localDbPath?: string;
-  /** Global YATA endpoint */
+  /** Knowledge store endpoint (for remote access) */
   globalEndpoint?: string;
   /** Auto-learn from scan results */
   autoLearn?: boolean;

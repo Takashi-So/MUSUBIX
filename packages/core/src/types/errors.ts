@@ -36,9 +36,15 @@ export enum ErrorCode {
   LLM_CONNECTION_FAILED = 3000,
   LLM_RESPONSE_ERROR = 3001,
   LLM_RATE_LIMIT = 3002,
+  /** @deprecated Use KNOWLEDGE_CONNECTION_FAILED */
   YATA_CONNECTION_FAILED = 3100,
+  /** @deprecated Use KNOWLEDGE_QUERY_ERROR */
   YATA_QUERY_ERROR = 3101,
+  /** @deprecated Use KNOWLEDGE_TIMEOUT */
   YATA_TIMEOUT = 3102,
+  KNOWLEDGE_CONNECTION_FAILED = 3110,
+  KNOWLEDGE_QUERY_ERROR = 3111,
+  KNOWLEDGE_TIMEOUT = 3112,
   INTEGRATION_MISMATCH = 3200,
   CONTRADICTION_DETECTED = 3201,
   
@@ -137,9 +143,12 @@ export interface IntegrationError extends MuSubixErrorData {
     | ErrorCode.YATA_CONNECTION_FAILED
     | ErrorCode.YATA_QUERY_ERROR
     | ErrorCode.YATA_TIMEOUT
+    | ErrorCode.KNOWLEDGE_CONNECTION_FAILED
+    | ErrorCode.KNOWLEDGE_QUERY_ERROR
+    | ErrorCode.KNOWLEDGE_TIMEOUT
     | ErrorCode.INTEGRATION_MISMATCH
     | ErrorCode.CONTRADICTION_DETECTED;
-  service: 'llm' | 'yata' | 'integration';
+  service: 'llm' | 'knowledge' | 'integration';
   endpoint?: string;
   statusCode?: number;
 }
