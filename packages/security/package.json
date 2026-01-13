@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-security",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "Security analysis and vulnerability detection for MUSUBIX - Neuro-Symbolic AI Integration with CodeQL-equivalent capabilities",
   "type": "module",
   "main": "./dist/index.js",
@@ -83,7 +83,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
     "@nahisaho/musubix-core": "^3.0.0",
-    "@nahisaho/musubix-formal-verify": "^2.0.0",
+    "@nahisaho/musubix-formal-verify": "^3.3.0",
     "commander": "^12.0.0",
     "cosmiconfig": "^9.0.0",
     "minimatch": "^9.0.0",
