@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-security",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "description": "Security analysis and vulnerability detection for MUSUBIX - Neuro-Symbolic AI Integration with CodeQL-equivalent capabilities",
   "type": "module",
   "main": "./dist/index.js",
@@ -87,7 +87,7 @@
     "commander": "^12.0.0",
     "cosmiconfig": "^9.0.0",
     "minimatch": "^9.0.0",
-    "tree-sitter": "^0.21.1",
+    "tree-sitter": "^0.22.1",
     "tree-sitter-go": "^0.23.0",
     "tree-sitter-java": "^0.23.0",
     "tree-sitter-javascript": "^0.23.0",
@@ -101,7 +101,7 @@
     "zod": "^3.23.0"
   },
   "peerDependencies": {
-    "tree-sitter": ">=0.21.1"
+    "tree-sitter": ">=0.22.1"
   },
   "peerDependenciesMeta": {
     "tree-sitter": {
