@@ -15,4 +15,13 @@ export {
   DEFAULT_EARS_OPTIONS,
 } from './ears-validator.js';
 
+export {
+  MarkdownEARSParser,
+  parseMarkdownEARS,
+  extractValidEARS,
+  type ExtractedEARS,
+  type MarkdownEARSResult,
+  type MarkdownEARSParserOptions,
+} from './markdown-ears-parser.js';
+
 // Note: EARSComponents and EARSValidationResult are exported from types module

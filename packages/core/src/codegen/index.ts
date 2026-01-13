@@ -188,3 +188,14 @@ export {
   // EARSRequirement is exported from types with different structure
 } from './enhanced-generator.js';
 export type { EARSRequirement as EnhancedEARSRequirement } from './enhanced-generator.js';
+
+// Test File Decorator (v3.1.0 NEW!)
+// @see REQ-TST-002, TSK-TST-002
+export {
+  TestFileDecorator,
+  decorateTestFile,
+  needsCounterReset,
+  type CounterResetFunction,
+  type TestFileDecoratorOptions,
+  type DecorationResult,
+} from './test-file-decorator.js';

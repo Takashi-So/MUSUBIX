@@ -16,6 +16,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { ExitCode, getGlobalOptions, outputResult } from '../base.js';
 import { VERSION } from '../../version.js';
+import { normalizePathSimple } from '../../utils/path-normalizer.js';
 
 /**
  * Init command options
@@ -112,12 +113,16 @@ export function registerInitCommand(program: Command): void {
 
 /**
  * Execute init command
+ * 
+ * @see REQ-CLI-001 - Path normalization for absolute/relative paths
  */
 export async function executeInit(
   targetPath: string,
   options: InitOptions
 ): Promise<InitResult> {
-  const projectPath = join(process.cwd(), targetPath);
+  // Use normalizePathSimple to handle both absolute and relative paths correctly
+  // This fixes the bug where absolute paths were double-concatenated with cwd
+  const projectPath = normalizePathSimple(targetPath);
   const projectName = options.name ?? getProjectNameFromPath(projectPath);
   const filesCreated: string[] = [];
 

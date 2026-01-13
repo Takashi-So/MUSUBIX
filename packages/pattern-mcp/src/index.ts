@@ -22,3 +22,6 @@ export * from './privacy/index.js';
 
 // Wake-Sleep Learning (TSK-WAKE-002)
 export * from './learning/index.js';
+
+// Concurrency Patterns (TSK-PAT-001, REQ-PAT-001)
+export * from './patterns/concurrency/index.js';

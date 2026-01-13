@@ -14,3 +14,4 @@ export * from './time-slot.js';
 export * from './billing.js';
 export * from './time-window.js';
 export * from './threshold-alert.js';
+export * from './path-normalizer.js';
