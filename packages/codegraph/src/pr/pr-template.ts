@@ -242,6 +242,11 @@ export class PRTemplateGenerator {
    * Generate impact analysis section
    */
   private generateImpactSection(suggestion: RefactoringSuggestion): string {
+    // Skip if no impact data
+    if (!suggestion.impact) {
+      return '';
+    }
+    
     const lines: string[] = ['### Impact Analysis', ''];
     lines.push(`| Metric | Value |`);
     lines.push(`|--------|-------|`);
