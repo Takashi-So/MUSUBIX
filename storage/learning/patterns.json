@@ -12,8 +12,8 @@
       "content": "codegenがスケルトンコードを出力しない。設計からインターフェースやクラス定義を生成する機能が必要"
     },
     "confidence": 0.95,
-    "occurrences": 364,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "occurrences": 439,
+    "lastUsed": "2026-01-13T07:12:11.580Z",
     "createdAt": "2026-01-03T00:16:21.203Z",
     "source": "auto"
   },
@@ -30,8 +30,8 @@
       "content": "C4 design code generation successful - 25 TypeScript files generated"
     },
     "confidence": 0.95,
-    "occurrences": 1409,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "occurrences": 1855,
+    "lastUsed": "2026-01-13T07:25:27.295Z",
     "createdAt": "2026-01-03T13:41:53.216Z",
     "source": "auto"
   },
@@ -50,8 +50,8 @@
       "content": "エンティティ名がBLOG_PLATFORMEntityのように不自然。BlogPlatformEntityが適切。"
     },
     "confidence": 0.95,
-    "occurrences": 231,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "occurrences": 285,
+    "lastUsed": "2026-01-13T07:25:27.295Z",
     "createdAt": "2026-01-03T14:16:40.627Z",
     "source": "auto"
   },
@@ -70,8 +70,8 @@
       "content": "Entityテンプレートを大幅改善。DTO定義、プロパティ(id/createdAt/updatedAt)、update/validate/toJSONメソッドを完備。"
     },
     "confidence": 0.95,
-    "occurrences": 408,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "occurrences": 537,
+    "lastUsed": "2026-01-13T07:25:27.295Z",
     "createdAt": "2026-01-03T14:27:44.066Z",
     "source": "auto"
   },
@@ -88,8 +88,8 @@
       "content": "Complex EARS patterns (WHEN+WHILE, IF+WHEN, etc.) now properly detected with 0.85 confidence"
     },
     "confidence": 0.95,
-    "occurrences": 560,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "occurrences": 825,
+    "lastUsed": "2026-01-13T07:25:27.295Z",
     "createdAt": "2026-01-03T14:37:30.109Z",
     "source": "auto"
   },
@@ -106,8 +106,8 @@
       "content": "Design elements correctly reference requirement IDs in JSDoc comments"
     },
     "confidence": 0.95,
-    "occurrences": 553,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "occurrences": 900,
+    "lastUsed": "2026-01-13T07:25:27.295Z",
     "createdAt": "2026-01-03T14:48:18.010Z",
     "source": "auto"
   },
@@ -304,8 +304,8 @@
       "content": "テスト作成時にEntity APIシグネチャを確認せず、誤った引数パターンでテストを書いた"
     },
     "confidence": 0.95,
-    "occurrences": 87,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "occurrences": 108,
+    "lastUsed": "2026-01-13T06:18:38.519Z",
     "createdAt": "2026-01-04T07:17:33.387Z",
     "source": "auto"
   },
@@ -322,8 +322,8 @@
       "content": "Vitest + TypeScript ESMモジュール構成でモダンなテスト環境を実現"
     },
     "confidence": 0.95,
-    "occurrences": 216,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "occurrences": 414,
+    "lastUsed": "2026-01-13T07:25:27.295Z",
     "createdAt": "2026-01-04T07:17:40.031Z",
     "source": "auto"
   },
@@ -429,9 +429,9 @@
       "type": "suggest",
       "content": "modify requirement"
     },
-    "confidence": 0.75,
-    "occurrences": 9,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "confidence": 0.95,
+    "occurrences": 21,
+    "lastUsed": "2026-01-13T05:52:24.420Z",
     "createdAt": "2026-01-12T22:54:20.644Z",
     "source": "auto"
   },
@@ -447,10 +447,30 @@
       "type": "suggest",
       "content": "modify design"
     },
-    "confidence": 0.6000000000000001,
-    "occurrences": 6,
-    "lastUsed": "2026-01-12T23:12:41.060Z",
+    "confidence": 0.95,
+    "occurrences": 21,
+    "lastUsed": "2026-01-13T06:01:22.990Z",
     "createdAt": "2026-01-12T22:54:22.003Z",
+    "source": "auto"
+  },
+  {
+    "id": "PAT-E0A7E170",
+    "name": "TypeScript Code: Prefer implemented event ticketing system with 4 concu...",
+    "category": "code",
+    "trigger": {
+      "context": {
+        "language": "TypeScript"
+      },
+      "conditions": []
+    },
+    "action": {
+      "type": "prefer",
+      "content": "Implemented Event Ticketing System with 4 concurrency patterns: optimistic locking for ticket inventory, pessimistic locking for seat reservation, hold pattern for ticket reservation, and idempotency for payment processing. All 54 tests passed."
+    },
+    "confidence": 0.95,
+    "occurrences": 42,
+    "lastUsed": "2026-01-13T07:25:27.295Z",
+    "createdAt": "2026-01-13T06:01:22.990Z",
     "source": "auto"
   }
 ]
