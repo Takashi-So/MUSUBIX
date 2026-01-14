@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "3.3.4",
+  "version": "3.3.9",
   "description": "Neuro-Symbolic AI Coding System - Git-Native Knowledge Integration",
   "type": "module",
   "workspaces": [
@@ -65,7 +65,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
-    "@nahisaho/musubix-security": "^3.0.10",
-    "musubix": "^3.1.0"
+    "@nahisaho/musubix-core": "^3.3.0",
+    "@nahisaho/musubix-mcp-server": "^3.3.0",
+    "@nahisaho/musubix-security": "^3.3.8"
   }
 }

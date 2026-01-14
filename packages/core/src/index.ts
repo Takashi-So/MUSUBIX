@@ -37,6 +37,9 @@ export * from './codegen/index.js';
 // Export explanation
 export * from './explanation/index.js';
 
+// Export requirements (context clarification, decomposition)
+export * from './requirements/index.js';
+
 // Export error recovery
 // Note: ErrorCode, ErrorSeverity are already exported from ./types/index.js
 // so we use selective re-exports to avoid conflicts

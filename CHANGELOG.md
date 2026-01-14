@@ -5,6 +5,87 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.9] - 2026-01-14
+
+### Added
+
+- **要件定義時の自動ヒアリング機能** (REQ-CLARIFY-001)
+  - `sdd_create_requirements`ツールにコンテキスト解析機能を追加
+  - 5つの核心質問による自動ヒアリングフロー:
+    1. WHY - 本当の課題は何か？
+    2. WHO - 最も必要としている人は誰か？
+    3. WHAT-IF - 完璧に動作したら何が変わるか？
+    4. CONSTRAINT - 絶対にやってはいけないことは？
+    5. SUCCESS - 成功した状態とは？
+  - コンテキスト充足度レベル: `complete`, `partial`, `minimal`
+  - `needsClarification: true`を返すことでAIエージェントに質問を促す
+  - 新規モジュール:
+    - `clarifying-questions.ts` - 核心質問の定義
+    - `context-analyzer.ts` - 充足度分析ロジック
+  - AGENTS.md更新 - AIエージェント向けヒアリングガイドライン追加
+
+### Changed
+
+- **TypeScriptエクスポート整理**
+  - `AnalysisResult`を`ContextAnalysisResult`にリネーム（codegenモジュールとの競合回避）
+  - `RelationshipType`を`RequirementRelationshipType`として選択的エクスポート（types/index.jsとの競合回避）
+
+## [3.3.8] - 2026-01-14
+
+
+### Fixed
+
+- **tree-sitterバージョン統一** - peerDependency警告を解消
+  - `@nahisaho/musubix-security`のtree-sitter依存を`^0.22.4`→`^0.21.1`に変更
+  - 全ての言語パーサーを0.21.xに統一:
+    - tree-sitter-go: `^0.21.0`
+    - tree-sitter-java: `^0.21.0`
+    - tree-sitter-javascript: `^0.21.4`
+    - tree-sitter-php: `^0.21.0`
+    - tree-sitter-python: `^0.21.0`
+    - tree-sitter-ruby: `^0.21.0`
+    - tree-sitter-rust: `^0.21.0`
+    - tree-sitter-typescript: `^0.21.1`
+  - peerDependencyを`>=0.21.0`に調整
+  - `npm install musubix`時の`ERESOLVE overriding peer dependency`警告を完全解消
+
+## [3.3.7] - 2026-01-14
+
+### Fixed
+
+- **CLI依存関係不足** - musubixパッケージに必要な依存を追加
+  - `@nahisaho/musubix-core`を依存関係に追加（bin/musubix.jsで使用）
+  - `@nahisaho/musubix-mcp-server`を依存関係に追加（bin/musubix-mcp.jsで使用）
+  - `npx musubix init`等のCLIコマンドが正常に動作するように修正
+
+## [3.3.6] - 2026-01-14
+
+### Fixed
+
+- **Critical: Circular Dependency** - 自己参照依存を削除
+  - package.jsonの`dependencies`から`"musubix": "^3.1.0"`を削除
+  - この循環依存により`npm install musubix`が無限ループで停止していた
+  - 正常にインストールが完了するように修正
+
+- **tree-sitter Version** - 存在しないバージョン指定を修正
+  - `@nahisaho/musubix-security`のtree-sitter依存を`^0.23.0`→`^0.22.4`に修正
+  - tree-sitter v0.23.xはnpmに存在しない（0.22.x→0.25.0に飛んでいる）
+  - peerDependencyも`>=0.22.0`に修正
+
+## [3.3.5] - 2026-01-14
+
+### Fixed
+
+- **Critical: Circular Dependency** - 自己参照依存を削除
+  - package.jsonの`dependencies`から`"musubix": "^3.1.0"`を削除
+  - この循環依存により`npm install musubix`が無限ループで停止していた
+  - 正常にインストールが完了するように修正
+
+- **tree-sitter Version** - 存在しないバージョン指定を修正
+  - `@nahisaho/musubix-security`のtree-sitter依存を`^0.23.0`→`^0.22.4`に修正
+  - tree-sitter v0.23.xはnpmに存在しない（0.22.x→0.25.0に飛んでいる）
+  - peerDependencyも`>=0.22.0`に修正
+
 ## [3.3.4] - 2026-01-14
 
 ### Fixed

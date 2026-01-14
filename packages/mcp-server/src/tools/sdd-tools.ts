@@ -10,10 +10,16 @@
  * @see REQ-INT-102 - MCP Server
  * @see REQ-INT-102 - SDD Workflow
  * @see REQ-KNW-001 - Knowledge Store Integration
+ * @see REQ-CLARIFY-001 - Context Clarification
  */
 
 import type { ToolDefinition, ToolResult, TextContent } from '../types.js';
 import { getKnowledgeStore } from './knowledge-tools.js';
+import {
+  analyzeContextCompleteness,
+  type ClarificationContext,
+  formatQuestionsForDisplay,
+} from '@nahisaho/musubix-core';
 
 /**
  * Create text content helper
@@ -87,10 +93,12 @@ async function queryReusableKnowledge(): Promise<{
 
 /**
  * Create requirements document tool
+ * 
+ * @see REQ-CLARIFY-010 - Return clarifying questions when context incomplete
  */
 export const createRequirementsTool: ToolDefinition = {
   name: 'sdd_create_requirements',
-  description: 'Create a new EARS-format requirements document',
+  description: 'Create a new EARS-format requirements document. Returns clarifying questions if context is incomplete.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -106,16 +114,75 @@ export const createRequirementsTool: ToolDefinition = {
         type: 'string',
         description: 'Brief description of the feature',
       },
+      context: {
+        type: 'object',
+        description: 'Clarification context gathered from user',
+        properties: {
+          purpose: {
+            type: 'string',
+            description: 'WHY - The real problem being solved',
+          },
+          targetUser: {
+            type: 'string',
+            description: 'WHO - The target user',
+          },
+          successState: {
+            type: 'string',
+            description: 'WHAT-IF - The success scenario',
+          },
+          constraints: {
+            type: 'string',
+            description: 'CONSTRAINT - What must NOT happen',
+          },
+          successCriteria: {
+            type: 'string',
+            description: 'SUCCESS - Measurable success criteria',
+          },
+        },
+      },
+      skipClarification: {
+        type: 'boolean',
+        description: 'Skip clarification and proceed with available information',
+      },
     },
     required: ['projectName', 'featureName'],
   },
   handler: async (args) => {
     try {
-      const { projectName, featureName, description } = args as {
+      const { projectName, featureName, description, context, skipClarification } = args as {
         projectName: string;
         featureName: string;
         description?: string;
+        context?: ClarificationContext;
+        skipClarification?: boolean;
       };
+
+      // Analyze context completeness (REQ-CLARIFY-001)
+      const analysis = analyzeContextCompleteness(context);
+
+      // If context is incomplete and not skipping, return clarifying questions
+      if (analysis.needsClarification && !skipClarification) {
+        return success({
+          action: 'clarification_needed',
+          needsClarification: true,
+          clarifyingQuestions: analysis.missingQuestions.map(q => ({
+            id: q.id,
+            question: q.questionJa,
+            questionEn: q.questionEn,
+            required: q.required,
+            aspect: q.aspect,
+          })),
+          partialContext: context ?? {},
+          completeness: {
+            level: analysis.level,
+            percent: analysis.completenessPercent,
+            answered: analysis.answeredCount,
+            total: analysis.totalRequired,
+          },
+          message: formatQuestionsForDisplay(analysis.missingQuestions, 'ja'),
+          hint: '上記の質問に回答し、contextパラメータに設定して再度呼び出してください。',
+        });
+      }
 
       // Generate requirement ID
       const reqId = `REQ-${projectName.substring(0, 3).toUpperCase()}-${Date.now().toString(36)}`;
@@ -127,10 +194,12 @@ export const createRequirementsTool: ToolDefinition = {
 
       return success({
         action: 'create_requirements',
+        needsClarification: false,
         requirementId: reqId,
         projectName,
         featureName,
         description,
+        context: context ?? {},
         status: 'template_created',
         message: `Requirements document template created for ${featureName}`,
         storagePath: `storage/specs/${reqId}.md`,
