@@ -8,7 +8,7 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 3.3.0 (Scaffold Enhancement & Pattern Learning Integration) |
+| **バージョン** | 3.3.10 (Bugfix & Codegen Enhancement) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
@@ -133,6 +133,8 @@ npx musubix design traceability --min-coverage 80  # カバレッジ閾値指定
 
 # コード生成
 npx musubix codegen generate <file>        # 設計からコード生成
+npx musubix codegen generate <file> --full-skeleton  # 4ファイル生成 (v3.3.10 NEW!)
+npx musubix codegen generate <file> --with-tests     # テストファイル付き (v3.3.10 NEW!)
 npx musubix codegen analyze <file>         # 静的解析
 npx musubix codegen security <path>        # セキュリティスキャン
 npx musubix codegen status <spec>          # ステータス遷移コード生成 (v3.1.0 NEW!)

@@ -93,21 +93,123 @@ export const CORE_QUESTIONS: readonly ClarifyingQuestion[] = [
 ] as const;
 
 /**
+ * Context input for getMissingQuestions (simplified version)
+ * @see REQ-BUGFIX-002-02
+ * @internal Use ClarificationContext from context-analyzer.ts for full API
+ */
+interface PartialContextInput {
+  purpose?: string;
+  targetUser?: string;
+  successState?: string;
+  constraints?: string;
+  successCriteria?: string;
+}
+
+/**
+ * Type guard: check if input is a string array
+ * @see REQ-BUGFIX-002-01
+ */
+function isStringArray(input: unknown): input is readonly string[] {
+  return Array.isArray(input) && input.every(item => typeof item === 'string');
+}
+
+/**
+ * Type guard: check if input is a context-like object
+ * @see REQ-BUGFIX-002-01
+ */
+function isContextLike(input: unknown): input is PartialContextInput {
+  if (typeof input !== 'object' || input === null) return false;
+  // Empty object {} is valid (returns all questions)
+  if (Object.keys(input).length === 0) return true;
+  const ctx = input as Record<string, unknown>;
+  // At least one field should be a known context field
+  return ['purpose', 'targetUser', 'successState', 'constraints', 'successCriteria']
+    .some(key => key in ctx);
+}
+
+/**
+ * Analyze context completeness and return missing questions
+ * @see REQ-BUGFIX-002-02
+ */
+function analyzePartialContext(context: PartialContextInput): {
+  completeness: number;
+  missingQuestions: ClarifyingQuestion[];
+} {
+  const missingIds: QuestionId[] = [];
+  let answered = 0;
+  const fields: (keyof PartialContextInput)[] = [
+    'purpose', 'targetUser', 'successState', 'constraints', 'successCriteria'
+  ];
+  const total = fields.length;
+
+  for (const field of fields) {
+    const value = context[field];
+    if (value && value.trim().length > 0) {
+      answered++;
+    } else {
+      missingIds.push(field as QuestionId);
+    }
+  }
+
+  return {
+    completeness: answered / total,
+    missingQuestions: CORE_QUESTIONS.filter(q => missingIds.includes(q.id)),
+  };
+}
+
+/**
  * Get questions that haven't been answered yet
  *
- * @param missingIds - Array of question IDs that are missing
- * @returns Array of ClarifyingQuestion objects for the missing questions
+ * @overload Get all questions when called with no arguments
+ * @overload Filter by question IDs when called with string array
+ * @overload Analyze context and return missing questions when called with context object
+ *
+ * @see REQ-BUGFIX-002-01 - Type validation before operation
+ * @see REQ-BUGFIX-002-02 - Context object overload support
+ * @see REQ-BUGFIX-002-03 - Descriptive error messages
  *
  * @example
  * ```typescript
+ * // Get all questions
+ * const all = getMissingQuestions();
+ *
+ * // Filter by IDs
  * const missing = getMissingQuestions(['purpose', 'constraints']);
- * // Returns questions for 'purpose' and 'constraints'
+ *
+ * // Analyze context
+ * const fromContext = getMissingQuestions({ purpose: 'solve X', targetUser: 'developers' });
  * ```
  */
 export function getMissingQuestions(
-  missingIds: readonly string[]
+  input?: readonly string[] | PartialContextInput
 ): ClarifyingQuestion[] {
-  return CORE_QUESTIONS.filter((q) => missingIds.includes(q.id));
+  // undefined or no argument → return all questions
+  if (input === undefined) {
+    return [...CORE_QUESTIONS];
+  }
+
+  // string[] → filter by IDs
+  if (isStringArray(input)) {
+    if (input.length === 0) {
+      return [...CORE_QUESTIONS];
+    }
+    return CORE_QUESTIONS.filter(q => input.includes(q.id));
+  }
+
+  // Context object → analyze and get missing
+  if (isContextLike(input)) {
+    const analysis = analyzePartialContext(input);
+    return analysis.missingQuestions;
+  }
+
+  // Invalid type - REQ-BUGFIX-002-03: Descriptive error message
+  const actualType = input === null ? 'null' : typeof input;
+  throw new TypeError(
+    `getMissingQuestions: Expected string[], context object, or undefined, ` +
+    `but received ${actualType}. ` +
+    `Valid examples: getMissingQuestions(), getMissingQuestions(['purpose']), ` +
+    `getMissingQuestions({ purpose: 'solve X' })`
+  );
 }
 
 /**

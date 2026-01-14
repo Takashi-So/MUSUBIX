@@ -119,6 +119,29 @@ export interface SecurityResult {
 }
 
 /**
+ * Generated skeleton for 4-file generation
+ * @see REQ-BUGFIX-003-01 - 4ファイル生成
+ * @see TSK-BUGFIX-003 - codegen完全実装
+ */
+export interface GeneratedSkeleton {
+  interface: GeneratedCode;
+  implementation: GeneratedCode;
+  test: GeneratedCode;
+  index: GeneratedCode;
+}
+
+/**
+ * Options for full skeleton generation
+ */
+export interface FullSkeletonOptions {
+  language: 'typescript' | 'javascript' | 'python';
+  patterns: string[];
+  requirements: string[];
+  designId?: string;
+  includeTest?: boolean;
+}
+
+/**
  * Security patterns to check
  */
 const SECURITY_PATTERNS = [
@@ -255,7 +278,9 @@ export function registerCodegenCommand(program: Command): void {
     .option('-o, --output <dir>', 'Output directory', 'src/generated')
     .option('-l, --language <lang>', 'Target language', 'typescript')
     .option('-t, --template <name>', 'Code template to use')
-    .action(async (design: string, options: CodegenOptions) => {
+    .option('--full-skeleton', 'Generate 4 files per component (interface, impl, test, index)')
+    .option('--with-tests', 'Include test files in generation')
+    .action(async (design: string, options: CodegenOptions & { fullSkeleton?: boolean; withTests?: boolean }) => {
       const globalOpts = getGlobalOptions(program);
 
       try {
@@ -263,7 +288,7 @@ export function registerCodegenCommand(program: Command): void {
         const content = await readFile(designPath, 'utf-8');
 
         // Parse design and generate code
-        const files = generateCodeFromDesign(content, options);
+        const files = generateCodeFromDesign(content, options, { fullSkeleton: options.fullSkeleton, withTests: options.withTests });
 
         const outputDir = resolve(process.cwd(), options.output ?? 'src/generated');
         await mkdir(outputDir, { recursive: true });
@@ -663,12 +688,27 @@ function inferComponentsFromRequirements(
 }
 
 /**
+ * Extended generation options for full skeleton
+ */
+interface ExtendedGenerateOptions {
+  fullSkeleton?: boolean;
+  withTests?: boolean;
+}
+
+/**
  * Generate code from design
  * Enhanced in v1.1.2: Domain-aware code generation using ComponentInference
+ * Enhanced in v3.3.10: Full skeleton generation (4 files per component)
+ * @see TSK-BUGFIX-003 - codegen完全実装
  */
-function generateCodeFromDesign(content: string, options: CodegenOptions): GeneratedCode[] {
+function generateCodeFromDesign(
+  content: string, 
+  options: CodegenOptions,
+  extendedOptions?: ExtendedGenerateOptions
+): GeneratedCode[] {
   const files: GeneratedCode[] = [];
   const language = options.language ?? 'typescript';
+  const { fullSkeleton = false, withTests = false } = extendedOptions ?? {};
   
   // Detect domain from content for domain-specific method generation
   const componentInference = new ComponentInference();
@@ -695,9 +735,23 @@ function generateCodeFromDesign(content: string, options: CodegenOptions): Gener
     for (const component of c4Components) {
       if (component.type === 'person') continue; // Skip user/person elements
       
+      // Full skeleton mode: generate 4 files per component
+      if (fullSkeleton) {
+        const skeleton = generateFullSkeleton(component.name, {
+          language: language as 'typescript' | 'javascript' | 'python',
+          patterns: patterns.map(p => p.name),
+          requirements: reqMatches.slice(0, 5),
+          designId: component.id,
+          includeTest: true,
+        });
+        files.push(skeleton.interface, skeleton.implementation, skeleton.test, skeleton.index);
+        continue;
+      }
+      
       const code = generateC4ComponentCode(component, language, reqMatches, patterns, detectedDomain);
       // Normalize name: BLOG_PLATFORM → BlogPlatform → blog-platform
       const normalizedName = toKebabCase(toPascalCase(component.name));
+      
       files.push({
         filename: `${normalizedName}${ext}`,
         language,
@@ -708,6 +762,21 @@ function generateCodeFromDesign(content: string, options: CodegenOptions): Gener
           patterns: patterns.map(p => p.name),
         },
       });
+      
+      // Generate test file if --with-tests is specified
+      if (withTests) {
+        const testCode = generateTestForComponent(normalizedName, language);
+        files.push({
+          filename: `${normalizedName}.test${ext}`,
+          language,
+          content: testCode,
+          metadata: {
+            requirements: [],
+            designElements: [],
+            patterns: [],
+          },
+        });
+      }
     }
   } else if (isEarsDoc) {
     // Extract and process EARS requirements
@@ -1362,6 +1431,208 @@ function toKebabCase(str: string): string {
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .replace(/[\s_]+/g, '-')
     .toLowerCase();
+}
+
+/**
+ * Generate full skeleton with 4 files (interface, implementation, test, index)
+ * @see REQ-BUGFIX-003-01 - 4ファイル生成
+ * @see TSK-BUGFIX-003-02 - SkeletonGenerator拡張
+ */
+export function generateFullSkeleton(
+  componentName: string,
+  options: FullSkeletonOptions
+): GeneratedSkeleton {
+  const baseName = toKebabCase(componentName);
+  const className = toPascalCase(componentName);
+  const ext = options.language === 'typescript' ? '.ts' : options.language === 'javascript' ? '.js' : '.py';
+  const reqComments = options.requirements.map(r => ` * @see ${r}`).join('\n');
+  const patternComments = options.patterns.map(p => ` * @pattern ${p}`).join('\n');
+  const traceComment = options.designId ? ` * @trace ${options.designId}` : '';
+
+  // Interface file
+  const interfaceContent = `/**
+ * ${className} Interface
+ * 
+${reqComments}
+${patternComments}
+${traceComment}
+ * @generated
+ */
+
+export interface I${className} {
+  /**
+   * Get the identifier
+   */
+  getId(): string;
+
+  /**
+   * Execute the main operation
+   */
+  execute(): Promise<void>;
+}
+
+export interface ${className}Config {
+  readonly id: string;
+  readonly options?: Record<string, unknown>;
+}
+`;
+
+  // Implementation file
+  const implementationContent = `/**
+ * ${className} Implementation
+ * 
+${reqComments}
+${patternComments}
+${traceComment}
+ * @generated
+ */
+
+import type { I${className}, ${className}Config } from './${baseName}.interface${ext === '.ts' ? '' : ext}';
+
+export class ${className} implements I${className} {
+  private readonly config: ${className}Config;
+
+  constructor(config: ${className}Config) {
+    this.config = config;
+  }
+
+  getId(): string {
+    return this.config.id;
+  }
+
+  async execute(): Promise<void> {
+    // TODO: Implement ${className} logic
+    throw new Error('Not implemented');
+  }
+}
+
+export function create${className}(config: ${className}Config): I${className} {
+  return new ${className}(config);
+}
+`;
+
+  // Test file
+  const testContent = `/**
+ * ${className} Tests
+ * 
+${reqComments}
+ * @generated
+ */
+
+import { describe, it, expect, beforeEach } from 'vitest';
+import { ${className}, create${className} } from './${baseName}${ext === '.ts' ? '' : ext}';
+import type { ${className}Config } from './${baseName}.interface${ext === '.ts' ? '' : ext}';
+
+describe('${className}', () => {
+  let instance: ${className};
+  const testConfig: ${className}Config = {
+    id: 'test-${baseName}-001',
+  };
+
+  beforeEach(() => {
+    instance = new ${className}(testConfig);
+  });
+
+  describe('getId', () => {
+    it('should return the configured id', () => {
+      expect(instance.getId()).toBe(testConfig.id);
+    });
+  });
+
+  describe('execute', () => {
+    it('should be implemented', async () => {
+      // TODO: Update test when implementation is complete
+      await expect(instance.execute()).rejects.toThrow('Not implemented');
+    });
+  });
+
+  describe('create${className}', () => {
+    it('should create an instance via factory', () => {
+      const created = create${className}(testConfig);
+      expect(created.getId()).toBe(testConfig.id);
+    });
+  });
+});
+`;
+
+  // Index file
+  const indexContent = `/**
+ * ${className} Module
+ * @generated
+ */
+
+export type { I${className}, ${className}Config } from './${baseName}.interface${ext === '.ts' ? '' : ext}';
+export { ${className}, create${className} } from './${baseName}${ext === '.ts' ? '' : ext}';
+`;
+
+  return {
+    interface: {
+      filename: `${baseName}.interface${ext}`,
+      language: options.language,
+      content: interfaceContent,
+      metadata: {
+        requirements: options.requirements,
+        designElements: options.designId ? [options.designId] : [],
+        patterns: options.patterns,
+      },
+    },
+    implementation: {
+      filename: `${baseName}${ext}`,
+      language: options.language,
+      content: implementationContent,
+      metadata: {
+        requirements: options.requirements,
+        designElements: options.designId ? [options.designId] : [],
+        patterns: options.patterns,
+      },
+    },
+    test: {
+      filename: `${baseName}.test${ext}`,
+      language: options.language,
+      content: testContent,
+      metadata: {
+        requirements: options.requirements,
+        designElements: [],
+        patterns: [],
+      },
+    },
+    index: {
+      filename: `index${ext}`,
+      language: options.language,
+      content: indexContent,
+      metadata: {
+        requirements: [],
+        designElements: [],
+        patterns: [],
+      },
+    },
+  };
+}
+
+/**
+ * Generate test file for a component
+ * @see TSK-BUGFIX-006 - テスト生成統合
+ */
+function generateTestForComponent(componentName: string, _language: string): string {
+  const className = toPascalCase(componentName);
+  const baseName = toKebabCase(componentName);
+  
+  return `/**
+ * ${className} Tests
+ * @generated
+ */
+
+import { describe, it, expect } from 'vitest';
+import { ${className} } from './${baseName}';
+
+describe('${className}', () => {
+  it('should be defined', () => {
+    expect(${className}).toBeDefined();
+  });
+
+  // TODO: Add more test cases based on the component's functionality
+});
+`;
 }
 
 /**

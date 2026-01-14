@@ -472,5 +472,21 @@
     "lastUsed": "2026-01-13T07:25:27.295Z",
     "createdAt": "2026-01-13T06:01:22.990Z",
     "source": "auto"
+  },
+  {
+    "id": "PAT-5B62D61D",
+    "name": {
+      "id": "test-pattern-1",
+      "name": "Repository Pattern",
+      "description": "Data access layer abstraction",
+      "category": "design",
+      "confidence": 0.9,
+      "usageCount": 10
+    },
+    "confidence": 0.5,
+    "occurrences": 1,
+    "lastUsed": "2026-01-14T10:09:33.291Z",
+    "createdAt": "2026-01-14T10:09:33.291Z",
+    "source": "manual"
   }
 ]

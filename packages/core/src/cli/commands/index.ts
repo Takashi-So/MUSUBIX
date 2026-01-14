@@ -118,6 +118,18 @@ export { registerTasksCommand } from './tasks.js';
 
 // Scaffold command export (IMP-SDD-001)
 export { registerScaffoldCommand } from './scaffold.js';
+export type { ScaffoldStats, ScaffoldResult } from './scaffold.js';
+export { _checkDirectory as checkDirectory } from './scaffold.js';
+
+// Codegen types and functions (v3.3.10)
+// Note: GeneratedCode and GenerationResult are also in codegen/generator.js
+// Use CLI-specific names to avoid conflicts
+export type { 
+  GeneratedSkeleton, 
+  FullSkeletonOptions,
+  CodegenOptions,
+} from './codegen.js';
+export { generateFullSkeleton } from './codegen.js';
 
 // Synthesis command export (REQ-SY-v2.2.0)
 export { registerSynthesisCommands } from './synthesis.js';

@@ -8,6 +8,49 @@
  *
  * @module quality-gate
  * @implements REQ-CONST-004, REQ-CONST-010
+ * 
+ * @example Basic Usage
+ * ```typescript
+ * import { QualityGateValidator } from '@nahisaho/musubix-core';
+ * 
+ * const validator = new QualityGateValidator({
+ *   minDesignCoverage: 100,
+ *   minTestCoverage: 80,
+ * });
+ * 
+ * const traceability = [
+ *   { requirementId: 'REQ-001', designIds: ['DES-001'], taskIds: ['TSK-001'], testIds: ['TEST-001'], coveragePercent: 100 },
+ * ];
+ * 
+ * const components = {
+ *   performanceBudget: { defined: true, metrics: [] },
+ *   auditLogging: { enabled: true },
+ *   securityPolicies: { defined: true },
+ *   constitutionCompliance: { articlesChecked: ['I', 'II', 'III'] },
+ * };
+ * 
+ * const result = validator.validate(traceability, components);
+ * 
+ * if (result.passed) {
+ *   console.log('✅ Quality gate passed');
+ * } else {
+ *   console.log('❌ Quality gate failed');
+ *   result.checks.filter(c => !c.passed).forEach(c => {
+ *     console.log(`  - ${c.name}: ${c.message}`);
+ *   });
+ * }
+ * ```
+ * 
+ * @example With Custom Configuration
+ * ```typescript
+ * const validator = new QualityGateValidator({
+ *   minDesignCoverage: 90,  // Allow 90% coverage
+ *   minTestCoverage: 70,
+ *   requireAuditLogging: false,  // Disable audit logging check
+ * });
+ * ```
+ * 
+ * @see REQ-BUGFIX-004-01 - API documentation improvement
  */
 
 import type { Explanation, Evidence } from './types.js';
@@ -123,16 +166,61 @@ const DEFAULT_CONFIG: QualityGateConfig = {
  * - Non-functional: Performance budget, extensibility, explainability
  * - Security/Audit: Masking policy, tamper detection
  * - Constitution: All 9 articles compliance
+ * 
+ * @see REQ-BUGFIX-004-01 - API documentation
+ * @see REQ-BUGFIX-004-02 - Usage examples
+ * 
+ * @example
+ * ```typescript
+ * const validator = new QualityGateValidator();
+ * const result = validator.validate(traceability, components);
+ * console.log(result.passed ? 'Passed' : 'Failed');
+ * ```
  */
 export class QualityGateValidator {
   private readonly config: QualityGateConfig;
 
+  /**
+   * Create a new QualityGateValidator
+   * 
+   * @param config - Partial configuration to override defaults
+   * 
+   * @example
+   * ```typescript
+   * // Use defaults
+   * const validator1 = new QualityGateValidator();
+   * 
+   * // Override specific settings
+   * const validator2 = new QualityGateValidator({
+   *   minDesignCoverage: 90,
+   *   requireAuditLogging: false,
+   * });
+   * ```
+   */
   constructor(config: Partial<QualityGateConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
   }
 
   /**
    * Validate all quality gate criteria
+   * 
+   * @param traceability - Array of traceability coverage data for each requirement
+   * @param components - Component validation data containing non-functional and security checks
+   * @returns Quality gate result with pass/fail status and detailed check results
+   * 
+   * @example
+   * ```typescript
+   * const result = validator.validate(
+   *   [{ requirementId: 'REQ-001', designIds: ['DES-001'], taskIds: [], testIds: [], coveragePercent: 100 }],
+   *   { performanceBudget: { defined: true }, auditLogging: { enabled: true }, securityPolicies: { defined: true } }
+   * );
+   * 
+   * if (!result.passed) {
+   *   // Handle failed checks
+   *   const blockers = result.checks.filter(c => c.severity === 'blocker');
+   *   console.error(`${blockers.length} blocker(s) found`);
+   * }
+   * ```
    */
   validate(
     traceability: TraceabilityCoverage[],

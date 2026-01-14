@@ -8,10 +8,11 @@
  * 
  * @see REQ-ARC-002 - CLI Interface
  * @see DES-MUSUBIX-001 Section 3.2 - CLI Interface Design
+ * @see REQ-BUGFIX-005-03 - Custom version action with verbose support
  */
 
 import { Command } from 'commander';
-import { VERSION } from '../index.js';
+import { VERSION, formatVerboseVersion } from '../version.js';
 
 /**
  * Exit codes for CLI commands
@@ -45,6 +46,7 @@ export interface GlobalOptions {
 
 /**
  * Create the main CLI program
+ * @see REQ-BUGFIX-005-03 - Custom version action with --verbose support
  */
 export function createProgram(): Command {
   const program = new Command();
@@ -61,6 +63,20 @@ export function createProgram(): Command {
       sortSubcommands: true,
       sortOptions: true,
     });
+
+  // Custom version action for --verbose support (REQ-BUGFIX-005-03)
+  program.on('option:version', () => {
+    // Check if --verbose is also specified
+    const args = process.argv;
+    const hasVerbose = args.includes('--verbose') || args.some(arg => arg === '-v' && args.indexOf('-v') !== args.indexOf('--version'));
+    
+    if (hasVerbose) {
+      console.log(formatVerboseVersion());
+    } else {
+      console.log(`musubix v${VERSION}`);
+    }
+    process.exit(0);
+  });
 
   return program;
 }

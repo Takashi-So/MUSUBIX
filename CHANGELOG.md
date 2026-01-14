@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.10] - 2026-01-14
+
+### Added
+
+- **codegen 4ファイル生成** (TSK-BUGFIX-003)
+  - `--full-skeleton`オプションで各コンポーネントに4ファイル生成
+    - `{name}.interface.ts` - インターフェース定義
+    - `{name}.ts` - 実装クラス
+    - `{name}.test.ts` - ユニットテスト
+    - `index.ts` - エクスポートインデックス
+  - `--with-tests`オプションでテストファイル自動生成
+  - 新規エクスポート: `GeneratedSkeleton`, `FullSkeletonOptions`, `generateFullSkeleton`
+
+- **CLIバージョン詳細表示** (TSK-BUGFIX-005)
+  - `musubix -v --verbose`で依存パッケージのバージョン一覧表示
+  - バージョン不整合の自動検出とガイダンス表示
+  - 新規関数: `collectDependencyVersions()`, `checkVersionMismatch()`, `formatVerboseVersion()`
+
+### Fixed
+
+- **scaffoldコマンド出力改善** (BUG-001)
+  - 生成されたファイル一覧と統計情報の表示
+  - ディレクトリ存在・書き込み権限チェック
+  - 新規インターフェース: `ScaffoldStats`
+  - 新規関数: `formatScaffoldOutput()`, `checkDirectory()`, `calculateStats()`
+
+- **getMissingQuestions堅牢性向上** (BUG-002)
+  - 3つのオーバーロード追加:
+    - `getMissingQuestions()` - 全質問を返す
+    - `getMissingQuestions(string[])` - 指定IDでフィルタ
+    - `getMissingQuestions(PartialContextInput)` - コンテキスト解析
+  - 型ガード関数追加: `isStringArray()`, `isContextLike()`
+  - 空オブジェクト`{}`の正しい処理
+  - 13件のユニットテスト追加
+
+- **QualityGateValidator JSDoc改善** (BUG-004)
+  - クラス・メソッドに詳細なJSDoc追加
+  - 使用例コード追加
+  - API-REFERENCE.md参照リンク追加
+
+### Changed
+
+- **APIドキュメント整備**
+  - `quality-gate.ts`に`@example`セクション追加
+  - トレーサビリティ用の`@see`タグ追加
+
+### Technical Details
+
+- **REQ-BUGFIX-v3.3.10対応**: 22要件すべて実装完了
+- **DES-BUGFIX-v3.3.10対応**: C4モデル設計準拠
+- **TSK-BUGFIX-v3.3.10対応**: 25タスク中主要タスク完了
+
 ## [3.3.9] - 2026-01-14
 
 ### Added

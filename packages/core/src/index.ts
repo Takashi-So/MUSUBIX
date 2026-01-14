@@ -11,7 +11,13 @@
  */
 
 // Version
-export { VERSION } from './version.js';
+export { 
+  VERSION, 
+  collectDependencyVersions, 
+  checkVersionMismatch, 
+  formatVerboseVersion,
+} from './version.js';
+export type { DependencyVersions, VersionMismatchResult } from './version.js';
 
 // Export types
 export * from './types/index.js';

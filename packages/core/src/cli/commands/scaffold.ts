@@ -45,6 +45,19 @@ export type ProjectTemplate =
   | 'minimal';
 
 /**
+ * Scaffold statistics for output formatting
+ * @see REQ-BUGFIX-001-01
+ */
+export interface ScaffoldStats {
+  /** Total number of files created */
+  totalFiles: number;
+  /** Total lines of code generated */
+  totalLines: number;
+  /** Total size in bytes */
+  totalSize: number;
+}
+
+/**
  * Scaffold result
  */
 export interface ScaffoldResult {
@@ -52,6 +65,80 @@ export interface ScaffoldResult {
   projectPath: string;
   filesCreated: string[];
   message: string;
+  /** Statistics about generated files @see REQ-BUGFIX-001-01 */
+  stats?: ScaffoldStats;
+}
+
+/**
+ * Format scaffold output with file details and summary
+ * @see REQ-BUGFIX-001-01
+ * @see REQ-BUGFIX-001-02
+ */
+function formatScaffoldOutput(
+  filesCreated: string[],
+  stats: ScaffoldStats,
+  projectPath: string
+): void {
+  console.log('\n📁 Generated files:');
+  for (const file of filesCreated) {
+    console.log(`   ✅ ${file}`);
+  }
+  console.log(`\n📊 Summary:`);
+  console.log(`   Files: ${stats.totalFiles}`);
+  console.log(`   Lines: ${stats.totalLines}`);
+  console.log(`   Size:  ${formatBytes(stats.totalSize)}`);
+  console.log(`   Path:  ${projectPath}`);
+}
+
+/**
+ * Format bytes to human-readable string
+ */
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
+ * Check directory existence and write permission
+ * @see REQ-BUGFIX-001-03
+ */
+async function checkDirectory(targetDir: string): Promise<{
+  exists: boolean;
+  writable: boolean;
+  error?: string;
+}> {
+  const { constants: fsConstants } = await import('fs');
+  try {
+    await access(targetDir, fsConstants.W_OK);
+    return { exists: true, writable: true };
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException;
+    if (err.code === 'ENOENT') {
+      return { exists: false, writable: false, error: `Directory does not exist: ${targetDir}` };
+    }
+    return { exists: true, writable: false, error: `Directory is not writable: ${targetDir}` };
+  }
+}
+
+// Export for testing
+export { checkDirectory as _checkDirectory };
+
+/**
+ * Calculate statistics from generated file contents
+ */
+function calculateStats(filesCreated: string[], fileContents: Map<string, string>): ScaffoldStats {
+  let totalLines = 0;
+  let totalSize = 0;
+  for (const [, content] of fileContents) {
+    totalLines += content.split('\n').length;
+    totalSize += Buffer.byteLength(content, 'utf-8');
+  }
+  return {
+    totalFiles: filesCreated.length,
+    totalLines,
+    totalSize,
+  };
 }
 
 /**
@@ -245,20 +332,34 @@ export function registerScaffoldCommand(program: Command): void {
         await writeFile(join(projectPath, '.knowledge/graph.json'), knowledgeConfig, 'utf-8');
         filesCreated.push('.knowledge/graph.json');
 
+        // Calculate statistics (REQ-BUGFIX-001-01)
+        const fileContentsMap = new Map<string, string>([
+          [`storage/specs/REQ-${domain}-001.md`, reqContent],
+          [`storage/design/DES-${domain}-001.md`, designContent],
+          [`storage/traceability/TRACE-${domain}-001.md`, traceContent],
+          ['src/types/common.ts', typesContent],
+          ['src/types/errors.ts', errorsContent],
+          ['src/index.ts', indexContent],
+          ['package.json', packageContent],
+          ['tsconfig.json', tsconfigContent],
+          ['vitest.config.ts', vitestContent],
+          ['.knowledge/graph.json', knowledgeConfig],
+        ]);
+        const stats = calculateStats(filesCreated, fileContentsMap);
+
         const result: ScaffoldResult = {
           success: true,
           projectPath,
           filesCreated,
           message: `✅ Created SDD project scaffold at ${projectPath} with ${filesCreated.length} files`,
+          stats,
         };
 
         outputResult(result, globalOpts);
 
         if (!globalOpts.quiet) {
-          console.log('\n📁 Project structure:');
-          for (const file of filesCreated) {
-            console.log(`   ${file}`);
-          }
+          // Use improved output format (REQ-BUGFIX-001-01, REQ-BUGFIX-001-02)
+          formatScaffoldOutput(filesCreated, stats, projectPath);
           console.log('\n🚀 Next steps:');
           console.log(`   cd ${name}`);
           console.log('   npm install');
