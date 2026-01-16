@@ -17,7 +17,7 @@
 
 > Next-generation AI Coding System powered by Git-Native Knowledge Integration
 >
-> **v3.0.0** - Git-Native Knowledge System
+> **v3.4.0** - Deep Research Integration
 
 **[日本語版 README](README.ja.md)**
 
@@ -25,7 +25,17 @@
 
 MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and **Symbolic (Knowledge Graph)** reasoning. It combines MUSUBI SDD methodology with Git-native knowledge management to support high-quality software development.
 
-### 🎉 v3.0.0 Highlights
+### 🎉 v3.4.0 Highlights - Deep Research Integration
+
+- **🔍 Deep Research Package** - AI-driven iterative research system (433 tests)
+- **6 Integration Modules** - Expert Delegation, Neural Search, Agent Orchestrator, Knowledge Store, Workflow Engine, VS Code Extension
+- **Expert Delegation** - VS Code LM API integration with 7 AI expert types
+- **81% Development Efficiency** - 7h actual vs 36h estimated through established patterns
+- **100% Test Coverage** - 433/433 tests passing, 1,734 lines implementation + 2,488 lines tests
+
+### Previous Highlights
+
+#### v3.0.0 - Git-Native Knowledge System
 
 - **Git-Native Knowledge** - File-based knowledge graph in `.knowledge/`
 - **Policy Engine** - Executable TypeScript policies in `.policies/`

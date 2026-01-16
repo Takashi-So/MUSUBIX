@@ -27,6 +27,7 @@ import { registerTasksCommand } from './tasks.js';
 import { registerScaffoldCommand } from './scaffold.js';
 import { registerSynthesisCommands } from './synthesis.js';
 import { registerCodeGraphCommand } from './codegraph.js';
+import { registerDeepResearchCommand } from './deep-research.js';
 
 // Git-Native Knowledge System commands (v3.0.0)
 import { registerKnowledgeCommands } from './knowledge.js';
@@ -86,6 +87,9 @@ export function registerCommands(program: Command): void {
   
   // DX Enhancement commands (v3.1.0)
   registerWatchCommand(program);
+  
+  // Deep Research commands (v3.4.0)
+  registerDeepResearchCommand(program);
 }
 
 // Core command exports
@@ -144,3 +148,6 @@ export { registerDecisionCommands } from './decision.js';
 
 // DX Enhancement command exports (v3.1.0)
 export { registerWatchCommand } from './watch.js';
+
+// Deep Research command exports (v3.4.0)
+export { registerDeepResearchCommand } from './deep-research.js';

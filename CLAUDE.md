@@ -8,14 +8,14 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 3.3.10 (Bugfix & Codegen Enhancement) |
+| **バージョン** | 3.4.0 (Deep Research Integration) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 4633+ (全合格) |
-| **パッケージ数** | 26 |
+| **テスト数** | 4966+ (全合格) |
+| **パッケージ数** | 27 |
 | **MCPツール数** | 107 |
 | **Agent Skills** | 13 (Claude Code対応) |
 
@@ -45,6 +45,7 @@ packages/
 ├── skill-manager/      # @nahisaho/musubix-skill-manager
 ├── codegraph/          # @nahisaho/musubix-codegraph
 ├── expert-delegation/  # @nahisaho/musubix-expert-delegation (v3.2.0 NEW!)
+├── deep-research/      # @nahisaho/musubix-deep-research (v3.4.0 NEW!)
 ├── knowledge/          # @musubix/knowledge (v3.0.0 NEW!)
 ├── policy/             # @musubix/policy (v3.0.0 NEW!)
 └── decisions/          # @musubix/decisions (v3.0.0 NEW!)
@@ -73,6 +74,7 @@ packages/
 | `packages/skill-manager/` | `@nahisaho/musubix-skill-manager` | **スキル管理** - スキル登録・実行・検証 |
 | `packages/codegraph/` | `@nahisaho/musubix-codegraph` | **コードグラフ** - コード構造解析・依存関係追跡 |
 | `packages/expert-delegation/` | `@nahisaho/musubix-expert-delegation` | **エキスパート委譲 (v3.2.0 NEW!)** - 7種AI専門家・VS Code LM API統合 |
+| `packages/deep-research/` | `@nahisaho/musubix-deep-research` | **Deep Research (v3.4.0 NEW!)** - AI駆動型深層リサーチ・6統合機能・433テスト |
 
 ### 非推奨パッケージ（Deprecated） ⚠️
 

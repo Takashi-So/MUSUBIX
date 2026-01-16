@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../core" },
+    { "path": "../expert-delegation" },
+    { "path": "../neural-search" },
+    { "path": "../agent-orchestrator" },
+    { "path": "../workflow-engine" },
+    { "path": "../knowledge" }
+  ]
+}
