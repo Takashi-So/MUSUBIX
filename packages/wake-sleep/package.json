@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-wake-sleep",
-  "version": "3.3.1",
+  "version": "3.4.0",
   "description": "MUSUBIX Wake-Sleep Learning Engine - DreamCoder-style pattern consolidation",
   "type": "module",
   "main": "./dist/index.js",
