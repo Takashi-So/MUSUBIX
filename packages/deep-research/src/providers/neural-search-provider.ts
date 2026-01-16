@@ -23,7 +23,6 @@ import type { SearchProvider, SERPQuery, SearchResult, WebReadRequest, WebConten
 export class NeuralSearchProvider implements SearchProvider {
   name = 'Neural Search';
   
-  private readonly timeout: number;
   private readonly hybridWeight: number; // Weight for BM25 vs embedding scores
   
   /**
@@ -37,10 +36,9 @@ export class NeuralSearchProvider implements SearchProvider {
   } as const;
   
   constructor(
-    timeout: number = NeuralSearchProvider.DEFAULT_CONFIG.TIMEOUT,
+    _timeout: number = NeuralSearchProvider.DEFAULT_CONFIG.TIMEOUT,
     hybridWeight: number = NeuralSearchProvider.DEFAULT_CONFIG.HYBRID_WEIGHT
   ) {
-    this.timeout = timeout;
     this.hybridWeight = hybridWeight;
   }
   
@@ -88,7 +86,7 @@ export class NeuralSearchProvider implements SearchProvider {
   /**
    * Read web content (not applicable for neural search, delegates to JinaProvider)
    */
-  async read(request: WebReadRequest): Promise<WebContent> {
+  async read(_request: WebReadRequest): Promise<WebContent> {
     // Neural search works with local knowledge base, not web content
     // This method should not be called for neural search
     throw new Error('Neural search provider does not support web content reading');

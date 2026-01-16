@@ -71,7 +71,7 @@ export class VSCodeExtensionIntegration {
     } else {
       // Try to load VS Code API dynamically
       try {
-        this.vscode = await import('vscode');
+        this.vscode = await import('vscode' as any);
       } catch (error) {
         console.warn('⚠️  VS Code API not available (running outside VS Code environment)');
         return;
@@ -94,7 +94,7 @@ export class VSCodeExtensionIntegration {
     if (this.vscode) return true;
 
     try {
-      const vscodeModule = await import('vscode');
+      const vscodeModule = await import('vscode' as any);
       return vscodeModule !== null;
     } catch {
       return false;
@@ -279,7 +279,7 @@ export class VSCodeExtensionIntegration {
     }
 
     const config = this.vscode.workspace.getConfiguration('musubix.deepResearch');
-    return config.get<T>(key, defaultValue);
+    return (config.get(key, defaultValue) as T);
   }
 
   /**

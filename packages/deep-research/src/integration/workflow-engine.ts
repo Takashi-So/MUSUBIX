@@ -6,8 +6,6 @@
 import type {
   PhaseType,
   Workflow,
-  PhaseControllerConfig,
-  PhaseControllerResult,
 } from '@nahisaho/musubix-workflow-engine';
 
 /**
@@ -175,12 +173,14 @@ export class WorkflowIntegration {
       return null;
     }
 
-    const currentPhase = this.mapWorkflowPhaseToResearch(workflow.currentPhase);
+    const currentPhase = workflow.currentPhase 
+      ? this.mapWorkflowPhaseToResearch(workflow.currentPhase)
+      : null;
 
     return {
       currentPhase,
-      canTransition: workflow.currentPhase !== 'testing', // Can't transition from last phase
-      nextPhases: this.getNextPhases(currentPhase),
+      canTransition: workflow.currentPhase !== ('testing' as PhaseType), // Can't transition from last phase
+      nextPhases: currentPhase ? this.getNextPhases(currentPhase) : [],
       requiresApproval: this.config.requireApproval,
     };
   }
@@ -275,12 +275,10 @@ export class WorkflowIntegration {
    * Map workflow phase to research phase
    */
   private mapWorkflowPhaseToResearch(phase: PhaseType): ResearchPhase {
-    const mapping: Record<PhaseType, ResearchPhase> = {
+    const mapping: Partial<Record<PhaseType, ResearchPhase>> = {
       'requirements': 'planning',
       'design': 'gathering',
-      'tasks': 'analysis',
       'implementation': 'synthesis',
-      'testing': 'completion',
     };
     return mapping[phase] ?? 'planning';
   }
@@ -289,14 +287,12 @@ export class WorkflowIntegration {
    * Map research phase to workflow phase
    */
   private mapResearchPhaseToWorkflow(phase: ResearchPhase): PhaseType {
-    const mapping: Record<ResearchPhase, PhaseType> = {
+    const mapping: Partial<Record<ResearchPhase, PhaseType>> = {
       'planning': 'requirements',
       'gathering': 'design',
-      'analysis': 'tasks',
       'synthesis': 'implementation',
-      'completion': 'testing',
     };
-    return mapping[phase] ?? 'requirements';
+    return mapping[phase] ?? ('requirements' as PhaseType);
   }
 
   /**

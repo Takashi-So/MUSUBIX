@@ -3,7 +3,7 @@
 // REQ: REQ-DR-INT-004
 // DES: DES-DR-v3.4.0 Section 5.3
 
-import type { ResearchContext, KnowledgeItem } from '../types/index.js';
+import type { ResearchContext } from '../types/index.js';
 
 /**
  * Task complexity threshold
@@ -234,8 +234,8 @@ export class OrchestrationEngine {
         return null;
       }
       
-      // Create dispatcher instance
-      const dispatcher = new SubagentDispatcher();
+      // SubagentDispatcher is available but not used in mock implementation
+      // In real implementation, would use: new SubagentDispatcher()
       
       return {
         decompose: async (config: any) => {
