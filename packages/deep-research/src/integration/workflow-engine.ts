@@ -9,6 +9,16 @@ import type {
 } from '@nahisaho/musubix-workflow-engine';
 
 /**
+ * Result type for phase controller operations
+ */
+export interface PhaseControllerResult<T> {
+  success: boolean;
+  message?: string;
+  error?: string;
+  data?: T;
+}
+
+/**
  * Configuration for Workflow Engine integration
  */
 export interface WorkflowIntegrationConfig {
@@ -178,8 +188,8 @@ export class WorkflowIntegration {
       : null;
 
     return {
-      currentPhase,
-      canTransition: workflow.currentPhase !== ('testing' as PhaseType), // Can't transition from last phase
+      currentPhase: currentPhase || 'planning', // Provide default value instead of null
+      canTransition: workflow.currentPhase !== ('testing' as PhaseType),
       nextPhases: currentPhase ? this.getNextPhases(currentPhase) : [],
       requiresApproval: this.config.requireApproval,
     };
