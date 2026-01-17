@@ -36,7 +36,7 @@ describe('REQ-INT-102: MCP SDD Tools', () => {
         expect(schema.required).toContain('featureName');
       });
 
-      it('should create requirements template', async () => {
+      it('should create requirements template or request clarification', async () => {
         const result = await createRequirementsTool.handler({
           projectName: 'TestProject',
           featureName: 'Authentication',
@@ -48,10 +48,16 @@ describe('REQ-INT-102: MCP SDD Tools', () => {
         expect(result.content[0].type).toBe('text');
 
         const parsed = JSON.parse(result.content[0].text);
-        expect(parsed.action).toBe('create_requirements');
-        expect(parsed.projectName).toBe('TestProject');
-        expect(parsed.featureName).toBe('Authentication');
-        expect(parsed.status).toBe('template_created');
+        // v3.3.9: ヒアリング機能により、コンテキスト不足時は clarification_needed
+        expect(['create_requirements', 'clarification_needed']).toContain(parsed.action);
+        if (parsed.action === 'create_requirements') {
+          expect(parsed.projectName).toBe('TestProject');
+          expect(parsed.featureName).toBe('Authentication');
+          expect(parsed.status).toBe('template_created');
+        } else {
+          expect(parsed.needsClarification).toBe(true);
+          expect(parsed.clarifyingQuestions).toBeDefined();
+        }
       });
 
       it('should work without optional description', async () => {

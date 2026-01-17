@@ -13,7 +13,14 @@ describe('DuckDuckGoProvider', () => {
   let mockFetch: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    provider = new DuckDuckGoProvider(5000);
+    // Use minimal backoff and retries for faster tests
+    provider = new DuckDuckGoProvider({
+      timeout: 5000,
+      minIntervalMs: 0,
+      maxRequestsPerMinute: 1000,
+      maxRetries: 3,
+      baseBackoffMs: 10,
+    });
     mockFetch = global.fetch as ReturnType<typeof vi.fn>;
     mockFetch.mockClear();
   });
@@ -149,7 +156,8 @@ describe('DuckDuckGoProvider', () => {
         iteration: 0,
       };
 
-      mockFetch.mockResolvedValueOnce({
+      // Mock all retry attempts to fail
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',

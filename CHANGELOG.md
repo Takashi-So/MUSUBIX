@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.5] - 2026-01-17
+
+### Fixed
+
+- **mcp-server**: v3.3.9ヒアリング機能対応のテスト修正
+  - `sdd-tools.test.ts`、`mcp-workflow.test.ts`を`clarification_needed`レスポンスに対応
+
+## [3.4.4] - 2026-01-17
+
+### Fixed
+
+- **expert-delegation**: `peerDependencies: vscode@^1.85.0` を削除
+  - npm registryの`vscode`パッケージは1.1.37で更新停止（非推奨）
+  - 新規環境で`pnpm install`が失敗する問題を修正
+  - `@types/vscode`（devDependencies）で型定義は引き続き提供
+  - VS Code拡張機能ランタイムが実際のAPIを提供するため、peerDependencies宣言は不要
+
 ## [3.4.0] - 2026-01-16
 
 ### Added

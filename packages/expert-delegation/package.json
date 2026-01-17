@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-expert-delegation",
-  "version": "3.4.0",
+  "version": "3.4.5",
   "description": "Expert Delegation System for MUSUBIX - 7 Specialized AI Experts with VS Code LM API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -75,13 +75,5 @@
     "typescript": "^5.3.0",
     "vitest": "^1.0.0",
     "@vitest/coverage-v8": "^1.0.0"
-  },
-  "peerDependencies": {
-    "vscode": "^1.85.0"
-  },
-  "peerDependenciesMeta": {
-    "vscode": {
-      "optional": true
-    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-workflow-engine",
-  "version": "3.4.0",
+  "version": "3.4.5",
   "description": "MUSUBIX Workflow Engine - Phase Transition and Quality Gate Management",
   "type": "module",
   "main": "./dist/index.js",

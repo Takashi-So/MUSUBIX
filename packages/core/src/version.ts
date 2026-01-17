@@ -65,7 +65,7 @@ function getVersion(): string {
   }
 
   // Fallback version (should not happen in normal operation)
-  return '1.1.8';
+  return '3.4.1';
 }
 
 export const VERSION = getVersion();

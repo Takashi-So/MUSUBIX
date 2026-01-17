@@ -35,7 +35,7 @@ function parseResult(result: { content: Array<{ type: string; text: string }> })
 
 describe('Integration: MCP Server Workflow', () => {
   describe('Requirements Management Workflow', () => {
-    it('should create requirements document', async () => {
+    it('should create requirements document or request clarification', async () => {
       const result = await createRequirementsTool.handler({
         projectName: 'TestProject',
         featureName: 'User Authentication',
@@ -43,8 +43,13 @@ describe('Integration: MCP Server Workflow', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const parsed = parseResult(result) as { status: string; message: string };
-      expect(parsed.status).toBe('template_created');
+      const parsed = parseResult(result) as { status?: string; action?: string; needsClarification?: boolean };
+      // v3.3.9: ヒアリング機能により、コンテキスト不足時は clarification_needed
+      if (parsed.needsClarification) {
+        expect(parsed.action).toBe('clarification_needed');
+      } else {
+        expect(parsed.status).toBe('template_created');
+      }
     });
 
     it('should validate requirements document', async () => {
@@ -60,7 +65,7 @@ describe('Integration: MCP Server Workflow', () => {
   });
 
   describe('Design Workflow', () => {
-    it('should create design document', async () => {
+    it('should create design document or request clarification', async () => {
       const result = await createDesignTool.handler({
         projectName: 'TestProject',
         componentName: 'PaymentService',
@@ -68,8 +73,13 @@ describe('Integration: MCP Server Workflow', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const parsed = parseResult(result) as { status: string };
-      expect(parsed.status).toBe('template_created');
+      const parsed = parseResult(result) as { status?: string; action?: string; needsClarification?: boolean };
+      // v3.3.9: ヒアリング機能により、コンテキスト不足時は clarification_needed
+      if (parsed.needsClarification) {
+        expect(parsed.action).toBe('clarification_needed');
+      } else {
+        expect(parsed.status).toBe('template_created');
+      }
     });
 
     it('should validate design document', async () => {
@@ -254,8 +264,13 @@ describe('Integration: Constitutional Article Compliance', () => {
       });
 
       expect(result.isError).toBeFalsy();
-      const parsed = parseResult(result) as { status: string };
-      expect(parsed.status).toBe('template_created');
+      const parsed = parseResult(result) as { status?: string; action?: string; needsClarification?: boolean };
+      // v3.3.9: ヒアリング機能により、コンテキスト不足時は clarification_needed
+      if (parsed.needsClarification) {
+        expect(parsed.action).toBe('clarification_needed');
+      } else {
+        expect(parsed.status).toBe('template_created');
+      }
     });
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "musubix",
-  "version": "3.4.0",
+  "version": "3.4.5",
   "description": "MUSUBIX - Neuro-Symbolic AI Integration System for Software Development",
   "keywords": [
     "ai",
@@ -39,23 +39,23 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@musubix/decisions": "^3.3.0",
-    "@musubix/knowledge": "^3.3.0",
-    "@musubix/policy": "^3.3.0",
-    "@nahisaho/musubix-codegraph": "^3.3.0",
-    "@nahisaho/musubix-core": "^3.3.0",
-    "@nahisaho/musubix-dfg": "^3.3.0",
-    "@nahisaho/musubix-formal-verify": "^3.3.0",
-    "@nahisaho/musubix-lean": "^3.3.0",
-    "@nahisaho/musubix-library-learner": "^3.3.0",
-    "@nahisaho/musubix-mcp-server": "^3.3.0",
-    "@nahisaho/musubix-neural-search": "^3.3.0",
-    "@nahisaho/musubix-ontology-mcp": "^3.3.0",
-    "@nahisaho/musubix-pattern-mcp": "^3.3.0",
-    "@nahisaho/musubix-sdd-ontology": "^3.3.0",
-    "@nahisaho/musubix-security": "^3.3.0",
-    "@nahisaho/musubix-synthesis": "^3.3.0",
-    "@nahisaho/musubix-wake-sleep": "^3.3.0"
+    "@musubix/decisions": "^3.4.0",
+    "@musubix/knowledge": "^3.4.0",
+    "@musubix/policy": "^3.4.0",
+    "@nahisaho/musubix-codegraph": "^3.4.1",
+    "@nahisaho/musubix-core": "^3.4.1",
+    "@nahisaho/musubix-dfg": "^3.4.0",
+    "@nahisaho/musubix-formal-verify": "^3.4.0",
+    "@nahisaho/musubix-lean": "^3.4.0",
+    "@nahisaho/musubix-library-learner": "^3.4.0",
+    "@nahisaho/musubix-mcp-server": "^3.4.0",
+    "@nahisaho/musubix-neural-search": "^3.4.0",
+    "@nahisaho/musubix-ontology-mcp": "^3.4.0",
+    "@nahisaho/musubix-pattern-mcp": "^3.4.0",
+    "@nahisaho/musubix-sdd-ontology": "^3.4.0",
+    "@nahisaho/musubix-security": "^3.4.0",
+    "@nahisaho/musubix-synthesis": "^3.4.0",
+    "@nahisaho/musubix-wake-sleep": "^3.4.0"
   },
   "devDependencies": {
     "typescript": "^5.3.3"
