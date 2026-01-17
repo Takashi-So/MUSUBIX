@@ -64,9 +64,9 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@nahisaho/musubix-core": "workspace:*",
-    "@nahisaho/musubix-formal-verify": "workspace:*",
-    "@nahisaho/musubix-ontology-mcp": "workspace:*"
+    "@nahisaho/musubix-core": "^3.4.6",
+    "@nahisaho/musubix-formal-verify": "^3.4.6",
+    "@nahisaho/musubix-ontology-mcp": "^3.4.6"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
