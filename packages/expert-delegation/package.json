@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-expert-delegation",
-  "version": "3.4.5",
+  "version": "3.4.6",
   "description": "Expert Delegation System for MUSUBIX - 7 Specialized AI Experts with VS Code LM API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

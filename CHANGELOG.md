@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.6] - 2026-01-17
+
+### Fixed
+
+- **dfg**: `bin/musubix-dfg.js` CLIファイルを新規作成
+  - `pnpm install musubix`時の警告 `WARN Failed to create bin at .../musubix-dfg` を解消
+  - `analyze` コマンド: DFG/CFG解析（json/dot/mermaid出力対応）
+  - `dependencies` コマンド: 変数依存関係の抽出
+  - `commander@^11.1.0` 依存関係を追加
+
 ## [3.4.5] - 2026-01-17
 
 ### Fixed

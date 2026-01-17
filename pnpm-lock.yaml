@@ -20,6 +20,9 @@ importers:
       '@nahisaho/musubix-security':
         specifier: ^3.3.8
         version: 3.4.3(hono@4.11.4)(tree-sitter@0.21.1)(typescript@5.9.3)
+      musubix:
+        specifier: ^3.4.5
+        version: 3.4.5(hono@4.11.4)(tree-sitter@0.21.1)(typescript@5.9.3)(zod@3.25.76)
     devDependencies:
       '@playwright/test':
         specifier: ^1.57.0
@@ -307,11 +310,31 @@ packages:
     resolution: {integrity: sha512-QHyvRvMUb4C5lrzNNd7MYNz0nPeAuanJIBOzkdJzvIeK687oTDdn/rEckgi6QLilewcEZURlAWvE4tgLf+2o+A==}
     hasBin: true
 
+  '@nahisaho/musubix-dfg@3.4.5':
+    resolution: {integrity: sha512-Pj/r+u78v+uf57ZhukToMWeuurgO7PF7oFhvbXJ1numMPe4jCGEag2ZW6PSC15dzdYksz63fVmTkymVC1JpTbg==}
+    engines: {node: '>=20.0.0'}
+    hasBin: true
+
   '@nahisaho/musubix-formal-verify@3.4.3':
     resolution: {integrity: sha512-ezjyV9eiEmskFTXT4sT0PthxjTBfYsmu7O6zgn/HtIrjkYP61pB98plJOo9A3oECg822LWRFeQlb823zM+obdg==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       '@nahisaho/musubix-core': ^3.0.0
+
+  '@nahisaho/musubix-lean@3.4.5':
+    resolution: {integrity: sha512-fCONZsb+Ugs4vjAsqe9/x4RtWngSuvdhIk1ffmQsT4vC6kZL+7I61+SSW9RnyqqjaKnvdNQ4jyZ2IF3qjrsMiA==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@nahisaho/musubix-core': ^3.0.0
+
+  '@nahisaho/musubix-library-learner@3.4.5':
+    resolution: {integrity: sha512-A44k5UiS2Orn3DOkqB76Wj0z5FB4cJSn8XWNu8l2rHU35NgLEk+M4hgZ8IyMKji5/ye2PBGpd63dftq2V4p2zg==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@nahisaho/musubix-pattern-mcp': ^3.0.0
+    peerDependenciesMeta:
+      '@nahisaho/musubix-pattern-mcp':
+        optional: true
 
   '@nahisaho/musubix-mcp-server@3.4.3':
     resolution: {integrity: sha512-dXdV/X9cm3eZkg7KC8WC9+abCH9hikieU3HFis81I71VCeXFPtFqNKFala6lf0IKNKYlaLxBeIOSMmHzIxLz+Q==}
@@ -319,10 +342,29 @@ packages:
     peerDependencies:
       '@nahisaho/musubix-core': ^3.0.0
 
+  '@nahisaho/musubix-neural-search@3.4.5':
+    resolution: {integrity: sha512-NXX3wPCdfxzP8Bq9uVVUk2Kw2+GerwlTXm6JUyHRLDIdhkRfhLYtNghY0wgw4Utcf9qfOogoYYLl3/IufKxjeA==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@xenova/transformers': ^2.0.0
+    peerDependenciesMeta:
+      '@xenova/transformers':
+        optional: true
+
   '@nahisaho/musubix-ontology-mcp@3.4.3':
     resolution: {integrity: sha512-QT7bl7gsprsYQu0Lz+/FFuEql+ImLo5MTu+nusGkMAxISZymvaJqpmu3Pkk9SMRmSCcQTx+Wmk0TlvCY1svdDg==}
     peerDependencies:
       '@nahisaho/musubix-core': ^3.0.0
+
+  '@nahisaho/musubix-pattern-mcp@3.4.5':
+    resolution: {integrity: sha512-nlX2UN0559nwuiThpWSmHgFGAeTwzCqHzrBjhskrHoAHoPD48zgASZ3vpUBTGOVUYbmPvXsuhhGkvVaugiHlsg==}
+    peerDependencies:
+      '@nahisaho/musubix-core': ^3.0.0
+
+  '@nahisaho/musubix-sdd-ontology@3.4.5':
+    resolution: {integrity: sha512-XQJSdacO6o3LxdOxKAHPzqmP2S/Gazs2tEnKFOxw+z2Sw1uw03SMW75hCR9DEFP0uWx+/YimOZYHg4vNn6ZxtQ==}
+    peerDependencies:
+      '@nahisaho/musubix-ontology-mcp': ^3.0.0
 
   '@nahisaho/musubix-security@3.4.3':
     resolution: {integrity: sha512-hMabeD7tFiLMtc0aFj3oKwBGwwJeAeMpkpwHE8aU35/Nee0kb+9lWkKcY6m3PJ8Uo//CTgHALfaR605Q585ibg==}
@@ -333,6 +375,17 @@ packages:
     peerDependenciesMeta:
       tree-sitter:
         optional: true
+
+  '@nahisaho/musubix-synthesis@3.4.5':
+    resolution: {integrity: sha512-XjiTbHPWb4lPNHtOACckjBz0bo6zmhXtMz1/5i/TEyGlbhzJtpeA5RT2op4HHg66d2IcXz0S1udie/dzf/VfIA==}
+    engines: {node: '>=20.0.0'}
+
+  '@nahisaho/musubix-wake-sleep@3.4.5':
+    resolution: {integrity: sha512-sioGIM1K/Ge8ETPVsHCAqti6FamFStyMbF32/UNjtonHcv6djWog6lH/+dDY9mgOs0B5CyBNuEP8jNlCmMZ/aw==}
+    peerDependencies:
+      '@nahisaho/musubix-core': ^3.0.0
+      '@nahisaho/musubix-ontology-mcp': ^3.0.0
+      '@nahisaho/musubix-pattern-mcp': ^3.0.0
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -481,6 +534,9 @@ packages:
 
   '@ts-morph/common@0.23.0':
     resolution: {integrity: sha512-m7Lllj9n/S6sOkCkRftpM7L24uvmfXQFedlW/4hENcuJH1HHm9u5EgxZb9uVjQSCGrbBWBkOGgcTxNg36r6ywA==}
+
+  '@ts-morph/common@0.25.0':
+    resolution: {integrity: sha512-kMnZz+vGGHi4GoHnLmMhGNjm44kGtKUXGnOvrKmMwAuvNjM/PgKVGfUnL7IDvK7Jb2QQ82jq3Zmp04Gy+r3Dkg==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -1318,6 +1374,11 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
+  musubix@3.4.5:
+    resolution: {integrity: sha512-aclg3Pfrfgzh61V9+qI6RJ3qFvM18SG3tyDpZOS+M7s7H8UOB18TPqDIaBhTdQHfyOe+rMBPSRPvXZZFV99xIg==}
+    engines: {node: '>=20.0.0'}
+    hasBin: true
+
   n3@1.26.0:
     resolution: {integrity: sha512-SQknS0ua90rN+3RHuk8BeIqeYyqIH/+ecViZxX08jR4j6MugqWRjtONl3uANG/crWXnOM2WIqBJtjIhVYFha+w==}
     engines: {node: '>=12.0'}
@@ -1339,6 +1400,10 @@ packages:
   negotiator@1.0.0:
     resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
     engines: {node: '>= 0.6'}
+
+  neverthrow@8.2.0:
+    resolution: {integrity: sha512-kOCT/1MCPAxY5iUV3wytNFUMUolzuwd/VF/1KCx7kf6CutrOsTie+84zTGTpgQycjvfLdBBdvBvFLqFD2c0wkQ==}
+    engines: {node: '>=18'}
 
   node-abi@3.86.0:
     resolution: {integrity: sha512-sn9Et4N3ynsetj3spsZR729DVlGH6iBG4RiDMV7HEp3guyOW6W3S0unGpLDxT50mXortGUMax/ykUNQXdqc/Xg==}
@@ -1823,6 +1888,9 @@ packages:
   ts-morph@22.0.0:
     resolution: {integrity: sha512-M9MqFGZREyeb5fTl6gNHKZLqBQA0TjA1lea+CR48R8EBTDuWrNqW6ccC5QvjNR4s6wDumD3LTCjOFSp9iwlzaw==}
 
+  ts-morph@24.0.0:
+    resolution: {integrity: sha512-2OAOg/Ob5yx9Et7ZX4CvTCc0UFoZHwLEJ+dpDPSUi5TgwwlTlX47w+iFRrEwzUZwYACjq83cgjS/Da50Ga37uw==}
+
   tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
 
@@ -2186,10 +2254,32 @@ snapshots:
       - supports-color
       - tree_sitter
 
+  '@nahisaho/musubix-dfg@3.4.5':
+    dependencies:
+      typescript: 5.9.3
+
   '@nahisaho/musubix-formal-verify@3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))':
     dependencies:
       '@nahisaho/musubix-core': 3.4.3(hono@4.11.4)
       better-sqlite3: 11.10.0
+
+  '@nahisaho/musubix-lean@3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))':
+    dependencies:
+      '@nahisaho/musubix-core': 3.4.3(hono@4.11.4)
+      neverthrow: 8.2.0
+      ts-morph: 24.0.0
+
+  '@nahisaho/musubix-library-learner@3.4.5(@nahisaho/musubix-pattern-mcp@3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76))(hono@4.11.4)':
+    dependencies:
+      '@nahisaho/musubix-core': 3.4.3(hono@4.11.4)
+      better-sqlite3: 11.10.0
+    optionalDependencies:
+      '@nahisaho/musubix-pattern-mcp': 3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76)
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - hono
+      - supports-color
+      - tree_sitter
 
   '@nahisaho/musubix-mcp-server@3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)':
     dependencies:
@@ -2206,6 +2296,15 @@ snapshots:
       - supports-color
       - tree_sitter
 
+  '@nahisaho/musubix-neural-search@3.4.5(hono@4.11.4)':
+    dependencies:
+      '@nahisaho/musubix-core': 3.4.3(hono@4.11.4)
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - hono
+      - supports-color
+      - tree_sitter
+
   '@nahisaho/musubix-ontology-mcp@3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76)':
     dependencies:
       '@modelcontextprotocol/sdk': 1.25.2(hono@4.11.4)(zod@3.25.76)
@@ -2216,6 +2315,20 @@ snapshots:
       - hono
       - supports-color
       - zod
+
+  '@nahisaho/musubix-pattern-mcp@3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76)':
+    dependencies:
+      '@modelcontextprotocol/sdk': 1.25.2(hono@4.11.4)(zod@3.25.76)
+      '@nahisaho/musubix-core': 3.4.3(hono@4.11.4)
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - hono
+      - supports-color
+      - zod
+
+  '@nahisaho/musubix-sdd-ontology@3.4.5(@nahisaho/musubix-ontology-mcp@3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76))':
+    dependencies:
+      '@nahisaho/musubix-ontology-mcp': 3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76)
 
   '@nahisaho/musubix-security@3.4.3(hono@4.11.4)(tree-sitter@0.21.1)(typescript@5.9.3)':
     dependencies:
@@ -2244,6 +2357,23 @@ snapshots:
       - supports-color
       - tree_sitter
       - typescript
+
+  '@nahisaho/musubix-synthesis@3.4.5(hono@4.11.4)':
+    dependencies:
+      '@nahisaho/musubix-core': 3.4.3(hono@4.11.4)
+      '@nahisaho/musubix-neural-search': 3.4.5(hono@4.11.4)
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - '@xenova/transformers'
+      - hono
+      - supports-color
+      - tree_sitter
+
+  '@nahisaho/musubix-wake-sleep@3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(@nahisaho/musubix-ontology-mcp@3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76))(@nahisaho/musubix-pattern-mcp@3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76))':
+    dependencies:
+      '@nahisaho/musubix-core': 3.4.3(hono@4.11.4)
+      '@nahisaho/musubix-ontology-mcp': 3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76)
+      '@nahisaho/musubix-pattern-mcp': 3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76)
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -2344,6 +2474,12 @@ snapshots:
       minimatch: 9.0.5
       mkdirp: 3.0.1
       path-browserify: 1.0.1
+
+  '@ts-morph/common@0.25.0':
+    dependencies:
+      minimatch: 9.0.5
+      path-browserify: 1.0.1
+      tinyglobby: 0.2.15
 
   '@types/chai@5.2.3':
     dependencies:
@@ -3237,6 +3373,35 @@ snapshots:
 
   ms@2.1.3: {}
 
+  musubix@3.4.5(hono@4.11.4)(tree-sitter@0.21.1)(typescript@5.9.3)(zod@3.25.76):
+    dependencies:
+      '@musubix/decisions': 3.4.3
+      '@musubix/knowledge': 3.4.3
+      '@musubix/policy': 3.4.3
+      '@nahisaho/musubix-codegraph': 3.4.3
+      '@nahisaho/musubix-core': 3.4.3(hono@4.11.4)
+      '@nahisaho/musubix-dfg': 3.4.5
+      '@nahisaho/musubix-formal-verify': 3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))
+      '@nahisaho/musubix-lean': 3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))
+      '@nahisaho/musubix-library-learner': 3.4.5(@nahisaho/musubix-pattern-mcp@3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76))(hono@4.11.4)
+      '@nahisaho/musubix-mcp-server': 3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)
+      '@nahisaho/musubix-neural-search': 3.4.5(hono@4.11.4)
+      '@nahisaho/musubix-ontology-mcp': 3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76)
+      '@nahisaho/musubix-pattern-mcp': 3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76)
+      '@nahisaho/musubix-sdd-ontology': 3.4.5(@nahisaho/musubix-ontology-mcp@3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76))
+      '@nahisaho/musubix-security': 3.4.3(hono@4.11.4)(tree-sitter@0.21.1)(typescript@5.9.3)
+      '@nahisaho/musubix-synthesis': 3.4.5(hono@4.11.4)
+      '@nahisaho/musubix-wake-sleep': 3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(@nahisaho/musubix-ontology-mcp@3.4.3(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76))(@nahisaho/musubix-pattern-mcp@3.4.5(@nahisaho/musubix-core@3.4.3(hono@4.11.4))(hono@4.11.4)(zod@3.25.76))
+    transitivePeerDependencies:
+      - '@cfworker/json-schema'
+      - '@xenova/transformers'
+      - hono
+      - supports-color
+      - tree-sitter
+      - tree_sitter
+      - typescript
+      - zod
+
   n3@1.26.0:
     dependencies:
       buffer: 6.0.3
@@ -3251,6 +3416,10 @@ snapshots:
   natural-compare@1.4.0: {}
 
   negotiator@1.0.0: {}
+
+  neverthrow@8.2.0:
+    optionalDependencies:
+      '@rollup/rollup-linux-x64-gnu': 4.55.1
 
   node-abi@3.86.0:
     dependencies:
@@ -3746,6 +3915,11 @@ snapshots:
   ts-morph@22.0.0:
     dependencies:
       '@ts-morph/common': 0.23.0
+      code-block-writer: 13.0.3
+
+  ts-morph@24.0.0:
+    dependencies:
+      '@ts-morph/common': 0.25.0
       code-block-writer: 13.0.3
 
   tunnel-agent@0.6.0:
