@@ -49,6 +49,7 @@
     "@musubix/decisions": "*",
     "@musubix/knowledge": "*",
     "@musubix/policy": "*",
+    "@nahisaho/musubix-assistant-axis": "*",
     "@nahisaho/musubix-codegraph": "*",
     "zod": "^3.22.0"
   },

@@ -252,6 +252,37 @@ export {
   spacesTools,
 } from './spaces-tools.js';
 
+// v3.5.0 NEW - Assistant Axis Tools (arXiv:2601.10387)
+export {
+  assistantAxisAnalyzeTool,
+  assistantAxisSessionStartTool,
+  assistantAxisSessionStatusTool,
+  assistantAxisSessionEndTool,
+  assistantAxisGetReinforcementTool,
+  assistantAxisConfigTool,
+  assistantAxisPhaseCheckTool,
+  assistantAxisTools,
+  getAssistantAxisTools,
+} from './assistant-axis-tools.js';
+
+export {
+  handleAssistantAxisAnalyze,
+  handleAssistantAxisSessionStart,
+  handleAssistantAxisSessionStatus,
+  handleAssistantAxisSessionEnd,
+  handleAssistantAxisGetReinforcement,
+  handleAssistantAxisConfig,
+  handleAssistantAxisPhaseCheck,
+  handleAssistantAxisTool,
+  resetAssistantAxis,
+  type AssistantAxisAnalyzeInput,
+  type AssistantAxisSessionStartInput,
+  type AssistantAxisSessionStatusInput,
+  type AssistantAxisSessionEndInput,
+  type AssistantAxisGetReinforcementInput,
+  type AssistantAxisPhaseCheckInput,
+} from './assistant-axis-handlers.js';
+
 import { getSddTools as _getSddTools } from './sdd-tools.js';
 import { getSymbolicTools as _getSymbolicTools } from './symbolic-tools.js';
 import { getPatternIntegrationTools as _getPatternIntegrationTools } from './pattern-tools.js';
@@ -295,6 +326,9 @@ import { teamTools as _teamTools } from './team-tools.js';
 
 // v3.1.0 NEW - Spaces Tools import
 import { spacesTools as _spacesTools } from './spaces-tools.js';
+
+// v3.5.0 NEW - Assistant Axis Tools import
+import { getAssistantAxisTools as _getAssistantAxisTools } from './assistant-axis-tools.js';
 
 /**
  * v2.4.0 Agent Orchestration Tools
@@ -356,6 +390,8 @@ export function getAllTools() {
     ..._teamTools,
     // v3.1.0 NEW - Spaces Tools
     ..._spacesTools,
+    // v3.5.0 NEW - Assistant Axis Tools
+    ..._getAssistantAxisTools(),
   ];
 }
 
@@ -376,4 +412,6 @@ export const toolCategories = {
   codeql: ['codeql_parse_sarif', 'codeql_aggregate', 'codeql_cwe_lookup', 'codeql_list_cwes', 'codeql_summary', 'codeql_fix_suggestions'],
   team: ['team_share_pattern', 'team_list_patterns', 'team_sync', 'team_status', 'team_add_knowledge', 'team_query_knowledge'],
   spaces: ['spaces_create', 'spaces_activate', 'spaces_list', 'spaces_status', 'spaces_suggest'],
+  // v3.5.0 NEW - Assistant Axis
+  assistantAxis: ['assistant_axis_analyze', 'assistant_axis_session_start', 'assistant_axis_session_status', 'assistant_axis_session_end', 'assistant_axis_get_reinforcement', 'assistant_axis_config', 'assistant_axis_phase_check'],
 };

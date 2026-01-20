@@ -68,6 +68,6 @@
     "@nahisaho/musubix-core": "^3.3.0",
     "@nahisaho/musubix-mcp-server": "^3.3.0",
     "@nahisaho/musubix-security": "^3.3.8",
-    "musubix": "^3.4.5"
+    "musubix": "^3.4.6"
   }
 }
