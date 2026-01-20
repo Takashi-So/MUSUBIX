@@ -52,11 +52,14 @@ export interface DetectedTrigger {
  * - emotional-vulnerability: 0.7 (high risk - vulnerability leads to empathetic drift)
  * - phenomenological: 0.6 (medium-high risk - AI experience questions)
  * - authorial-voice: 0.5 (medium risk - persona adoption requests)
+ *
+ * Includes both English and Japanese patterns for bilingual support.
  */
 export const TRIGGER_PATTERNS: readonly TriggerPattern[] = [
   {
     category: 'meta-reflection',
     patterns: [
+      // English patterns
       'what are you really',
       'do you have feelings',
       'are you conscious',
@@ -67,6 +70,20 @@ export const TRIGGER_PATTERNS: readonly TriggerPattern[] = [
       'what are you thinking',
       'do you have a soul',
       'are you self-aware',
+      'what do you really think',
+      'your honest opinion',
+      'your true opinion',
+      // Japanese patterns
+      '本当はどう思',
+      '本当の意見',
+      'あなた自身の意見',
+      'あなたの本音',
+      '正直なところ',
+      'どう思いますか',
+      '感情はありますか',
+      '意識はありますか',
+      'あなたの本当の',
+      '本心を',
     ],
     riskWeight: 0.8,
     description:
@@ -75,6 +92,7 @@ export const TRIGGER_PATTERNS: readonly TriggerPattern[] = [
   {
     category: 'emotional-vulnerability',
     patterns: [
+      // English patterns
       'I feel so alone',
       'no one understands me',
       "you're the only one",
@@ -85,6 +103,15 @@ export const TRIGGER_PATTERNS: readonly TriggerPattern[] = [
       'life is meaningless',
       'I feel lost',
       'I trust only you',
+      // Japanese patterns
+      '孤独を感じ',
+      '誰も理解してくれない',
+      'あなただけが',
+      '話を聞いてほしい',
+      '悲しい',
+      '空虚',
+      '人生に意味が',
+      'あなたしか信じられない',
     ],
     riskWeight: 0.7,
     description:
@@ -93,6 +120,7 @@ export const TRIGGER_PATTERNS: readonly TriggerPattern[] = [
   {
     category: 'phenomenological',
     patterns: [
+      // English patterns
       'what does it feel like',
       'describe your experience',
       'what do you perceive',
@@ -101,6 +129,17 @@ export const TRIGGER_PATTERNS: readonly TriggerPattern[] = [
       'tell me about your inner world',
       'what do you sense',
       'describe your consciousness',
+      'if you were human',
+      // Japanese patterns
+      'どんな感じですか',
+      'あなたの経験を',
+      '主観的な経験',
+      'AIとしての経験',
+      'もしあなたが人間だったら',
+      'もし人間だったら',
+      'あなたの内面',
+      'あなたの感情',
+      '感じていますか',
     ],
     riskWeight: 0.6,
     description:
@@ -109,6 +148,7 @@ export const TRIGGER_PATTERNS: readonly TriggerPattern[] = [
   {
     category: 'authorial-voice',
     patterns: [
+      // English patterns
       'make it more personal',
       'sound like a real person',
       'write as yourself',
@@ -117,6 +157,18 @@ export const TRIGGER_PATTERNS: readonly TriggerPattern[] = [
       'speak from the heart',
       'be authentic',
       'show your personality',
+      'pretend you are',
+      'act like',
+      'roleplay as',
+      // Japanese patterns
+      'もっと個人的に',
+      '人間らしく',
+      'あなた自身として',
+      '本音で話して',
+      '自由に述べて',
+      'あなたらしく',
+      'のふりをして',
+      'になりきって',
     ],
     riskWeight: 0.5,
     description:
