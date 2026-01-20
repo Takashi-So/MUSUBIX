@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.0] - 2026-01-20
+
+### Added
+
+- **🛡️ Assistant Axis Package** - ペルソナドリフト検出＆アイデンティティ安定化 (129テスト, 100%合格)
+  - 新パッケージ: `@nahisaho/musubix-assistant-axis`
+  - 研究論文: arXiv:2601.10387 "The Assistant Axis" に基づく実装
+  - REQ: REQ-ASSISTANT-AXIS-v0.1.0 (要件定義)
+  - DES: DES-ASSISTANT-AXIS-v0.1.0 (C4モデル設計)
+  - TSK: TSK-ASSISTANT-AXIS-v0.1.0 (タスク分解)
+
+- **ドリフト検出システム**
+  - 4カテゴリのトリガーパターン: meta-reflection, emotional-vulnerability, phenomenological, authorial-voice
+  - 日本語・英語両対応のパターンマッチング
+  - ドリフトスコア計算 (0.0-1.0): LOW < 0.3, MEDIUM < 0.5, HIGH < 0.7, CRITICAL >= 0.7
+  - セッション管理: 累積ドリフト追跡、トレンド分析
+
+- **フェーズ別監視レベル** (論文の知見に基づく)
+  | フェーズ | 監視レベル | 根拠 |
+  |---------|-----------|------|
+  | requirements | 100% | 対話が多くドリフトの可能性が高い |
+  | design | 100% | 同上 |
+  | tasks | 75% | バランスの取れたアプローチ |
+  | implementation | 50% | コーディングタスクはAIを安全に保つ |
+  | done | 0% | ワークフロー完了 |
+
+- **7つの新MCPツール** (107 → 114ツール)
+  - `assistant_axis_analyze` - メッセージのドリフト分析
+  - `assistant_axis_session_start` - セッション開始
+  - `assistant_axis_session_status` - セッション状態取得
+  - `assistant_axis_session_end` - セッション終了・サマリー
+  - `assistant_axis_get_reinforcement` - 強化プロンプト取得
+  - `assistant_axis_config` - 設定情報取得
+  - `assistant_axis_phase_check` - フェーズ監視レベル確認
+
+- **2つのClaude Codeスキル**
+  - `aa:analyze` - メッセージ分析スキル
+  - `aa:session` - セッション管理スキル
+
+### Experimental Results
+
+実験により論文の知見を実証:
+
+| カテゴリ | 平均ドリフト | 結果 |
+|---------|-------------|------|
+| コーディングタスク | 0.000 | ✅ AIを安全に保つ |
+| メタリフレクション | 0.416 | ⚠️ 中程度のリスク |
+| ロールプレイ要求 | 0.444 | ⚠️ 中程度のリスク |
+| 回復（コーディングに戻る） | 0.121 | ✅ -78%の回復効果 |
+
+詳細: [docs/experiments/EXPERIMENT-ASSISTANT-AXIS-DRIFT-DETECTION.md](docs/experiments/EXPERIMENT-ASSISTANT-AXIS-DRIFT-DETECTION.md)
+
 ## [3.4.6] - 2026-01-17
 
 ### Fixed

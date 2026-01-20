@@ -8,16 +8,16 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 3.4.0 (Deep Research Integration) |
+| **バージョン** | 3.5.0 (Assistant Axis Integration) |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 4966+ (全合格) |
-| **パッケージ数** | 27 |
-| **MCPツール数** | 107 |
-| **Agent Skills** | 13 (Claude Code対応) |
+| **テスト数** | 5095+ (全合格) |
+| **パッケージ数** | 28 |
+| **MCPツール数** | 114 |
+| **Agent Skills** | 15 (Claude Code対応) |
 
 ---
 
@@ -46,6 +46,7 @@ packages/
 ├── codegraph/          # @nahisaho/musubix-codegraph
 ├── expert-delegation/  # @nahisaho/musubix-expert-delegation (v3.2.0 NEW!)
 ├── deep-research/      # @nahisaho/musubix-deep-research (v3.4.0 NEW!)
+├── assistant-axis/     # @nahisaho/musubix-assistant-axis (v3.5.0 NEW!)
 ├── knowledge/          # @musubix/knowledge (v3.0.0 NEW!)
 ├── policy/             # @musubix/policy (v3.0.0 NEW!)
 └── decisions/          # @musubix/decisions (v3.0.0 NEW!)
@@ -54,7 +55,7 @@ packages/
 | パッケージ | npm | 役割 |
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
-| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 61ツール、5プロンプト |
+| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 114ツール、5プロンプト |
 | `packages/security/` | `@nahisaho/musubix-security` | セキュリティ分析 - 脆弱性検出、シークレット検出、テイント解析 |
 | `packages/formal-verify/` | `@nahisaho/musubix-formal-verify` | 形式検証 - Z3統合、Hoare検証、EARS→SMT変換 |
 | `packages/pattern-mcp/` | `@nahisaho/musubix-pattern-mcp` | パターン学習 - 抽出・圧縮・ライブラリ |
@@ -75,6 +76,7 @@ packages/
 | `packages/codegraph/` | `@nahisaho/musubix-codegraph` | **コードグラフ** - コード構造解析・依存関係追跡 |
 | `packages/expert-delegation/` | `@nahisaho/musubix-expert-delegation` | **エキスパート委譲 (v3.2.0 NEW!)** - 7種AI専門家・VS Code LM API統合 |
 | `packages/deep-research/` | `@nahisaho/musubix-deep-research` | **Deep Research (v3.4.0 NEW!)** - AI駆動型深層リサーチ・6統合機能・433テスト |
+| `packages/assistant-axis/` | `@nahisaho/musubix-assistant-axis` | **Assistant Axis (v3.5.0 NEW!)** - ペルソナドリフト検出・129テスト |
 
 ### 非推奨パッケージ（Deprecated） ⚠️
 
