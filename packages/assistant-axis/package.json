@@ -1,0 +1,65 @@
+{
+  "name": "@nahisaho/musubix-assistant-axis",
+  "version": "0.1.0",
+  "description": "Persona Drift Detection & Identity Stabilization for MUSUBIX - Based on Assistant Axis research",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./domain": {
+      "types": "./dist/domain/index.d.ts",
+      "import": "./dist/domain/index.js"
+    },
+    "./application": {
+      "types": "./dist/application/index.d.ts",
+      "import": "./dist/application/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@nahisaho/musubix-core": "workspace:*",
+    "@nahisaho/musubix-workflow-engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "musubix",
+    "assistant-axis",
+    "persona-drift",
+    "llm-safety",
+    "identity-reinforcement",
+    "coding-assistant"
+  ],
+  "author": "nahisaho",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nahisaho/MUSUBIX.git",
+    "directory": "packages/assistant-axis"
+  },
+  "bugs": {
+    "url": "https://github.com/nahisaho/MUSUBIX/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
