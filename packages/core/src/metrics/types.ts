@@ -132,8 +132,8 @@ export const DEFAULT_METRICS_CONFIG: MetricsConfig = Object.freeze({
   maxMetrics: 10000,
   aggregationWindowMs: 60000, // 1 minute
   enableHistograms: true,
-  percentiles: [0.5, 0.95, 0.99],
-  enabledCategories: ['workflow', 'phase', 'gate', 'resource', 'error', 'performance', 'custom'],
+  percentiles: [0.5, 0.95, 0.99] as readonly number[],
+  enabledCategories: ['workflow', 'phase', 'gate', 'resource', 'error', 'performance', 'custom'] as readonly MetricCategory[],
   flushIntervalMs: 300000, // 5 minutes
 });
 

@@ -6,10 +6,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 import {
-  type Metric,
-  type MetricType,
-  type MetricCategory,
-  type MetricsConfig,
   createMetric,
   resetMetricCounter,
   calculateStats,
@@ -17,8 +13,6 @@ import {
 } from '../types.js';
 
 import {
-  type IMetricsCollector,
-  MetricsCollector,
   createMetricsCollector,
 } from '../MetricsCollector.js';
 

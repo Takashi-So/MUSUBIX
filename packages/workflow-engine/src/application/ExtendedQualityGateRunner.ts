@@ -19,7 +19,6 @@ import {
   type GateExecutionContext,
   toStandardGate,
   filterGatesByTiming,
-  filterGatesByPhase,
 } from '../domain/entities/ExtendedQualityGate.js';
 
 /**

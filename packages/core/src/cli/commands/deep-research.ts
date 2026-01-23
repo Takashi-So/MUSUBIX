@@ -65,8 +65,7 @@ async function executeDeepResearch(
 
     try {
       // Dynamic import to avoid build-time dependency
-      // @ts-expect-error - Optional dependency, checked at runtime
-      const deepResearchModule = await import('@nahisaho/musubix-deep-research').catch(() => null);
+      const deepResearchModule = await import('@nahisaho/musubix-deep-research').catch(() => null) as any;
       if (!deepResearchModule) {
         throw new Error('Module not found');
       }

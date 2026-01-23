@@ -8,12 +8,11 @@
  * @trace DES-MUSUBIX-FR-001 Section 3.3
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   type GateTiming,
   type GateExecutionContext,
   type GateServices,
-  type ExtendedQualityGate,
   createExtendedGate,
   toStandardGate,
   isEntryGate,

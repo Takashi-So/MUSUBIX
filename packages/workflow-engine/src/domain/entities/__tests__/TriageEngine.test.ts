@@ -3,24 +3,18 @@
  *
  * @see TSK-FR-027 - TriageEngineユニットテスト
  */
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 import {
-  type PriorityLevel,
   type TriageTask,
   type TriageConfig,
   blocksNewWork,
-  getPriorityMetadata,
   comparePriority,
   createTriageResult,
-  createTriageCheckResult,
   PRIORITY_LEVELS,
-  DEFAULT_TRIAGE_CONFIG,
 } from '../../value-objects/PriorityLevel.js';
 
 import {
-  type ITriageEngine,
-  TriageEngine,
   createTriageEngine,
 } from '../TriageEngine.js';
 

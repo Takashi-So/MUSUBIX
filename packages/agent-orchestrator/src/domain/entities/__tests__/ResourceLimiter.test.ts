@@ -6,18 +6,14 @@
  * @trace DES-MUSUBIX-FR-001 DES-ORCH-002
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
-  ResourceLimiter,
   createResourceLimiter,
   type IResourceLimiter,
 } from '../ResourceLimiter.js';
 import {
-  type ResourceLimits,
-  type ResourceUsage,
   createResourceLimits,
   createResourceLimiterConfig,
-  DEFAULT_RESOURCE_LIMITS,
 } from '../../value-objects/ResourceLimits.js';
 
 describe('ResourceLimiter', () => {

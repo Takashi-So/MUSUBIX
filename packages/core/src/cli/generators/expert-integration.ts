@@ -231,8 +231,7 @@ export class ExpertIntegration {
     try {
       // Try to dynamically import expert-delegation
       // This will fail gracefully if the package is not available
-      // @ts-expect-error - Optional dependency, may not be installed
-      const expertModule = await import('@nahisaho/musubix-expert-delegation').catch(() => null);
+      const expertModule = await import('@nahisaho/musubix-expert-delegation').catch(() => null) as any;
       return expertModule !== null;
     } catch {
       return false;
@@ -249,11 +248,10 @@ export class ExpertIntegration {
 
     try {
       // Dynamic import to avoid hard dependency
-      // @ts-expect-error - Optional dependency, may not be installed
-      const { createDelegationEngine } = await import('@nahisaho/musubix-expert-delegation');
+      const expertModule = await import('@nahisaho/musubix-expert-delegation') as any;
+      const { createDelegationEngine } = expertModule;
 
       const engine = createDelegationEngine({
-        mode: 'advisory',
         enableTracing: true,
       });
 
@@ -263,7 +261,7 @@ export class ExpertIntegration {
         context: request.context,
       };
 
-      const result = await engine.execute(task);
+      const result = await engine.delegate(task);
 
       return {
         success: true,

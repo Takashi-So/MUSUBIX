@@ -8,10 +8,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   ExtendedQualityGateRunner,
-  type ExtendedGateRunResult,
 } from '../ExtendedQualityGateRunner.js';
 import {
-  type ExtendedQualityGate,
   type GateExecutionContext,
   createExtendedGate,
 } from '../../domain/entities/ExtendedQualityGate.js';

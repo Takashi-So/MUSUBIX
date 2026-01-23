@@ -3,25 +3,20 @@
  *
  * @see TSK-FR-019〜022 - EvidenceLevelValidator
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 import {
   type EvidenceRecord,
   type EvidenceRequirement,
-  type EvidenceTier,
-  type EvidenceType,
   type PhaseEvidenceConfig,
   createEvidenceRecord,
   resetEvidenceCounter,
   getPhaseRequirements,
   satisfiesRequirement,
   PHASE5_EVIDENCE_REQUIREMENTS,
-  DEFAULT_PHASE_EVIDENCE,
 } from '../../value-objects/EvidenceLevel.js';
 
 import {
-  type IEvidenceLevelValidator,
-  EvidenceLevelValidator,
   createEvidenceLevelValidator,
 } from '../EvidenceLevelValidator.js';
 

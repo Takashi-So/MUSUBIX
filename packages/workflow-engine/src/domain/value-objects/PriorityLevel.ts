@@ -135,8 +135,8 @@ export interface TriageConfig {
  * Default triage configuration
  */
 export const DEFAULT_TRIAGE_CONFIG: TriageConfig = Object.freeze({
-  blockingPriorities: ['P0', 'P1'],
-  activeStatuses: ['open', 'in-progress', 'blocked'],
+  blockingPriorities: ['P0', 'P1'] as readonly PriorityLevel[],
+  activeStatuses: ['open', 'in-progress', 'blocked'] as readonly TaskStatus[],
   includeInProgress: true,
   maxBlockingAgeDays: 30,
 });

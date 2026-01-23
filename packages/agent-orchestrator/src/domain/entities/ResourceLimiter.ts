@@ -17,7 +17,6 @@ import {
   type ResourceWarning,
   type ResourceLimiterConfig,
   createResourceLimits,
-  createInitialUsage,
 } from '../value-objects/ResourceLimits.js';
 
 /**

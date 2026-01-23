@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-synthesis",
-  "version": "3.4.6",
+  "version": "3.6.0",
   "description": "MUSUBIX synthesis - DSL-based program synthesis with PBE and rule learning",
   "type": "module",
   "main": "dist/index.js",

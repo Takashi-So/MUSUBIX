@@ -92,7 +92,7 @@ export class SingleStepEnforcer implements ISingleStepEnforcer {
   /**
    * Validate a step before execution
    */
-  validateStep(step: StepDefinition, context: StepValidationContext): StepValidationResult {
+  validateStep(_step: StepDefinition, context: StepValidationContext): StepValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -221,7 +221,7 @@ export class SingleStepEnforcer implements ISingleStepEnforcer {
   /**
    * Validate post-execution results (without concurrent step check)
    */
-  private validatePostExecution(step: StepDefinition, context: StepValidationContext): StepValidationResult {
+  private validatePostExecution(_step: StepDefinition, context: StepValidationContext): StepValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 

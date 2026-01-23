@@ -3,14 +3,9 @@
  *
  * @see TSK-FR-047 - WorkstreamManagerユニットテスト
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 import {
-  type Workstream,
-  type WorkstreamTask,
-  type WorkstreamStatus,
-  type WorkstreamTaskStatus,
-  type WorkstreamConfig,
   createWorkstream,
   createWorkstreamTask,
   resetWorkstreamCounters,
@@ -19,8 +14,6 @@ import {
 } from '../domain/value-objects/Workstream.js';
 
 import {
-  type IWorkstreamManager,
-  WorkstreamManager,
   createWorkstreamManager,
 } from '../domain/entities/WorkstreamManager.js';
 
