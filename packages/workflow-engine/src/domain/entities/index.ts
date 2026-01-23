@@ -50,3 +50,24 @@ export {
   canProceedToImplementation,
   checkImplementationPrerequisites,
 } from './Workflow.js';
+
+// FastRender Extended Quality Gates (v3.6.0)
+export {
+  type GateTiming,
+  type GateExecutionContext,
+  type GateServices,
+  type ExtendedQualityGate,
+  type ExtendedQualityCheckFn,
+  type Task,
+  type ITriageEngine,
+  type INonNegotiablesEngine,
+  type IEvidenceLevelValidator,
+  type IBalanceRuleEngine,
+  type ITestPlacementValidator,
+  createExtendedGate,
+  toStandardGate,
+  isEntryGate,
+  isExitGate,
+  filterGatesByTiming,
+  filterGatesByPhase,
+} from './ExtendedQualityGate.js';

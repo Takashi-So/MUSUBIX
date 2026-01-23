@@ -579,3 +579,9 @@ export const constitutionPolicies: Policy[] = [
     },
   },
 ];
+
+// FastRender Non-negotiables (v3.6.0)
+export * from './non-negotiables/index.js';
+
+// FastRender Balance Rules (v3.6.0)
+export * from './balance/index.js';

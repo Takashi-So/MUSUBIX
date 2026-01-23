@@ -107,3 +107,6 @@ export {
   generateBranchName,
   generateCommitMessage,
 } from './pr/index.js';
+
+// FastRender Validator Module (v3.6.0)
+export * from './validator/index.js';

@@ -27,3 +27,11 @@ export {
   QualityGateRunner,
   createQualityGateRunner,
 } from './QualityGateRunner.js';
+
+// FastRender Extended Quality Gate Runner (v3.6.0)
+export {
+  type ExtendedGateRunResult,
+  type ExtendedQualityGateRunnerConfig,
+  ExtendedQualityGateRunner,
+  createExtendedQualityGateRunner,
+} from './ExtendedQualityGateRunner.js';

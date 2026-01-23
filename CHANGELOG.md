@@ -5,6 +5,98 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.6.0] - 2026-01-23
+
+### Added
+
+- **🚀 FastRender Insights Integration** - コード品質・ワークフロー改善エンジン (253テスト, 100%合格)
+  - REQ: REQ-MUSUBIX-FR-001 v1.2.0 (FastRender要件定義)
+  - DES: DES-MUSUBIX-FR-001 v1.2.0 (C4モデル設計)
+  - TSK: TSK-MUSUBIX-FR-001 v1.0.0 (60タスク分解)
+
+#### P0: 必須品質ゲート (69テスト)
+
+- **ExtendedQualityGate** (packages/workflow-engine)
+  - `createExtendedGate()` - 拡張品質ゲート作成
+  - `toStandardGate()` - 標準ゲートへの変換
+  - Entry/Exit Gate timing, 依存サービス注入対応
+
+- **ExtendedQualityGateRunner** (packages/workflow-engine)
+  - `executeGates()` - バッチゲート実行
+  - `executePhaseGates()` - フェーズ別ゲート実行
+  - エラーハンドリング・タイムアウト対応
+
+- **ResourceLimiter** (packages/agent-orchestrator)
+  - `canExecute()` - リソース枯渇防止チェック
+  - `recordExecution()` - 実行記録
+  - `resetWindow()` - ウィンドウリセット
+  - ワークストリームリソース監視
+
+- **NonNegotiablesEngine** (packages/policy)
+  - `validate()` - 絶対違反チェック
+  - `isNonNegotiable()` - 非交渉項目判定
+  - 5つの非交渉ルール: no-tests-skip, no-security-bypass, no-console-in-prod, no-any-type, no-hardcoded-secrets
+
+#### P1: 高優先度 (40テスト)
+
+- **SingleStepEnforcer** (packages/agent-orchestrator)
+  - `enforceStep()` - 1ステップ完了強制
+  - `startStep()`, `completeStep()` - ステップ管理
+  - 並行ステップ防止
+
+- **EvidenceLevelValidator** (packages/workflow-engine)
+  - `validate()` - エビデンスレベル検証
+  - `getRequiredLevel()` - 必要レベル取得
+  - 4レベル: NONE, LOW, MEDIUM, HIGH
+
+#### P2: 中優先度 (48テスト)
+
+- **TriageEngine** (packages/workflow-engine)
+  - `triage()` - 優先度自動判定
+  - `checkBlocking()` - ブロッキング判定
+  - スコアリングシステム (Severity, Urgency, Impact)
+
+- **BalanceRuleEngine** (packages/policy)
+  - `evaluate()` - バランスルール評価
+  - `checkViolations()` - 違反チェック
+  - デフォルト4ルール: min-test-coverage, max-complexity, max-dependencies, min-documentation
+
+#### P3: 低優先度 (44テスト)
+
+- **MetricsCollector** (packages/core)
+  - `record()` - メトリクス記録
+  - `getStats()` - 統計取得
+  - `generateReport()` - レポート生成
+  - 6カテゴリ: performance, quality, coverage, complexity, velocity, reliability
+
+- **PatternLearningDB** (packages/pattern-mcp)
+  - `add()` - パターン追加
+  - `query()` - パターン検索
+  - `getStats()` - 統計取得
+  - `update()`, `activate()`, `deactivate()` - パターン管理
+
+#### P4: 最低優先度 (52テスト)
+
+- **WorkstreamManager** (packages/agent-orchestrator)
+  - `createWorkstream()` - ワークストリーム作成
+  - `updateWorkstream()` - 更新
+  - `listWorkstreams()` - 一覧取得
+  - ステータス管理: active, paused, completed, archived
+
+- **TestPlacementValidator** (packages/codegraph)
+  - `validate()` - テスト配置検証
+  - `checkRules()` - ルールチェック
+  - `getSummary()` - サマリー取得
+  - デフォルトルール: colocate-unit-tests, separate-integration-tests, e2e-in-dedicated-folder
+
+### Technical Details
+
+- **テスト総数**: 5348+ (253 new tests)
+- **TDDサイクル**: Red-Green-Blue完了
+- **型安全性**: `Object.freeze()` + Readonly型
+- **トレーサビリティ**: JSDoc @trace アノテーション
+- **パターン**: Interface + Factory Function
+
 ## [3.5.0] - 2026-01-20
 
 ### Added
