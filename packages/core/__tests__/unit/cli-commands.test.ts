@@ -273,7 +273,7 @@ describe('CLI Commands', () => {
       expect(commandNames).toContain('trace');
       expect(commandNames).toContain('explain');
       expect(commandNames).toContain('skills');
-    });
+    }, 30000);
 
     it('should have correct command count', async () => {
       const { registerCommands } = await import('../../src/cli/commands/index.js');

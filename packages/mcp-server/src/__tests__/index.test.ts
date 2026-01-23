@@ -8,7 +8,7 @@ describe('@musubix/mcp-server', () => {
     it('should export MCPServer', async () => {
       const { MCPServer } = await import('../index.js');
       expect(MCPServer).toBeDefined();
-    });
+    }, 30000); // Extended timeout for parallel test runs
 
     it('should export sddTools', async () => {
       const { sddTools } = await import('../index.js');

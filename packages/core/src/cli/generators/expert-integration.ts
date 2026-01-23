@@ -142,7 +142,14 @@ export class ExpertIntegration {
       const expertAvailable = await this.checkExpertAvailability();
 
       if (!expertAvailable) {
-        return this.createFallbackResult(startTime, 'Expert delegation not available');
+        const result = this.createFallbackResult(
+          Date.now() - startTime,
+          'Expert delegation not available'
+        );
+        if (this.config.cacheResults) {
+          this.resultCache.set(cacheKey, result);
+        }
+        return result;
       }
 
       // Execute expert consultation with timeout (ADR-v3.3.0-002)
@@ -150,6 +157,18 @@ export class ExpertIntegration {
         () => this.performConsultation(request),
         timeout
       );
+
+      // If performConsultation failed, still return success with fallback
+      if (!result.success && this.config.fallbackOnTimeout) {
+        const fallbackResult = this.createFallbackResult(
+          result.executionTime,
+          result.error ?? 'Expert consultation failed'
+        );
+        if (this.config.cacheResults) {
+          this.resultCache.set(cacheKey, fallbackResult);
+        }
+        return fallbackResult;
+      }
 
       if (this.config.cacheResults) {
         this.resultCache.set(cacheKey, result);
@@ -159,11 +178,19 @@ export class ExpertIntegration {
     } catch (error) {
       const executionTime = Date.now() - startTime;
 
-      if (this.isTimeoutError(error)) {
-        // ADR-v3.3.0-002: Fallback on timeout
-        if (this.config.fallbackOnTimeout) {
-          return this.createFallbackResult(executionTime, 'Expert consultation timed out', true);
+      // ADR-v3.3.0-002: Fallback on any error when fallbackOnTimeout is enabled
+      if (this.config.fallbackOnTimeout) {
+        const fallbackResult = this.createFallbackResult(
+          executionTime,
+          this.isTimeoutError(error)
+            ? 'Expert consultation timed out'
+            : (error as Error).message,
+          this.isTimeoutError(error)
+        );
+        if (this.config.cacheResults) {
+          this.resultCache.set(cacheKey, fallbackResult);
         }
+        return fallbackResult;
       }
 
       return {

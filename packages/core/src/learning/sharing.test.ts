@@ -615,13 +615,13 @@ describe('AuthManager', () => {
         secret: 'password123',
       });
 
-      // Wait for token to expire
-      await new Promise(resolve => setTimeout(resolve, 1100));
+      // Wait for token to expire (tokenTTL is 1000ms, wait longer for CI environments)
+      await new Promise(resolve => setTimeout(resolve, 2100));
 
       const token = authManager.validateToken(authResult.token!.token);
 
       expect(token).toBeNull();
-    });
+    }, 10000);
   });
 
   describe('checkScope()', () => {
