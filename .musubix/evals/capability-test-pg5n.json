@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-pg5n",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-01-25T06:21:58.667Z",
+  "updatedAt": "2026-01-25T06:21:58.667Z"
+}

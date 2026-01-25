@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-lbgb",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-01-25T06:18:45.947Z",
+  "updatedAt": "2026-01-25T06:18:45.947Z"
+}

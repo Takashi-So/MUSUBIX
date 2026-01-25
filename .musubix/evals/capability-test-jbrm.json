@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-jbrm",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-01-25T06:17:13.042Z",
+  "updatedAt": "2026-01-25T06:17:13.042Z"
+}

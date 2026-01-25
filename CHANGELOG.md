@@ -5,6 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2026-01-25
+
+### Added
+
+- **🎯 Agent Skills Integration** - Everything Claude Code分析からの知見を統合 (10スキル, 42要件)
+  - REQ: REQ-v3.7.0-everything-claude-code-integration.md
+  - 準拠仕様: [Agent Skills Open Standard](https://github.com/agentskills/agentskills)
+
+#### Phase 1: Core Session Management (P0-P1)
+
+- **session-manager** スキル (REQ-SM-001〜004)
+  - SessionStart Hook: 過去7日間のセッション復元
+  - SessionEnd Hook: セッション状態の永続化
+  - Pre-Compact State Saving: 圧縮前の状態保存
+  - TodoWrite統合: マルチステップタスク追跡
+
+- **context-optimizer** スキル (REQ-CO-001〜006)
+  - Strategic Compact Suggestion: ツール呼び出し50回で圧縮提案
+  - Tool Call Counter: 閾値超過後25回ごとにリマインダー
+  - Context Mode Injection: dev/review/researchモード
+  - PostToolUse Hooks: 編集後の型チェック・フォーマット確認
+  - PreToolUse Hooks: 長時間コマンドのtmux提案、危険操作の警告
+  - Doc Blocker: 不要ドキュメント作成の抑制
+
+- **learning-hooks** スキル (REQ-LH-001〜003)
+  - Continuous Learning Evaluation: セッション終了時のパターン抽出
+  - Learned Skills Storage: ~/.musubix/skills/learned/への保存
+  - Pattern Ignore List: タイポ修正等の除外
+
+#### Phase 2: Evaluation Framework (P1-P2)
+
+- **eval-harness** スキル (REQ-EH-001〜005)
+  - Capability Eval Definition: 機能評価の定義
+  - Regression Eval Definition: 回帰評価の定義
+  - pass@k Metrics: pass@1, pass@3, consecutive@3
+  - Grader Types: Code-Based / Model-Based
+  - Human Grader Support: 人手評価テンプレート
+
+- **verification-loop** スキル (REQ-VL-001〜005)
+  - Multi-Phase Verification: Build→Type→Lint→Test→Security→Diff
+  - Verification Report: PRレディネス判定
+  - Continuous Verification: 15分ごとの自動検証提案
+  - Verification Modes: quick/fullモード
+  - Stop Hook監査: console.log/debugger残存チェック
+
+- **checkpoint** スキル (REQ-CP-001〜005)
+  - Checkpoint Creation: Git統合セーフポイント作成
+  - Checkpoint Verification: チェックポイント間の比較
+  - Checkpoint Listing: 全チェックポイント一覧
+  - Checkpoint Restore: 安全な状態復元
+  - Checkpoint Retention: 最新10件保持・自動クリーンアップ
+
+- **build-fix** スキル (REQ-BF-001〜003)
+  - Build Error Analysis: エラーカテゴリ分類
+  - Iterative Fix Strategy: 最大10回の反復修正
+  - Fix Report: 修正結果レポート
+
+#### Phase 3: Code Intelligence (P3)
+
+- **codemap** スキル (REQ-CM-001〜004)
+  - Repository Structure Analysis: ワークスペース・パッケージ識別
+  - Module Analysis: エクスポート・インポート・依存関係抽出
+  - Codemap Generation: docs/CODEMAPS/への構造化出力
+  - Codemap Diff Threshold: 30%超過時の承認要求
+
+- **refactor-cleaner** スキル (REQ-RC-001〜004)
+  - Dead Code Detection: knip/depcheck/ts-prune連携
+  - Safe Deletion: 動的参照・テスト参照チェック
+  - Deletion Log: docs/DELETION_LOG.mdへの記録
+  - Risk Classification: SAFE/CAUTION/DANGERの3段階分類
+
+- **e2e-runner** スキル (REQ-E2E-001〜003)
+  - E2E Test Generation: Playwrightテスト自動生成
+  - E2E Test Execution: headed/debug/traceモード
+  - E2E Report: テスト結果レポート
+
+### TypeScript Implementation
+
+- **packages/skill-manager/src/skills/** - 10スキルのTypeScript実装
+  - session-manager/: SessionManager, SessionState, TodoTask
+  - context-optimizer/: ContextOptimizer, ToolCallTracker, ContextMode
+  - learning-hooks/: LearningHooksManager, PatternExtractor
+  - eval-harness/: EvalHarness, PassAtKMetrics, Grader
+  - verification-loop/: VerificationLoop, VerificationPhase
+  - checkpoint/: CheckpointManager, CheckpointState
+  - build-fix/: BuildFixManager, ErrorCategory
+  - codemap/: CodemapGenerator, ModuleAnalysis
+  - refactor-cleaner/: RefactorCleaner, RiskLevel
+  - e2e-runner/: E2ERunner, PlaywrightConfig
+
+### SKILL.md Files
+
+- **.github/skills/** - 10個のAgent Skills定義ファイル
+  - 合計3,628行のSKILL.md
+  - Agent Skills Open Standard準拠
+  - YAML frontmatter + Markdown指示
+
+### Tests
+
+- **197テスト合格** (9スキップ)
+  - skills/ディレクトリ: 13テストファイル
+  - Git操作・実ビルド依存テストはスキップ
+
+### Changed
+
+- **テスト総数**: 5546件（5349 + 197）
+
 ## [3.6.1] - 2026-01-23
 
 ### Fixed

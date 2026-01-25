@@ -1,0 +1,19 @@
+{
+  "id": "regression-regression-test-r1ov",
+  "name": "regression-test",
+  "baseline": "v1.0.0",
+  "tests": [
+    {
+      "name": "test1",
+      "status": "pass"
+    },
+    {
+      "name": "test2",
+      "status": "pass"
+    }
+  ],
+  "passedCount": 2,
+  "totalCount": 2,
+  "previousPassedCount": 0,
+  "createdAt": "2026-01-25T06:23:13.231Z"
+}

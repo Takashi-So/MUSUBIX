@@ -1,0 +1,15 @@
+{
+  "id": "capability-test-eval-rujw",
+  "name": "test-eval",
+  "task": "code-generation",
+  "successCriteria": [
+    {
+      "id": "criterion-001",
+      "description": "Generates valid code",
+      "status": "pending"
+    }
+  ],
+  "expectedOutput": "valid code",
+  "createdAt": "2026-01-25T06:23:50.636Z",
+  "updatedAt": "2026-01-25T06:23:50.636Z"
+}

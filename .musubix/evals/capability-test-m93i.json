@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-m93i",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-01-25T06:19:29.550Z",
+  "updatedAt": "2026-01-25T06:19:29.550Z"
+}

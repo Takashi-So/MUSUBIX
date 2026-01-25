@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-oj06",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-01-25T06:21:15.702Z",
+  "updatedAt": "2026-01-25T06:21:15.702Z"
+}
