@@ -2,9 +2,9 @@
 name: MUSUBIX
 description: Neuro-Symbolic AI Integration System - Neural (LLM) + Symbolic (YATA Knowledge Graph)
 locale: ja
-version: "1.1.15"
+version: "3.7.3"
 created: 2026-01-01
-updated: 2026-01-04
+updated: 2026-01-25
 
 # Technology Stack
 tech_stack:
