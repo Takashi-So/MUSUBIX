@@ -1,184 +1,58 @@
 ---
 name: musubix-sdd-workflow
-description: Guide for MUSUBIX SDD (Specification-Driven Development) workflow. Use this when asked to develop features using MUSUBIX methodology, create requirements, designs, or implement code following the 9 constitutional articles.
+description: MUSUBIX SDD開発ワークフローガイド。10憲法条項に従った開発プロセスに使用。
 license: MIT
 ---
 
-# MUSUBIX SDD Workflow Skill
+# SDD Workflow Skill
 
-This skill guides you through the complete SDD workflow for MUSUBIX projects.
+10憲法条項に基づくSDD (Specification-Driven Development) ワークフロー。
 
 ## Prerequisites
 
-Before starting any development task:
+1. `steering/`を確認
+2. `steering/rules/constitution.md`の10条項を確認
+3. `storage/specs/`の既存specを確認
 
-1. Read `steering/` directory for project context
-2. Check `steering/rules/constitution.md` for the 9 constitutional articles
-3. Review existing specs in `storage/specs/`
+## 5 Phases
 
-## Complete Workflow
+| Phase | 内容 | 成果物 |
+|-------|------|--------|
+| **1** | 要件定義 | REQ-* (EARS形式) |
+| **2** | 設計 | DES-* (C4モデル) |
+| **3** | タスク分解 | TSK-* (≤4時間) |
+| **4** | 実装 | Code + Tests (TDD) |
+| **5** | 完了 | CHANGELOG, Docs |
 
-### Phase 1: Requirements Definition
+## Phase Flow
 
-#### Step 1: Create Requirements Document (Article IV - EARS Format)
-
-Create requirements using EARS patterns:
-
-```markdown
-# REQ-[CATEGORY]-[NUMBER]
-
-**種別**: [UBIQUITOUS|EVENT-DRIVEN|STATE-DRIVEN|UNWANTED|OPTIONAL]
-**優先度**: [P0|P1|P2]
-
-**要件**:
-[EARS形式の要件文]
-
-**トレーサビリティ**: DES-XXX, TEST-XXX
+```
+Phase 1 → Review → Phase 2 → Review → Phase 3 → Review → Phase 4 → Phase 5
+   ↑___________↓     ↑___________↓     ↑___________↓
+     修正ループ         修正ループ         修正ループ
 ```
 
-EARS Patterns:
-- **Ubiquitous**: `THE [system] SHALL [requirement]`
-- **Event-driven**: `WHEN [event], THE [system] SHALL [response]`
-- **State-driven**: `WHILE [state], THE [system] SHALL [response]`
-- **Unwanted**: `THE [system] SHALL NOT [behavior]`
-- **Optional**: `IF [condition], THEN THE [system] SHALL [response]`
+**⛔ 禁止**: Phase 2 → Phase 4 の直接遷移（必ずPhase 3を経由）
 
-#### Step 2-3: Requirements Review Loop
+## WHEN → DO
 
-Review requirements for:
-- EARS format compliance
-- Completeness and clarity
-- Testability
-- Traceability readiness
+| WHEN | DO |
+|------|-----|
+| 機能開発開始 | Phase 1から順に実行 |
+| レビューで問題発見 | 修正して再レビュー |
+| Phase 3完了前に実装要求 | 「Phase 3が必要」と回答 |
+| 実装フェーズ | TDD (Red→Green→Blue) |
 
-**Repeat until no issues remain.**
+## Article X: Implementation Prerequisites
 
-### Phase 2: Design
+**絶対ルール**: 要件・設計・タスクが承認されていない限り、実装禁止。
 
-#### Step 4: Create Design Document (Article VII - Design Patterns)
-
-Create C4 model design documents:
-
-1. **Context Level**: System boundaries and external actors
-2. **Container Level**: Technology choices and container composition
-3. **Component Level**: Internal structure of containers
-4. **Code Level**: Implementation details
-
-Design document template:
-```markdown
-# DES-[CATEGORY]-[NUMBER]
-
-## トレーサビリティ
-- 要件: REQ-XXX
-
-## C4モデル
-### Level 2: Container
-[PlantUML diagram]
-
-## コンポーネント設計
-[Component details]
+```
+⛔ 禁止: Phase 2 → Phase 4
+✅ 必須: Phase 1 → 2 → 3 → 4
 ```
 
-#### Step 5-6: Design Review Loop
-
-Review design for:
-- Requirement coverage
-- SOLID principles compliance
-- Design pattern appropriateness
-- Traceability to requirements
-
-**Repeat until no issues remain.**
-
-### Phase 3: Task Decomposition
-
-#### Step 7: Generate Tasks
-
-Generate implementation tasks from design:
-
-```markdown
-# TSK-[CATEGORY]-[NUMBER]
-
-## 関連設計: DES-XXX
-## 関連要件: REQ-XXX
-
-## タスク内容
-[Implementation task description]
-
-## 受入基準
-- [ ] Criterion 1
-- [ ] Criterion 2
-
-## 見積もり
-[4時間以内を推奨]
-```
-
-#### Step 8-9: Task Review Loop
-
-Review tasks for:
-- Appropriate granularity (≤4 hours)
-- Clear acceptance criteria
-- Complete traceability chain
-
-**Repeat until no issues remain.**
-
-### Phase 4: Implementation
-
-#### Step 10: Coding & Unit Testing (Article III - Test-First)
-
-For each task, follow Red-Green-Blue cycle:
-
-1. **Red**: Write failing test first
-2. **Green**: Write minimal code to pass
-3. **Blue**: Refactor while keeping tests green
-
-Add requirement IDs in code comments:
-```typescript
-/**
- * @see REQ-INT-001 - Neuro-Symbolic Integration
- */
-```
-
-#### Step 11: Integration Testing
-
-When required by the task:
-- Run integration tests
-- Verify component interactions
-- Ensure end-to-end flows work correctly
-
-### Phase 5: Documentation & Completion
-
-#### Step 12: Update CHANGELOG.md
-
-Document all changes:
-- New features
-- Bug fixes
-- Breaking changes
-- Migration notes
-
-#### Step 13: Update Other Documentation
-
-If necessary, update:
-- README.md
-- USER-GUIDE.md
-- API-REFERENCE.md
-- AGENTS.md
-
-#### Step 14: Git Commit & Push
-
-```bash
-git add .
-git commit -m "feat/fix/chore: description"
-git push
-```
-
-## Traceability Validation (Article V)
-
-Ensure 100% traceability throughout:
-```
-REQ-* → DES-* → TSK-* → Code → Test
-```
-
-## CLI Commands
+## CLI
 
 ```bash
 # Requirements
@@ -187,31 +61,35 @@ npx musubix requirements validate <file>
 
 # Design
 npx musubix design generate <file>
-npx musubix design patterns <context>
-npx musubix design traceability            # REQ↔DES traceability (v3.1.0)
+npx musubix design traceability
 
-# Code Generation
+# Code
 npx musubix codegen generate <file>
-npx musubix codegen status <spec>          # Status transition code (v3.1.0)
+npx musubix codegen status <spec>
 
-# Scaffolding
+# Scaffold
 npx musubix scaffold domain-model <name>
-npx musubix scaffold domain-model <name> -v "Price,Email"  # Value Objects (v3.1.0)
-npx musubix scaffold domain-model <name> -s "Order,Task"   # Status machines (v3.1.0)
-
-# Traceability
-npx musubix trace matrix
-npx musubix trace validate
+npx musubix scaffold domain-model <name> -v "Price,Email"
+npx musubix scaffold domain-model <name> -s "Order,Task"
 ```
 
-## Constitutional Articles Checklist
+## Traceability Chain
 
-- [ ] **Article I**: Library-First - Is this a standalone library?
-- [ ] **Article II**: CLI Interface - Does it expose CLI?
-- [ ] **Article III**: Test-First - Are tests written first?
-- [ ] **Article IV**: EARS Format - Are requirements in EARS?
-- [ ] **Article V**: Traceability - Is everything traceable?
-- [ ] **Article VI**: Project Memory - Did you check steering/?
-- [ ] **Article VII**: Design Patterns - Are patterns documented?
-- [ ] **Article VIII**: Decision Records - Is ADR created?
-- [ ] **Article IX**: Quality Gates - Are quality checks passed?
+```
+REQ-* → DES-* → TSK-* → Code → Tests
+```
+
+## 出力例
+
+```
+┌─────────────────────────────────────────┐
+│ Workflow Status                         │
+├─────────────────────────────────────────┤
+│ Phase 1: ✅ Requirements (3 REQs)       │
+│ Phase 2: ✅ Design (1 DES)              │
+│ Phase 3: ✅ Tasks (5 TSKs)              │
+│ Phase 4: 🔄 Implementation (2/5 done)   │
+│ Phase 5: ⏸️ Pending                     │
+│ Traceability: 100%                      │
+└─────────────────────────────────────────┘
+```

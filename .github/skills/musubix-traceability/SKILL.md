@@ -1,50 +1,40 @@
 ---
 name: musubix-traceability
-description: Guide for managing traceability between requirements, designs, code, and tests. Use this when asked to verify traceability, create traceability matrices, or perform impact analysis.
+description: 要件・設計・コード・テスト間のトレーサビリティ管理ガイド。影響分析・マトリクス作成に使用。
 license: MIT
 ---
 
-# MUSUBIX Traceability Skill
+# Traceability Skill
 
-This skill guides you through maintaining full traceability across the development lifecycle.
+**Article V - Traceability**: 100%双方向トレーサビリティを維持。
 
-## Overview
-
-MUSUBIX enforces **Article V - Traceability**: Complete bidirectional tracing between:
+## Traceability Chain
 
 ```
-Requirements (REQ-*) ↔ Design (DES-*) ↔ Tasks (TSK-*) ↔ Code ↔ Tests
+REQ-* ↔ DES-* ↔ TSK-* ↔ Code ↔ Tests
 ```
+
+## WHEN → DO
+
+| WHEN | DO |
+|------|-----|
+| 要件作成 | REQ-* IDを付与 |
+| 設計作成 | DES-* IDを付与、REQ-*に紐付け |
+| タスク作成 | TSK-* IDを付与、DES-*・REQ-*に紐付け |
+| コード作成 | @requirement, @design タグ追加 |
+| テスト作成 | @requirement, @design タグ追加 |
+| 要件変更 | 影響分析を実施 |
 
 ## Traceability Matrix
 
-### Creating a Traceability Matrix
-
 ```markdown
-# Traceability Matrix
-
 | 要件ID | 設計ID | タスクID | コード | テスト |
 |--------|--------|---------|--------|--------|
-| REQ-AUTH-001 | DES-AUTH-001 | TSK-001 | src/auth/auth-service.ts | auth.test.ts |
-| REQ-AUTH-002 | DES-AUTH-001 | TSK-002 | src/auth/token-manager.ts | token.test.ts |
+| REQ-AUTH-001 | DES-AUTH-001 | TSK-001 | auth-service.ts | auth.test.ts |
+| REQ-AUTH-002 | DES-AUTH-001 | TSK-002 | token-manager.ts | token.test.ts |
 ```
 
-### CLI Commands
-
-```bash
-# Generate traceability matrix
-npx musubix trace matrix
-
-# Impact analysis for a specific requirement
-npx musubix trace impact REQ-AUTH-001
-
-# Validate all traceability links
-npx musubix trace validate
-```
-
-## Traceability in Code
-
-### Adding Traceability Comments
+## Code Traceability
 
 ```typescript
 /**
@@ -53,89 +43,52 @@ npx musubix trace validate
  * @design DES-AUTH-001
  * @task TSK-001
  */
-export class AuthService {
-  /**
-   * ユーザー認証
-   * @requirement REQ-AUTH-001
-   */
-  async authenticate(credentials: Credentials): Promise<Result<Token, AuthError>> {
-    // Implementation
-  }
-}
-```
-
-### Test Traceability
-
-```typescript
-/**
- * @requirement REQ-AUTH-001
- * @design DES-AUTH-001
- */
-describe('AuthService', () => {
-  describe('authenticate', () => {
-    it('should return token for valid credentials', async () => {
-      // Test implementation
-    });
-  });
-});
+export class AuthService { ... }
 ```
 
 ## Impact Analysis
 
-When a requirement changes, identify all affected artifacts:
-
-```mermaid
-flowchart LR
-    REQ[REQ-AUTH-001<br/>変更] --> DES[DES-AUTH-001<br/>設計]
-    DES --> TSK1[TSK-001<br/>タスク]
-    DES --> TSK2[TSK-002<br/>タスク]
-    TSK1 --> CODE1[auth-service.ts]
-    TSK2 --> CODE2[token-manager.ts]
-    CODE1 --> TEST1[auth.test.ts]
-    CODE2 --> TEST2[token.test.ts]
-```
-
-### Impact Analysis Steps
-
-1. Identify changed requirement (REQ-*)
-2. Find linked designs (DES-*)
-3. Find linked tasks (TSK-*)
-4. Locate affected code files
-5. Identify tests to update
-6. Update all artifacts
-
-## Traceability Storage
+要件変更時の影響範囲特定:
 
 ```
-storage/traceability/
-├── matrix.json           # Full traceability matrix
-├── requirements-map.json # REQ -> DES mappings
-├── design-map.json       # DES -> TSK mappings
-└── code-map.json         # TSK -> Code mappings
+REQ-AUTH-001 変更
+    ↓
+DES-AUTH-001 (設計)
+    ↓
+TSK-001, TSK-002 (タスク)
+    ↓
+auth-service.ts, token-manager.ts (コード)
+    ↓
+auth.test.ts, token.test.ts (テスト)
 ```
 
 ## Verification Checklist
 
-Before completing any feature:
+- [ ] 全要件に設計がリンク
+- [ ] 全設計にタスクがリンク
+- [ ] 全コードにトレーサビリティコメント
+- [ ] 全テストに@requirementタグ
 
-- [ ] All requirements have linked designs
-- [ ] All designs have linked tasks
-- [ ] All tasks have linked code
-- [ ] All code has linked tests
-- [ ] Traceability comments in code
-- [ ] Matrix updated
+## CLI
 
-## MCP Tool
-
-Use MCP tool for automated validation:
-
-```
-Tool: sdd_validate_traceability
-Description: Validates bidirectional traceability across all artifacts
+```bash
+npx musubix trace matrix           # マトリクス生成
+npx musubix trace impact REQ-*     # 影響分析
+npx musubix trace validate         # リンク検証
+npx musubix trace sync             # 自動更新
 ```
 
-## Related Skills
+## 出力例
 
-- `musubix-sdd-workflow` - Full SDD workflow
-- `musubix-ears-validation` - Requirements validation
-- `musubix-test-generation` - Generate tests with traceability
+```
+┌─────────────────────────────────────────┐
+│ Traceability Report                     │
+├─────────────────────────────────────────┤
+│ Requirements: 5 (100% linked)           │
+│ Designs:      3 (100% linked)           │
+│ Tasks:        8 (100% linked)           │
+│ Code Files:   12 (100% tagged)          │
+│ Test Files:   12 (100% tagged)          │
+│ Coverage:     100%                      │
+└─────────────────────────────────────────┘
+```

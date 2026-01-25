@@ -1,161 +1,74 @@
 ---
 name: musubix-ears-validation
-description: Guide for validating and creating EARS-format requirements. Use this when asked to write requirements, validate requirement syntax, or convert natural language to EARS format.
+description: EARS形式要件の検証・作成ガイド。要件記述・構文検証に使用。
 license: MIT
 ---
 
-# MUSUBIX EARS Validation Skill
+# EARS Validation Skill
 
-This skill helps you create and validate requirements using EARS (Easy Approach to Requirements Syntax) format.
+EARS (Easy Approach to Requirements Syntax) で要件を形式化・検証。
 
-## EARS Pattern Reference
+## EARS Patterns
 
-### 1. Ubiquitous Pattern
-**Use for**: Requirements that must always be satisfied.
+| パターン | 構文 | 用途 |
+|---------|------|------|
+| **Ubiquitous** | `THE [system] SHALL [requirement]` | 常に満たす要件 |
+| **Event-driven** | `WHEN [event], THE [system] SHALL [response]` | イベント発生時 |
+| **State-driven** | `WHILE [state], THE [system] SHALL [behavior]` | 特定状態中 |
+| **Unwanted** | `THE [system] SHALL NOT [behavior]` | 禁止事項 |
+| **Optional** | `IF [cond], THEN THE [system] SHALL [response]` | 条件付き |
 
-**Syntax**:
-```
-THE [system name] SHALL [requirement]
-```
+## WHEN → DO
 
-**Example**:
-```markdown
-THE AuthService SHALL authenticate users with valid credentials.
-```
-
-### 2. Event-Driven Pattern
-**Use for**: Requirements triggered by specific events.
-
-**Syntax**:
-```
-WHEN [trigger event], THE [system name] SHALL [response]
-```
-
-**Example**:
-```markdown
-WHEN a user submits login credentials, THE AuthService SHALL validate the credentials within 2 seconds.
-```
-
-### 3. State-Driven Pattern
-**Use for**: Requirements that apply while in a specific state.
-
-**Syntax**:
-```
-WHILE [system state], THE [system name] SHALL [behavior]
-```
-
-**Example**:
-```markdown
-WHILE the system is in maintenance mode, THE API SHALL return 503 Service Unavailable.
-```
-
-### 4. Unwanted Behavior Pattern
-**Use for**: Behaviors that must be prevented.
-
-**Syntax**:
-```
-THE [system name] SHALL NOT [unwanted behavior]
-```
-
-**Example**:
-```markdown
-THE AuthService SHALL NOT store passwords in plain text.
-```
-
-### 5. Optional Pattern
-**Use for**: Conditional requirements.
-
-**Syntax**:
-```
-IF [condition], THEN THE [system name] SHALL [response]
-```
-
-**Example**:
-```markdown
-IF two-factor authentication is enabled, THEN THE AuthService SHALL require a verification code.
-```
+| WHEN | DO |
+|------|-----|
+| 自然言語の要件 | EARS形式に変換 |
+| 要件レビュー | 6項目チェックリスト実施 |
+| 要件文書作成 | テンプレートに従って記述 |
 
 ## Validation Checklist
 
-When validating EARS requirements, check:
-
-- [ ] **Pattern Compliance**: Does it follow one of the 5 EARS patterns?
-- [ ] **System Name**: Is the system/component clearly identified?
-- [ ] **SHALL Keyword**: Is "SHALL" used for mandatory requirements?
-- [ ] **Measurable**: Is the requirement testable and measurable?
-- [ ] **Atomic**: Does it describe a single requirement?
-- [ ] **No Ambiguity**: Is the language clear and unambiguous?
-
-## CLI Commands
-
-```bash
-# Validate EARS syntax
-npx musubix requirements validate <file>
-
-# Convert natural language to EARS
-npx musubix requirements analyze <file>
-
-# Map to ontology
-npx musubix requirements map <file>
-```
+- [ ] **Pattern Compliance**: 5パターンのいずれかに準拠
+- [ ] **System Name**: システム名が明確
+- [ ] **SHALL Keyword**: 必須要件に「SHALL」使用
+- [ ] **Measurable**: テスト可能・測定可能
+- [ ] **Atomic**: 単一の要件を記述
+- [ ] **No Ambiguity**: 曖昧な表現がない
 
 ## Conversion Examples
 
-### Natural Language → EARS
-
-**Input**: "Users should be able to login"
-
-**Output**:
-```markdown
-THE AuthenticationModule SHALL authenticate users with valid credentials.
-```
-
-**Input**: "Show error when password is wrong"
-
-**Output**:
-```markdown
-WHEN invalid credentials are provided, THE AuthenticationModule SHALL display an error message.
-```
-
-**Input**: "Don't allow SQL injection"
-
-**Output**:
-```markdown
-THE InputValidator SHALL NOT accept input containing SQL injection patterns.
-```
+| 自然言語 | EARS形式 |
+|---------|---------|
+| ユーザーがログインできる | `THE AuthModule SHALL authenticate users with valid credentials.` |
+| パスワードが間違っている時エラー表示 | `WHEN invalid credentials are provided, THE AuthModule SHALL display an error.` |
+| SQLインジェクションを許可しない | `THE InputValidator SHALL NOT accept SQL injection patterns.` |
 
 ## Priority Levels
 
-| Priority | Description | Usage |
-|----------|-------------|-------|
-| **P0** | 必須 (Must Have) | Release blocker |
-| **P1** | 重要 (Should Have) | Implement if possible |
-| **P2** | 任意 (Nice to Have) | Time permitting |
+| 優先度 | 説明 | 用途 |
+|--------|------|------|
+| **P0** | 必須 | リリースブロッカー |
+| **P1** | 重要 | 可能な限り実装 |
+| **P2** | 任意 | 時間があれば |
 
-## Requirement Document Template
+## CLI
 
-```markdown
-### REQ-[CATEGORY]-[NUMBER]: [Title]
-
-**種別**: [UBIQUITOUS|EVENT-DRIVEN|STATE-DRIVEN|UNWANTED|OPTIONAL]
-**優先度**: [P0|P1|P2]
-
-**要件**:
-[EARS形式の要件文]
-
-**検証方法**: [Unit Test|Integration Test|E2E Test|Manual]
-**受入基準**:
-- [ ] Criterion 1
-- [ ] Criterion 2
-
-**トレーサビリティ**: DES-XXX, TEST-XXX
-**憲法準拠**: Article IV (EARS Format)
+```bash
+npx musubix requirements validate <file>  # EARS検証
+npx musubix requirements analyze <file>   # 自然言語→EARS変換
+npx musubix requirements map <file>       # オントロジーマッピング
 ```
 
-## Common Mistakes to Avoid
+## 出力例
 
-1. ❌ Using "should" instead of "SHALL"
-2. ❌ Combining multiple requirements in one statement
-3. ❌ Vague or unmeasurable criteria
-4. ❌ Missing system name
-5. ❌ Using implementation details in requirements
+```
+┌─────────────────────────────────────────┐
+│ EARS Validation Result                  │
+├─────────────────────────────────────────┤
+│ Requirements: 5 validated               │
+│ ✅ Ubiquitous:   2 passed               │
+│ ✅ Event-driven: 2 passed               │
+│ ✅ Unwanted:     1 passed               │
+│ Issues: 0                               │
+└─────────────────────────────────────────┘
+```

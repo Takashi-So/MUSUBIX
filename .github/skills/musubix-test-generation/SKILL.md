@@ -1,212 +1,88 @@
 ---
 name: musubix-test-generation
-description: Guide for generating test code from designs and requirements. Use this when asked to create unit tests, integration tests, or test coverage analysis following TDD/BDD practices.
+description: テストコード生成ガイド。TDD/BDDによるユニット・統合テスト作成に使用。
 license: MIT
 ---
 
-# MUSUBIX Test Generation Skill
+# Test Generation Skill
 
-This skill guides you through generating comprehensive test suites that maintain traceability.
+**Article III - Test-First**: Red-Green-Blue TDDサイクルでテストを生成。
 
-## Overview
+## TDD Cycle
 
-MUSUBIX follows **Article III - Test-First**: Red-Green-Blue TDD cycle.
-
-```mermaid
-flowchart LR
-    RED[🔴 Red<br/>Failing Test] --> GREEN[🟢 Green<br/>Minimal Code]
-    GREEN --> BLUE[🔵 Blue<br/>Refactor]
-    BLUE --> RED
 ```
-
-## Test Structure
-
-### Unit Test Template
-
-```typescript
-/**
- * @requirement REQ-XXX-NNN
- * @design DES-XXX-NNN
- */
-import { describe, it, expect, beforeEach } from 'vitest';
-import { XxxService } from './xxx-service.js';
-import { resetXxxCounter } from './xxx-entity.js';
-
-describe('XxxService', () => {
-  let service: XxxService;
-  let repository: MockXxxRepository;
-
-  beforeEach(() => {
-    // BP-TEST-001: Reset counters before each test
-    resetXxxCounter();
-    repository = new MockXxxRepository();
-    service = new XxxService(repository);
-  });
-
-  describe('create', () => {
-    it('should create entity with valid input', async () => {
-      // Arrange
-      const input = { name: 'Test', value: 100 };
-      
-      // Act
-      const result = await service.create(input);
-      
-      // Assert
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value.name).toBe('Test');
-      }
-    });
-
-    it('should return error for invalid input', async () => {
-      // Arrange
-      const input = { name: '', value: -1 };
-      
-      // Act
-      const result = await service.create(input);
-      
-      // Assert
-      expect(result.isErr()).toBe(true);
-    });
-  });
-});
-```
-
-### Integration Test Template
-
-```typescript
-/**
- * @requirement REQ-XXX-NNN
- * @design DES-XXX-NNN
- */
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-
-describe('XxxService Integration', () => {
-  beforeAll(async () => {
-    // Setup test environment
-  });
-
-  afterAll(async () => {
-    // Cleanup
-  });
-
-  it('should complete full workflow', async () => {
-    // Test full user journey
-  });
-});
-```
-
-## Best Practices for Testing
-
-### BP-TEST-001: Test Counter Reset
-
-```typescript
-beforeEach(() => {
-  resetPetCounter();  // Reset ID counters
-  resetReservationCounter();
-});
-```
-
-### BP-TEST-002: Verify API Before Test
-
-```typescript
-// ✅ Check actual API signature first
-const service = new PetService(repository);
-// Verify method exists and parameters match
-```
-
-### BP-TEST-004: Result Type Test Pattern
-
-```typescript
-// ✅ Test both success and failure cases
-it('should handle success', async () => {
-  const result = await service.create(validInput);
-  expect(result.isOk()).toBe(true);
-  if (result.isOk()) {
-    expect(result.value.id).toBeDefined();
-  }
-});
-
-it('should handle failure', async () => {
-  const result = await service.create(invalidInput);
-  expect(result.isErr()).toBe(true);
-  if (result.isErr()) {
-    expect(result.error.message).toContain('validation');
-  }
-});
-```
-
-### BP-TEST-005: Status Transition Testing
-
-```typescript
-describe('status transitions', () => {
-  // Valid transitions
-  it('should allow draft -> active', () => {
-    const result = workflow.transition('draft', 'activate');
-    expect(result).toBe('active');
-  });
-
-  // Invalid transitions
-  it('should reject completed -> draft', () => {
-    expect(() => workflow.transition('completed', 'revert'))
-      .toThrow('Invalid transition');
-  });
-});
+🔴 Red (Failing Test) → 🟢 Green (Minimal Code) → 🔵 Blue (Refactor)
 ```
 
 ## Test Categories
 
-| Category | Purpose | Location |
-|----------|---------|----------|
-| Unit | Single component | `__tests__/unit/` |
-| Integration | Multiple components | `__tests__/integration/` |
-| E2E | Full user flows | `__tests__/e2e/` |
+| カテゴリ | 目的 | 場所 |
+|---------|------|------|
+| Unit | 単一コンポーネント | `__tests__/unit/` |
+| Integration | 複数コンポーネント連携 | `__tests__/integration/` |
+| E2E | フルユーザーフロー | `__tests__/e2e/` |
 
-## CLI Commands
+## WHEN → DO
 
-```bash
-# Generate tests from design
-npx musubix test generate storage/design/DES-XXX.md
+| WHEN | DO |
+|------|-----|
+| 機能実装前 | テストを先に書く（Red） |
+| テスト失敗 | 最小限のコードで通す（Green） |
+| テスト成功 | リファクタリング（Blue） |
 
-# Run all tests
-npm test
-
-# Coverage report
-npx musubix test coverage src/
-
-# Run specific test file
-npm test -- xxx.test.ts
-```
-
-## Vitest Configuration
+## Test Template
 
 ```typescript
-// vitest.config.ts
-import { defineConfig } from 'vitest/config';
+/**
+ * @requirement REQ-XXX-NNN
+ * @design DES-XXX-NNN
+ */
+describe('XxxService', () => {
+  let service: XxxService;
+  
+  beforeEach(() => {
+    resetXxxCounter();  // BP-TEST-001
+    service = new XxxService(new MockRepository());
+  });
 
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: 'node',
-    include: ['**/*.test.ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-    },
-  },
+  it('should create entity with valid input', async () => {
+    const result = await service.create({ name: 'Test' });
+    expect(result.isOk()).toBe(true);
+  });
+
+  it('should return error for invalid input', async () => {
+    const result = await service.create({ name: '' });
+    expect(result.isErr()).toBe(true);
+  });
 });
 ```
 
-## Coverage Targets
+## Best Practices
 
-| Metric | Target |
-|--------|--------|
-| Line Coverage | ≥80% |
-| Branch Coverage | ≥75% |
-| Function Coverage | ≥90% |
+| ID | パターン | 内容 |
+|----|---------|------|
+| BP-TEST-001 | Counter Reset | beforeEachでIDカウンターリセット |
+| BP-TEST-004 | Result Type | isOk()/isErr()で両ケーステスト |
+| BP-TEST-005 | Status Transition | 有効・無効遷移を網羅 |
 
-## Related Skills
+## CLI
 
-- `musubix-sdd-workflow` - Full SDD workflow with TDD
-- `musubix-code-generation` - Generate code to test
-- `musubix-traceability` - Link tests to requirements
+```bash
+npx musubix test generate <design-file>  # テスト生成
+npm test                                  # 全テスト実行
+npx musubix test coverage src/            # カバレッジ計測
+```
+
+## 出力例
+
+```
+┌─────────────────────────────────────────┐
+│ Test Generation Result                  │
+├─────────────────────────────────────────┤
+│ Source:     DES-AUTH-001               │
+│ Unit Tests: 8 generated                 │
+│ Coverage:   @requirement tags added     │
+│ Patterns:   BP-TEST-001, 004, 005       │
+│ Status:     Ready for TDD cycle         │
+└─────────────────────────────────────────┘
+```

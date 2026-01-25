@@ -1,162 +1,86 @@
 ---
 name: musubix-c4-design
-description: Guide for creating C4 model design documents. Use this when asked to create architecture designs, system context diagrams, container diagrams, or component diagrams following the C4 model methodology.
+description: C4モデル設計ドキュメント作成ガイド。アーキテクチャ図・コンポーネント設計に使用。
 license: MIT
 ---
 
-# MUSUBIX C4 Design Skill
+# C4 Design Skill
 
-This skill guides you through creating C4 model architecture designs for MUSUBIX projects.
+C4モデル4レベルでアーキテクチャを構造化。
 
-## Overview
+## C4 Levels
 
-The C4 model provides four levels of abstraction for describing software architecture:
+| Level | 名称 | 内容 |
+|-------|------|------|
+| **1** | Context | システム境界・外部アクター |
+| **2** | Container | 技術選択・デプロイ単位 |
+| **3** | Component | コンテナ内部構造 |
+| **4** | Code | 実装詳細（任意） |
 
-1. **Context** - System boundaries and external actors
-2. **Container** - Technology choices and deployable units
-3. **Component** - Internal structure of containers
-4. **Code** - Implementation details (optional)
+## WHEN → DO
 
-## Prerequisites
+| WHEN | DO |
+|------|-----|
+| 設計開始前 | `storage/specs/`のREQ-*を確認 |
+| 新規システム設計 | Context→Container→Componentの順で作成 |
+| コンポーネント追加 | Component Levelを更新 |
 
-Before creating designs:
-
-1. Read requirements from `storage/specs/` (REQ-* files)
-2. Check `steering/structure.ja.md` for architecture guidelines
-3. Review `steering/tech.ja.md` for technology constraints
-
-## Design Document Template
+## Design Template
 
 ```markdown
-# DES-[CATEGORY]-[NUMBER]: [Design Title]
+# DES-[CATEGORY]-[NUMBER]: [Title]
 
 ## メタデータ
-- **作成日**: YYYY-MM-DD
-- **トレーサビリティ**: REQ-XXX-NNN
+- 作成日: YYYY-MM-DD
+- トレーサビリティ: REQ-XXX-NNN
 
 ## 1. Context Level
-
-### システムコンテキスト図
-[External actors and systems that interact with our system]
-
-### 外部アクター
 | アクター | 説明 | インタラクション |
 |---------|------|-----------------|
-| User | システム利用者 | Web UI経由でアクセス |
+| User | システム利用者 | Web UI経由 |
 
 ## 2. Container Level
-
-### コンテナ構成
 | コンテナ | 技術 | 責務 |
 |---------|------|------|
-| Web App | React/Next.js | UI提供 |
-| API Server | Node.js/Express | ビジネスロジック |
-| Database | PostgreSQL | データ永続化 |
-
-### コンテナ間通信
-[Describe how containers communicate]
+| Web App | React | UI提供 |
+| API | Node.js | ビジネスロジック |
+| DB | PostgreSQL | データ永続化 |
 
 ## 3. Component Level
-
-### [Container Name] コンポーネント
-
 | コンポーネント | 種別 | 責務 | 依存先 |
 |---------------|------|------|--------|
 | XxxService | Service | ビジネスロジック | XxxRepository |
 | XxxRepository | Repository | データアクセス | Database |
-| XxxController | Controller | リクエスト処理 | XxxService |
-
-## 4. 設計パターン
-
-### 適用パターン
-| パターン | 適用箇所 | 理由 |
-|---------|---------|------|
-| Repository | データアクセス層 | 永続化の抽象化 |
-| Service | ビジネス層 | ロジックの集約 |
-| Factory | オブジェクト生成 | 生成ロジックの分離 |
-
-## 5. 非機能要件への対応
-
-### セキュリティ
-- 認証: [方式]
-- 認可: [方式]
-- データ保護: [方式]
-
-### スケーラビリティ
-- [スケーリング戦略]
-
-### 可用性
-- [可用性設計]
 ```
 
-## C4 Diagram Syntax (Mermaid)
-
-### Context Diagram
-```mermaid
-flowchart TB
-    subgraph External["外部システム"]
-        User[ユーザー]
-        ExtAPI[外部API]
-    end
-    
-    subgraph System["対象システム"]
-        App[アプリケーション]
-    end
-    
-    User --> App
-    App --> ExtAPI
-```
-
-### Container Diagram
-```mermaid
-flowchart TB
-    subgraph Containers["コンテナ構成"]
-        Web[Web App<br/>React]
-        API[API Server<br/>Node.js]
-        DB[(Database<br/>PostgreSQL)]
-    end
-    
-    Web --> API
-    API --> DB
-```
-
-### Component Diagram
-```mermaid
-flowchart TB
-    subgraph APIServer["API Server"]
-        Controller[Controller]
-        Service[Service]
-        Repository[Repository]
-    end
-    
-    Controller --> Service
-    Service --> Repository
-```
-
-## Design Patterns Reference
+## Design Patterns
 
 | パターン | 用途 | 適用場面 |
 |---------|------|---------|
-| **Repository** | データアクセス抽象化 | DB操作 |
-| **Service** | ビジネスロジック集約 | ユースケース実装 |
-| **Factory** | オブジェクト生成 | 複雑な生成ロジック |
-| **Strategy** | アルゴリズム切替 | 認証方式、計算方式 |
-| **Observer** | イベント通知 | 状態変更の伝播 |
-| **Decorator** | 機能追加 | ログ、キャッシュ |
+| Repository | データアクセス抽象化 | DB操作 |
+| Service | ビジネスロジック集約 | ユースケース |
+| Factory | オブジェクト生成 | 複雑な生成 |
+| Strategy | アルゴリズム切替 | 認証・計算方式 |
 
-## Domain-Specific Components
+## CLI
 
-Use `npx musubix design generate` to get domain-specific component recommendations for 62 domains.
-
-## Output Location
-
-Save design documents to:
-```
-storage/design/DES-[CATEGORY]-[NUMBER].md
+```bash
+npx musubix design generate <file>    # 設計生成
+npx musubix design patterns <context> # パターン検出
+npx musubix design c4 <file>          # C4ダイアグラム
+npx musubix design traceability       # REQ↔DES検証
 ```
 
-## Related Skills
+## 出力例
 
-- `musubix-ears-validation` - Requirements validation
-- `musubix-code-generation` - Generate code from design
-- `musubix-adr-generation` - Document architecture decisions
+```
+┌─────────────────────────────────────────┐
+│ C4 Design Generated                     │
+├─────────────────────────────────────────┤
+│ Design ID:   DES-SHOP-001              │
+│ Containers:  3 (Web, API, DB)          │
+│ Components:  8 (Services, Repos)       │
+│ Patterns:    Repository, Service       │
+│ Traceability: REQ-SHOP-001            │
+└─────────────────────────────────────────┘
+```

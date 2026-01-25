@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.2] - 2026-01-25
+
+### Changed
+
+- **📦 MUSUBIX Skills SKILL.md Optimization** - 全10 musubix-*スキルファイルを最適化
+  - ファイルサイズを平均50%削減（54KB → 27KB）
+  - **WHEN/DO構文**の導入でトリガー条件とアクションを明確化
+  - 冗長なコード例を削除し、テーブル形式に集約
+  - 統一されたレポートフォーマット（罫線ボックス形式）
+  - DRY原則適用でコンパクト化
+
+#### 最適化結果 (musubix-* Skills)
+
+| スキル | Before | After | 削減率 |
+|--------|--------|-------|--------|
+| musubix-adr-generation | 4.6KB | 2.2KB | 52% |
+| musubix-best-practices | 7.1KB | 3.3KB | 54% |
+| musubix-c4-design | 4.3KB | 2.8KB | 35% |
+| musubix-code-generation | 5.4KB | 2.8KB | 48% |
+| musubix-domain-inference | 6.6KB | 2.9KB | 56% |
+| musubix-ears-validation | 3.9KB | 2.9KB | 26% |
+| musubix-sdd-workflow | 5.2KB | 2.8KB | 46% |
+| musubix-technical-writing | 8.7KB | 2.7KB | 69% |
+| musubix-test-generation | 4.8KB | 2.7KB | 44% |
+| musubix-traceability | 3.3KB | 2.7KB | 18% |
+
+#### v3.7.1 + v3.7.2 総合最適化結果
+
+- Agent Skills (v3.7.1): 95KB → 29KB (**70%削減**)
+- MUSUBIX Skills (v3.7.2): 54KB → 27KB (**50%削減**)
+- **合計: 149KB → 56KB (62%削減)**
+
 ## [3.7.1] - 2026-01-25
 
 ### Changed
