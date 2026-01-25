@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.3] - 2026-01-25
+
+### Changed
+
+- **📄 AGENTS.md最適化** - 52KB → 12KB (**77%削減**)
+  - バージョン 3.5.0 → 3.7.2 に更新
+  - 重複するツリー構造図とテーブルを統合
+  - 冗長なコード例を WHEN/DO 構文で必要最小限に
+  - ワークフロー図を簡潔化
+
+- **🔧 残り3スキル最適化**
+  - musubix-decision-records: 4.6KB → 2.6KB (43%)
+  - musubix-policy-engine: 3.9KB → 3.0KB (23%)
+  - musubix-knowledge-graph: 3.4KB → 2.7KB (20%)
+
 ## [3.7.2] - 2026-01-25
 
 ### Changed
