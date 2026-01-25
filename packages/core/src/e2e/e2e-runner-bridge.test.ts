@@ -3,7 +3,7 @@
  * @traceability REQ-E2E-001, REQ-E2E-002, REQ-E2E-003
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { createE2ERunnerBridge, parseFlowFromMarkdown } from './e2e-runner-bridge.js';
 import type { UserFlow, E2ERunnerBridgeConfig } from './e2e-runner-types.js';
 import { DEFAULT_E2E_RUNNER_CONFIG } from './e2e-runner-types.js';
