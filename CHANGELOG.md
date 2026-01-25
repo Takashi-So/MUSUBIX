@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.1] - 2026-01-25
+
+### Changed
+
+- **📦 Agent Skills SKILL.md Optimization** - 全10スキルファイルを最適化
+  - ファイルサイズを平均60%削減（8-12KB → 2.4-3.4KB）
+  - **WHEN/DO構文**の導入でトリガー条件とアクションを明確化
+  - 冗長な説明を削除し、即座に実行可能な指示に集約
+  - 統一されたレポートフォーマット（罫線ボックス形式）
+  - 各スキルにトレーサビリティセクションを追加
+
+#### 最適化結果
+
+| スキル | Before | After | 削減率 |
+|--------|--------|-------|--------|
+| session-manager | 8.5KB | 3.0KB | 65% |
+| context-optimizer | 10.2KB | 3.1KB | 70% |
+| learning-hooks | 8.4KB | 2.5KB | 70% |
+| eval-harness | 9.0KB | 2.6KB | 71% |
+| verification-loop | 11.9KB | 3.3KB | 72% |
+| checkpoint | 10.5KB | 3.4KB | 68% |
+| build-fix | 12.8KB | 2.9KB | 77% |
+| codemap | 7.5KB | 2.6KB | 65% |
+| refactor-cleaner | 8.5KB | 2.4KB | 72% |
+| e2e-runner | 10.1KB | 3.0KB | 70% |
+
+#### 最適化の方針
+
+1. **DRY原則適用** - 重複説明の削除
+2. **アクション明確化** - 「やること」を先頭に配置
+3. **WHEN/THEN構文** - 明示的なトリガー条件
+4. **統一フォーマット** - 出力形式の標準化
+
 ## [3.7.0] - 2026-01-25
 
 ### Added
