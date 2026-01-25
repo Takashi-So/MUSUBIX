@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-pattern-mcp",
-  "version": "3.6.0",
+  "version": "3.7.3",
   "description": "MUSUBIX Pattern Library Learning MCP - AST-based pattern extraction and abstraction",
   "type": "module",
   "main": "./dist/index.js",
