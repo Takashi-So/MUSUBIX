@@ -7,7 +7,7 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1600%2B%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-5738%2B%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 [![npm security](https://img.shields.io/npm/v/@nahisaho/musubix-security.svg?label=@nahisaho/musubix-security)](https://www.npmjs.com/package/@nahisaho/musubix-security)
 [![npm dfg](https://img.shields.io/npm/v/@nahisaho/musubix-dfg.svg?label=@nahisaho/musubix-dfg)](https://www.npmjs.com/package/@nahisaho/musubix-dfg)
 [![npm lean](https://img.shields.io/npm/v/@nahisaho/musubix-lean.svg?label=@nahisaho/musubix-lean)](https://www.npmjs.com/package/@nahisaho/musubix-lean)
@@ -17,7 +17,7 @@
 
 > Next-generation AI Coding System powered by Git-Native Knowledge Integration
 >
-> **v3.4.0** - Deep Research Integration
+> **v3.8.1** - 25 packages, 107 MCP tools, 5,738+ tests
 
 **[日本語版 README](README.ja.md)**
 
@@ -25,22 +25,16 @@
 
 MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and **Symbolic (Knowledge Graph)** reasoning. It combines MUSUBI SDD methodology with Git-native knowledge management to support high-quality software development.
 
-### 🎉 v3.4.0 Highlights - Deep Research Integration
+### 🎉 v3.8 Highlights
 
-- **🔍 Deep Research Package** - AI-driven iterative research system (433 tests)
-- **6 Integration Modules** - Expert Delegation, Neural Search, Agent Orchestrator, Knowledge Store, Workflow Engine, VS Code Extension
-- **Expert Delegation** - VS Code LM API integration with 7 AI expert types
-- **81% Development Efficiency** - 7h actual vs 36h estimated through established patterns
-- **100% Test Coverage** - 433/433 tests passing, 1,734 lines implementation + 2,488 lines tests
-
-### Previous Highlights
-
-#### v3.0.0 - Git-Native Knowledge System
-
-- **Git-Native Knowledge** - File-based knowledge graph in `.knowledge/`
-- **Policy Engine** - Executable TypeScript policies in `.policies/`
-- **Decision Records** - ADR management in `docs/decisions/`
-- **2100+ tests** passing across 17 packages
+- **25 packages** - Comprehensive neuro-symbolic AI development toolkit
+- **107 MCP tools** - SDD, Pattern, Knowledge, Policy, Decision, Synthesis, Workflow, Agent, Skill tools
+- **5,738+ tests** - All passing across 25 packages
+- **13 Agent Skills** - Claude Code integration for SDD workflow automation
+- **Monorepo optimizations** - Unified `tsc -b` builds, standardized dependencies, Prettier formatting
+- **Deep Research** - AI-driven iterative research system with 6 integration modules
+- **Git-Native Knowledge** - File-based knowledge graph in `.knowledge/` (zero dependencies)
+- **Codegraph** - Code structure analysis supporting 16 languages
 
 ### Features
 
@@ -65,22 +59,36 @@ MUSUBIX is an innovative AI coding system that integrates **Neural (LLM)** and *
 
 ```mermaid
 flowchart TB
-    subgraph MUSUBIX["MUSUBIX System v3.0"]
-        subgraph Packages["Packages"]
-            Core["@nahisaho/musubix-core"]
-            MCP["@nahisaho/musubix-mcp-server"]
-            Security["@nahisaho/musubix-security"]
+    subgraph MUSUBIX["MUSUBIX System v3.8"]
+        subgraph Core["Core"]
+            CLI["musubix CLI"]
+            CoreLib["@nahisaho/musubix-core"]
+            Knowledge["@musubix/knowledge"]
         end
-        
-        Core <--> MCP
-        MCP <--> Security
-        
-        subgraph Integration["Neuro-Symbolic Integration"]
-            NSI["LLM Creativity + Git-Native Knowledge"]
+
+        subgraph Agent["Agent Layer"]
+            MCP["@nahisaho/musubix-mcp-server\n107 tools"]
+            Orchestrator["Agent Orchestrator"]
+            Skills["Skill Manager"]
         end
-        
-        Core --> Integration
-        MCP --> Integration
+
+        subgraph Learning["Learning"]
+            WakeSleep["Wake-Sleep"]
+            DeepResearch["Deep Research"]
+        end
+
+        subgraph Security["Verification"]
+            SecPkg["Security Analysis"]
+            FormalVerify["Formal Verification"]
+        end
+
+        CLI --> CoreLib
+        CoreLib <--> MCP
+        MCP <--> Orchestrator
+        Orchestrator <--> Skills
+        CoreLib --> Knowledge
+        CoreLib --> Learning
+        CoreLib --> Security
     end
 ```
 
@@ -102,18 +110,29 @@ flowchart TB
 | `packages/core/types/` | Type Definitions |
 | `packages/core/utils/` | Utilities |
 | `packages/core/validators/` | EARS Validation |
-| `packages/mcp-server/` | MCP Server (35 tools, 5 prompts) |
+| `packages/mcp-server/` | MCP Server (107 tools, 5 prompts) |
+| `packages/security/` | Security Analysis |
+| `packages/formal-verify/` | Formal Verification |
 | `packages/pattern-mcp/` | Pattern Learning |
 | `packages/ontology-mcp/` | Ontology Engine |
 | `packages/wake-sleep/` | Wake-Sleep Learning |
 | `packages/sdd-ontology/` | SDD Ontology |
-| `packages/security/` | Security Analysis |
-| `packages/formal-verify/` | Formal Verification |
 | `packages/dfg/` | DFG/CFG Extraction - Data Flow Analysis |
 | `packages/lean/` | Lean 4 Integration - Theorem Proving |
 | `packages/library-learner/` | Library Learning - DreamCoder-style |
 | `packages/neural-search/` | Neural Search - Guided Synthesis |
 | `packages/synthesis/` | Program Synthesis - DSL/PBE |
+| `packages/agent-orchestrator/` | Agent Orchestrator - Sub-agent Distribution |
+| `packages/workflow-engine/` | Workflow Engine - 5-Phase Control |
+| `packages/skill-manager/` | Skill Manager - Dynamic Skill Loading |
+| `packages/codegraph/` | Codegraph - Code Structure Analysis (16 languages) |
+| `packages/expert-delegation/` | Expert Delegation - 7 AI Expert Types |
+| `packages/deep-research/` | Deep Research - AI-driven Iterative Research |
+| `packages/assistant-axis/` | Assistant Axis - Multimodal Integration |
+| `packages/musubi/` | Musubi - AI Summarization |
+| `packages/knowledge/` | Knowledge Store - Git-friendly JSON Graph |
+| `packages/policy/` | Policy Engine - 9 Constitutional Articles |
+| `packages/decisions/` | Decision Records - ADR Management |
 | `steering/` | Project Memory |
 | `storage/` | Specifications & Artifacts |
 | `templates/` | Templates |
@@ -148,19 +167,11 @@ npx musubix-mcp --transport stdio
 # Install individual packages
 npm install @nahisaho/musubix-core
 npm install @nahisaho/musubix-mcp-server
-npm install @nahisaho/musubix-yata-client
 npm install @nahisaho/musubix-security
 npm install @nahisaho/musubix-formal-verify
-
-# Phase 1: Deep Symbolic Integration
-npm install @nahisaho/musubix-dfg
-npm install @nahisaho/musubix-lean
-npm install @nahisaho/yata-scale
-
-# Phase 2: Advanced Learning
-npm install @nahisaho/musubix-library-learner
-npm install @nahisaho/musubix-neural-search
-npm install @nahisaho/musubix-synthesis
+npm install @musubix/knowledge
+npm install @musubix/decisions
+npm install @musubix/policy
 ```
 
 ### Build from Source
@@ -213,7 +224,7 @@ npm run type-check
 
 ### MCP Server
 
-Provides 24 tools (9 SDD + 7 Pattern + 3 Ontology + 5 KGPR) and 3 prompts:
+Provides 107 tools and 5 prompts covering SDD, Pattern, Knowledge, Policy, Decision, Synthesis, Workflow, Agent, and Skill management:
 
 ```bash
 # Start MCP Server
@@ -331,6 +342,6 @@ See [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
-**Document ID**: README  
-**Version**: 1.8.0  
-**Last Updated**: 2026-01-06
+**Document ID**: README
+**Version**: 3.8.1
+**Last Updated**: 2026-02-08

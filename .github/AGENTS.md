@@ -8,14 +8,14 @@
 
 | 項目 | 詳細 |
 |------|------|
-| **バージョン** | 3.2.0 (Expert Delegation System) |
+| **バージョン** | 3.8.1 |
 | **言語** | TypeScript |
 | **ランタイム** | Node.js >= 20.0.0 |
 | **パッケージマネージャ** | npm >= 10.0.0 |
 | **ビルドシステム** | モノレポ（npm workspaces） |
 | **テストフレームワーク** | Vitest |
-| **テスト数** | 4500+ (全合格) |
-| **パッケージ数** | 26 |
+| **テスト数** | 5,738+ (全合格) |
+| **パッケージ数** | 25 |
 | **MCPツール数** | 107 |
 | **Agent Skills** | 13 (Claude Code対応) |
 
@@ -44,16 +44,20 @@ packages/
 ├── workflow-engine/    # @nahisaho/musubix-workflow-engine
 ├── skill-manager/      # @nahisaho/musubix-skill-manager
 ├── codegraph/          # @nahisaho/musubix-codegraph
-├── expert-delegation/  # @nahisaho/musubix-expert-delegation (v3.2.0 NEW!)
-├── knowledge/          # @musubix/knowledge (v3.0.0 NEW!)
-├── policy/             # @musubix/policy (v3.0.0 NEW!)
-└── decisions/          # @musubix/decisions (v3.0.0 NEW!)
+├── expert-delegation/  # @nahisaho/musubix-expert-delegation
+├── deep-research/      # @nahisaho/musubix-deep-research
+├── assistant-axis/     # @nahisaho/musubix-assistant-axis
+├── musubi/             # @nahisaho/musubi
+├── musubix/            # musubix (CLIエントリポイント)
+├── knowledge/          # @musubix/knowledge
+├── policy/             # @musubix/policy
+└── decisions/          # @musubix/decisions
 ```
 
 | パッケージ | npm | 役割 |
 |-----------|-----|------|
 | `packages/core/` | `@nahisaho/musubix-core` | コアライブラリ - CLI、EARS検証、コード生成、設計パターン |
-| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 61ツール、5プロンプト |
+| `packages/mcp-server/` | `@nahisaho/musubix-mcp-server` | MCPサーバー - 107ツール、5プロンプト |
 | `packages/security/` | `@nahisaho/musubix-security` | セキュリティ分析 - 脆弱性検出、シークレット検出、テイント解析 |
 | `packages/formal-verify/` | `@nahisaho/musubix-formal-verify` | 形式検証 - Z3統合、Hoare検証、EARS→SMT変換 |
 | `packages/pattern-mcp/` | `@nahisaho/musubix-pattern-mcp` | パターン学習 - 抽出・圧縮・ライブラリ |
@@ -72,21 +76,11 @@ packages/
 | `packages/workflow-engine/` | `@nahisaho/musubix-workflow-engine` | **ワークフロー制御** - 5フェーズ制御・品質ゲート |
 | `packages/skill-manager/` | `@nahisaho/musubix-skill-manager` | **スキル管理** - スキル登録・実行・検証 |
 | `packages/codegraph/` | `@nahisaho/musubix-codegraph` | **コードグラフ** - コード構造解析・依存関係追跡 |
-| `packages/expert-delegation/` | `@nahisaho/musubix-expert-delegation` | **エキスパート委譲 (v3.2.0 NEW!)** - 7種AI専門家・VS Code LM API統合 |
-
-### 非推奨パッケージ（Deprecated） ⚠️
-
-以下のYATA関連パッケージはv3.0.0で非推奨となりました。`@musubix/knowledge`へ移行してください。
-
-| パッケージ | 状態 | 移行先 |
-|-----------|------|--------|
-| `packages/yata-client/` | ⚠️ Deprecated | `@musubix/knowledge` |
-| `packages/yata-global/` | ⚠️ Deprecated | `@musubix/knowledge` |
-| `packages/yata-local/` | ⚠️ Deprecated | `@musubix/knowledge` |
-| `packages/yata-scale/` | ⚠️ Deprecated | `@musubix/knowledge` |
-| `packages/yata-ui/` | ⚠️ Deprecated | `@musubix/knowledge` |
-
-**移行ガイド**: [docs/MIGRATION-v3.0.md](docs/MIGRATION-v3.0.md)
+| `packages/expert-delegation/` | `@nahisaho/musubix-expert-delegation` | **エキスパート委譲** - 7種AI専門家・VS Code LM API統合 |
+| `packages/deep-research/` | `@nahisaho/musubix-deep-research` | **Deep Research** - AI駆動型深層リサーチ・6統合機能 |
+| `packages/assistant-axis/` | `@nahisaho/musubix-assistant-axis` | **マルチモーダル統合** - アシスタント軸 |
+| `packages/musubi/` | `@nahisaho/musubi` | **AI要約** |
+| `packages/musubix/` | `musubix` | **CLIエントリポイント** |
 
 ### Core パッケージモジュール
 
@@ -120,6 +114,7 @@ npx musubix requirements analyze <file>    # 自然言語 → EARS変換
 npx musubix requirements validate <file>   # EARS構文検証
 npx musubix requirements map <file>        # オントロジーマッピング
 npx musubix requirements search <query>    # 関連要件検索
+npx musubix requirements new <feature>     # 対話的要件作成
 
 # 設計生成
 npx musubix design generate <file>         # 要件から設計生成
@@ -127,14 +122,16 @@ npx musubix design patterns <context>      # パターン検出
 npx musubix design validate <file>         # SOLID準拠検証
 npx musubix design c4 <file>               # C4ダイアグラム生成
 npx musubix design adr <decision>          # ADR生成
-npx musubix design traceability            # REQ↔DESトレーサビリティ検証 (v3.1.0 NEW!)
+npx musubix design traceability            # REQ↔DESトレーサビリティ検証
 npx musubix design traceability --min-coverage 80  # カバレッジ閾値指定
 
 # コード生成
 npx musubix codegen generate <file>        # 設計からコード生成
+npx musubix codegen generate <file> --full-skeleton  # 4ファイル生成
+npx musubix codegen generate <file> --with-tests     # テストファイル付き
 npx musubix codegen analyze <file>         # 静的解析
 npx musubix codegen security <path>        # セキュリティスキャン
-npx musubix codegen status <spec>          # ステータス遷移コード生成 (v3.1.0 NEW!)
+npx musubix codegen status <spec>          # ステータス遷移コード生成
 npx musubix codegen status <spec> --enum   # enum型で生成
 
 # テスト
@@ -146,7 +143,7 @@ npx musubix trace matrix                   # トレーサビリティマトリ�
 npx musubix trace matrix -p <project>      # 指定プロジェクトのマトリクス
 npx musubix trace impact <id>              # 影響分析
 npx musubix trace validate                 # リンク検証
-npx musubix trace sync                     # トレースマトリクス自動更新 (v1.6.7 NEW!)
+npx musubix trace sync                     # トレースマトリクス自動更新
 npx musubix trace sync --dry-run           # プレビューのみ
 
 # 説明生成
@@ -155,48 +152,104 @@ npx musubix explain graph <id>             # 推論グラフ生成
 
 # 自己学習システム
 npx musubix learn status                   # 学習状態ダッシュボード
+npx musubix learn dashboard                # インタラクティブダッシュボード
 npx musubix learn feedback <id>            # フィードバック記録
 npx musubix learn patterns                 # パターン一覧表示
+npx musubix learn best-practices           # ベストプラクティス表示
+npx musubix learn bp-list                  # ベストプラクティスID一覧
+npx musubix learn bp-show <id>             # ベストプラクティス詳細
 npx musubix learn add-pattern <name>       # パターン手動登録
 npx musubix learn remove-pattern <id>      # パターン削除
-npx musubix learn recommend                # コンテキストベースの推奨
+npx musubix learn recommend -a <type>      # 推奨（-a 必須: code|design|test）
 npx musubix learn decay                    # 未使用パターンの減衰
+npx musubix learn wake                     # Wakeフェーズ実行
+npx musubix learn sleep                    # Sleepフェーズ実行
+npx musubix learn cycle                    # Wake-Sleep完全サイクル
+npx musubix learn compress                 # パターン圧縮・最適化
 npx musubix learn export                   # 学習データエクスポート
   # オプション: --output <file>, --privacy-filter, --patterns-only, --feedback-only, --min-confidence <n>
 npx musubix learn import <file>            # 学習データインポート
   # オプション: --merge-strategy <skip|overwrite|merge>, --dry-run, --patterns-only, --feedback-only
 
-# オントロジー操作 (v1.4.1 NEW!)
-npx musubix ontology validate -f <file>    # 知識グラフ整合性検証
-npx musubix ontology check-circular -f <file>  # 循環依存チェック
-npx musubix ontology stats -f <file>       # 統計表示
+# 知識グラフ (Knowledge)
+npx musubix knowledge add <type> <id> <name>  # エンティティ追加
+npx musubix knowledge get <id>                 # エンティティ取得
+npx musubix knowledge delete <id>              # エンティティ削除
+npx musubix knowledge link <source> <type> <target>  # リレーション追加
+npx musubix knowledge query [--type <type>]    # クエリ検索
+npx musubix knowledge traverse <id>            # グラフ走査
+npx musubix knowledge stats                    # 統計表示
 
-# Interactive REPL (v1.5.0 NEW!)
+# ADR (Architecture Decision Records)
+npx musubix decision create <title>        # ADR作成
+npx musubix decision list                  # ADR一覧
+npx musubix decision get <id>              # ADR詳細
+npx musubix decision accept <id>           # ADR承認
+npx musubix decision deprecate <id>        # ADR廃止
+npx musubix decision search <query>        # ADR検索
+npx musubix decision index                 # ADRインデックス生成
+
+# ポリシー検証
+npx musubix policy validate [path]         # プロジェクト検証
+npx musubix policy list                    # ポリシー一覧
+npx musubix policy info <id>               # ポリシー詳細
+npx musubix policy check <file>            # 単一ファイル検証
+
+# コードグラフ (16言語対応)
+npx musubix cg index <path>                # インデックス作成
+npx musubix cg query [name]                # エンティティ検索
+npx musubix cg search <query>              # セマンティック検索
+npx musubix cg deps <name>                 # 依存関係
+npx musubix cg callers <name>              # 呼び出し元
+npx musubix cg callees <name>              # 呼び出し先
+npx musubix cg languages                   # 対応言語一覧
+npx musubix cg stats                       # 統計
+
+# オントロジー操作
+npx musubix ontology validate              # 知識グラフ整合性検証
+npx musubix ontology check-circular        # 循環依存チェック
+npx musubix ontology stats                 # 統計表示
+
+# Interactive REPL
 npx musubix repl                           # 対話的シェルを起動
-npx musubix repl --history <file>          # カスタム履歴ファイル
-npx musubix repl --no-color                # 色なしモード
 
-# KGPR - Knowledge Graph Pull Request (v1.6.4 - DEPRECATED)
-# KGPRは廃止されました。通常のGit PRワークフローを使用してください。
-
-# SDDプロジェクトスキャフォールド (v1.6.7 NEW!, v3.1.0 Enhanced!)
+# SDDプロジェクトスキャフォールド
 npx musubix scaffold domain-model <name>   # DDDプロジェクト生成
 npx musubix scaffold domain-model <name> -e "Entity1,Entity2"  # エンティティ指定
 npx musubix scaffold domain-model <name> -d DOMAIN  # ドメイン接頭辞指定
-npx musubix scaffold domain-model <name> -v "Price,Email"  # Value Object生成 (v3.1.0 NEW!)
-npx musubix scaffold domain-model <name> -s "Order,Task"   # ステータス遷移生成 (v3.1.0 NEW!)
+npx musubix scaffold domain-model <name> -v "Price,Email"  # Value Object生成
+npx musubix scaffold domain-model <name> -s "Order,Task"   # ステータス遷移生成
+npx musubix scaffold domain-model <name> -s "Order=pending,Task=open"  # 初期状態指定
 npx musubix scaffold minimal <name>        # 最小構成プロジェクト
+npx musubix scaffold api-service <name>    # APIサービスプロジェクト
 
-# プログラム合成 (v2.2.0 NEW!)
+# プログラム合成
 npx musubix synthesize <examples.json>     # 例からプログラム合成
 npx musubix synthesize pbe <examples.json> # PBE特化合成
 npx musubix syn <examples.json>            # エイリアス
 
-# パターンライブラリ管理 (v2.2.0 NEW!)
+# パターンライブラリ管理
 npx musubix library learn <file>           # コードからパターン学習
 npx musubix library query <query>          # パターン検索
 npx musubix library stats                  # 統計表示
 npx musubix lib stats                      # エイリアス
+
+# パフォーマンス
+npx musubix perf benchmark                 # ベンチマーク
+npx musubix perf startup                   # 起動時間計測
+npx musubix perf memory                    # メモリ使用量
+
+# Deep Research
+npx musubix deep-research <query> [-i <iterations>] [-o <file>]
+
+# スキル・タスク管理
+npx musubix skills list                    # スキル一覧
+npx musubix skills validate [skill-name]   # スキル検証
+npx musubix tasks list                     # タスク一覧
+npx musubix tasks stats                    # タスク統計
+
+# ファイルウォッチャー
+npx musubix watch [paths...] [--lint] [--test] [--security] [--ears]
 
 # ヘルプ
 npx musubix --help
@@ -214,7 +267,7 @@ npx @nahisaho/musubix-mcp-server
 npx musubix-mcp --transport stdio
 ```
 
-### ツール一覧（61ツール）
+### ツール一覧（107ツール）
 
 #### SDD基本ツール（7ツール）
 
@@ -945,5 +998,5 @@ npx musubix learn best-practices --format markdown
 ---
 
 **Agent**: GitHub Copilot / Claude
-**Last Updated**: 2026-01-11
-**Version**: 3.0.0
+**Last Updated**: 2026-02-08
+**Version**: 3.8.1

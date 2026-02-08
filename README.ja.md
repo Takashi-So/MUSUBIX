@@ -6,33 +6,27 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-1586%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
+[![Tests](https://img.shields.io/badge/tests-5738%2B%20passing-brightgreen)](https://github.com/nahisaho/MUSUBIX)
 [![npm security](https://img.shields.io/npm/v/@nahisaho/musubix-security.svg?label=@nahisaho/musubix-security)](https://www.npmjs.com/package/@nahisaho/musubix-security)
 
 > Git-Native知識統合による次世代AIコーディングシステム
 >
-> **v3.4.0** - Deep Research Integration
+> **v3.8.1** - 25パッケージ、107 MCPツール、5,738+テスト
 
 ## 概要
 
 MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グラフ）** 推論を統合した革新的なAIコーディングシステムです。MUSUBI SDDの方法論とGit-Native知識管理を組み合わせ、高品質なソフトウェア開発を支援します。
 
-### 🎉 v3.4.0 ハイライト - Deep Research統合
+### 🎉 v3.8 ハイライト
 
-- **🔍 Deep Researchパッケージ** - AI駆動型反復リサーチシステム（433テスト）
-- **6つの統合モジュール** - エキスパート委譲、ニューラル検索、エージェント調整、知識ストア、ワークフローエンジン、VS Code拡張
-- **エキスパート委譲** - VS Code LM API統合による7種のAI専門家
-- **開発効率81%向上** - 確立されたパターンにより36時間見積→7時間実績
-- **100%テストカバレッジ** - 433/433テスト合格、実装1,734行 + テスト2,488行
-
-### 以前のハイライト
-
-#### v3.0.0 - Git-Native知識システム
-
-- **Git-Native知識** - `.knowledge/`内のファイルベース知識グラフ
-- **ポリシーエンジン** - `.policies/`内の実行可能TypeScriptポリシー
-- **決定記録** - `docs/decisions/`内のADR管理
-- **2100+テスト** - 17パッケージで合格
+- **25パッケージ** - 包括的ニューロシンボリックAI開発ツールキット
+- **107 MCPツール** - SDD、パターン、知識、ポリシー、ADR、合成、ワークフロー、エージェント、スキルツール
+- **5,738+テスト** - 全25パッケージで合格
+- **13 Agent Skills** - Claude Code統合によるSDDワークフロー自動化
+- **モノレポ最適化** - 統一`tsc -b`ビルド、依存関係標準化、Prettierフォーマット
+- **Deep Research** - AI駆動型反復リサーチシステム（6統合モジュール）
+- **Git-Native知識** - `.knowledge/`内のファイルベース知識グラフ（ゼロ依存）
+- **Codegraph** - 16言語対応コード構造解析
 
 ### 特徴
 
@@ -58,22 +52,36 @@ MUSUBIXは、**ニューラル（LLM）** と **シンボリック（知識グ�
 
 ```mermaid
 flowchart TB
-    subgraph MUSUBIX["MUSUBIX System v3.0"]
-        subgraph Packages["Packages"]
-            Core["@nahisaho/musubix-core"]
-            MCP["@nahisaho/musubix-mcp-server"]
-            Security["@nahisaho/musubix-security"]
+    subgraph MUSUBIX["MUSUBIX System v3.8"]
+        subgraph Core["コア"]
+            CLI["musubix CLI"]
+            CoreLib["@nahisaho/musubix-core"]
+            Knowledge["@musubix/knowledge"]
         end
-        
-        Core <--> MCP
-        MCP <--> Security
-        
-        subgraph Integration["Neuro-Symbolic Integration"]
-            NSI["LLM Creativity + Git-Native Knowledge"]
+
+        subgraph Agent["エージェント層"]
+            MCP["@nahisaho/musubix-mcp-server\n107ツール"]
+            Orchestrator["Agent Orchestrator"]
+            Skills["Skill Manager"]
         end
-        
-        Core --> Integration
-        MCP --> Integration
+
+        subgraph Learning["学習"]
+            WakeSleep["Wake-Sleep"]
+            DeepResearch["Deep Research"]
+        end
+
+        subgraph Security["検証"]
+            SecPkg["セキュリティ分析"]
+            FormalVerify["形式検証"]
+        end
+
+        CLI --> CoreLib
+        CoreLib <--> MCP
+        MCP <--> Orchestrator
+        Orchestrator <--> Skills
+        CoreLib --> Knowledge
+        CoreLib --> Learning
+        CoreLib --> Security
     end
 ```
 
@@ -95,13 +103,29 @@ flowchart TB
 | `packages/core/types/` | 型定義 |
 | `packages/core/utils/` | ユーティリティ |
 | `packages/core/validators/` | EARS検証 |
-| `packages/mcp-server/` | MCPサーバー（35 tools, 5 prompts） |
-| `packages/pattern-mcp/` | **パターン学習** |
-| `packages/ontology-mcp/` | **オントロジーエンジン** |
-| `packages/wake-sleep/` | **Wake-Sleep学習** |
-| `packages/sdd-ontology/` | **SDDオントロジー** |
-| `packages/security/` | **セキュリティ分析** |
-| `packages/formal-verify/` | **形式検証** |
+| `packages/mcp-server/` | MCPサーバー（107ツール、5プロンプト） |
+| `packages/security/` | セキュリティ分析 |
+| `packages/formal-verify/` | 形式検証 |
+| `packages/pattern-mcp/` | パターン学習 |
+| `packages/ontology-mcp/` | オントロジーエンジン |
+| `packages/wake-sleep/` | Wake-Sleep学習 |
+| `packages/sdd-ontology/` | SDDオントロジー |
+| `packages/dfg/` | DFG/CFG抽出 - データフロー解析 |
+| `packages/lean/` | Lean 4統合 - 定理証明 |
+| `packages/library-learner/` | ライブラリ学習 |
+| `packages/neural-search/` | ニューラル検索 |
+| `packages/synthesis/` | プログラム合成 |
+| `packages/agent-orchestrator/` | エージェント調整 - サブエージェント分散 |
+| `packages/workflow-engine/` | ワークフローエンジン - 5フェーズ制御 |
+| `packages/skill-manager/` | スキル管理 - 動的スキルロード |
+| `packages/codegraph/` | コードグラフ - 16言語対応コード構造解析 |
+| `packages/expert-delegation/` | エキスパート委譲 - 7種AI専門家 |
+| `packages/deep-research/` | Deep Research - AI駆動型深層リサーチ |
+| `packages/assistant-axis/` | アシスタント軸 - マルチモーダル統合 |
+| `packages/musubi/` | AI要約 |
+| `packages/knowledge/` | 知識ストア - Git-friendly JSON知識グラフ |
+| `packages/policy/` | ポリシーエンジン - 9憲法条項検証 |
+| `packages/decisions/` | 決定記録 - ADR管理 |
 | `steering/` | プロジェクトメモリ |
 | `storage/` | 仕様書・成果物 |
 | `templates/` | テンプレート |
@@ -190,7 +214,7 @@ npm run type-check
 
 ### MCPサーバー
 
-16個のツール（SDD 9個 + パターン 7個）と3つのプロンプトを提供:
+107ツールと5プロンプトを提供（SDD、パターン、知識、ポリシー、ADR、合成、ワークフロー、エージェント、スキル管理）:
 
 ```bash
 # MCPサーバー起動
@@ -308,6 +332,6 @@ nahisaho
 
 ---
 
-**文書ID**: README  
-**バージョン**: 1.8.0  
-**最終更新**: 2026-01-06
+**文書ID**: README
+**バージョン**: 3.8.1
+**最終更新**: 2026-02-08

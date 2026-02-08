@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.1] - 2026-02-08
+
+### Fixed
+
+- **AGENTS.md全面修正** - 3ファイルすべてを実際のCLI `--help` 出力に基づいて正確に書き直し
+  - `/AGENTS.md` (root): 架空コマンド（`musubix sdd init`, `musubix knowledge add --source`等）を削除、正確なCLIリファレンスに完全書き直し
+  - `/.github/AGENTS.md`: v3.2.0→v3.8.1、YATA/KGPR参照削除、knowledge/decision/policy/cg/perf等の全CLIコマンド追加
+  - `/packages/musubix/AGENTS.md`: v2.2.0→v3.8.1、YATA参照削除、完全書き直し
+- **CLAUDE.md修正** - バージョン(3.4.0→3.8.1)、テスト数(4966+→5,738+)、パッケージ数(27→25)更新、YATA非推奨セクション削除、全CLIコマンド追加
+- **README.md / README.ja.md更新** - バージョン、テスト数、パッケージ構成、MCPツール数を最新に更新
+
+## [3.8.0] - 2026-02-08
+
+### Added
+
+- **共有ユーティリティ** - `packages/core/src/utils/string-casing.ts` (キャメル/スネーク/パスカル変換)
+- **codegraphナレッジアダプター** - `packages/codegraph/src/storage/knowledge-adapter.ts` (28テスト)
+- **Prettier設定** - `.prettierrc`, `.prettierignore`, `npm run format` / `npm run format:check`
+
+### Changed
+
+- **ビルドシステム統一** - 全20パッケージを `tsc -b` (インクリメンタルビルド) に標準化
+- **依存関係統一** - 全25パッケージの `@types/node`, `typescript`, `vitest` バージョン統一
+- **大規模ファイルリファクタリング**
+  - `codegen.ts` (2,724行) → 5モジュール (`codegen/` ディレクトリ)
+  - `design.ts` (2,543行) → 6モジュール (`design/` ディレクトリ)
+- **カバレッジ閾値引き上げ** - lines 25%→40%, branches 21%→31%, functions 26%→43%, statements 24%→40%
+- **セキュリティパッケージ最適化** - tree-sitter依存をオプショナルpeer depsに変更 (~300MBインストール削減)
+
+### Fixed
+
+- **YATA非推奨参照クリーンアップ** - 7ファイルから残存YATA参照を削除
+- **TODO/FIXME解決** - Lean証明、ストレージカウント、Wake-Sleepパターンの4件修正
+
 ## [3.7.3] - 2026-01-25
 
 ### Changed
