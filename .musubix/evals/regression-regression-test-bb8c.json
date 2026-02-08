@@ -1,0 +1,19 @@
+{
+  "id": "regression-regression-test-bb8c",
+  "name": "regression-test",
+  "baseline": "v1.0.0",
+  "tests": [
+    {
+      "name": "test1",
+      "status": "pass"
+    },
+    {
+      "name": "test2",
+      "status": "pass"
+    }
+  ],
+  "passedCount": 2,
+  "totalCount": 2,
+  "previousPassedCount": 0,
+  "createdAt": "2026-02-08T13:06:16.860Z"
+}

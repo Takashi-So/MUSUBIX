@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-mdg5",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-02-08T13:14:52.949Z",
+  "updatedAt": "2026-02-08T13:14:52.949Z"
+}

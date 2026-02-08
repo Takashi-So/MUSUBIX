@@ -1,0 +1,15 @@
+{
+  "id": "capability-test-eval-nlk3",
+  "name": "test-eval",
+  "task": "code-generation",
+  "successCriteria": [
+    {
+      "id": "criterion-001",
+      "description": "Generates valid code",
+      "status": "pending"
+    }
+  ],
+  "expectedOutput": "valid code",
+  "createdAt": "2026-02-08T13:15:50.115Z",
+  "updatedAt": "2026-02-08T13:15:50.115Z"
+}

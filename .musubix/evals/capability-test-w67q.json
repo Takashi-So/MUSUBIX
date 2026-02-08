@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-w67q",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-02-08T12:54:30.518Z",
+  "updatedAt": "2026-02-08T12:54:30.518Z"
+}

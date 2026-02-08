@@ -23,10 +23,10 @@ export default defineConfig({
         '**/types.ts'
       ],
       thresholds: {
-        lines: 25,
-        branches: 21,
-        functions: 26,
-        statements: 24
+        lines: 40,
+        branches: 31,
+        functions: 43,
+        statements: 40
       }
     },
     testTimeout: 10000,

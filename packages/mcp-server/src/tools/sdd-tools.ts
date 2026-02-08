@@ -13,6 +13,8 @@
  * @see REQ-CLARIFY-001 - Context Clarification
  */
 
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import type { ToolDefinition, ToolResult, TextContent } from '../types.js';
 import { getKnowledgeStore } from './knowledge-tools.js';
 import {
@@ -85,6 +87,19 @@ async function queryReusableKnowledge(): Promise<{
   }
   
   return result;
+}
+
+/**
+ * Count files matching a prefix pattern in a directory.
+ * Returns 0 if the directory does not exist.
+ */
+function countFilesWithPrefix(dir: string, prefix: string): number {
+  try {
+    const entries = readdirSync(dir);
+    return entries.filter(e => e.startsWith(prefix)).length;
+  } catch {
+    return 0;
+  }
 }
 
 // ============================================================
@@ -527,12 +542,17 @@ export const validateTraceabilityTool: ToolDefinition = {
         projectPath,
         status: 'validated',
         note: 'Traceability is validated from storage/specs/, storage/design/, storage/tasks/',
-        matrix: {
-          requirements: 0, // TODO: Count from storage/specs/
-          designs: 0,      // TODO: Count from storage/design/
-          tasks: 0,        // TODO: Count from storage/tasks/
-          coverage: '0%',
-        },
+        matrix: (() => {
+          const specsDir = join(projectPath, 'storage', 'specs');
+          const designDir = join(projectPath, 'storage', 'design');
+          const requirements = countFilesWithPrefix(specsDir, 'REQ-');
+          const designs = countFilesWithPrefix(designDir, 'DES-');
+          const tasks = countFilesWithPrefix(specsDir, 'TSK-');
+          const total = requirements + designs + tasks;
+          const linked = Math.min(requirements, designs) + Math.min(designs, tasks);
+          const coverage = total > 0 ? `${Math.round((linked / total) * 100)}%` : '0%';
+          return { requirements, designs, tasks, coverage };
+        })(),
         knowledgeReference: {
           traceabilityRules: knowledge.rules.filter(r => r.name.includes('trace')).length,
           validationPatterns: knowledge.patterns.length,

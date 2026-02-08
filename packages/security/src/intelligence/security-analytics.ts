@@ -1,9 +1,16 @@
 /**
  * @fileoverview Security Analytics Engine
  * @module @nahisaho/musubix-security/intelligence/security-analytics
- * 
+ *
  * Provides trend analysis, metrics collection, statistical reporting,
  * and security insights for comprehensive security management.
+ *
+ * NOTE: This analytics engine consumes vulnerability data from the security package's
+ * scanners. Its severity-to-score mapping (critical=100, high=75, medium=50, low=25,
+ * info=10) is specific to risk analytics and differs from the security score deduction
+ * weights in core's SecurityScanner (which starts from 100 and deducts per finding).
+ * These are distinct calculation models serving different purposes: this engine tracks
+ * trends over time, while core's scanner produces a point-in-time quality score.
  */
 
 import type { Vulnerability } from '../types/index.js';

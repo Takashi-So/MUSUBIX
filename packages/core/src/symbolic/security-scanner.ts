@@ -1,8 +1,24 @@
 /**
- * Security Scanner
+ * Security Scanner (Lightweight / Embedded)
  *
  * Detects secrets, OWASP vulnerabilities, and sensitive data in code.
  * Provides redaction policies to prevent sensitive data leakage.
+ *
+ * NOTE: This is the lightweight, zero-dependency scanner embedded in @nahisaho/musubix-core
+ * for use within the symbolic reasoning pipeline. It uses simple regex-based detection
+ * suitable for quick inline scanning of code snippets during analysis.
+ *
+ * For full-featured, standalone security analysis (AST-based detection, taint analysis,
+ * file system scanning, SHA-256 hashing, OWASP rule engine with ts-morph), use the
+ * dedicated @nahisaho/musubix-security package instead:
+ *   - Secret detection: packages/security/src/analysis/secret-detector.ts
+ *   - Vulnerability scanning: packages/security/src/analysis/vulnerability-scanner.ts
+ *   - OWASP rules: packages/security/src/rules/owasp/
+ *   - Security analytics: packages/security/src/intelligence/security-analytics.ts
+ *
+ * The two implementations are intentionally separate to preserve core's zero-dependency
+ * isolation (Article I: Library-First) while allowing the security package to leverage
+ * heavier dependencies (tree-sitter, ts-morph) for deeper analysis.
  *
  * @packageDocumentation
  * @module symbolic/security

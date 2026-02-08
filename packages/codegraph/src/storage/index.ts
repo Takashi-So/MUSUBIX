@@ -7,4 +7,4 @@
 
 export { MemoryStorage } from './memory-storage.js';
 export { SQLiteStorage } from './sqlite-storage.js';
-// export { KnowledgeAdapter } from './knowledge-adapter.js'; // TODO: Implement @musubix/knowledge integration
+export { KnowledgeAdapter, type KnowledgeAdapterOptions } from './knowledge-adapter.js';

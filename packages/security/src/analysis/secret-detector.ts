@@ -1,7 +1,18 @@
 /**
- * @fileoverview Secret detection engine
+ * @fileoverview Secret detection engine (Full-featured / Standalone)
  * @module @nahisaho/musubix-security/analysis/secret-detector
  * @trace REQ-SEC-SECRET-001, REQ-SEC-SECRET-002
+ *
+ * NOTE: This is the full-featured secret detector in @nahisaho/musubix-security.
+ * It provides AST-aware context detection, SHA-256 deduplication, test value filtering,
+ * and file system scanning with configurable patterns.
+ *
+ * A lightweight regex-only scanner also exists in @nahisaho/musubix-core at
+ * packages/core/src/symbolic/security-scanner.ts for embedded use in the symbolic
+ * reasoning pipeline (zero external dependencies). The two share similar detection
+ * targets (AWS keys, private keys, JWTs, etc.) but use different regex patterns
+ * tuned for their respective use cases. This separation is intentional to preserve
+ * core's zero-dependency isolation.
  */
 
 import { createHash } from 'node:crypto';

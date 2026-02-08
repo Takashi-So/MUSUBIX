@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-codegraph",
-  "version": "3.7.3",
+  "version": "3.8.0",
   "description": "MUSUBIX CodeGraph - Multi-language Code Graph Analysis Engine supporting 16 programming languages with PR generation",
   "type": "module",
   "main": "dist/index.js",
@@ -93,7 +93,16 @@
     "tree-sitter-scala": "^0.21.0",
     "tree-sitter-lua": "^2.1.3"
   },
+  "peerDependencies": {
+    "@musubix/knowledge": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@musubix/knowledge": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@musubix/knowledge": "^3.7.3",
     "@types/node": "^20.0.0",
     "typescript": "^5.3.0",
     "vitest": "^4.0.16"

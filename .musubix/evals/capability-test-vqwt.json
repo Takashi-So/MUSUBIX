@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-vqwt",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-02-08T12:54:10.685Z",
+  "updatedAt": "2026-02-08T12:54:10.685Z"
+}

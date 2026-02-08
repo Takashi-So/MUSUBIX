@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-cjpz",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-02-08T13:07:14.519Z",
+  "updatedAt": "2026-02-08T13:07:14.519Z"
+}

@@ -88,7 +88,7 @@ describe('CLI Commands', () => {
 
   describe('Design Command', () => {
     it('should have generate subcommand', async () => {
-      const { registerDesignCommand } = await import('../../src/cli/commands/design.js');
+      const { registerDesignCommand } = await import('../../src/cli/commands/design/index.js');
       const program = new Command();
       registerDesignCommand(program);
       
@@ -100,7 +100,7 @@ describe('CLI Commands', () => {
     });
 
     it('should have patterns subcommand', async () => {
-      const { registerDesignCommand } = await import('../../src/cli/commands/design.js');
+      const { registerDesignCommand } = await import('../../src/cli/commands/design/index.js');
       const program = new Command();
       registerDesignCommand(program);
       
@@ -110,7 +110,7 @@ describe('CLI Commands', () => {
     });
 
     it('should have validate subcommand', async () => {
-      const { registerDesignCommand } = await import('../../src/cli/commands/design.js');
+      const { registerDesignCommand } = await import('../../src/cli/commands/design/index.js');
       const program = new Command();
       registerDesignCommand(program);
       
@@ -120,7 +120,7 @@ describe('CLI Commands', () => {
     });
 
     it('should have c4 subcommand', async () => {
-      const { registerDesignCommand } = await import('../../src/cli/commands/design.js');
+      const { registerDesignCommand } = await import('../../src/cli/commands/design/index.js');
       const program = new Command();
       registerDesignCommand(program);
       
@@ -130,7 +130,7 @@ describe('CLI Commands', () => {
     });
 
     it('should have adr subcommand', async () => {
-      const { registerDesignCommand } = await import('../../src/cli/commands/design.js');
+      const { registerDesignCommand } = await import('../../src/cli/commands/design/index.js');
       const program = new Command();
       registerDesignCommand(program);
       
@@ -302,7 +302,7 @@ describe('CLI Commands', () => {
 
   describe('Design Command Structure', () => {
     it('should register design with 6 subcommands', async () => {
-      const { registerDesignCommand } = await import('../../src/cli/commands/design.js');
+      const { registerDesignCommand } = await import('../../src/cli/commands/design/index.js');
       const program = new Command();
       registerDesignCommand(program);
       

@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-z9md",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-02-08T12:56:54.901Z",
+  "updatedAt": "2026-02-08T12:56:54.901Z"
+}

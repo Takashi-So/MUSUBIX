@@ -1,0 +1,15 @@
+{
+  "id": "capability-test-eval-c64w",
+  "name": "test-eval",
+  "task": "code-generation",
+  "successCriteria": [
+    {
+      "id": "criterion-001",
+      "description": "Generates valid code",
+      "status": "pending"
+    }
+  ],
+  "expectedOutput": "valid code",
+  "createdAt": "2026-02-08T13:06:56.912Z",
+  "updatedAt": "2026-02-08T13:06:56.912Z"
+}

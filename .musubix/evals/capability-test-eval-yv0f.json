@@ -1,0 +1,15 @@
+{
+  "id": "capability-test-eval-yv0f",
+  "name": "test-eval",
+  "task": "code-generation",
+  "successCriteria": [
+    {
+      "id": "criterion-001",
+      "description": "Generates valid code",
+      "status": "pending"
+    }
+  ],
+  "expectedOutput": "valid code",
+  "createdAt": "2026-02-08T12:56:35.967Z",
+  "updatedAt": "2026-02-08T12:56:35.967Z"
+}

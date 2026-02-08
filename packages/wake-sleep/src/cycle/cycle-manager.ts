@@ -23,6 +23,7 @@ export class CycleManager {
   private cycleNumber = 0;
   private lastCycleTime: string | null = null;
   private currentPhase: 'wake' | 'sleep' | 'idle' = 'idle';
+  private consolidatedPatternCount = 0;
 
   constructor(config: Partial<CycleConfig> = {}) {
     this.config = {
@@ -65,20 +66,21 @@ export class CycleManager {
     if (wakeResults.length > 0) {
       const patternCandidates = wakeResults
         .flatMap(r => r.extractedPatterns)
-        .map(p => ({ 
-          name: p, 
-          code: p, 
-          structure: {}, 
-          occurrences: 1, 
-          confidence: 0.5, 
+        .map(p => ({
+          name: p,
+          code: p,
+          structure: {},
+          occurrences: 1,
+          confidence: 0.5,
           source: 'code' as const,
         }));
-      
+
       if (patternCandidates.length > 0) {
-        await this.sleep.consolidate({
+        const sleepResult = await this.sleep.consolidate({
           patterns: patternCandidates,
           existingLibrary: [],
         });
+        this.consolidatedPatternCount += sleepResult.consolidatedPatterns.length;
       }
     }
     
@@ -94,7 +96,7 @@ export class CycleManager {
     return {
       currentPhase: this.currentPhase,
       taskCount: this.wake.taskCount,
-      patternCount: 0, // TODO: Get from pattern library
+      patternCount: this.consolidatedPatternCount,
       cycleNumber: this.cycleNumber,
       lastCycleTime: this.lastCycleTime,
     };
@@ -108,5 +110,6 @@ export class CycleManager {
     this.cycleNumber = 0;
     this.lastCycleTime = null;
     this.currentPhase = 'idle';
+    this.consolidatedPatternCount = 0;
   }
 }

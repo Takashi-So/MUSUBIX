@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-formal-verify",
-  "version": "3.7.3",
+  "version": "3.8.0",
   "description": "Formal verification tools for MUSUBIX - Z3 integration, precondition/postcondition verification, and EARS-to-SMT conversion",
   "type": "module",
   "main": "dist/index.js",

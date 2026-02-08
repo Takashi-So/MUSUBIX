@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-bb8e",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-02-08T13:06:16.862Z",
+  "updatedAt": "2026-02-08T13:06:16.862Z"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-wzz3",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-02-08T12:55:09.087Z",
+  "updatedAt": "2026-02-08T12:55:09.087Z"
+}

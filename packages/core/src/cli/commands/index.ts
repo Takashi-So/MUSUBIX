@@ -14,7 +14,7 @@ import { registerInitCommand } from './init.js';
 import { registerHelpCommand } from './help.js';
 import { registerSkillsCommand } from './skills.js';
 import { registerRequirementsCommand } from './requirements.js';
-import { registerDesignCommand } from './design.js';
+import { registerDesignCommand } from './design/index.js';
 import { registerCodegenCommand } from './codegen.js';
 import { registerTestCommand } from './test.js';
 import { registerTraceCommand } from './trace.js';
@@ -99,7 +99,7 @@ export { registerSkillsCommand } from './skills.js';
 
 // SDD workflow command exports
 export { registerRequirementsCommand } from './requirements.js';
-export { registerDesignCommand } from './design.js';
+export { registerDesignCommand } from './design/index.js';
 export { registerCodegenCommand } from './codegen.js';
 export { registerTestCommand } from './test.js';
 export { registerTraceCommand } from './trace.js';

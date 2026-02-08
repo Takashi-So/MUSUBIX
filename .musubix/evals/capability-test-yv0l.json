@@ -1,0 +1,9 @@
+{
+  "id": "capability-test-yv0l",
+  "name": "test",
+  "task": "task",
+  "successCriteria": [],
+  "expectedOutput": "",
+  "createdAt": "2026-02-08T12:56:35.973Z",
+  "updatedAt": "2026-02-08T12:56:35.973Z"
+}
