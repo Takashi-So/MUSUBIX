@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-codegraph",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "MUSUBIX CodeGraph - Multi-language Code Graph Analysis Engine supporting 16 programming languages with PR generation",
   "type": "module",
   "main": "dist/index.js",

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.2] - 2026-02-08
+
+### Changed
+
+- **AGENTS.md最適化** - 公式仕様準拠 (442行→134行, **70%削減**)
+  - コマンド先頭配置、3段階Boundaries (Always/Ask/Never)
+  - MCPツール一覧・ベストプラクティスはCLAUDE.mdに委譲
+  - `.github/AGENTS.md` 削除（公式仕様外の配置）
+  - `/AGENTS.md` と `packages/musubix/AGENTS.md` を完全統一
+  - 参考: [agents.md spec](https://agents.md/), [GitHub Blog - 2,500+ repos analysis](https://github.blog/ai-and-ml/github-copilot/how-to-write-a-great-agents-md-lessons-from-over-2500-repositories/)
+
 ## [3.8.1] - 2026-02-08
 
 ### Fixed

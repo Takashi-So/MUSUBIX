@@ -1,6 +1,6 @@
 {
   "name": "@musubix/knowledge",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "Git-Native Knowledge Store for MUSUBIX - File-based knowledge graph management",
   "type": "module",
   "main": "dist/index.js",

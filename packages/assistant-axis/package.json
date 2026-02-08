@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-assistant-axis",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "Persona Drift Detection & Identity Stabilization for MUSUBIX - Based on Assistant Axis research",
   "type": "module",
   "main": "./dist/index.js",

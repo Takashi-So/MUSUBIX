@@ -1,6 +1,6 @@
 {
   "name": "@nahisaho/musubix-sdd-ontology",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "MUSUBIX SDD Ontology - Turtle modules for EARS, C4, Traceability",
   "type": "module",
   "main": "./dist/index.js",
