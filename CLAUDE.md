@@ -938,9 +938,14 @@ npx musubix learn best-practices --format markdown
 
 | ドキュメント | 説明 |
 |-------------|------|
-| [docs/INSTALL-GUIDE.md](docs/INSTALL-GUIDE.md) | インストールガイド |
-| [docs/USER-GUIDE.md](docs/USER-GUIDE.md) | ユーザーガイド |
-| [docs/API-REFERENCE.md](docs/API-REFERENCE.md) | APIリファレンス |
+| [docs/user/quickstart.md](docs/user/quickstart.md) | クイックスタートガイド |
+| [docs/user/prompt-guide.md](docs/user/prompt-guide.md) | プロンプトガイド |
+| [docs/user/workflow.md](docs/user/workflow.md) | SDDワークフローガイド |
+| [docs/user/faq.md](docs/user/faq.md) | よくある質問 |
+| [docs/user/tutorial/](docs/user/tutorial/README.md) | チュートリアル |
+| [docs/contributor/architecture.md](docs/contributor/architecture.md) | アーキテクチャ概要 |
+| [docs/contributor/development.md](docs/contributor/development.md) | 開発ガイド |
+| [docs/contributor/api-reference.md](docs/contributor/api-reference.md) | APIリファレンス |
 | [README.md](README.md) | 英語版README |
 | [README.ja.md](README.ja.md) | 日本語版README |
 

@@ -228,7 +228,7 @@ npx @nahisaho/musubix-mcp-server
 | [要件定義書](storage/specs/REQ-MUSUBIX-001.md) | EARS形式の機能・非機能要件 |
 | [設計書](storage/specs/DES-MUSUBIX-001.md) | C4モデル・ADRベースの設計 |
 | [タスク定義書](storage/specs/TSK-MUSUBIX-001.md) | 56タスクのスプリント計画 |
-| [APIリファレンス](docs/API-REFERENCE.md) | 公開API仕様 |
+| [APIリファレンス](docs/contributor/api-reference.md) | 公開API仕様 |
 | [シンボリック統合](storage/specs/REQ-SYMB-001.md) | Neuro-Symbolic要件（27要件） |
 
 ## シンボリック推論モジュール（v1.2.0）

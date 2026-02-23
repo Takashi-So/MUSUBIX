@@ -238,7 +238,7 @@ npx @nahisaho/musubix-mcp-server
 | [Requirements Specification](storage/specs/REQ-MUSUBIX-001.md) | EARS format functional/non-functional requirements |
 | [Design Document](storage/specs/DES-MUSUBIX-001.md) | C4 model and ADR-based design |
 | [Task Definition](storage/specs/TSK-MUSUBIX-001.md) | 56 tasks sprint plan |
-| [API Reference](docs/API-REFERENCE.md) | Public API specification |
+| [API Reference](docs/contributor/api-reference.md) | Public API specification |
 | [Symbolic Integration](storage/specs/REQ-SYMB-001.md) | Neuro-Symbolic requirements (27 requirements) |
 
 ## Symbolic Reasoning Module (v1.2.0)

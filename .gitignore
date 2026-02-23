@@ -48,3 +48,6 @@ storage/changes/*
 # Reference repositories
 References/
 yata-local.db
+
+# CLI generated files
+.musubix_history
