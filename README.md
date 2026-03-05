@@ -8,7 +8,7 @@
 
 ## About This Fork
 
-This fork exists to contribute bug fixes, new features, and documentation improvements back to the original [MUSUBIX](https://github.com/nahisaho/MUSUBIX) project.
+This fork exists to contribute bug fixes, new features, and documentation improvements back to the original [MUSUBIX](https://github.com/nahisaho/MUSUBIX) project, as well as to develop custom extensions for personal use.
 
 **For the full project documentation, please visit the upstream repository:**
 **https://github.com/nahisaho/MUSUBIX**
@@ -28,16 +28,25 @@ MUSUBIX is developed and maintained by [nahisaho](https://github.com/nahisaho). 
 | [`main`](https://github.com/Takashi-So/MUSUBIX/tree/main) | Mirror of upstream `main` (always in sync) |
 | [`develop`](https://github.com/Takashi-So/MUSUBIX/tree/develop) | Personal integration branch (upstream + custom improvements) |
 | `contrib/*` | Contribution branches for upstream PRs (temporary) |
+| `feature/*` | Custom feature branches for personal use (merged into `develop`) |
 | `fork-home` | This branch - fork information display (default branch) |
 
 ---
 
-## Contribution Workflow
+## Workflows
+
+### Contribution (upstream PR)
 
 1. `main` is kept in sync with upstream
 2. Contribution branches (`contrib/*`) are created from `main`
 3. Pull requests are submitted to [nahisaho/MUSUBIX](https://github.com/nahisaho/MUSUBIX)
 4. After merge, contribution branches are deleted
+
+### Custom Features (personal use)
+
+1. Feature branches (`feature/*`) are created from `develop`
+2. After completion, merged into `develop`
+3. These changes are not submitted to upstream
 
 ---
 
@@ -47,7 +56,8 @@ MUSUBIX is developed and maintained by [nahisaho](https://github.com/nahisaho). 
 
 | Branch | Status | Description |
 |--------|--------|-------------|
-| *(none currently)* | - | - |
+| `contrib/context-optimization` | In Progress | Context management optimization for sub-agent architecture |
+| `contrib/docs-restructure` | In Progress | Documentation restructuring and reorganization |
 
 ---
 
